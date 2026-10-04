@@ -444,10 +444,10 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .cl-track{display:flex;width:max-content;animation:clmq 40s linear infinite}
 .cl-mq:hover .cl-track{animation-play-state:paused}
 .cl-track ul{display:flex;list-style:none;margin:0;padding:0}
-.cl-mq{background:var(--paper);padding-block:clamp(26px,3vw,56px)}
+.cl-mq{background:var(--ink);padding-block:clamp(26px,3vw,56px)}
 .cl-track li{display:flex;align-items:center;padding:0 clamp(26px,3vw,60px)}
-.cl-track img{display:block;height:clamp(30px,3.2vw,60px);width:auto;filter:grayscale(1);opacity:.55;transition:filter .4s,opacity .4s}
-.cl-track li:hover img{filter:none;opacity:1}
+.cl-track img{display:block;height:clamp(30px,3.2vw,60px);width:auto;opacity:.6;transition:opacity .4s} /* белые логотипы на чёрном */
+.cl-track li:hover img{opacity:1}
 @keyframes clmq{to{transform:translateX(-50%)}}
 /* награды: проект слева, премии строками справа */
 .ab-awards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-block:clamp(40px,6vw,110px) clamp(56px,8vw,150px);border-top:1px solid var(--line-dark)}
