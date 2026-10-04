@@ -43,7 +43,9 @@ body.c-link #ring{width:64px;height:64px;background:#fff;border-color:#fff}
 /* по макету: над фото и обложкой контурный круг с белой подписью или стрелкой; шоурил и строки кейсов — белый круг */
 body.c-view #ring,body.c-hold #ring,body.c-arrow #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);border-color:#fff}
 body.c-view #ring .t,body.c-hold #ring .t{opacity:1;color:#fff;font:700 clamp(15px,1.3vw,25px)/1.05 var(--body);letter-spacing:0;text-transform:none;text-align:left;max-width:60%}
-body.c-view #ring,body.c-hold #ring{mix-blend-mode:normal} /* белая подпись остаётся белой поверх фото */
+body.c-view #ring,body.c-hold #ring{mix-blend-mode:normal}
+body.c-next #ring{width:clamp(120px,8.6vw,165px);height:clamp(120px,8.6vw,165px);border-color:#fff}
+body.c-next #ring .t{opacity:1;color:#fff;font:500 clamp(13px,.94vw,18px)/1.2 var(--body);letter-spacing:0;text-transform:none;text-align:center} /* «Следующий проект» в курсоре, инвертируется по фону */ /* белая подпись остаётся белой поверх фото */
 body.c-row #ring{width:108px;height:108px;background:#fff;border-color:#fff}
 body.c-row #ring .t{opacity:1}
 body.c-reel #ring{width:104px;height:104px;background:#fff;border-color:#fff}
@@ -141,6 +143,7 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 .nxt-label.on .line:nth-child(2)>span{transition-delay:.08s}
 .nxt-label.hide .line>span{transform:translateY(-110%);transition:transform .45s var(--ease)}
 .nxt-label.hide .narr-w{opacity:0}
+body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следующий проект» показывает курсор над плашкой */
 .next .narr *{stroke:currentColor;stroke-width:1.1;fill:none;vector-effect:non-scaling-stroke}
 
 .next .ntxt b{display:block;font:700 9px/1.15 var(--display);text-transform:uppercase;margin-top:6px;opacity:.6;overflow-wrap:anywhere}
