@@ -610,12 +610,12 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .dir .vis{grid-column:1/-1;grid-row:3;margin-top:8px}
   .dir .card{grid-column:1/-1;grid-row:4;max-width:none;margin-right:0}
   .dir .vlink{display:none}
-  .own-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:28px}
+  .own-grid{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:28px} /* 3 колонки = направляющие фона на телефоне */
   .own .card{grid-column:1/-1;max-width:none;margin-right:0}
-  .proj{grid-column:span 1;padding:0 6px 0 0}
-  .proj:nth-of-type(2){margin-top:72vw} /* разнесены по высоте: второй проект начинается под текстом первого */
-  .proj:nth-of-type(3){margin-top:120px}
-  .proj:nth-of-type(3){grid-column:1/-1;padding:0}
+  .proj{padding:0}
+  .proj:nth-of-type(1){grid-column:1/3}
+  .proj:nth-of-type(2){grid-column:2/4;margin-top:20px} /* лесенкой: со второй направляющей до правого края */
+  .proj:nth-of-type(3){grid-column:1/-1;margin-top:92px}
   .proj:nth-of-type(3) .vis{aspect-ratio:16/10}
   .row{grid-template-columns:40px minmax(0,1fr);row-gap:4px}
   .row .sb{grid-column:2}.row .tg{grid-column:2;justify-self:start}

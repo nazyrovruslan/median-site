@@ -11,7 +11,7 @@ const cover=(k,seed=0)=>k.vid?`url(${k.vid.replace('.mp4','.webp')}) center/cove
 const BLOB={}; let ready=false;
 const HEVC=(()=>{try{return document.createElement('video').canPlayType('video/mp4; codecs="hvc1"')!==''}catch(e){return false}})(); // HEVC легче на ~30% при том же качестве; где не поддерживается — H.264
 const vurl=u=>HEVC?u.replace('.mp4','.hevc.mp4'):u; // видео скачиваются целиком при загрузке страницы и играют из памяти
-const vid=k=>k.vid&&!reduce?`<video class="cv" src="${BLOB[k.vid]||vurl(k.vid)}" poster="${k.vid.replace('.mp4','.webp')}" muted loop playsinline preload="metadata" aria-hidden="true"></video>`:'';
+const vid=k=>k.vid&&!reduce?`<video class="cv" src="${BLOB[k.vid]||vurl(k.vid)}" poster="${k.vid.replace('.mp4','.webp')}?v=2" muted loop playsinline preload="metadata" aria-hidden="true"></video>`:'';
 const playIn=(el,on)=>{const v=el&&el.querySelector('video.cv');if(!v)return;if(on){if(!ready)return;v.preload='auto';v.play().catch(()=>{});}else v.pause();};
 
 /* ---------- hero ---------- */
