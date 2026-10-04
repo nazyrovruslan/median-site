@@ -273,7 +273,7 @@ const BLOCK={
   text:(b,j)=>{const w=b.h.split(' ');return `<section class="grey cb cb-text"><h3 class="d">${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
   yt:b=>`<section class="cb cb-yt"><div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${b.list}&rel=0" title="Плейлист" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></section>`,
   // список выпусков подкаста: номер, тема, гость; ссылка открывает выпуск на YouTube
-  eps:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
+  eps:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
   stats:b=>`<section class="cb cb-stats wrap">${b.items.map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
 function fillCase(id){
@@ -337,6 +337,8 @@ function handoffNext(){
 $('#cNextCover').onclick=handoffNext;
 $('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('#casePanel .sheet');sh.scrollTo({top:$('#cHero').offsetHeight,behavior:'smooth'});});
 // «Следующий проект» приклеен к экрану, линия под фото заполняется, на полном заполнении — переход
+// touch: обложка выпуска в строке у центра экрана, как в списке кейсов
+if(!fine){const sh=$('#casePanel .sheet');sh.addEventListener('scroll',()=>{const cy=innerHeight/2,ls=[...sh.querySelectorAll('.cb-eps li')];const h=ls.find(x=>(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect()));ls.forEach(x=>x.classList.toggle('hover',x===h));},{passive:true});}
 $('#casePanel .sheet').addEventListener('scroll',()=>{
   const nc=$('#cNext'), st=nc.querySelector('.nc-sticky'), r=nc.getBoundingClientRect(), vh=innerHeight;
   if(r.top>vh||r.bottom<0)return;

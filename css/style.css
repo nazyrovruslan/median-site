@@ -498,7 +498,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 @keyframes reelbg{to{background-position:300% 0}}
 
 /* ---------- touch: превью кейса внутри строки у центра экрана ---------- */
-.row .rp{display:none}
+.row .rp,.cb-eps .rp{display:none}
 @media (hover:none){
   .row{position:relative}
   .row:hover,.row.hover{padding-left:0}
@@ -506,6 +506,11 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .row .nm,.row .sb,.row .tg{margin-right:calc(30% + 14px)}
   .row .rp{display:block;position:absolute;right:0;top:50%;translate:0 -50%;width:30%;max-width:140px;aspect-ratio:4/3;background-size:cover;background-position:center;opacity:0;scale:.9;transition:opacity .4s,scale .5s var(--ease);pointer-events:none}
   .row.hover .rp{opacity:1;scale:1}
+  .cb-eps li a{position:relative}
+  .cb-eps li b,.cb-eps li .g{margin-right:calc(30% + 14px)}
+  .cb-eps .rp{display:block;position:absolute;right:0;top:50%;translate:0 -50%;width:30%;max-width:160px;aspect-ratio:16/9;background:#000 center/cover no-repeat;opacity:0;scale:.9;transition:opacity .4s,scale .5s var(--ease);pointer-events:none}
+  .cb-eps li.hover .rp{opacity:1;scale:1}
+  .cb-eps li.hover .ar{opacity:0}
 }
 
 /* ---------- touch devices ---------- */
