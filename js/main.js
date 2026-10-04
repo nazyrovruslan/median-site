@@ -457,7 +457,10 @@ if(fine&&!reduce){
     }
     rx+=(tx-rx)*.22;ry+=(ty-ry)*.22;r.style.transform=`translate(${rx}px,${ry}px)`;
     if(state==='plus'&&stick){const s2=stick.closest('.start').querySelector('.d');if(s2!==sd){if(sd)sd.style.setProperty('--r','0px');sd=s2;}}
-    if(sd&&(state==='plus'||invOn)){const b=sd.getBoundingClientRect();invOn=state==='plus';sd.style.setProperty('--cx',(rx-b.left)+'px');sd.style.setProperty('--cy',(ry-b.top)+'px');sd.style.setProperty('--r',invOn?(r.offsetWidth/2)+'px':'0px');}
+    if(sd&&(state==='plus'||invOn)){invOn=state==='plus';
+      // координаты маски считаем для каждого блока отдельно: у второй строки своя система отсчёта, иначе её вырез смещался и появлялся «второй круг»
+      [sd,...sd.querySelectorAll(':scope>.line')].forEach(el=>{const b=el.getBoundingClientRect();el.style.setProperty('--cx',(rx-b.left)+'px');el.style.setProperty('--cy',(ry-b.top)+'px');});
+      sd.style.setProperty('--r',invOn?(r.offsetWidth/2)+'px':'0px');}
     requestAnimationFrame(loop)})();
   document.addEventListener('pointerover',e=>{
     const t=e.target.closest('[data-c]'); const s=t?t.dataset.c:'';
