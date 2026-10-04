@@ -324,7 +324,7 @@ let handing=false;
 function handoffNext(){
   if(handing)return; handing=true;
   const sheet=$('#casePanel .sheet'), nc=$('#cNext'), i=CASES.findIndex(c=>c.id===openId), n=CASES[(i+1)%CASES.length];
-  const from=$('#cNextCover').getBoundingClientRect(), fly=$('#flyCover'), v=$('#cVis');
+  const from=$('#cNextFrame').getBoundingClientRect(), fly=$('#flyCover'), v=$('#cVis');
   fly.style.background=cover(n,(i+1)%CASES.length);
   fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
   fly.classList.add('on'); nc.classList.add('leaving');
@@ -339,16 +339,18 @@ $('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('
 // «Следующий проект» приклеен к экрану, линия под фото заполняется, на полном заполнении — переход
 // touch: обложка выпуска в строке у центра экрана, как в списке кейсов
 if(!fine){const sh=$('#casePanel .sheet');sh.addEventListener('scroll',()=>{const cy=innerHeight/2,ls=[...sh.querySelectorAll('.cb-eps li')];const h=ls.find(x=>(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect()));ls.forEach(x=>x.classList.toggle('hover',x===h));},{passive:true});}
+const CLIP=CSS.supports('overflow','clip');
 $('#casePanel .sheet').addEventListener('scroll',()=>{
-  const nc=$('#cNext'), st=nc.querySelector('.nc-sticky'), r=nc.getBoundingClientRect(), vh=innerHeight;
+  const sh=$('#casePanel .sheet'), nc=$('#cNext'), st=nc.querySelector('.nc-sticky'), r=nc.getBoundingClientRect(), vh=sh.clientHeight;
   if(r.top>vh||r.bottom<0)return;
-  // без position:sticky — iOS режет его внутри overflow
-  const pin=Math.min(Math.max(0,-r.top),r.height-vh);
-  st.style.transform=`translateY(${pin}px)`;
-  const k=Math.min(1,Math.max(0,-r.top/(r.height-vh)));
+  // прилипание — position:sticky; вручную только в старых браузерах без overflow:clip
+  if(!CLIP)st.style.transform=`translateY(${Math.min(Math.max(0,-r.top),r.height-vh)}px)`;
+  // считаем от высоты самой панели (в Safari innerHeight меняется с панелями); у самого низа — ровно 1
+  const atEnd=sh.scrollTop>=sh.scrollHeight-vh-2;
+  const k=atEnd?1:Math.min(1,Math.max(0,-r.top/(r.height-vh)));
   $('#cNextLine').style.transform=`scaleX(${k.toFixed(3)})`;
   st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото следующего кейса растёт вместе с прокруткой
-  if(k>=.995&&!handing)handoffNext();
+  if(k>=.98&&!handing)handoffNext();
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
 $('[data-case="es"]').addEventListener('click',e=>{e.preventDefault();openCase('es',e.currentTarget.querySelector('.vis'))});

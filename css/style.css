@@ -377,9 +377,14 @@ html.loading #cur,html.loading #ring{opacity:0}
 .cb-stats span{font:400 var(--txt)/1.4 var(--body);color:rgba(243,243,241,.7)}
 /* следующий проект */
 .next-case{position:relative;height:230svh;background:#000;color:var(--paper);overflow:hidden}
-.nc-sticky{position:absolute;left:0;right:0;top:0;height:100svh;overflow:hidden;will-change:transform}
+/* настоящий sticky: прилипание делает браузер, без отставания от прокрутки. overflow:clip не создаёт контейнер прокрутки, поэтому sticky работает */
+.nc-sticky{position:absolute;left:0;right:0;top:0;height:100svh;height:100dvh;overflow:hidden}
 .nc-sticky{--k:0;--l:20.9%;--t:21.5%;--w:58.2%;--h:61.8%} /* --k: насколько дотянули; фото растёт до полного экрана, переход — когда заполнило */
-.nc-cover{position:absolute;left:calc(var(--l) * (1 - var(--k)));top:calc(var(--t) * (1 - var(--k)));width:calc(var(--w) + (100% - var(--w)) * var(--k));height:calc(var(--h) + (100% - var(--h)) * var(--k));background-size:cover;background-position:center;cursor:pointer}
+@supports (overflow:clip){.next-case{overflow:clip}.nc-sticky{position:sticky}}
+/* фото всегда во весь экран и раскрывается обрезкой (clip-path) — без пересчёта размеров и перерисовки на каждом кадре */
+.nc-cover{position:absolute;inset:0;background-size:cover;background-position:center;cursor:pointer;clip-path:inset(calc(var(--t) * (1 - var(--k))) calc((100% - var(--l) - var(--w)) * (1 - var(--k))) calc((100% - var(--t) - var(--h)) * (1 - var(--k))) calc(var(--l) * (1 - var(--k))));will-change:clip-path}
+/* невидимая рамка с теми же размерами — из неё вылетает фото при клике */
+.nc-frame{position:absolute;left:calc(var(--l) * (1 - var(--k)));top:calc(var(--t) * (1 - var(--k)));width:calc(var(--w) + (100% - var(--w)) * var(--k));height:calc(var(--h) + (100% - var(--h)) * var(--k));visibility:hidden;pointer-events:none}
 .nc-in{opacity:calc(1 - var(--k) * 2.2);position:absolute;left:24.8%;top:42%;right:6%;font-size:clamp(28px,5.55vw,107px);line-height:.95;letter-spacing:0;color:var(--paper);pointer-events:none}
 .nc-in.dark{color:var(--ink)}
 .nc-bar{opacity:calc(1 - var(--k) * 3);position:absolute;left:20.9%;width:58.2%;top:calc(83.3% + 14px);height:1px;background:rgba(243,243,241,.25)}
