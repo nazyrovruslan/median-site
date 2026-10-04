@@ -195,7 +195,6 @@ $$('.dir').forEach((s,i)=>{
   s.querySelector('.art').style.background=cover(k,i+3);
   s.querySelector('.cap').textContent=k.name;
   s.querySelector('.vlink').textContent=k.name+(k.year?' '+k.year:'');
-  s.querySelector('.cnt').textContent=String(list.length).padStart(2,'0'); // число кейсов направления, как «15» в макете
 });
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);

@@ -194,7 +194,6 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .grey{background:var(--grey);color:var(--ink);position:relative;isolation:isolate}
 .grey::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(90deg,var(--grey-line) 1px,transparent 1px);background-size:calc((100% - 2*var(--gutter))/5) 100%;background-position:var(--gutter) 0;background-repeat:repeat-x;margin-inline:0}
 .dir{padding-block:clamp(90px,12vw,150px) clamp(60px,9vw,120px);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));column-gap:0;row-gap:24px;align-items:start}
-.dir .cnt{grid-column:1/-1;grid-row:1;font:700 clamp(11px,.88vw,17px) var(--display);margin-bottom:-6px}
 .dir .ttl{grid-column:1/-1;grid-row:2;position:relative;z-index:1;min-width:0;overflow:hidden;pointer-events:none}
 .dir .ttl .d,.vis .ttl-clone .d{font-size:var(--h2)}
 .vis .ttl-clone{position:absolute;margin:0;color:var(--paper);pointer-events:none;z-index:1}
@@ -570,7 +569,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .dir .vlink::after{content:none}
   .dir .vlink::before{content:"";flex:none;width:12px;height:clamp(36px,3.2vw,62px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 62' preserveAspectRatio='none'%3E%3Cpath d='M6 0V60M1 55l5 6 5-6' fill='none' stroke='%230b0b0c' stroke-width='1.1'/%3E%3C/svg%3E") center/100% 100% no-repeat}
   /* «Внутренние» — зеркально: фото слева в край, заголовок со 2-й колонки, карточка справа */
-  .dir[data-dir="internal"] .cnt,.dir[data-dir="internal"] .ttl{grid-column:2/-1}
+  .dir[data-dir="internal"] .ttl{grid-column:2/-1}
   .dir[data-dir="internal"] .vis{grid-column:1/4;margin-right:0;margin-left:calc(-1*var(--gutter))}
   .dir[data-dir="internal"] .card{grid-column:5/6}
   .dir[data-dir="internal"] .vlink{grid-column:4/5;justify-self:start;margin:0 0 0 17px}
