@@ -1,0 +1,157 @@
+# Sveltia CMS (совместим с Decap CMS). Вход: «Sign In with Token» — GitHub-токен с доступом к репозиторию (см. NOTES.md).
+# Каждое сохранение — коммит в main; деплой собирает js/cases.js из content/cases и досоздаёт превью/постеры (tools/).
+backend:
+  name: github
+  repo: nazyrovruslan/median-site
+  branch: main
+  commit_messages:
+    create: "CMS: новый кейс {{slug}}"
+    update: "CMS: правка кейса {{slug}}"
+    delete: "CMS: удалён кейс {{slug}}"
+    uploadMedia: "CMS: загружен файл {{path}}"
+    deleteMedia: "CMS: удалён файл {{path}}"
+
+locale: ru
+site_url: https://nazyrovruslan.github.io/median-site/
+display_url: https://nazyrovruslan.github.io/median-site/
+
+# пути в данных — относительные (сайт живёт в подпапке /median-site/)
+media_folder: media/cases
+public_folder: media/cases
+
+# фото при загрузке сжимаются в webp
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 2400
+          height: 2400
+
+collections:
+  - name: cases
+    label: Кейсы
+    label_singular: кейс
+    folder: content/cases
+    format: json
+    extension: json
+    identifier_field: id
+    slug: "{{id}}"
+    summary: "{{order}} · {{name}}"
+    sortable_fields: [order, name]
+    create: true
+    delete: true
+    fields:
+      - { name: order, label: Порядок, widget: number, value_type: int, hint: "Место в списке: меньше — выше. Первые 5 — в баннере на главной. Шаг 10, чтобы вставлять между." }
+      - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/<id>. После публикации лучше не менять." }
+      - { name: name, label: Название, widget: string }
+      - { name: sub, label: Подзаголовок, widget: string, hint: "Строка в списке кейсов и под заголовком в баннере" }
+      - { name: dir, label: Направление, widget: select, options: [{ label: Внешние, value: external }, { label: Внутренние, value: internal }, { label: Out of the list, value: outlist }, { label: Свой проект, value: own }] }
+      - { name: out, label: "Заголовок: контурное слово", widget: string, required: false, hint: "Первая строка заголовка (контуром). Если ниже заданы «Строки заголовка» — используются они." }
+      - { name: solid, label: "Заголовок: залитое слово", widget: string, required: false }
+      - name: ttl
+        label: Строки заголовка
+        label_singular: строка
+        widget: list
+        required: false
+        hint: "Необязательно: для длинных названий — каждая строка отдельно"
+        fields:
+          - { name: text, label: Текст, widget: string }
+          - { name: outline, label: Контуром, widget: boolean, default: false }
+      - { name: img, label: Фото обложки, widget: image, required: false, hint: "Горизонтальное, от 1920 px" }
+      - { name: vid, label: Видео-обложка, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 без звука, 6–10 с, до 1280 px, до ~1 МБ. Постер и HEVC-версия сделаются сами при деплое" }
+      - { name: reel, label: Видео проекта (ролик), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 со звуком, блок с видео после фактов. Превью и постер сделаются сами" }
+      - { name: light, label: Светлое фото, widget: boolean, required: false, default: false, hint: "Тёмный заголовок в «Следующем проекте»" }
+      - name: c
+        label: Цвета-заглушки (пока фото грузится)
+        widget: list
+        required: false
+        field: { name: color, label: Цвет, widget: color }
+      - { name: client, label: Клиент, widget: string, required: false }
+      - { name: cat, label: Категория, widget: string, required: false, hint: "Если пусто — по направлению" }
+      - { name: city, label: Локация, widget: string, required: false }
+      - { name: year, label: Год, widget: string, required: false }
+      - { name: format, label: Формат, widget: string, required: false }
+      - { name: services, label: Услуги, widget: string, required: false }
+      - { name: lead, label: Лид (цитата под фактами), widget: text, required: false }
+      - name: links
+        label: Сайты проекта
+        widget: list
+        required: false
+        field: { name: url, label: Ссылка, widget: string }
+      - name: blocks
+        label: Секции страницы
+        label_singular: секцию
+        widget: list
+        required: false
+        typeKey: t
+        types:
+          - name: text
+            label: Текст
+            fields:
+              - { name: h, label: Заголовок, widget: string }
+              - { name: text, label: Абзацы, widget: list, field: { name: p, label: Абзац, widget: text } }
+          - name: pairs
+            label: Три фото со словами
+            fields:
+              - name: items
+                label: Фото
+                label_singular: фото
+                widget: list
+                fields:
+                  - { name: img, label: Фото, widget: image }
+                  - { name: word, label: Слово поверх (контуром), widget: string, required: false }
+                  - { name: text, label: Текст рядом, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+          - name: feature
+            label: Заголовок + фото + карточка
+            fields:
+              - { name: out, label: Контурная часть заголовка, widget: string }
+              - { name: solid, label: Залитая часть заголовка, widget: string, required: false }
+              - { name: img, label: Фото, widget: image, required: false }
+              - { name: text, label: Текст карточки, widget: list, field: { name: p, label: Абзац, widget: text } }
+          - name: cut
+            label: Вырезанное фото + текст
+            fields:
+              - { name: img, label: Фото (png/webp с прозрачным фоном), widget: image }
+              - { name: text, label: Абзацы, widget: list, field: { name: p, label: Абзац, widget: text } }
+          - name: stats
+            label: Цифры
+            fields:
+              - name: items
+                label: Цифры
+                label_singular: цифру
+                widget: list
+                fields:
+                  - { name: v, label: Значение, widget: string }
+                  - { name: l, label: Подпись, widget: string }
+          - name: links
+            label: Список ссылок
+            fields:
+              - { name: h, label: Заголовок, widget: string }
+              - name: items
+                label: Ссылки
+                label_singular: ссылку
+                widget: list
+                fields:
+                  - { name: title, label: Название, widget: string }
+                  - { name: sub, label: Подпись, widget: string, required: false }
+                  - { name: url, label: Ссылка, widget: string }
+          - name: yt
+            label: Плейлист YouTube
+            fields:
+              - { name: list, label: ID плейлиста, widget: string, hint: "Часть ссылки после list=" }
+          - name: eps
+            label: Выпуски YouTube
+            fields:
+              - { name: h, label: Заголовок, widget: string }
+              - { name: list, label: ID плейлиста, widget: string }
+              - name: items
+                label: Выпуски
+                label_singular: выпуск
+                widget: list
+                fields:
+                  - { name: id, label: ID видео, widget: string }
+                  - { name: title, label: Тема, widget: string }
+                  - { name: guest, label: Гость, widget: string, required: false }

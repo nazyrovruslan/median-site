@@ -1,0 +1,81 @@
+{
+  "order": 60,
+  "id": "snowbase",
+  "vid": "media/video/snowbase.mp4",
+  "name": "Snow Base",
+  "out": "Snow",
+  "solid": "Base",
+  "dir": "own",
+  "year": "2026",
+  "c": [
+    "#9cc8f0",
+    "#2a5a8c",
+    "#06101c"
+  ],
+  "sub": "Зимний кэмп для лидеров в AI, продуктах и технологиях",
+  "city": "Сочи, «Гранд Отель Поляна»",
+  "format": "Собственное мероприятие, кэмп для C-level",
+  "lead": "Три дня управленческих поединков, воркшопов, хакатона и катания на высоте 2000 метров",
+  "blocks": [
+    {
+      "t": "text",
+      "h": "О проекте",
+      "text": [
+        "Первый зимний кэмп для C-level из мира AI, Machine Learning, Data Science и технологий. Вместо классической конференции — три дня управленческих поединков, воркшопов, хакатона, катания в горах, дискуссий и инженерного нетворкинга на высоте 2000 метров.",
+        "Партнёры-создатели: Сбер, Cloud.ru, X5 Tech, Yandex B2B Tech, Avito.Tech, Газпромбанк.Тех."
+      ]
+    },
+    {
+      "t": "stats",
+      "items": [
+        {
+          "v": "216",
+          "l": "Офлайн-участников, C-level и руководителей в AI"
+        },
+        {
+          "v": "65%",
+          "l": "NPS"
+        },
+        {
+          "v": "3 дня",
+          "l": "Продолжительность"
+        }
+      ]
+    },
+    {
+      "t": "pairs",
+      "items": [
+        {
+          "img": "media/cases/snowbase-2.webp",
+          "word": ""
+        },
+        {
+          "img": "media/cases/snowbase-1.webp",
+          "word": ""
+        },
+        {
+          "img": "media/cases/snowbase-3.webp",
+          "word": ""
+        }
+      ]
+    },
+    {
+      "t": "pairs",
+      "items": [
+        {
+          "img": "media/cases/snowbase-4.webp",
+          "word": ""
+        },
+        {
+          "img": "media/cases/snowbase-5.webp",
+          "word": ""
+        },
+        {
+          "img": "media/cases/snowbase-6.webp",
+          "word": ""
+        }
+      ]
+    }
+  ],
+  "img": "media/cases/snowbase-cover.webp"
+}

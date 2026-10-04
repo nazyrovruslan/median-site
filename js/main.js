@@ -283,7 +283,7 @@ addEventListener('popstate',()=>{const id=caseFromPath(location.pathname),k=CASE
   if(k){caseDepth=Math.max(0,caseDepth-1);if(id!==openId)fillCase(id);document.title=k.name+' — Median';if(!panel.classList.contains('on'))openPanel(panel);}
   else{caseDepth=0;document.title=baseTitle;if(panel.classList.contains('on'))closePanel(panel);}});
 /* страница кейса по макету: обложка (фото слева, заголовок справа) → факты → серые секции → следующий проект */
-const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const esc=t=>String(t??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const P=a=>(a||[]).map(t=>`<p>${esc(t)}</p>`).join('');
 const ttlOf=k=>k.ttl||[[k.out,1],[k.solid,0]].filter(l=>l[0]);
 const ttlHtml=(ls,dark)=>ls.map(([t,o])=>`<span class="ln${o?' o'+(dark?' on-dark':''):''}">${esc(t)}</span>`).join('');
@@ -291,24 +291,25 @@ const ttlHtml=(ls,dark)=>ls.map(([t,o])=>`<span class="ln${o?' o'+(dark?' on-dar
 function fitTitle(el){el.style.fontSize='';const w=el.clientWidth;if(!w)return;let m=0;el.querySelectorAll('.ln').forEach(l=>m=Math.max(m,l.scrollWidth));if(m>w)el.style.fontSize=(parseFloat(getComputedStyle(el).fontSize)*w/m*.98)+'px';}
 const BLOCK={
   cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
-  pairs:b=>`<section class="grey cb cb-pairs">${b.items.map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
-  feature:b=>`<section class="grey cb cb-feat"><h3 class="d"><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure><span class="px"><img src="${b.img}" alt="" loading="lazy"></span><figcaption>${P(b.text)}</figcaption></figure></section>`,
-  text:(b,j)=>{const w=b.h.split(' ');return `<section class="grey cb cb-text"><h3 class="d">${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
+  pairs:b=>`<section class="grey cb cb-pairs">${(b.items||[]).map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
+  feature:b=>`<section class="grey cb cb-feat"><h3 class="d"><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure>${b.img?`<span class="px"><img src="${b.img}" alt="" loading="lazy"></span>`:''}<figcaption>${P(b.text)}</figcaption></figure></section>`,
+  text:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean);return `<section class="grey cb cb-text"><h3 class="d">${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
   yt:b=>`<section class="cb cb-yt"><div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${b.list}&rel=0" title="Плейлист" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></section>`,
   // список выпусков подкаста: номер, тема, гость; ссылка открывает выпуск на YouTube
-  eps:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
+  eps:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
   // список выпусков со ссылками на их страницы (Event Surfing)
-  links:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
+  links:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
   // шоурил кейса со старого median.agency: свой mp4 со звуком, грузится только по нажатию
-  reel:k=>`<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${k.id}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(media/video/reel-${k.id}.webp) center/cover"><video class="ab-tz" src="media/video/reel-${k.id}-teaser.mp4?v=2" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`,
-  stats:b=>`<section class="cb cb-stats wrap">${b.items.map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
+  // reel — путь к mp4; рядом лежат <имя>.webp (постер) и <имя>-teaser.mp4 (превью), их делает tools/media.sh при деплое
+  reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`;},
+  stats:b=>`<section class="cb cb-stats wrap">${(b.items||[]).map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
 // шоурил кейса: беззвучное превью играет, пока блок виден; по клику — полное видео со звуком
 let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const v=$('#cBody .reel-play .ab-tz');if(!v||reduce||!('IntersectionObserver' in window))return;
   v.addEventListener('playing',()=>v.classList.add('on'),{once:true});
   reelIO=new IntersectionObserver(([e])=>{if(e.isIntersecting){v.preload='auto';v.play().catch(()=>{});}else v.pause();},{rootMargin:'100px 0px'});reelIO.observe(v.parentElement);}
 $('#cBody').addEventListener('click',e=>{const b=e.target.closest('.reel-play');if(!b)return;const id=b.dataset.reel,box=b.parentElement;reelIO&&reelIO.disconnect();
-  playFull(box,`media/video/reel-${id}.mp4`,`media/video/reel-${id}.webp`,b.getAttribute('aria-label'));});
+  playFull(box,`${id}.mp4`,`${id}.webp${VV}`,b.getAttribute('aria-label'));});
 // полное видео по клику: элемент создаём сразу в обработчике клика и запускаем play() синхронно (иначе Safari теряет жест);
 // если браузер всё же не даёт звук — играем без звука (включить можно в контролах); если встало на буфере — пинаем ещё раз
 function playFull(box,src,poster,title){const v=document.createElement('video');v.src=src+VV;v.poster=poster;v.controls=true;v.playsInline=true;v.preload='auto';if(title)v.title=title;
@@ -327,7 +328,7 @@ function fillCase(id,split){
   if(links)facts.push(['Сайт',links]);
   let tc=0;
   $('#cBody').innerHTML=`<section class="cb cb-facts wrap"><div class="cf-logo d">${esc(k.client||k.name)}</div><dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
-    (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t](b,b.t==='text'?tc++:0)).join('')+
+    (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   reelTeaser();
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);

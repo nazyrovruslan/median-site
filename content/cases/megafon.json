@@ -1,0 +1,18 @@
+{
+  "order": 40,
+  "id": "megafon",
+  "reel": "media/video/reel-megafon.mp4",
+  "vid": "media/video/megafon.mp4",
+  "img": "media/video/megafon.webp",
+  "name": "MegaFon Bistro 4G",
+  "out": "MegaFon",
+  "solid": "Bistro 4G",
+  "sub": "Корнер МегаФон на Flacon 1170",
+  "dir": "external",
+  "c": [
+    "#8a4dff",
+    "#2fd27a",
+    "#140a2e"
+  ],
+  "client": "МегаФон"
+}

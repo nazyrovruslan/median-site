@@ -1,0 +1,21 @@
+{
+  "order": 50,
+  "id": "vtb",
+  "reel": "media/video/reel-vtb.mp4",
+  "vid": "media/video/vtb.mp4",
+  "name": "VTB F1",
+  "out": "VTB",
+  "solid": "F1",
+  "sub": "Интеграция ВТБ в Гран-при Формулы 1 в Сочи",
+  "dir": "external",
+  "year": "2018",
+  "c": [
+    "#1a46d6",
+    "#00a8ff",
+    "#030a24"
+  ],
+  "client": "ВТБ",
+  "city": "Сочи",
+  "img": "media/cases/vtb-hero.webp",
+  "light": true
+}

@@ -1,0 +1,100 @@
+{
+  "order": 230,
+  "id": "es",
+  "reel": "media/video/reel-es.mp4",
+  "vid": "media/video/es.mp4",
+  "name": "Event Surfing",
+  "out": "Event",
+  "solid": "Surfing",
+  "dir": "own",
+  "c": [
+    "#2fb9d8",
+    "#f3c86b",
+    "#04141b"
+  ],
+  "sub": "Посёрфим тренды в коммуникациях!",
+  "blocks": [
+    {
+      "t": "text",
+      "h": "Описание",
+      "text": [
+        "Event Surfing — это командировка мечты для текущих и потенциальных клиентов агентства. Это возможность оказаться среди своих, вдохновиться морским воздухом и солнцем, узнать сакральные знания от лидеров индустрии событий, бренда работодателя, DevRel и внутрикома.",
+        "Программа состояла из динамичной хайлайт-конференции, организованного нетворкинга, развлекательной вечеринки с живым джазом, посещения музеев, гастрономического ужина и экскурсии на ферму «Краснополянской косметики». Во время события каждый проникся атмосферой города и его уникальными ресурсами для организации корпоративных событий."
+      ]
+    },
+    {
+      "t": "pairs",
+      "items": [
+        {
+          "img": "media/cases/es-0-1.webp",
+          "word": ""
+        },
+        {
+          "img": "media/cases/es-0-2.webp",
+          "word": ""
+        },
+        {
+          "img": "media/cases/es-0-3.webp",
+          "word": ""
+        }
+      ]
+    },
+    {
+      "t": "feature",
+      "out": "Коммуникация",
+      "solid": "",
+      "img": "media/cases/es-feature.webp",
+      "text": [
+        "Сёрфинг отсылает к свободе, движению по волнам и жажде новых впечатлений. Участники Event Surfing свободно мыслят, задают хорошие вопросы, вдохновлены на рост себя, команды, компании и готовы к новым вызовам и открытиям.",
+        "Посёрфим тренды в коммуникациях!"
+      ]
+    },
+    {
+      "t": "links",
+      "h": "Все выпуски",
+      "items": [
+        {
+          "title": "Event Surfing Vol.8",
+          "sub": "",
+          "url": "https://eventsurfing.median.agency/vol8"
+        },
+        {
+          "title": "Event Surfing Vol.7",
+          "sub": "",
+          "url": "https://eventsurfing.median.agency/vol7"
+        },
+        {
+          "title": "Event Surfing Vol.6",
+          "sub": "",
+          "url": "https://eventsurfing.median.agency/vol6"
+        },
+        {
+          "title": "Event Surfing Vol.3",
+          "sub": "2020",
+          "url": "https://eventsurfing.median.agency/2020vol3"
+        },
+        {
+          "title": "Event Surfing Vol.2",
+          "sub": "2019",
+          "url": "https://eventsurfing.median.agency/2019vol2"
+        },
+        {
+          "title": "Event Surfing 2019",
+          "sub": "2019",
+          "url": "https://eventsurfing.median.agency/eventsurfing2019"
+        },
+        {
+          "title": "Event Surfing Vol.1",
+          "sub": "",
+          "url": "https://eventsurfing.median.agency/vol1"
+        }
+      ]
+    }
+  ],
+  "links": [
+    "https://eventsurfing.median.agency/"
+  ],
+  "lead": "Посёрфим тренды в коммуникациях!",
+  "img": "media/cases/es-cover.webp",
+  "light": true
+}

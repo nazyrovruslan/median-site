@@ -1,0 +1,17 @@
+{
+  "order": 170,
+  "id": "wg",
+  "vid": "media/video/wg.mp4",
+  "img": "media/video/wg.webp",
+  "name": "WG Awards",
+  "out": "WG",
+  "solid": "Awards",
+  "sub": "Ежегодная церемония вручения премии",
+  "dir": "external",
+  "c": [
+    "#d9b45a",
+    "#3b2a0c",
+    "#0c0904"
+  ],
+  "client": "Wargaming"
+}

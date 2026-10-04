@@ -1,0 +1,46 @@
+{
+  "order": 260,
+  "id": "hackathon",
+  "name": "Кросс-групповой хакатон",
+  "out": "Кросс-групповой",
+  "solid": "хакатон",
+  "dir": "internal",
+  "c": [
+    "#7a5cff",
+    "#1b1b3a",
+    "#07070f"
+  ],
+  "client": "Четыре компании группы (NDA)",
+  "format": "Межгрупповой продуктовый хакатон",
+  "sub": "Межгрупповой продуктовый хакатон",
+  "blocks": [
+    {
+      "t": "text",
+      "h": "Описание",
+      "text": [
+        "Межгрупповой продуктовый хакатон. Проект был реализован в партнерстве с Russian Hackers"
+      ]
+    },
+    {
+      "t": "pairs",
+      "items": [
+        {
+          "img": "media/cases/hackathon-0-1.webp",
+          "word": ""
+        },
+        {
+          "img": "media/cases/hackathon-0-2.webp",
+          "word": ""
+        }
+      ]
+    },
+    {
+      "t": "text",
+      "h": "Решение",
+      "text": [
+        "NDA"
+      ]
+    }
+  ],
+  "img": "media/cases/hackathon-cover.webp"
+}
