@@ -328,12 +328,12 @@ html.loading #cur,html.loading #ring{opacity:0}
 .slide-bg:has(.cv),.vis .art:has(.cv){animation:none} /* на видео-обложках наезда нет, только на статичных фото */
 /* «наезда» (drift) на статичных обложках больше нет — вместо него параллакс при прокрутке (main.js) */
 /* страница кейса по макету (1920: поля 160, колонки 320) */
-:root{--hv-l:0%;--hv-t:0%;--hv-w:39.4%;--hv-h:84.6%;--ht-l:41.1%;--ht-t:50%;--ht-w:51.3%} /* по макету: обложка слева (757×914 из 1920×1080), заголовок справа; те же цифры — цель для «Следующего проекта» */
+:root{--hb:clamp(28px,4vw,64px);--hs:1.35;--hv-l:0%;--hv-t:0%;--hv-w:39.4%;--hv-h:84.6%;--ht-l:41.1%;--ht-t:50%;--ht-w:51.3%} /* по макету: обложка слева (757×914 из 1920×1080), заголовок справа; те же цифры — цель для «Следующего проекта» */
 .case-hero{position:relative;height:100svh;min-height:520px;isolation:isolate;overflow:hidden;background:#000}
 /* обложка кейса во весь экран, заголовок внизу слева; .split — раскладка из макета (обложка слева, заголовок справа) только на время перехода, потом обложка раскрывается */
 .ch-vis{position:absolute;left:0;top:0;width:100%;height:100%;z-index:-2;background-size:cover;background-position:center;overflow:hidden;transition:left 1s var(--ease),top 1s var(--ease),width 1s var(--ease),height 1s var(--ease)}
 .case-hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.5) 100%);transition:opacity .8s}
-.case-hero-in{position:absolute;left:var(--gutter);top:calc(100% - clamp(28px,4vw,64px));translate:0 -100%;width:var(--ht-w);scale:1.35;transform-origin:0 100%;transition:left 1s var(--ease),top 1s var(--ease),translate 1s var(--ease),scale 1s var(--ease)}
+.case-hero-in{position:absolute;left:var(--gutter);top:calc(100% - var(--hb));translate:0 -100%;width:var(--ht-w);scale:var(--hs);transform-origin:0 100%;transition:left 1s var(--ease),top 1s var(--ease),translate 1s var(--ease),scale 1s var(--ease)}
 .case-hero.split .ch-vis{left:var(--hv-l);top:var(--hv-t);width:var(--hv-w);height:var(--hv-h)}
 .case-hero.split::before{opacity:0}
 .case-hero.split .case-hero-in{left:var(--ht-l);top:var(--ht-t);translate:0 0;scale:1}
@@ -393,17 +393,16 @@ html.loading #cur,html.loading #ring{opacity:0}
 .next-case{position:relative;height:230svh;background:#000;color:var(--paper);overflow:hidden}
 /* настоящий sticky: прилипание делает браузер, без отставания от прокрутки. overflow:clip не создаёт контейнер прокрутки, поэтому sticky работает */
 .nc-sticky{position:absolute;left:0;right:0;top:0;height:100svh;height:100dvh;overflow:hidden}
-.nc-sticky{--k:0;--l:20.9%;--t:21.5%;--w:58.2%;--h:61.8%} /* --k: насколько дотянули; фото растёт до полного экрана, переход — когда заполнило */
+.nc-sticky{--k:0} /* --k: насколько дотянули; старт — раскладка из макета (обложка слева, заголовок справа), к концу обложка раскрыта на весь экран и заголовок внизу слева, как на обложке кейса */
 @supports (overflow:clip){.next-case{overflow:clip}.nc-sticky{position:sticky}}
 /* фото всегда во весь экран и раскрывается обрезкой (clip-path) — без пересчёта размеров и перерисовки на каждом кадре */
-.nc-cover,.nc-frame{position:absolute;left:calc(var(--l) * (1 - var(--k)) + var(--hv-l) * var(--k));top:calc(var(--t) * (1 - var(--k)) + var(--hv-t) * var(--k));width:calc(var(--w) * (1 - var(--k)) + var(--hv-w) * var(--k));height:calc(var(--h) * (1 - var(--k)) + var(--hv-h) * var(--k))}
+.nc-cover,.nc-frame{position:absolute;left:calc(var(--hv-l) * (1 - var(--k)));top:calc(var(--hv-t) * (1 - var(--k)));width:calc(var(--hv-w) + (100% - var(--hv-w)) * var(--k));height:calc(var(--hv-h) + (100% - var(--hv-h)) * var(--k))}
+.nc-sticky::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.5) 100%);opacity:var(--k)}
 .nc-cover{background-size:cover;background-position:center;cursor:pointer} /* при прокрутке фото переезжает на место обложки кейса, заголовок — на место заголовка */
 /* невидимая рамка с теми же размерами — из неё вылетает фото при клике */
 .nc-frame{visibility:hidden;pointer-events:none}
-.nc-sticky{--tl:24.8%;--tt:42%}
-.nc-in{position:absolute;left:calc(var(--tl) * (1 - var(--k)) + var(--ht-l) * var(--k));top:calc(var(--tt) * (1 - var(--k)) + var(--ht-t) * var(--k));width:var(--ht-w);color:var(--paper);pointer-events:none;transition:color .3s}
-.nc-in.dark:not(.out){color:var(--ink)}
-.nc-bar{opacity:calc(1 - var(--k) * 3);position:absolute;left:20.9%;width:58.2%;top:calc(83.3% + 14px);height:1px;background:rgba(243,243,241,.25)}
+.nc-in{position:absolute;z-index:1;left:calc(var(--ht-l) * (1 - var(--k)) + var(--gutter) * var(--k));top:calc(var(--ht-t) * (1 - var(--k)) + (100% - var(--hb)) * var(--k));translate:0 calc(-100% * var(--k));scale:calc(1 + (var(--hs) - 1) * var(--k));transform-origin:0 100%;width:var(--ht-w);color:var(--paper);pointer-events:none}
+.nc-bar{opacity:calc(1 - var(--k) * 3);position:absolute;left:var(--ht-l);width:var(--ht-w);top:calc(var(--hv-h) - 1px);height:1px;background:rgba(243,243,241,.25)}
 .nc-bar span{position:absolute;inset:0;background:var(--paper);transform-origin:0 50%;transform:scaleX(0)}
 .nc-foot{opacity:calc(1 - var(--k) * 3);position:absolute;left:0;right:0;bottom:6.7%;display:flex;justify-content:space-between;align-items:center;gap:16px;font:400 var(--ui) var(--body)}
 .nc-foot span:nth-child(2){color:var(--muted)}
@@ -608,15 +607,13 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .pf1 .pw{left:auto;right:0}
   .cb-feat figcaption{position:relative;width:auto;bottom:auto;margin:-24px 12px 0}
   .cb-stats{grid-template-columns:1fr 1fr}
-  .nc-sticky{--l:var(--gutter);--w:calc(100% - 2*var(--gutter));--t:20%;--h:46%}
-  .nc-sticky{--tl:calc(var(--gutter) + 12px);--tt:36%}
-  .nc-bar{left:var(--gutter);width:calc(100% - 2*var(--gutter));top:calc(66% + 14px)}
+  .nc-bar{top:auto;bottom:16%}
   .nc-foot{flex-wrap:wrap;justify-content:flex-start}
 }
 @media (max-width:820px){
   :root{--h2:clamp(22px,6.2vw,100px);--hv-w:100%;--hv-h:58%;--ht-l:var(--gutter);--ht-t:calc(58% + 28px);--ht-w:calc(100% - 2*var(--gutter))}
   .case-down{bottom:28px}
-  .case-hero-in{scale:1.15}
+  :root{--hs:1}
   /* телефон: раздел «Собственные проекты» прокручивается целиком и уезжает, футер открывается из-под него */
   .own{position:relative;top:auto!important;z-index:1;box-shadow:0 30px 60px rgba(0,0,0,.28)}
   .foot{position:sticky;bottom:0;z-index:0;box-shadow:none}

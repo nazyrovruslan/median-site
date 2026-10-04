@@ -319,7 +319,7 @@ function fillCase(id,split){
     (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t](b,b.t==='text'?tc++:0)).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   reelTeaser();
-  $('#cNextName').innerHTML=ttlHtml(ttlOf(n),!n.light); $('#cNextName').classList.toggle('dark',!!n.light); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
+  $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;
   requestAnimationFrame(()=>{fitTitle($('#cTitle'));fitTitle($('#cNextName'));});
@@ -362,7 +362,7 @@ function handoffNext(){
   const sr=sheet.getBoundingClientRect();
   flyTo(fly,from,{left:sr.left+v.offsetLeft,top:sr.top+v.offsetTop,width:v.offsetWidth,height:v.offsetHeight},300,easeIO,()=>{
     // под летящим фото подменяем контент и мгновенно показываем новую обложку
-    fillCase(n.id,true); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
+    fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;expandHero(350);}));
   });
 }
@@ -389,7 +389,6 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
   const k=atEnd?1:Math.min(1,Math.max(0,-r.top/(r.height-vh)));
   $('#cNextLine').style.transform=`scaleX(${k.toFixed(3)})`;
   st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото и заголовок следующего кейса переезжают на места обложки кейса
-  $('#cNextName').classList.toggle('out',k>.3); // заголовок съезжает с фото на чёрный — становится светлым
   if(k>=.98&&!handing)handoffNext();
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
