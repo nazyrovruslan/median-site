@@ -423,15 +423,15 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closePrev();});
 
 /* ---------- «О нас»: своя страница /about, открывается как кейс ---------- */
 const aboutP=$('#aboutPanel'); let aboutPushed=false;
-const ABOUT_YT='VkP2FBvhqF8';
+// видео о команде: свой файл (с YouTube из облака не скачать); на обложке — короткое превью без звука, по клику — полное видео
 function openAbout(push){if(aboutP.classList.contains('on'))return;
   if(push){history.pushState({about:1},'',ROOT+'about');aboutPushed=true;}
-  document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);}
+  document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce)tz.play().catch(()=>{});}
 function closeAbout(){if(aboutPushed){aboutPushed=false;history.back();return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel(aboutP);}
 $$('#wavesLink,[data-about]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openAbout(true);}));
 $('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollIntoView({behavior:reduce?'auto':'smooth'});});
 // видео о команде: плеер YouTube подгружаем только по клику
-$('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return;$('#aReel').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${ABOUT_YT}?autoplay=1&rel=0&playsinline=1" title="Team median.agency" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;document.body.className=document.body.className.replace(/\bc-\S+/g,'');});
+$('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return;$('#aReel').innerHTML=`<video src="media/video/team.mp4" poster="media/video/team.webp" controls autoplay playsinline preload="auto" title="Team median.agency"></video>`;$('#aReel video').play().catch(()=>{});document.body.className=document.body.className.replace(/\bc-\S+/g,'');});
 const aReelHtml=$('#aReel').innerHTML;
 new IntersectionObserver(([e])=>$('.ab-end').classList.toggle('in',e.isIntersecting),{threshold:.25}).observe($('.ab-end'));
 /* короткая версия видео при наведении (десктоп): у шоурила — в превью рядом с курсором, у блоков с видео — прямо в блоке */

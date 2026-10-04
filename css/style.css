@@ -426,7 +426,9 @@ html.loading #cur,html.loading #ring{opacity:0}
 .panel.on .about .ab-r .rv:nth-child(3){transition-delay:.75s}
 /* видео о команде: 16:9, плеер подгружается по клику */
 .ab-reel{position:relative;aspect-ratio:16/9;background:#000}
-.ab-reel iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ab-reel iframe,.ab-reel>video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.ab-tz{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.6);pointer-events:none}
+.ab-play::before,.ab-play::after,.ab-play-in{z-index:1}
 .ab-play{position:absolute;inset:0;width:100%;border:0;padding:0;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url(../media/about/sea.webp) center 70%/cover;color:var(--paper);cursor:pointer;text-align:left}
 .ab-play-in{position:absolute;left:var(--gutter);bottom:clamp(28px,4vw,72px);display:grid;gap:14px}
 .ab-play .d{font-size:var(--h2);line-height:.95;letter-spacing:0}
