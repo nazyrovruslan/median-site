@@ -273,7 +273,7 @@ const BLOCK={
   text:(b,j)=>{const w=b.h.split(' ');return `<section class="grey cb cb-text"><h3 class="d">${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
   yt:b=>`<section class="cb cb-yt"><div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${b.list}&rel=0" title="Плейлист" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></section>`,
   // список выпусков подкаста: номер, тема, гость; ссылка открывает выпуск на YouTube
-  eps:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
+  eps:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
   stats:b=>`<section class="cb cb-stats wrap">${b.items.map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
 function fillCase(id){
@@ -415,6 +415,9 @@ if(fine&&!reduce)$$('[data-teaser]').forEach(el=>{const inPeek=el.dataset.teaser
   const mk=()=>{if(!v){v=document.createElement('video');v.className='tz';v.src=vurl(el.dataset.teaser);v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';v.setAttribute('aria-hidden','true');}return v;};
   el.addEventListener('mouseenter',()=>{const t=mk();if(inPeek){peek.style.background='#000';peek.replaceChildren(t);peek.classList.add('on','wide');}else if(!t.parentNode)el.prepend(t);t.play().catch(()=>{});el.classList.add('tz-on');});
   el.addEventListener('mouseleave',()=>{if(inPeek)peek.classList.remove('on','wide');if(v)v.pause();el.classList.remove('tz-on');});});
+// выпуски подкаста: при наведении рядом с курсором всплывает обложка выпуска (как у строк кейсов)
+if(fine)$('#cBody').addEventListener('mouseover',e=>{const a=e.target.closest('.cb-eps li a');if(!a||a.contains(e.relatedTarget))return;peek.replaceChildren();peek.style.background=`url(https://i.ytimg.com/vi/${a.dataset.yt}/mqdefault.jpg) center/cover no-repeat, #000`;peek.classList.add('on','wide');});
+if(fine)$('#cBody').addEventListener('mouseout',e=>{const a=e.target.closest('.cb-eps li a');if(!a||a.contains(e.relatedTarget))return;peek.classList.remove('on','wide');});
 // «Start a project» внизу страницы: сначала закрываем «О нас», потом открываем бриф, чтобы не сбить блокировку прокрутки
 $('#aBrief').addEventListener('click',()=>{closeAbout();setTimeout(openBrief,350);});
 
