@@ -527,6 +527,7 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .chips label{border:1px solid var(--line-dark);border-radius:99px;padding:8px 14px;font:500 13px var(--body);letter-spacing:0;text-transform:none;color:var(--paper);cursor:pointer;transition:background .25s,color .25s}
 .chips input:checked+label{background:var(--paper);color:var(--ink)}
 html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline-offset:2px}
+.panel [data-magnet]{will-change:transform;backface-visibility:hidden} /* магнитные кнопки в панелях — на своём слое, иначе при сдвиге в Chrome остаются полосы от старых позиций */
 .send{margin-top:10px;background:var(--paper);color:var(--ink);font:700 13px var(--display);text-transform:uppercase;padding:18px 26px;display:inline-flex;gap:14px}
 .ok{margin-top:22px;padding:16px;border:1px solid var(--paper)}
 
