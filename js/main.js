@@ -304,7 +304,13 @@ let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const v=$('#cB
   v.addEventListener('playing',()=>v.classList.add('on'),{once:true});
   reelIO=new IntersectionObserver(([e])=>{if(e.isIntersecting){v.preload='auto';v.play().catch(()=>{});}else v.pause();},{rootMargin:'100px 0px'});reelIO.observe(v.parentElement);}
 $('#cBody').addEventListener('click',e=>{const b=e.target.closest('.reel-play');if(!b)return;const id=b.dataset.reel,box=b.parentElement;reelIO&&reelIO.disconnect();
-  box.innerHTML=`<video src="media/video/reel-${id}.mp4" poster="media/video/reel-${id}.webp" controls autoplay playsinline preload="auto"></video>`;box.querySelector('video').play().catch(()=>{});document.body.className=document.body.className.replace(/\bc-\S+/g,'');});
+  playFull(box,`media/video/reel-${id}.mp4`,`media/video/reel-${id}.webp`,b.getAttribute('aria-label'));});
+// полное видео по клику: элемент создаём сразу в обработчике клика и запускаем play() синхронно (иначе Safari теряет жест);
+// если браузер всё же не даёт звук — играем без звука (включить можно в контролах); если встало на буфере — пинаем ещё раз
+function playFull(box,src,poster,title){const v=document.createElement('video');v.src=src+VV;v.poster=poster;v.controls=true;v.playsInline=true;v.preload='auto';if(title)v.title=title;
+  box.replaceChildren(v);document.body.className=document.body.className.replace(/\bc-\S+/g,'');let user=false;
+  const go=()=>v.play().catch(err=>{if(err&&err.name==='NotAllowedError'&&!v.muted){v.muted=true;go();}});
+  v.addEventListener('pause',()=>{if(v.readyState>2)user=true;});v.addEventListener('canplay',()=>{if(v.paused&&!user&&!v.ended)go();});go();}
 function fillCase(id,split){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
@@ -458,7 +464,7 @@ function closeAbout(){if(aboutPushed){aboutPushed=false;history.back();return;}h
 $$('#wavesLink,[data-about]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openAbout(true);}));
 $('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollIntoView({behavior:reduce?'auto':'smooth'});});
 // видео о команде: плеер YouTube подгружаем только по клику
-$('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return;$('#aReel').innerHTML=`<video src="media/video/team.mp4" poster="media/video/team.webp" controls autoplay playsinline preload="auto" title="Team median.agency"></video>`;$('#aReel video').play().catch(()=>{});document.body.className=document.body.className.replace(/\bc-\S+/g,'');});
+$('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return;playFull($('#aReel'),'media/video/team.mp4','media/video/team.webp?v=2','Team median.agency');});
 const aReelHtml=$('#aReel').innerHTML;
 new IntersectionObserver(([e])=>$('.ab-end').classList.toggle('in',e.isIntersecting),{threshold:.25}).observe($('.ab-end'));
 /* короткая версия видео при наведении (десктоп): у шоурила — в превью рядом с курсором, у блоков с видео — прямо в блоке */
