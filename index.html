@@ -12,8 +12,8 @@
 <link rel="icon" href="media/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/euclid-circular-a-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/fonts.css?v=8">
-<link rel="stylesheet" href="css/style.css?v=8">
+<link rel="stylesheet" href="css/fonts.css?v=9">
+<link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body>
 <div id="cur"></div>
@@ -190,7 +190,12 @@
     <button class="x" data-close data-c="link" data-stick data-stick-shape="circle" data-magnet aria-label="Закрыть">✕</button>
     <header class="case-hero" id="cHero">
       <div class="ch-vis" id="cVis"></div>
-      <h2 class="d ch-ttl" id="cTitle"></h2>
+      <div class="case-hero-in">
+        <span class="label" id="cCrumb">Кейс</span>
+        <h2 class="d ch-ttl" id="cTitle"></h2>
+        <p class="case-lead" id="cSub"></p>
+        <div class="case-meta"><span id="cDir"></span><span id="cYear"></span></div>
+      </div>
       <button class="case-down" type="button" data-c="link" data-stick data-stick-shape="circle" aria-label="Листать вниз"><svg viewBox="0 0 24 60" aria-hidden="true"><path d="M12 2v54M4 48l8 8 8-8"/></svg></button>
     </header>
     <div class="case-body" id="cBody"></div>
@@ -231,7 +236,7 @@
 </div>
 
 <div class="toast" id="toast" role="status"></div>
-<script src="js/cases.js?v=8" defer></script>
-<script src="js/main.js?v=8" defer></script>
+<script src="js/cases.js?v=9" defer></script>
+<script src="js/main.js?v=9" defer></script>
 </body>
 </html>

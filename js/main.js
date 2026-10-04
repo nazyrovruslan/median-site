@@ -244,6 +244,7 @@ function fillCase(id){
   document.title=k.name+' — Median';
   $('#cVis').style.background=cover(k,i);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
+  $('#cSub').textContent=k.sub||''; $('#cDir').textContent=DIRS[k.dir]; $('#cYear').textContent=k.year||'';
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
   const facts=[['Категория',k.cat||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
   const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗</a>`).join('<br>');
