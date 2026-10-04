@@ -6,12 +6,15 @@ const fine=matchMedia('(pointer: fine)').matches;
 const DIRS={external:'Внешние',internal:'Внутренние',outlist:'Out of the list',own:'Свой проект'};
 const HERO=CASES.slice(0,5);
 const art=(c,seed=0)=>`radial-gradient(120% 90% at ${30+seed*13%50}% ${70-seed*7%40}%, ${c[0]} 0%, transparent 55%), radial-gradient(90% 80% at ${80-seed*11%40}% ${20+seed*9%40}%, ${c[1]} 0%, transparent 60%), ${c[2]}`;
-const cover=(k,seed=0)=>k.vid?`url(${k.vid.replace('.mp4','.webp')}) center/cover no-repeat, ${k.c[2]}`:k.img?`url(${k.img}) center/cover no-repeat, ${k.c[2]}`:art(k.c,seed); // фото кейса, пока его нет — градиент
+const VV='?v=3'; // сброс кэша постеров и видео-обложек
+const thumb=u=>'media/thumb/'+u.split('/').pop().replace(/\.\w+$/,'.webp'); // уменьшенная копия (520 px) для превью
+const poster=k=>k.vid.replace('.mp4','.webp')+VV;
+const cover=(k,seed=0,small)=>{const u=k.vid?poster(k):k.img;return u?`url(${small?thumb(u.replace(VV,'')):u}) center/cover no-repeat, ${k.c[2]}`:art(k.c,seed);}; // фото кейса, пока его нет — градиент
 // видео-обложка поверх фото: играет только видимая, при «уменьшении движения» и в режиме энергосбережения остаётся фото
 const BLOB={}; let ready=false;
 const HEVC=(()=>{try{return document.createElement('video').canPlayType('video/mp4; codecs="hvc1"')!==''}catch(e){return false}})(); // HEVC легче на ~30% при том же качестве; где не поддерживается — H.264
-const vurl=u=>(HEVC?u.replace('.mp4','.hevc.mp4'):u)+'?v=3'; // видео скачиваются целиком при загрузке страницы и играют из памяти
-const vid=k=>k.vid&&!reduce?`<video class="cv" src="${BLOB[k.vid]||vurl(k.vid)}" poster="${k.vid.replace('.mp4','.webp')}?v=3" muted loop playsinline preload="metadata" aria-hidden="true"></video>`:'';
+const vurl=u=>(HEVC?u.replace('.mp4','.hevc.mp4'):u)+VV; // видео скачиваются целиком при загрузке страницы и играют из памяти
+const vid=k=>k.vid&&!reduce?`<video class="cv" src="${BLOB[k.vid]||vurl(k.vid)}" poster="${poster(k)}" muted loop playsinline preload="none" aria-hidden="true"></video>`:'';
 const playIn=(el,on)=>{const v=el&&el.querySelector('video.cv');if(!v)return;if(on){if(!ready)return;v.preload='auto';v.play().catch(()=>{});}else v.pause();};
 
 /* ---------- hero ---------- */
@@ -36,7 +39,8 @@ function go(i,instant){
     cancelAnimationFrame(moveRaf);
     slides.forEach((e,j)=>{e.classList.toggle('on',j===cur);e.style.zIndex=j===cur?1:0;playIn(e,j===cur&&heroSeen&&!$$('.panel.on').length);});
     nxt.classList.remove('moving'); nxt.style.cssText='';
-    $('#nextPrev').style.background=cover(HERO[n1],n1);
+    $('#nextPrev').style.background=cover(HERO[n1],n1,1);
+    {const nv=slides[n1]&&slides[n1].querySelector('video.cv');if(nv&&ready)nv.preload='auto';} // следующий слайд докачиваем заранее
     nxt2.classList.remove('in'); nxt2.style.cssText='';
     lab.classList.remove('hide');lab.classList.add('on');
     $$('.slide-title').forEach((e,j)=>{if(j===cur){e.classList.remove('out');e.classList.add('on');}else if(e.classList.contains('on')){e.classList.remove('on');e.classList.add('out');setTimeout(()=>e.classList.remove('out'),800);}});
@@ -70,8 +74,8 @@ $('#next').onclick=()=>go(cur+1);$('#nxtLabel .narr-w').addEventListener('click'
 let heroSeen=true; // баннер ушёл с экрана — видео на паузе
 if('IntersectionObserver' in window)new IntersectionObserver(([e])=>{heroSeen=e.isIntersecting;$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur&&!$$('.panel.on').length));}).observe($('#hero'));
 go(0,true);
-/* ---------- загрузка: заставка держится, пока не скачаются все видео-обложки (не дольше 15 с) ---------- */
-(()=>{const ld=$('#loader'),urls=[...new Set(CASES.filter(k=>k.vid).map(k=>k.vid))];
+/* ---------- загрузка: заставка держится, пока не скачается видео первого слайда (не дольше 15 с); остальные видео грузятся, когда подъезжают к экрану ---------- */
+(()=>{const ld=$('#loader'),urls=HERO.slice(0,1).filter(k=>k.vid).map(k=>k.vid);
   const got=urls.map(()=>0),tot=urls.map(()=>0);let shown=0;
   const swap=()=>$$('video.cv').forEach(v=>{const u=Object.keys(BLOB).find(u=>v.getAttribute('src')===vurl(u));if(u&&v.paused){v.src=BLOB[u];}});
   const finish=()=>{if(ready)return;ready=true;swap();ld.classList.add('done');document.documentElement.classList.remove('loading');
@@ -180,7 +184,8 @@ if(!fine){
   const mq=$('#reelLink'), wl=$('#wavesLink');
   const centerHit=()=>{
     const mb=mq.getBoundingClientRect(), mc=mb.top+mb.height/2; mq.classList.toggle('reel',Math.abs(mc-innerHeight/2)<innerHeight*.22);
-    { const cy=innerHeight/2, rows=$$('.row'); const row=rows.find(x=>!x.hidden&&(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect())); rows.forEach(x=>{x.classList.toggle('hover',x===row);const v=x.querySelector('.rp video');if(v){if(x===row){v.preload='auto';v.play().catch(()=>{});}else v.pause();}}); }
+    { const cy=innerHeight/2, rows=$$('.row'); const row=rows.find(x=>!x.hidden&&(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect())); if(row&&!row.dataset.rp){row.dataset.rp=1;const i=+row.dataset.i,k=CASES[i],rp=row.querySelector('.rp');rp.style.background=cover(k,i,1);rp.innerHTML=vid(k);} // превью строки грузим, только когда до неё дошли
+    rows.forEach(x=>{x.classList.toggle('hover',x===row);const v=x.querySelector('.rp video');if(v){if(x===row){v.preload='auto';v.play().catch(()=>{});}else v.pause();}}); }
     const b=wl.getBoundingClientRect(), c=b.top+b.height/2, vh=innerHeight;
     // прогресс метаморфозы: 0 — центр фигуры у нижнего края экрана, 1 — в середине; выше середины держим 1
     window.__morphTarget=b.bottom<=0?0:Math.min(1,Math.max(0,(vh-c)/(vh/2)));
@@ -228,9 +233,9 @@ $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.datase
 const rows=$('#rows');
 CASES.forEach((k,i)=>{
   const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
-  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}</span><span class="rp" style="background:${cover(k,i)}">${fine?'':vid(k)}</span>`;
+  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}</span><span class="rp"></span>`;r.dataset.i=i;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
-  r.addEventListener('mouseenter',()=>{peek.innerHTML=vid(k);peek.style.background=cover(k,i);peekAt(r);peek.classList.add('on');const v=peek.querySelector('video');if(v){v.preload='auto';v.play().catch(()=>{});}}); // анимированная обложка, если у кейса есть видео
+  r.addEventListener('mouseenter',()=>{peek.innerHTML=vid(k);peek.style.background=cover(k,i,1);peekAt(r);peek.classList.add('on');const v=peek.querySelector('video');if(v){v.preload='auto';v.play().catch(()=>{});}}); // анимированная обложка, если у кейса есть видео
   r.addEventListener('mouseleave',()=>{peek.classList.remove('on');const v=peek.querySelector('video');v&&v.pause();});
   rows.appendChild(r);
 });
@@ -294,10 +299,10 @@ const BLOCK={
   reel:k=>`<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><video src="media/video/reel-${k.id}.mp4" poster="media/video/reel-${k.id}.webp" controls playsinline preload="none" title="Видео: ${esc(k.name)}"></video></div></section>`,
   stats:b=>`<section class="cb cb-stats wrap">${b.items.map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
-function fillCase(id){
+function fillCase(id,split){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
-  $('#cVis').style.background=cover(k,i);$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap','split');H.offsetWidth;H.classList.remove('snap');$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
+  $('#cVis').style.background=cover(k,i);$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap');H.classList.toggle('split',!!split);H.offsetWidth;H.classList.remove('snap'); // раскладка «обложка слева» — только при переходе со «Следующего проекта»$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
   const facts=[['Категория',k.cat||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
@@ -350,7 +355,7 @@ function handoffNext(){
   const sr=sheet.getBoundingClientRect();
   flyTo(fly,from,{left:sr.left+v.offsetLeft,top:sr.top+v.offsetTop,width:v.offsetWidth,height:v.offsetHeight},300,easeIO,()=>{
     // под летящим фото подменяем контент и мгновенно показываем новую обложку
-    fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
+    fillCase(n.id,true); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;expandHero(350);}));
   });
 }
@@ -443,7 +448,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closePrev();});
 /* ---------- «О нас»: своя страница /about, открывается как кейс ---------- */
 const aboutP=$('#aboutPanel'); let aboutPushed=false;
 // видео о команде: свой файл (с YouTube из облака не скачать); на обложке — короткое превью без звука, по клику — полное видео
-function openAbout(push){if(aboutP.classList.contains('on'))return;
+function openAbout(push){if(aboutP.classList.contains('on'))return;aboutP.querySelectorAll('img[data-src]').forEach(i=>{i.src=i.dataset.src;i.removeAttribute('data-src');}); // фото «О нас» грузим только при открытии
+
   if(push){history.pushState({about:1},'',ROOT+'about');aboutPushed=true;}
   document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce){tz.addEventListener('playing',()=>tz.classList.add('on'),{once:true});tz.play().catch(()=>{});}}
 function closeAbout(){if(aboutPushed){aboutPushed=false;history.back();return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel(aboutP);}
