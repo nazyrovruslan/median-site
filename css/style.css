@@ -439,12 +439,14 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .ab-clients{padding-block:clamp(56px,8vw,150px) clamp(40px,6vw,110px)}
 .ab-clients .cf-logo{margin-bottom:clamp(28px,4vw,70px)}
 /* клиенты — бегущая строка; при наведении название в цвете бренда, строка встаёт */
-.cl-mq{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.cl-mq{overflow:hidden}
 .cl-track{display:flex;width:max-content;animation:clmq 40s linear infinite}
 .cl-mq:hover .cl-track{animation-play-state:paused}
 .cl-track ul{display:flex;list-style:none;margin:0;padding:0}
-.cl-track li{font:700 clamp(26px,3.4vw,64px)/1.2 var(--display);text-transform:uppercase;white-space:nowrap;padding:0 clamp(22px,2.6vw,50px);color:var(--muted);transition:color .35s}
-.cl-track li:hover{color:var(--bc)}
+.cl-mq{background:var(--paper);padding-block:clamp(26px,3vw,56px)}
+.cl-track li{display:flex;align-items:center;padding:0 clamp(26px,3vw,60px)}
+.cl-track img{display:block;height:clamp(30px,3.2vw,60px);width:auto;filter:grayscale(1);opacity:.55;transition:filter .4s,opacity .4s}
+.cl-track li:hover img{filter:none;opacity:1}
 @keyframes clmq{to{transform:translateX(-50%)}}
 /* награды: проект слева, премии строками справа */
 .ab-awards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-block:clamp(40px,6vw,110px) clamp(56px,8vw,150px);border-top:1px solid var(--line-dark)}
@@ -453,7 +455,8 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .cl-head p{margin:0;font:400 var(--txt)/1.4 var(--body);color:var(--muted)}
 /* награды: премии сеткой, у каждой — места и номинации */
 .aw-list{grid-column:3/6;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(36px,4vw,72px) clamp(24px,3vw,56px);align-items:start}
-.aw-g h4{font:700 var(--ui) var(--display);text-transform:uppercase;letter-spacing:.02em;margin:0;padding-bottom:clamp(10px,1vw,16px);border-bottom:1px solid var(--line-dark)}
+.aw-g h4{margin:0;padding-bottom:clamp(12px,1.2vw,20px);border-bottom:1px solid var(--line-dark)}
+.aw-g h4 img{display:block;height:clamp(44px,4.4vw,84px);width:auto}
 .aw-g ul{list-style:none;margin:0;padding:0}
 .aw-g li{padding-top:clamp(14px,1.3vw,24px)}
 .aw-g b{display:block;font:400 var(--lead)/1.2 var(--body)}
