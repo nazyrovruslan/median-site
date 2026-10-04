@@ -515,6 +515,7 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .cb-eps b{font:400 clamp(17px,1.6vw,30px)/1.25 var(--body)}
 .cb-eps .g{font:400 var(--txt)/1.4 var(--body);color:#333}
 .cb-eps .ar{font-size:clamp(16px,1.3vw,24px)}
+@media (min-width:821px){.cb-eps li a{grid-template-columns:repeat(5,minmax(0,1fr));gap:0}.cb-eps li a>*{padding-right:16px}.cb-eps li a>.ar{padding-right:0}.cb-eps .n{grid-column:1}.cb-eps b{grid-column:2/4}.cb-eps .g{grid-column:4}.cb-eps .ar{grid-column:5;justify-self:end}} /* колонки = направляющие фона: номер, название со 2-й линии, подпись с 4-й */
 @media (hover:hover){.cb-eps li a:hover{padding-left:12px}}
 /* обложка подкаста, пока нет фото: название крупно поверх градиента */
 .pod-mark{position:absolute;left:8%;bottom:9%;font-size:clamp(20px,3.2vw,60px);line-height:.95;letter-spacing:0;color:var(--paper);pointer-events:none}
