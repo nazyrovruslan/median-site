@@ -395,7 +395,18 @@ fitRings();document.fonts&&document.fonts.ready.then(fitRings);
 new IntersectionObserver(([e])=>document.body.classList.toggle('scrolled',!e.isIntersecting),{rootMargin:'-120px 0px 0px 0px',threshold:0}).observe($('#hero'));
 
 /* ---------- шоурил и «О нас» (заглушки до появления контента) ---------- */
-$('#reelLink').addEventListener('click',e=>{e.preventDefault();showreel();});
+// шоурил: по клику на бегущую строку открывается превью (короткая версия) у точки клика, на нём кнопка «На весь экран»
+const rp=$('#reelPrev'),rpV=rp.querySelector('video');let rpY=0;
+function openPrev(x,y){if(!rpV.getAttribute('src'))rpV.src=vurl('media/video/showreel-teaser.mp4');
+  const w=rp.offsetWidth,h=rp.offsetHeight,m=16;rp.style.left=Math.max(m,Math.min(innerWidth-w-m,x-w/2))+'px';rp.style.top=Math.max(m,Math.min(innerHeight-h-m,y-h/2))+'px';
+  rp.classList.add('on');rp.setAttribute('aria-hidden','false');rpV.currentTime=0;rpV.play().catch(()=>{});rpY=scrollY;}
+function closePrev(){if(!rp.classList.contains('on'))return;rp.classList.remove('on');rp.setAttribute('aria-hidden','true');rpV.pause();}
+$('#reelLink').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openPrev(e.clientX,e.clientY);});
+rp.querySelector('.rp-full').addEventListener('click',()=>{closePrev();showreel();});
+rp.querySelector('.rp-x').addEventListener('click',closePrev);
+document.addEventListener('click',e=>{if(!rp.contains(e.target))closePrev();});
+addEventListener('scroll',()=>{if(Math.abs(scrollY-rpY)>innerHeight*.4)closePrev();},{passive:true});
+addEventListener('keydown',e=>{if(e.key==='Escape')closePrev();});
 
 /* ---------- «О нас»: своя страница /about, открывается как кейс ---------- */
 const aboutP=$('#aboutPanel'); let aboutPushed=false;
