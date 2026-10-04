@@ -23,7 +23,8 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--ink);color:var(--paper);font:400 15px/1.55 var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
-:focus-visible{outline:2px solid var(--paper);outline-offset:4px}
+:focus-visible{outline:none}
+html.kbd :focus-visible{outline:2px solid var(--paper);outline-offset:4px} /* рамка фокуса только при навигации с клавиатуры (Tab), иначе она висела на крестике после открытия страницы */
 .wrap{padding-inline:var(--gutter)}
 .d{font-family:var(--display);font-weight:700;text-transform:uppercase;line-height:.92;letter-spacing:-.01em;text-wrap:balance;margin:0}
 .o{color:transparent;-webkit-text-stroke:1.3px var(--ink)}
@@ -448,7 +449,7 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .chips input{position:absolute;opacity:0;pointer-events:none}
 .chips label{border:1px solid var(--line-dark);border-radius:99px;padding:8px 14px;font:500 13px var(--body);letter-spacing:0;text-transform:none;color:var(--paper);cursor:pointer;transition:background .25s,color .25s}
 .chips input:checked+label{background:var(--paper);color:var(--ink)}
-.chips input:focus-visible+label{outline:2px solid var(--paper);outline-offset:2px}
+html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline-offset:2px}
 .send{margin-top:10px;background:var(--paper);color:var(--ink);font:700 13px var(--display);text-transform:uppercase;padding:18px 26px;display:inline-flex;gap:14px}
 .ok{margin-top:22px;padding:16px;border:1px solid var(--paper)}
 

@@ -229,6 +229,8 @@ function setFilter(f){
 $$('#filters button').forEach(b=>b.onclick=()=>setFilter(b.dataset.f));
 
 /* ---------- panels ---------- */
+addEventListener('keydown',e=>{if(e.key==='Tab')document.documentElement.classList.add('kbd');});
+addEventListener('pointerdown',()=>document.documentElement.classList.remove('kbd'),{passive:true});
 let lastFocus=null;
 let lockY=0;
 function lockScroll(){lockY=scrollY;document.documentElement.style.overflow='hidden';document.body.style.position='fixed';document.body.style.top=(-lockY)+'px';document.body.style.left='0';document.body.style.right='0';document.body.style.width='100%';}
