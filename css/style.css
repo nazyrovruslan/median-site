@@ -402,7 +402,7 @@ html.loading #cur,html.loading #ring{opacity:0}
 /* невидимая рамка с теми же размерами — из неё вылетает фото при клике */
 .nc-frame{visibility:hidden;pointer-events:none}
 .nc-in{position:absolute;z-index:1;left:calc(var(--ht-l) * (1 - var(--k)) + var(--gutter) * var(--k));top:calc(var(--ht-t) * (1 - var(--k)) + (100% - var(--hb)) * var(--k));translate:0 calc(-100% * var(--k));scale:calc(1 + (var(--hs) - 1) * var(--k));transform-origin:0 100%;width:var(--ht-w);color:var(--paper);pointer-events:none}
-.nc-bar{opacity:calc(1 - var(--k) * 3);position:absolute;left:var(--ht-l);width:var(--ht-w);top:calc(var(--hv-h) - 1px);height:1px;background:rgba(243,243,241,.25)}
+.nc-bar{opacity:calc(1 - max(0, var(--k) - .8) * 5);position:absolute;left:var(--ht-l);width:var(--ht-w);top:calc(var(--hv-h) - 3px);height:3px;background:rgba(243,243,241,.3)} /* полоса перехода: заметная и видна почти до конца прокрутки */
 .nc-bar span{position:absolute;inset:0;background:var(--paper);transform-origin:0 50%;transform:scaleX(0)}
 .nc-foot{opacity:calc(1 - var(--k) * 3);position:absolute;left:0;right:0;bottom:6.7%;display:flex;justify-content:space-between;align-items:center;gap:16px;font:400 var(--ui) var(--body)}
 .nc-foot span:nth-child(2){color:var(--muted)}
