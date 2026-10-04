@@ -436,7 +436,25 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .ab-vals h4{font-size:clamp(20px,1.9vw,38px);line-height:1.05;letter-spacing:0}
 .ab-vals p{margin:0;font:400 clamp(15px,1.25vw,24px)/1.4 var(--body);max-width:22em}
 /* клиенты: как блок фактов кейса */
-.ab-clients ul{grid-column:3/6;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;row-gap:clamp(10px,1.4vw,26px);column-gap:24px}
+.ab-clients{padding-block:clamp(56px,8vw,150px) clamp(40px,6vw,110px)}
+.ab-clients .cf-logo{margin-bottom:clamp(28px,4vw,70px)}
+/* клиенты — бегущая строка; при наведении название в цвете бренда, строка встаёт */
+.cl-mq{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.cl-track{display:flex;width:max-content;animation:clmq 40s linear infinite}
+.cl-mq:hover .cl-track{animation-play-state:paused}
+.cl-track ul{display:flex;list-style:none;margin:0;padding:0}
+.cl-track li{font:700 clamp(26px,3.4vw,64px)/1.2 var(--display);text-transform:uppercase;white-space:nowrap;padding:0 clamp(22px,2.6vw,50px);color:var(--muted);transition:color .35s}
+.cl-track li:hover{color:var(--bc)}
+@keyframes clmq{to{transform:translateX(-50%)}}
+/* награды: проект слева, премии строками справа */
+.ab-awards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-block:clamp(40px,6vw,110px) clamp(56px,8vw,150px);border-top:1px solid var(--line-dark)}
+.aw-list{grid-column:3/6}
+.aw-g+.aw-g{margin-top:clamp(36px,4vw,72px)}
+.aw-g h4{font:400 var(--lead)/1.33 var(--body);margin:0 0 clamp(12px,1.4vw,24px)}
+.aw-g ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-dark)}
+.aw-g li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:16px;padding:clamp(12px,1.2vw,20px) 0;border-bottom:1px solid var(--line-dark);font:400 var(--txt)/1.4 var(--body)}
+.aw-g b{font:700 var(--ui) var(--display);text-transform:uppercase;letter-spacing:.02em}
+.aw-g span{color:var(--muted)}
 /* финал: Start a project */
 .ab-end{border-top:1px solid var(--line-dark)} /* подвал как на главной, но в цветах страницы «О нас» */
 .ab-end.foot{position:relative;bottom:auto;z-index:auto;box-shadow:none}
@@ -456,7 +474,9 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
   .ab-sub{grid-column:1/-1}
   .ab-values{grid-template-columns:minmax(0,1fr)}
   .ab-vals{grid-template-columns:minmax(0,1fr)}
-  .ab-clients ul{grid-column:1/-1}
+  .ab-awards{grid-template-columns:1fr;row-gap:28px}
+  .aw-list{grid-column:1/-1}
+  .aw-g li{grid-template-columns:1fr;gap:2px}
 }
 /* превью шоурила по клику */
 #reelPrev{position:fixed;left:0;top:0;z-index:60;width:clamp(280px,32vw,560px);aspect-ratio:16/9;background:#000;overflow:hidden;opacity:0;scale:.9;visibility:hidden;transition:opacity .35s,scale .5s var(--ease),visibility 0s .5s;box-shadow:0 30px 80px rgba(0,0,0,.45)}
