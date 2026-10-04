@@ -446,7 +446,7 @@ const fitRings=()=>{fitRing();fitRing($('#ringTextA'));fitRing($('#ringTextD'));
 fitRings();document.fonts&&document.fonts.ready.then(fitRings);
 
 /* ---------- logo swap ---------- */
-new IntersectionObserver(([e])=>document.body.classList.toggle('scrolled',!e.isIntersecting),{rootMargin:'-120px 0px 0px 0px',threshold:0}).observe($('#hero'));
+new IntersectionObserver(([e])=>{document.body.classList.toggle('scrolled',!e.isIntersecting);$('#logo').dataset.stickTo=e.isIntersecting?'.lg-word':'.lg-mark';},{rootMargin:'-120px 0px 0px 0px',threshold:0}).observe($('#hero'));
 
 /* ---------- шоурил и «О нас» (заглушки до появления контента) ---------- */
 // шоурил: по клику на бегущую строку открывается превью (короткая версия) у точки клика, на нём кнопка «На весь экран»
