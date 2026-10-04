@@ -418,6 +418,9 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 }
 @media (max-width:820px){
   :root{--h2:clamp(22px,6.2vw,100px)}
+  /* телефон: без шторки — «Собственные проекты» выше экрана и прыгали бы вместе с панелью Safari */
+  .own{position:relative;top:auto!important}
+  .foot{box-shadow:none}
   .live-grid{grid-template-columns:minmax(0,1fr)}
   .waves-link,.live-copy{grid-column:1/-1}
   .waves{max-width:340px}

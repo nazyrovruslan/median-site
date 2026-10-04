@@ -361,7 +361,7 @@ if('IntersectionObserver' in window){
   new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){$('#contact').classList.add('in');}}),{threshold:.35}).observe($('#contact'));
 }else document.documentElement.classList.add('no-io');
 function stickyOwn(){const own=$('#own');own.style.top=Math.min(0,innerHeight-own.offsetHeight)+'px';}
-stickyOwn();addEventListener('resize',stickyOwn);document.fonts&&document.fonts.ready.then(stickyOwn);
+let ownW=innerWidth;stickyOwn();addEventListener('resize',()=>{if(matchMedia('(hover:none)').matches&&innerWidth===ownW)return;ownW=innerWidth;stickyOwn();});document.fonts&&document.fonts.ready.then(stickyOwn);
 
 /* ---------- menu ---------- */
 function toggleMenu(open){document.body.classList.toggle('menu-open',open);$('#burger').setAttribute('aria-expanded',open);$('#menu').setAttribute('aria-hidden',!open);$('#burger').setAttribute('aria-label',open?'Закрыть меню':'Открыть меню');}
