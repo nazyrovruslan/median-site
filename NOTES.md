@@ -59,3 +59,7 @@ Kaspersky — полностью по макету, фото вытащены и
 - Новые кейсы (после первых пяти, которые в баннере): Snow Base, STREAMление (СИБУР), X5 Tech Data Fest, X5 Tech на Mobius, X5 Tech Control Room (CodeFest 2026), X5 Tech на ИТ-Пикнике, X5 Tech Tesseract (HighLoad++ 2025), X5 Tech на Epic Growth, X5 Tech на CodeFest 2025, X5 Tech Shop (Saint HighLoad++ 2023).
 - Дополнены: South HUB ('26 и '25), Альфа-Движ (2024 и итоги 2023), Alfa Contact Day (концепция 2024, фото).
 - Фото — вырезки со страниц PDF (рендер 144 dpi), media/cases/{snowbase,streamlenie,x5*,sh26,sh25,ad24,acd24}-*.webp. Бюджеты из презентации на сайт не выносили.
+
+## Шоурилы кейсов (2026-10-04)
+Полные ролики кейсов взяты из медиатеки старого median.agency (`/wp-json/wp/v2/media?media_type=video`, качать `curl -k`): alfa-dvizh, southhub (SH24 showreel 480p), alfa-battle, alfabattle2, megafon (Bistro4g trailer), vtb, es (Vol.3), kaspersky («НеФорум 2017. Как это было»). Лежат в `media/video/reel-<id>.mp4` (h.264 ≤1280, со звуком) + постер `reel-<id>.webp`; в `cases.js` у кейса флаг `"reel":1` — блок с видео идёт сразу после фактов. Для X5 Tech и других новых кейсов роликов на старом сайте нет.
+Наезд (drift) на статичных обложках убран, вместо него параллакс при прокрутке (главная и кейсы). В превью строк кейсов играет видео-обложка, если она есть.

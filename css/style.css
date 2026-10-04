@@ -325,10 +325,8 @@ html.loading #cur,html.loading #ring{opacity:0}
 .panel .sheet.case{padding:0}
 /* живые обложки: фото и фоны медленно наезжают и смещаются (баннер, направления, обложка кейса) */
 @keyframes drift{0%{scale:1.04;translate:0 0}33%{scale:1.16;translate:-3% -2%}66%{scale:1.12;translate:3% -3%}100%{scale:1.2;translate:-1.5% 2%}}
-.slide-bg.on,.vis .art{animation:drift 12s ease-in-out infinite alternate}
 .slide-bg:has(.cv),.vis .art:has(.cv){animation:none} /* на видео-обложках наезда нет, только на статичных фото */
-@media (pointer:fine){.dir .vis .art,.proj .vis .art{animation:none}} /* десктоп: обложки направлений и собственных проектов без наезда, только магнит и параллакс */
-.vis .art{animation-duration:14s}
+/* «наезда» (drift) на статичных обложках больше нет — вместо него параллакс при прокрутке (main.js) */
 /* страница кейса по макету (1920: поля 160, колонки 320) */
 :root{--hv-l:0%;--hv-t:0%;--hv-w:39.4%;--hv-h:84.6%;--ht-l:41.1%;--ht-t:50%;--ht-w:51.3%} /* по макету: обложка слева (757×914 из 1920×1080), заголовок справа; те же цифры — цель для «Следующего проекта» */
 .case-hero{position:relative;height:100svh;min-height:520px;isolation:isolate;overflow:hidden;background:#000}
@@ -506,6 +504,10 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 /* подкаст: плейлист и список выпусков */
 .cb-yt{background:#000;padding:clamp(40px,6vw,110px) var(--gutter)}
 .yt-frame{position:relative;aspect-ratio:16/9;max-width:1400px;margin:0 auto;background:#111}
+.cb-reel{background:#000;padding:clamp(40px,6vw,110px) var(--gutter)}
+.reel-box{position:relative;aspect-ratio:16/9;max-width:1400px;margin:0 auto;background:#111}
+.reel-box video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.px{display:block;overflow:hidden}.px>img{scale:1.14;translate:0 var(--py,0%);will-change:translate} /* параллакс фото в кейсе: картинка чуть крупнее рамки и едет внутри неё */
 .yt-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .cb-eps{padding-block:clamp(48px,7vw,135px)}
 .cb-eps h3{font-size:var(--h2);line-height:1;letter-spacing:0;margin:0 0 clamp(28px,4vw,72px)}
@@ -548,6 +550,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 
 /* ---------- touch: превью кейса внутри строки у центра экрана ---------- */
 .row .rp,.cb-eps .rp{display:none}
+.row .rp{overflow:hidden}
 @media (hover:none){
   .row{position:relative}
   .row:hover,.row.hover{padding-left:0}

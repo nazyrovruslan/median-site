@@ -180,7 +180,7 @@ if(!fine){
   const mq=$('#reelLink'), wl=$('#wavesLink');
   const centerHit=()=>{
     const mb=mq.getBoundingClientRect(), mc=mb.top+mb.height/2; mq.classList.toggle('reel',Math.abs(mc-innerHeight/2)<innerHeight*.22);
-    { const cy=innerHeight/2, rows=$$('.row'); const row=rows.find(x=>!x.hidden&&(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect())); rows.forEach(x=>x.classList.toggle('hover',x===row)); }
+    { const cy=innerHeight/2, rows=$$('.row'); const row=rows.find(x=>!x.hidden&&(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect())); rows.forEach(x=>{x.classList.toggle('hover',x===row);const v=x.querySelector('.rp video');if(v){if(x===row){v.preload='auto';v.play().catch(()=>{});}else v.pause();}}); }
     const b=wl.getBoundingClientRect(), c=b.top+b.height/2, vh=innerHeight;
     // прогресс метаморфозы: 0 — центр фигуры у нижнего края экрана, 1 — в середине; выше середины держим 1
     window.__morphTarget=b.bottom<=0?0:Math.min(1,Math.max(0,(vh-c)/(vh/2)));
@@ -209,7 +209,12 @@ if(!reduce){
     els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});
     // собственные проекты: заголовок стоит, карточки едут с разной скоростью (вторая быстрее)
     const ob=own.getBoundingClientRect();if(ob.bottom>-100&&ob.top<vh+100){const p=Math.max(-1,Math.min(1,((ob.top+ob.height/2)-vh/2)/(vh/2+ob.height/2)));projs.forEach((e,j)=>e.style.translate=`0 ${(p*amp*[.4,.75,.55][j]).toFixed(1)}px`);}};
-  addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxRun)},{passive:true});addEventListener('resize',pxRun);pxRun();
+  // вместо «наезда»: обложка едет внутри рамки (у .art запас 4% с каждой стороны), фон первого экрана уезжает медленнее страницы
+  const arts=$$('.vis .art'),hero=$('.hero');const pxRun2=()=>{const vh=innerHeight;arts.forEach(a=>{const b=a.parentElement.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;
+    const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));a.style.translate=`0 ${(p*-3.5).toFixed(2)}%`;});
+    const y=scrollY;if(hero&&y<hero.offsetHeight)$$('.slide-bg').forEach(s=>s.style.translate=`0 ${(y*.35).toFixed(1)}px`);};
+  const pxAll=()=>{pxRun();pxRun2();};
+  addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxAll)},{passive:true});addEventListener('resize',pxAll);pxAll();
 }
 $('#art-southhub').style.background=cover(CASES[1],4);$('#art-southhub').innerHTML=vid(CASES[1]);
 // видео-обложки направлений и собственных проектов играют, только пока видны на экране
@@ -223,10 +228,10 @@ $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.datase
 const rows=$('#rows');
 CASES.forEach((k,i)=>{
   const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
-  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}</span><span class="rp" style="background:${cover(k,i)}"></span>`;
+  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}</span><span class="rp" style="background:${cover(k,i)}">${fine?'':vid(k)}</span>`;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
-  r.addEventListener('mouseenter',()=>{peek.replaceChildren();peek.style.background=cover(k,i);peekAt(r);peek.classList.add('on')});
-  r.addEventListener('mouseleave',()=>peek.classList.remove('on'));
+  r.addEventListener('mouseenter',()=>{peek.innerHTML=vid(k);peek.style.background=cover(k,i);peekAt(r);peek.classList.add('on');const v=peek.querySelector('video');if(v){v.preload='auto';v.play().catch(()=>{});}}); // анимированная обложка, если у кейса есть видео
+  r.addEventListener('mouseleave',()=>{peek.classList.remove('on');const v=peek.querySelector('video');v&&v.pause();});
   rows.appendChild(r);
 });
 const peek=$('#peek');
@@ -276,21 +281,23 @@ const ttlHtml=(ls,dark)=>ls.map(([t,o])=>`<span class="ln${o?' o'+(dark?' on-dar
 // строки заголовка не вылезают за свою колонку: длинные названия ужимаем
 function fitTitle(el){el.style.fontSize='';const w=el.clientWidth;if(!w)return;let m=0;el.querySelectorAll('.ln').forEach(l=>m=Math.max(m,l.scrollWidth));if(m>w)el.style.fontSize=(parseFloat(getComputedStyle(el).fontSize)*w/m*.98)+'px';}
 const BLOCK={
-  cut:b=>`<section class="grey cb cb-cut"><img src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
-  pairs:b=>`<section class="grey cb cb-pairs">${b.items.map((it,j)=>`<figure class="pf pf${j%3}"><img src="${it.img}" alt="" loading="lazy"><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
-  feature:b=>`<section class="grey cb cb-feat"><h3 class="d"><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure><img src="${b.img}" alt="" loading="lazy"><figcaption>${P(b.text)}</figcaption></figure></section>`,
+  cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
+  pairs:b=>`<section class="grey cb cb-pairs">${b.items.map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
+  feature:b=>`<section class="grey cb cb-feat"><h3 class="d"><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure><span class="px"><img src="${b.img}" alt="" loading="lazy"></span><figcaption>${P(b.text)}</figcaption></figure></section>`,
   text:(b,j)=>{const w=b.h.split(' ');return `<section class="grey cb cb-text"><h3 class="d">${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
   yt:b=>`<section class="cb cb-yt"><div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${b.list}&rel=0" title="Плейлист" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></section>`,
   // список выпусков подкаста: номер, тема, гость; ссылка открывает выпуск на YouTube
   eps:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
   // список выпусков со ссылками на их страницы (Event Surfing)
   links:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
+  // шоурил кейса со старого median.agency: свой mp4 со звуком, грузится только по нажатию
+  reel:k=>`<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><video src="media/video/reel-${k.id}.mp4" poster="media/video/reel-${k.id}.webp" controls playsinline preload="none" title="Видео: ${esc(k.name)}"></video></div></section>`,
   stats:b=>`<section class="cb cb-stats wrap">${b.items.map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
 function fillCase(id){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
-  $('#cVis').style.background=cover(k,i);$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
+  $('#cVis').style.background=cover(k,i);$('#cVis').style.translate='';$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
   const facts=[['Категория',k.cat||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
@@ -298,7 +305,7 @@ function fillCase(id){
   if(links)facts.push(['Сайт',links]);
   let tc=0;
   $('#cBody').innerHTML=`<section class="cb cb-facts wrap"><div class="cf-logo d">${esc(k.client||k.name)}</div><dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
-    (k.blocks||[]).map(b=>BLOCK[b.t](b,b.t==='text'?tc++:0)).join('')+
+    (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t](b,b.t==='text'?tc++:0)).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),!n.light); $('#cNextName').classList.toggle('dark',!!n.light); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
@@ -351,6 +358,13 @@ $('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('
 // touch: обложка выпуска в строке у центра экрана, как в списке кейсов
 if(!fine){const sh=$('#casePanel .sheet');sh.addEventListener('scroll',()=>{const cy=innerHeight/2,ls=[...sh.querySelectorAll('.cb-eps li')];const h=ls.find(x=>(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect()));ls.forEach(x=>x.classList.toggle('hover',x===h));},{passive:true});}
 const CLIP=CSS.supports('overflow','clip');
+// параллакс в кейсе: обложка уезжает медленнее страницы, фото едут внутри рамок, вырезанные фото и видео — чуть отстают
+if(!reduce){const sh=$('#casePanel .sheet');let q=0;const run=()=>{q=0;const vh=sh.clientHeight,st=sh.scrollTop;
+  if(st<vh)$('#cVis').style.translate=`0 ${(st*.35).toFixed(1)}px`;
+  sh.querySelectorAll('.px>img,[data-pxm]').forEach(el=>{const box=el.dataset.pxm?el:el.parentElement,b=box.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;
+    const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));
+    if(el.dataset.pxm)el.style.translate=`0 ${(p*vh*.12*el.dataset.pxm).toFixed(1)}px`;else el.style.setProperty('--py',(p*-6).toFixed(2)+'%');});};
+  sh.addEventListener('scroll',()=>{if(!q)q=requestAnimationFrame(run)},{passive:true});}
 $('#casePanel .sheet').addEventListener('scroll',()=>{
   const sh=$('#casePanel .sheet'), nc=$('#cNext'), st=nc.querySelector('.nc-sticky'), r=nc.getBoundingClientRect(), vh=sh.clientHeight;
   if(r.top>vh||r.bottom<0)return;
