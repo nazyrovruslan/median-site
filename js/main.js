@@ -6,10 +6,13 @@ const fine=matchMedia('(pointer: fine)').matches;
 const DIRS={external:'Внешние',internal:'Внутренние',outlist:'Out of the list',own:'Свой проект'};
 const HERO=CASES.slice(0,5);
 const art=(c,seed=0)=>`radial-gradient(120% 90% at ${30+seed*13%50}% ${70-seed*7%40}%, ${c[0]} 0%, transparent 55%), radial-gradient(90% 80% at ${80-seed*11%40}% ${20+seed*9%40}%, ${c[1]} 0%, transparent 60%), ${c[2]}`;
-const cover=(k,seed=0)=>k.img?`url(${k.img}) center/cover no-repeat, ${k.c[2]}`:art(k.c,seed); // фото кейса, пока его нет — градиент
+const cover=(k,seed=0)=>k.vid?`url(${k.vid.replace('.mp4','.webp')}) center/cover no-repeat, ${k.c[2]}`:k.img?`url(${k.img}) center/cover no-repeat, ${k.c[2]}`:art(k.c,seed); // фото кейса, пока его нет — градиент
 // видео-обложка поверх фото: играет только видимая, при «уменьшении движения» и в режиме энергосбережения остаётся фото
-const vid=k=>k.vid&&!reduce?`<video class="cv" src="${k.vid}" poster="${k.vid.replace('.mp4','.webp')}" muted loop playsinline preload="metadata" aria-hidden="true"></video>`:'';
-const playIn=(el,on)=>{const v=el&&el.querySelector('video.cv');if(!v)return;if(on){v.preload='auto';v.play().catch(()=>{});}else v.pause();};
+const BLOB={}; let ready=false;
+const HEVC=(()=>{try{return document.createElement('video').canPlayType('video/mp4; codecs="hvc1"')!==''}catch(e){return false}})(); // HEVC легче на ~30% при том же качестве; где не поддерживается — H.264
+const vurl=u=>HEVC?u.replace('.mp4','.hevc.mp4'):u; // видео скачиваются целиком при загрузке страницы и играют из памяти
+const vid=k=>k.vid&&!reduce?`<video class="cv" src="${BLOB[k.vid]||vurl(k.vid)}" poster="${k.vid.replace('.mp4','.webp')}" muted loop playsinline preload="metadata" aria-hidden="true"></video>`:'';
+const playIn=(el,on)=>{const v=el&&el.querySelector('video.cv');if(!v)return;if(on){if(!ready)return;v.preload='auto';v.play().catch(()=>{});}else v.pause();};
 
 /* ---------- hero ---------- */
 const bgs=$('#bgs'), stage=$('#stage'), bars=$('#bars');
@@ -66,7 +69,21 @@ function go(i,instant){
 $('#next').onclick=()=>go(cur+1);$('#nxtLabel .narr-w').addEventListener('click',()=>go(cur+1));
 let heroSeen=true; // баннер ушёл с экрана — видео на паузе
 if('IntersectionObserver' in window)new IntersectionObserver(([e])=>{heroSeen=e.isIntersecting;$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur&&!$$('.panel.on').length));}).observe($('#hero'));
-go(0,true);if(!reduce)tmr=setTimeout(()=>go(cur+1),DUR);
+go(0,true);
+/* ---------- загрузка: заставка держится, пока не скачаются все видео-обложки (не дольше 15 с) ---------- */
+(()=>{const ld=$('#loader'),pct=$('#ldPct'),urls=[...new Set(CASES.filter(k=>k.vid).map(k=>k.vid))];
+  const got=urls.map(()=>0),tot=urls.map(()=>0);let shown=0;
+  const swap=()=>$$('video.cv').forEach(v=>{const u=Object.keys(BLOB).find(u=>v.getAttribute('src')===vurl(u));if(u&&v.paused){v.src=BLOB[u];}});
+  const finish=()=>{if(ready)return;ready=true;swap();ld.classList.add('done');document.documentElement.classList.remove('loading');
+    go(cur,true);if(!reduce)tmr=setTimeout(()=>go(cur+1),DUR);if($('#casePanel').classList.contains('on'))playIn($('#cVis'),true);};
+  const upd=()=>{const p=urls.reduce((a,u,i)=>a+(tot[i]?Math.min(1,got[i]/tot[i]):0),0)/urls.length;
+    if(p>shown){shown=p;pct.textContent=Math.floor(p*100);ld.style.setProperty('--p',p);}};
+  if(reduce||!urls.length||!window.fetch||!window.ReadableStream){finish();return;}
+  setTimeout(finish,15000);
+  Promise.all(urls.map(async(u,i)=>{try{const r=await fetch(vurl(u));if(!r.ok)return;tot[i]=+r.headers.get('content-length')||0;
+    const rd=r.body.getReader(),parts=[];for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);got[i]+=value.length;if(!tot[i])tot[i]=got[i];upd();}
+    BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{pct.textContent='100';ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});
+})();
 let tx=null;$('#hero').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
 $('#hero').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(dx<-50)go(cur+1);tx=null;}); // только справа налево: обратный свайп в iOS занят системным «назад»
 
