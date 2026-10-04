@@ -326,7 +326,8 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 /* ---------- marquee: превью шоурила внутри слова LIVE ---------- */
 .marquee{position:relative}
 .marquee .track>span.o{transition:color .5s}
-.marquee.reel .track>span.o{color:transparent;background:linear-gradient(115deg,#ef3124,#8a4dff 30%,#1db9a8 55%,#ff5a3c 80%,#ef3124);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:reelbg 6s linear infinite;-webkit-text-stroke:1px rgba(243,243,241,.6)}
+@media (hover:none){.marquee.reel .track>span.o{color:transparent;background:linear-gradient(115deg,#ef3124,#8a4dff 30%,#1db9a8 55%,#ff5a3c 80%,#ef3124);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:reelbg 6s linear infinite;-webkit-text-stroke:1px rgba(243,243,241,.6)}
+}
 @keyframes reelbg{to{background-position:300% 0}}
 
 /* ---------- touch: превью кейса внутри строки у центра экрана ---------- */
@@ -343,8 +344,10 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 /* ---------- touch devices ---------- */
 /* waves link */
 .waves-link{grid-column:1/4;display:grid;justify-items:center;color:var(--paper);position:relative}
-.waves-badge{position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(28%,110px);aspect-ratio:1;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;font:700 10px/1.1 var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .4s}
+.waves-badge{display:none;position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(28%,110px);aspect-ratio:1;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;font:700 10px/1.1 var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .4s}
 .waves-link .waves{display:block}
+/* touch-only: превью в LIVE и бейдж «О нас» */
+@media (hover:none){.waves-badge{display:grid}}
 /* touch feedback instead of magnet/cursor */
 @media (hover:none){
   [data-magnet],.row,.proj,.vis,.tlink,.next{transition:transform .15s ease-out}

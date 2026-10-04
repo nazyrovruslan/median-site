@@ -316,7 +316,7 @@ new IntersectionObserver(([e])=>document.body.classList.toggle('scrolled',!e.isI
 
 /* ---------- шоурил и «О нас» (заглушки до появления контента) ---------- */
 $('#reelLink').addEventListener('click',e=>{e.preventDefault();showreel();});
-if(fine){const mq=$('#reelLink');mq.addEventListener('mouseenter',()=>mq.classList.add('reel'));mq.addEventListener('mouseleave',()=>mq.classList.remove('reel'));}
+
 $('#wavesLink').addEventListener('click',e=>{e.preventDefault();document.querySelector('.live-copy').scrollIntoView({behavior:'smooth',block:'center'});});
 
 /* ---------- footer: follow us toggle on tap ---------- */
