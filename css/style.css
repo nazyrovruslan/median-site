@@ -110,8 +110,6 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 .hero-bar{position:absolute;left:var(--strip);right:var(--nxw);bottom:0;height:var(--bar);display:flex;justify-content:space-between;align-items:center;gap:24px;padding:0 var(--pad) 0 4px;font-size:var(--ui);z-index:3}
 .hero-bar>span{flex:1}
 .hero .follow{white-space:nowrap;flex:1}
-.follow{display:flex;gap:18px;align-items:center}
-.follow a{opacity:.75;transition:opacity .2s}.follow a:hover{opacity:1}
 .hero .follow .ic{width:12px;height:12px;display:block}
 .hero .follow .ic *{stroke:currentColor;stroke-width:1.2;fill:none}
 .hero .follow .ic circle{fill:currentColor;stroke:none}

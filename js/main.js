@@ -339,9 +339,10 @@ $('#reelLink').addEventListener('click',e=>{e.preventDefault();showreel();});
 
 $('#wavesLink').addEventListener('click',e=>{e.preventDefault();document.querySelector('.live-copy').scrollIntoView({behavior:'smooth',block:'center'});});
 
-/* ---------- footer: follow us toggle on tap ---------- */
-$('#follow .follow-btn').addEventListener('click',e=>{e.stopPropagation();const f=$('#follow'),o=!f.classList.contains('open');f.classList.toggle('open',o);$('#follow .follow-btn').setAttribute('aria-expanded',o);});
-document.addEventListener('click',e=>{if(!e.target.closest('#follow')){$('#follow').classList.remove('open');$('#follow .follow-btn').setAttribute('aria-expanded','false');}});
+/* ---------- follow us (баннер и футер): ссылки раскрываются при наведении, на тач — по тапу ---------- */
+$$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
+  b.addEventListener('click',e=>{e.stopPropagation();const o=!f.classList.contains('open');f.classList.toggle('open',o);b.setAttribute('aria-expanded',o);});
+  document.addEventListener('click',e=>{if(e.target.closest('.follow')!==f){f.classList.remove('open');b.setAttribute('aria-expanded','false');}});});
 
 /* ---------- footer reveal + curtain ---------- */
 if('IntersectionObserver' in window){
