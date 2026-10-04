@@ -312,7 +312,12 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
 $('[data-case="air"]').addEventListener('click',e=>{e.preventDefault();toast('Страница проекта появится после наполнения')});
-$('#start').onclick=()=>openPanel($('#briefPanel'));
+const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on'))openPanel(b);};
+$('#start').onclick=openBrief;
+// iOS Safari иногда съедает первый тап по кнопке (считает его наведением) — на таче открываем по отпусканию пальца, без синтетического клика
+let st0=null;$('#start').addEventListener('touchstart',e=>{const t=e.touches[0];st0=[t.clientX,t.clientY];},{passive:true});
+$('#start').addEventListener('touchend',e=>{if(!st0)return;const t=e.changedTouches[0],moved=Math.hypot(t.clientX-st0[0],t.clientY-st0[1])>10;st0=null;
+  if(moved||!e.cancelable)return;e.preventDefault();openBrief();});
 $('#brief').addEventListener('submit',e=>{
   e.preventDefault();const f=e.target;
   if(!f.name.value.trim()||!f.contact.value.trim()){toast('Заполните имя и контакт');(f.name.value.trim()?f.contact:f.name).focus();return;}
