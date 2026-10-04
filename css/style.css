@@ -246,7 +246,10 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .proj{grid-column:span 2;display:block;padding:0 9px}
 .proj:nth-of-type(2){margin-top:clamp(60px,9vw,140px)}
 .proj .vis{aspect-ratio:4/5}
-.proj h3{font:700 14px/1.15 var(--display);text-transform:uppercase;margin:14px 0 4px;display:flex;gap:10px}
+.proj h3{font:700 14px/1.15 var(--display);text-transform:uppercase;margin:14px 0 4px;display:flex;align-items:center;gap:12px}
+.proj h3 .pa{flex:none;width:34px;height:10px;fill:none;stroke:currentColor;stroke-width:1.2;vector-effect:non-scaling-stroke} /* по макету: при наведении на проект курсор — контурный круг вокруг этой стрелки */
+body.c-proj.c-stick #ring{background:transparent;border-color:#fff}
+body.c-proj.c-stick #cur{opacity:1}
 .proj p{margin:0;font-size:13px;color:#333;max-width:30ch}
 
 /* ---------- footer ---------- */
