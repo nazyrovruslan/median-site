@@ -225,6 +225,11 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .row[hidden]{display:none}
 #peek{position:fixed;left:0;top:0;width:260px;aspect-ratio:4/3;pointer-events:none;z-index:30;opacity:0;scale:.85;transition:opacity .3s,scale .4s var(--ease);translate:-50% -50%}
 #peek.on{opacity:1;scale:1}
+#peek{overflow:hidden}
+#peek.wide{width:clamp(280px,24vw,460px);aspect-ratio:16/9} /* превью шоурила: короткая версия видео рядом с курсором */
+.tz{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.ab-play .tz{opacity:0;transition:opacity .5s}
+.ab-play.tz-on .tz{opacity:1}
 
 /* ---------- own ---------- */
 .own{padding-block:clamp(90px,12vw,150px)}

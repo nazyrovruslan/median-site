@@ -220,7 +220,7 @@ CASES.forEach((k,i)=>{
   const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
   r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}${k.year?' · '+k.year:''}</span><span class="rp" style="background:${cover(k,i)}"></span>`;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
-  r.addEventListener('mouseenter',()=>{peek.style.background=cover(k,i);peek.classList.add('on')});
+  r.addEventListener('mouseenter',()=>{peek.replaceChildren();peek.style.background=cover(k,i);peek.classList.add('on')});
   r.addEventListener('mouseleave',()=>peek.classList.remove('on'));
   rows.appendChild(r);
 });
@@ -407,6 +407,11 @@ $('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollI
 $('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return;$('#aReel').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${ABOUT_YT}?autoplay=1&rel=0&playsinline=1" title="Team median.agency" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;document.body.className=document.body.className.replace(/\bc-\S+/g,'');});
 const aReelHtml=$('#aReel').innerHTML;
 new IntersectionObserver(([e])=>$('.ab-end').classList.toggle('in',e.isIntersecting),{threshold:.25}).observe($('.ab-end'));
+/* короткая версия видео при наведении (десктоп): у шоурила — в превью рядом с курсором, у блоков с видео — прямо в блоке */
+if(fine&&!reduce)$$('[data-teaser]').forEach(el=>{const inPeek=el.dataset.teaserIn==='peek';let v=null;
+  const mk=()=>{if(!v){v=document.createElement('video');v.className='tz';v.src=vurl(el.dataset.teaser);v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';v.setAttribute('aria-hidden','true');}return v;};
+  el.addEventListener('mouseenter',()=>{const t=mk();if(inPeek){peek.style.background='#000';peek.replaceChildren(t);peek.classList.add('on','wide');}else if(!t.parentNode)el.prepend(t);t.play().catch(()=>{});el.classList.add('tz-on');});
+  el.addEventListener('mouseleave',()=>{if(inPeek)peek.classList.remove('on','wide');if(v)v.pause();el.classList.remove('tz-on');});});
 // «Start a project» внизу страницы: сначала закрываем «О нас», потом открываем бриф, чтобы не сбить блокировку прокрутки
 $('#aBrief').addEventListener('click',()=>{closeAbout();setTimeout(openBrief,350);});
 
