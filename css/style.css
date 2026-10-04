@@ -344,7 +344,7 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 /* ---------- touch devices ---------- */
 /* waves link */
 .waves-link{grid-column:1/4;display:grid;justify-items:center;color:var(--paper);position:relative}
-.waves-badge{display:none;position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(28%,110px);aspect-ratio:1;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;font:700 10px/1.1 var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .4s}
+.waves-badge{display:none;position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(28%,110px);aspect-ratio:1;border-radius:50%;background:#fff;color:#000;place-items:center;font:700 10px/1.1 var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .4s}
 .waves-link .waves{display:block}
 /* touch-only: превью в LIVE и бейдж «О нас» */
 @media (hover:none){.waves-badge{display:grid}}
