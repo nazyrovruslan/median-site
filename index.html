@@ -13,7 +13,7 @@
 <link rel="preload" href="fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/euclid-circular-a-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css?v=10">
-<link rel="stylesheet" href="css/style.css?v=37">
+<link rel="stylesheet" href="css/style.css?v=38">
 </head>
 <body>
 <div id="loader" aria-hidden="true"><div class="ld-mark"><svg class="ld-o" viewBox="802 818 314 283"><path fill-rule="nonzero" fill="currentColor" d="M 1099.386719 875.800781 C 1105.628906 875.800781 1110.707031 880.878906 1110.707031 887.121094 C 1110.707031 893.363281 1105.628906 898.441406 1099.386719 898.441406 C 1093.144531 898.441406 1088.066406 893.363281 1088.066406 887.121094 C 1088.066406 880.878906 1093.144531 875.800781 1099.386719 875.800781 M 1099.386719 901.269531 C 1107.1875 901.269531 1113.539062 894.921875 1113.539062 887.121094 C 1113.539062 879.320312 1107.1875 872.96875 1099.386719 872.96875 C 1091.585938 872.96875 1085.234375 879.320312 1085.234375 887.121094 C 1085.234375 894.921875 1091.585938 901.269531 1099.386719 901.269531 "/>
@@ -64,7 +64,10 @@
     <h1>Median — event-агентство полного цикла. Конференции, корпоративные события и спецпроекты для брендов. Сочи · Москва</h1>
     <button class="hit" id="hit" data-c="hold" data-label="Посмотреть кейс" aria-label="Открыть кейс"></button>
     <div class="hero-stage" id="stage"></div>
-    <a href="#about" class="down" data-c="down" aria-label="Листать вниз">↓</a>
+    <a href="#about" class="down ring-link" data-c="down" data-magnet aria-label="Смотреть дальше">
+      <svg class="circ" viewBox="0 0 150 150" aria-hidden="true"><defs><path id="circD" d="M75,75 m-58,0 a58,58 0 1,1 116,0 a58,58 0 1,1 -116,0"/></defs><text id="ringTextD"><textPath href="#circD"><tspan>Смотреть</tspan><tspan>дальше</tspan><tspan>Смотреть</tspan><tspan>дальше</tspan></textPath></text></svg>
+      <svg class="arr-d" viewBox="0 0 12 40" aria-hidden="true"><path d="M6 0V38"/><path d="M1.5 33l4.5 5 4.5-5"/></svg>
+    </a>
     <div class="hero-bar">
       <div class="follow" id="followHero">
       <button class="follow-btn" type="button" aria-expanded="false" aria-controls="followLinksHero" data-c="link" data-stick data-magnet><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button>
@@ -308,6 +311,6 @@
 
 <div class="toast" id="toast" role="status"></div>
 <script src="js/cases.js?v=13" defer></script>
-<script src="js/main.js?v=38" defer></script>
+<script src="js/main.js?v=39" defer></script>
 </body>
 </html>

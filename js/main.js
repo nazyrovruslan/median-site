@@ -388,7 +388,7 @@ function fitRing(t=$('#ringText')){const tp=t.firstElementChild,ws=[...tp.queryS
   const C=2*Math.PI*58,L=tp.getComputedTextLength(),n=ws.reduce((a,w)=>a+w.textContent.length-1,0);
   let ls=17*.12,gap=(C-L-ls*n)/4; if(gap<ls*3){ls=Math.max(0,(C-L)/(n+12));gap=(C-L-ls*n)/4;}
   ws.forEach(w=>w.setAttribute('dx',[gap,...Array(w.textContent.length-1).fill(ls)].map(v=>v.toFixed(2)).join(' ')));}  // остаток окружности — поровну в 4 промежутка
-const fitRings=()=>{fitRing();fitRing($('#ringTextA'));};
+const fitRings=()=>{fitRing();fitRing($('#ringTextA'));fitRing($('#ringTextD'));};
 fitRings();document.fonts&&document.fonts.ready.then(fitRings);
 
 /* ---------- logo swap ---------- */
