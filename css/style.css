@@ -280,7 +280,7 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 .case-hero.ghost{visibility:hidden}
 .panel.on .scrim{opacity:1}
 .panel.on .sheet{transform:none}
-.x{position:absolute;right:clamp(16px,3vw,32px);top:calc(env(safe-area-inset-top,0px) + 20px);width:44px;height:44px;border:1px solid var(--line-dark);border-radius:50%;font-size:18px}
+.x{position:fixed;z-index:10;mix-blend-mode:difference;color:#fff;border-color:rgba(255,255,255,.5)!important;right:clamp(16px,3vw,32px);top:calc(env(safe-area-inset-top,0px) + 20px);width:44px;height:44px;border:1px solid var(--line-dark);border-radius:50%;font-size:18px}
 .panel .sheet.case{padding:0}
 .case-hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:calc(env(safe-area-inset-top,0px) + 96px) clamp(20px,4vw,48px) clamp(28px,4vw,48px);isolation:isolate}
 .case-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55) 100%)}

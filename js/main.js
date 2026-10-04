@@ -220,11 +220,21 @@ function lockScroll(){lockY=scrollY;document.documentElement.style.overflow='hid
 function unlockScroll(){const h=document.documentElement;h.style.overflow='';document.body.style.position='';document.body.style.top='';document.body.style.left='';document.body.style.right='';document.body.style.width='';h.style.scrollBehavior='auto';scrollTo({top:lockY,left:0,behavior:'instant'});requestAnimationFrame(()=>{h.style.scrollBehavior='';});}
 function openPanel(p){lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
 function closePanel(p){p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
-$$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closePanel(p)}));
-addEventListener('keydown',e=>{if(e.key==='Escape'){$$('.panel.on').forEach(closePanel);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
+const closeAny=p=>p.id==='casePanel'?closeCase():closePanel(p);
+$$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
+addEventListener('keydown',e=>{if(e.key==='Escape'){$$('.panel.on').forEach(closeAny);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
 let openId=null;
+/* у каждого кейса свой адрес: ?case=<id>. Открытие и переход к следующему кейсу добавляют запись в историю, «назад» возвращает к предыдущему кейсу или на главную */
+const baseTitle=document.title; let caseDepth=0;
+const caseUrl=id=>location.pathname+'?case='+encodeURIComponent(id);
+function setCaseUrl(id,push){const st={case:id};if(push){history.pushState(st,'',caseUrl(id));caseDepth++;}else history.replaceState(st,'',caseUrl(id));}
+function closeCase(){if(caseDepth>0){history.go(-caseDepth);return;}history.replaceState(null,'',location.pathname);document.title=baseTitle;closePanel($('#casePanel'));}
+addEventListener('popstate',()=>{const id=new URLSearchParams(location.search).get('case'),k=CASES.find(c=>c.id===id),panel=$('#casePanel');
+  if(k){caseDepth=Math.max(0,caseDepth-1);if(id!==openId)fillCase(id);document.title=k.name+' — Median';if(!panel.classList.contains('on'))openPanel(panel);}
+  else{caseDepth=0;document.title=baseTitle;if(panel.classList.contains('on'))closePanel(panel);}});
 function fillCase(id){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
+  document.title=k.name+' — Median';
   $('#cHero').style.background=art(k.c,i);
   $('#cTitle').innerHTML=`<span class="o on-dark">${k.out}</span><br>${k.solid}`;
   $('#cSub').textContent=k.sub; $('#cDir').textContent=DIRS[k.dir]; $('#cYear').textContent=k.year||'';
@@ -234,8 +244,9 @@ function fillCase(id){
   $('#casePanel .sheet').scrollTop=0;
 }
 // бесшовный переход: обложка (баннер или строка списка) разворачивается в обложку страницы кейса
-function openCase(id,fromEl){
+function openCase(id,fromEl,noPush){
   fillCase(id);
+  if(!noPush)setCaseUrl(id,true);
   const panel=$('#casePanel');
   if(panel.classList.contains('on')||!fromEl||reduce){ if(!panel.classList.contains('on')) openPanel(panel); return; }
   const i=CASES.findIndex(c=>c.id===id), from=fromEl.getBoundingClientRect(), fly=$('#flyCover');
@@ -268,7 +279,7 @@ function handoffNext(){
     fly.style.left=(from.left*(1-k))+'px';fly.style.top=(from.top*(1-k))+'px';fly.style.width=(from.width+(vw-from.width)*k)+'px';fly.style.height=(from.height+(vh-from.height)*k)+'px';
     if(k<1)requestAnimationFrame(step);
     else{ // под летящей обложкой подменяем контент и мгновенно показываем новый hero
-      fillCase(n.id); sheet.scrollTop=0; $('#cNextRing').style.strokeDashoffset='144.5'; nc.querySelector('.nc-sticky').style.transform='';
+      fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; $('#cNextRing').style.strokeDashoffset='144.5'; nc.querySelector('.nc-sticky').style.transform='';
       requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;}));
     }};
   requestAnimationFrame(step);
@@ -383,4 +394,7 @@ if(fine&&!reduce){
     requestAnimationFrame(magLoop);
   })();
 }
+
+/* прямой заход по адресу кейса */
+{const id=new URLSearchParams(location.search).get('case');if(id&&CASES.some(c=>c.id===id)){openCase(id,null,true);setCaseUrl(id,false);}}
 })();
