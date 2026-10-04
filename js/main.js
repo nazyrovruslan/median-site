@@ -14,7 +14,7 @@ const cover=(k,seed=0,small)=>{const u=k.vid?poster(k):k.img;return u?`url(${sma
 const BLOB={}; let ready=false;
 const HEVC=(()=>{try{return document.createElement('video').canPlayType('video/mp4; codecs="hvc1"')!==''}catch(e){return false}})(); // HEVC легче на ~30% при том же качестве; где не поддерживается — H.264
 const vurl=u=>(HEVC?u.replace('.mp4','.hevc.mp4'):u)+VV; // видео скачиваются целиком при загрузке страницы и играют из памяти
-const vid=k=>k.vid&&!reduce?`<video class="cv" src="${BLOB[k.vid]||vurl(k.vid)}" poster="${poster(k)}" muted loop playsinline preload="none" aria-hidden="true"></video>`:'';
+const vid=k=>k.vid&&!reduce?`<video class="cv" src="${BLOB[k.vid]||vurl(k.vid)}" poster="${poster(k)}" muted loop playsinline preload="none" onplaying="this.classList.add('on')" aria-hidden="true"></video>`:'';
 const playIn=(el,on)=>{const v=el&&el.querySelector('video.cv');if(!v)return;if(on){if(!ready)return;v.preload='auto';v.play().catch(()=>{});}else v.pause();};
 
 /* ---------- hero ---------- */
@@ -355,17 +355,12 @@ let handing=false;
 function handoffNext(){
   if(handing)return; handing=true;
   const sheet=$('#casePanel .sheet'), nc=$('#cNext'), i=CASES.findIndex(c=>c.id===openId), n=CASES[(i+1)%CASES.length];
-  const from=$('#cNextFrame').getBoundingClientRect(), fly=$('#flyCover'), v=$('#cVis');
-  fly.style.background=cover(n,(i+1)%CASES.length);
-  fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
-  fly.classList.add('on'); nc.classList.add('leaving');
-  const sr=sheet.getBoundingClientRect();
-  flyTo(fly,from,{left:sr.left+v.offsetLeft,top:sr.top+v.offsetTop,width:v.offsetWidth,height:v.offsetHeight},300,easeIO,()=>{
-    // под летящим фото подменяем контент и мгновенно показываем новую обложку
-    fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;expandHero(350);}));
-  });
+  // к концу прокрутки обложка «Следующего проекта» уже на весь экран, как обложка кейса: подменяем контент в том же кадре, без летящей копии (она мигала тёмным фоном, пока Safari декодировал картинку)
+  fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{handing=false;}));
 }
+// картинку следующего кейса декодируем заранее, пока блок «Следующий проект» подъезжает, — чтобы обложка нового кейса нарисовалась сразу
+let preDec='';function predecodeNext(){const i=CASES.findIndex(c=>c.id===openId),n=CASES[(i+1)%CASES.length],u=n.vid?poster(n):n.img;if(!u||preDec===u)return;preDec=u;const im=new Image();im.src=u;im.decode&&im.decode().catch(()=>{});}
 $('#cNextCover').onclick=handoffNext;
 $('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('#casePanel .sheet');sh.scrollTo({top:$('#cHero').offsetHeight,behavior:'smooth'});});
 // «Следующий проект» приклеен к экрану, линия под фото заполняется, на полном заполнении — переход
@@ -382,6 +377,7 @@ if(!reduce){const sh=$('#casePanel .sheet');let q=0;const run=()=>{q=0;const vh=
 $('#casePanel .sheet').addEventListener('scroll',()=>{
   const sh=$('#casePanel .sheet'), nc=$('#cNext'), st=nc.querySelector('.nc-sticky'), r=nc.getBoundingClientRect(), vh=sh.clientHeight;
   if(r.top>vh||r.bottom<0)return;
+  predecodeNext();
   // прилипание — position:sticky; вручную только в старых браузерах без overflow:clip
   if(!CLIP)st.style.transform=`translateY(${Math.min(Math.max(0,-r.top),r.height-vh)}px)`;
   // считаем от высоты самой панели (в Safari innerHeight меняется с панелями); у самого низа — ровно 1
