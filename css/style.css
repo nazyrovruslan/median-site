@@ -442,6 +442,10 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .ab-end.foot{position:relative;bottom:auto;z-index:auto;box-shadow:none}
 .foot .foot-bar .copy{color:var(--muted)} /* подвал чёрный — на главной и на «О нас» */
 .foot .start .o{-webkit-text-stroke-color:var(--paper)} /* на чёрном фоне контур светлый, в том числе у инвертированной копии под кругом */
+/* подвал «О нас» — серый, как раньше был на главной */
+.foot.grey{background:var(--grey);color:var(--ink);border-top:0}
+.foot.grey .foot-bar .copy{color:#333}
+.foot.grey .start .o{-webkit-text-stroke-color:var(--ink)}
 @media (max-width:820px){
   .ab-hero{grid-template-columns:minmax(0,1fr);row-gap:56px}
   .ab-l,.ab-r{grid-column:1/-1}
