@@ -88,9 +88,9 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 .hero{--strip:max(8.5%,calc(var(--pad) + 96px));--bar:15.5%;--nxw:21%;--nxh:41%;position:relative;height:max(620px,100svh);overflow:hidden;background:var(--ink);isolation:isolate}
 .hero-panel{position:absolute;left:var(--strip);right:0;top:0;bottom:var(--bar);overflow:hidden;background:#141414;z-index:0;isolation:isolate}
 .slide-bg{position:absolute;inset:0;background-size:cover;background-position:center}
-.slide-bg{visibility:hidden}
+.slide-bg{visibility:hidden;will-change:scale}
 .slide-bg.on{visibility:visible}
-.slide-bg::after{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--line-dark) 1px,transparent 1px),linear-gradient(90deg,var(--line-dark) 1px,transparent 1px);background-size:calc(100%/6) calc(100%/4);opacity:.6}
+.hero-panel::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background-image:linear-gradient(var(--line-dark) 1px,transparent 1px),linear-gradient(90deg,var(--line-dark) 1px,transparent 1px);background-size:calc(100%/6) calc(100%/4);opacity:.6}
 .grain{position:absolute;inset:0;pointer-events:none;opacity:.22;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .hero h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .hero-stage{position:absolute;left:0;right:0;top:0;bottom:var(--bar);z-index:8;pointer-events:none}
@@ -276,6 +276,10 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 .panel.on .sheet{transform:none}
 .x{position:fixed;z-index:10;mix-blend-mode:difference;color:#fff;border-color:rgba(255,255,255,.5)!important;right:clamp(16px,3vw,32px);top:calc(env(safe-area-inset-top,0px) + 20px);width:44px;height:44px;border:1px solid var(--line-dark);border-radius:50%;font-size:18px}
 .panel .sheet.case{padding:0}
+/* живые обложки: фото и фоны медленно наезжают и смещаются (баннер, направления, обложка кейса) */
+@keyframes drift{0%{scale:1;translate:0 0}50%{scale:1.09;translate:-1.6% -1%}100%{scale:1.14;translate:1.2% -2%}}
+.slide-bg.on,.vis .art,.ch-vis{animation:drift 22s ease-in-out infinite alternate}
+.vis .art{animation-duration:26s}
 /* страница кейса по макету (1920: поля 160, колонки 320) */
 .case-hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:calc(env(safe-area-inset-top,0px) + 96px) var(--gutter) clamp(28px,4vw,64px);isolation:isolate;overflow:hidden;background:#000}
 .ch-vis{position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center}
