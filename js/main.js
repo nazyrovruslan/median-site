@@ -206,7 +206,7 @@ if(!reduce){
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxRun)},{passive:true});addEventListener('resize',pxRun);pxRun();
 }
 $('#art-southhub').style.background=cover(CASES[1],4);
-$('#art-air').style.background=art(['#b9d66b','#2f6b4f','#0d1a12'],6);
+$('#art-es').style.background=cover(CASES.find(c=>c.id==='es'),6);
 $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
 
 /* ---------- cases index ---------- */
@@ -333,7 +333,7 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
   if(k>=.995&&!handing)handoffNext();
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
-$('[data-case="air"]').addEventListener('click',e=>{e.preventDefault();toast('Страница проекта появится после наполнения')});
+$('[data-case="es"]').addEventListener('click',e=>{e.preventDefault();openCase('es',e.currentTarget.querySelector('.vis'))});
 const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on'))openPanel(b);};
 $('#start').onclick=openBrief;
 // iOS Safari иногда съедает первый тап по кнопке (считает его наведением) — на таче открываем по отпусканию пальца, без синтетического клика
