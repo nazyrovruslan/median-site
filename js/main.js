@@ -84,6 +84,8 @@ go(0,true);
     const rd=r.body.getReader(),parts=[];for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);got[i]+=value.length;if(!tot[i])tot[i]=got[i];upd();}
     BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});
 })();
+// «Смотреть дальше»: на первом экране стрелка в видимой верхней половине кольца, при прокрутке съезжает в центр
+{const dn=$('.down');const f=()=>dn.style.setProperty('--dk',Math.min(1,scrollY/(dn.offsetHeight/2||1)).toFixed(3));addEventListener('scroll',f,{passive:true});f();}
 let tx=null;$('#hero').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
 $('#hero').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(dx<-50)go(cur+1);tx=null;}); // только справа налево: обратный свайп в iOS занят системным «назад»
 
