@@ -412,16 +412,22 @@ if(fine&&!reduce){
   const c=$('#cur'), r=$('#ring'), lab=r.querySelector('.t');
   let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my,state='',stick=null;
   addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;c.style.transform=`translate(${mx}px,${my}px)`;peek.style.transform=`translate(${mx+150}px,${my}px)`;},{passive:true});
+  // «Start a project»: копия надписи с перевёрнутыми контур/заливка, видна только внутри круга курсора
+  const sd=$('#start .d');let invOn=false;
+  if(sd){const inv=document.createElement('span');inv.className='d-inv';inv.setAttribute('aria-hidden','true');inv.innerHTML=sd.innerHTML;inv.querySelectorAll('.line>span').forEach(x=>x.classList.toggle('o'));sd.appendChild(inv);sd.classList.add('inv');}
   (function loop(){
     let tx=mx,ty=my;
     if(stick){ // кольцо прилипает к центру элемента и чуть тянется за курсором
       const b=stick.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
       tx=cx+(mx-cx)*.15;ty=cy+(my-cy)*.15;
       const round=stick.dataset.stickShape==='circle'||stick.classList.contains('plus');
-      if(round){const sz=Math.max(b.width,b.height)+12;r.style.width=r.style.height=sz+'px';r.style.borderRadius='';}
+      if(state==='plus'){r.style.width=r.style.height=r.style.borderRadius='';} // размер круга задаёт CSS (как на баннере)
+      else if(round){const sz=Math.max(b.width,b.height)+12;r.style.width=r.style.height=sz+'px';r.style.borderRadius='';}
       else{r.style.width=(b.width+10)+'px';r.style.height=(b.height+10)+'px';r.style.borderRadius=getComputedStyle(stick).borderRadius;}
     }
-    rx+=(tx-rx)*.22;ry+=(ty-ry)*.22;r.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(loop)})();
+    rx+=(tx-rx)*.22;ry+=(ty-ry)*.22;r.style.transform=`translate(${rx}px,${ry}px)`;
+    if(sd&&(state==='plus'||invOn)){const b=sd.getBoundingClientRect();invOn=state==='plus';sd.style.setProperty('--cx',(rx-b.left)+'px');sd.style.setProperty('--cy',(ry-b.top)+'px');sd.style.setProperty('--r',invOn?(r.offsetWidth/2)+'px':'0px');}
+    requestAnimationFrame(loop)})();
   document.addEventListener('pointerover',e=>{
     const t=e.target.closest('[data-c]'); const s=t?t.dataset.c:'';
     if(s!==state){document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s);}

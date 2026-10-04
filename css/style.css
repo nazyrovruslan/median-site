@@ -46,6 +46,12 @@ body.c-view #ring .t,body.c-hold #ring .t{opacity:1;color:#fff;font:700 clamp(15
 /* курсор во всех состояниях инвертируется по фону (mix-blend difference у #cur и #ring) */
 body.c-next #ring{width:clamp(120px,8.6vw,165px);height:clamp(120px,8.6vw,165px);border-color:#fff}
 body.c-next #ring .t{opacity:1;color:#fff;font:500 clamp(13px,.94vw,18px)/1.2 var(--body);letter-spacing:0;text-transform:none;text-align:center} /* «Следующий проект» в курсоре, инвертируется по фону */
+body.c-plus #ring,body.c-stick.c-plus #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);background:transparent;border-color:#fff} /* «Start a project»: большой контурный круг на плюсе */
+body.c-plus #cur{opacity:0}
+/* буквы под кругом инвертируются: контурные становятся сплошными и наоборот (копия надписи, маски по кругу курсора) */
+.start .d{position:relative;--r:0px;--cx:-999px;--cy:-999px}
+.start .d .d-inv{position:absolute;inset:0;pointer-events:none;-webkit-mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),#000 calc(100% - .5px),transparent 100%);mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),#000 calc(100% - .5px),transparent 100%)}
+.start .d.inv>.line{-webkit-mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),transparent calc(100% - .5px),#000 100%);mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),transparent calc(100% - .5px),#000 100%)}
 body.c-row #ring{width:108px;height:108px;background:#fff;border-color:#fff}
 body.c-row #ring .t{opacity:1}
 body.c-reel #ring{width:104px;height:104px;background:#fff;border-color:#fff}
