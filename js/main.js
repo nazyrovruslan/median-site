@@ -71,18 +71,18 @@ let heroSeen=true; // баннер ушёл с экрана — видео на 
 if('IntersectionObserver' in window)new IntersectionObserver(([e])=>{heroSeen=e.isIntersecting;$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur&&!$$('.panel.on').length));}).observe($('#hero'));
 go(0,true);
 /* ---------- загрузка: заставка держится, пока не скачаются все видео-обложки (не дольше 15 с) ---------- */
-(()=>{const ld=$('#loader'),pct=$('#ldPct'),urls=[...new Set(CASES.filter(k=>k.vid).map(k=>k.vid))];
+(()=>{const ld=$('#loader'),urls=[...new Set(CASES.filter(k=>k.vid).map(k=>k.vid))];
   const got=urls.map(()=>0),tot=urls.map(()=>0);let shown=0;
   const swap=()=>$$('video.cv').forEach(v=>{const u=Object.keys(BLOB).find(u=>v.getAttribute('src')===vurl(u));if(u&&v.paused){v.src=BLOB[u];}});
   const finish=()=>{if(ready)return;ready=true;swap();ld.classList.add('done');document.documentElement.classList.remove('loading');
     go(cur,true);if(!reduce)tmr=setTimeout(()=>go(cur+1),DUR);if($('#casePanel').classList.contains('on'))playIn($('#cVis'),true);};
   const upd=()=>{const p=urls.reduce((a,u,i)=>a+(tot[i]?Math.min(1,got[i]/tot[i]):0),0)/urls.length;
-    if(p>shown){shown=p;pct.textContent=Math.floor(p*100);ld.style.setProperty('--p',p);}};
+    if(p>shown){shown=p;ld.style.setProperty('--p',p);}};
   if(reduce||!urls.length||!window.fetch||!window.ReadableStream){finish();return;}
   setTimeout(finish,15000);
   Promise.all(urls.map(async(u,i)=>{try{const r=await fetch(vurl(u));if(!r.ok)return;tot[i]=+r.headers.get('content-length')||0;
     const rd=r.body.getReader(),parts=[];for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);got[i]+=value.length;if(!tot[i])tot[i]=got[i];upd();}
-    BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{pct.textContent='100';ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});
+    BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});
 })();
 let tx=null;$('#hero').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
 $('#hero').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(dx<-50)go(cur+1);tx=null;}); // только справа налево: обратный свайп в iOS занят системным «назад»
