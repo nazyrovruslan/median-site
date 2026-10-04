@@ -358,7 +358,12 @@ $$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
 
 /* ---------- footer reveal + curtain ---------- */
 if('IntersectionObserver' in window){
-  new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){$('#contact').classList.add('in');}}),{threshold:.35}).observe($('#contact'));
+  // на телефоне футер лежит под разделом «Собственные проекты»: видимая часть — ниже его нижнего края
+  const foot=$('#contact'),own=$('#own');
+  const footIn=()=>{if(foot.classList.contains('in'))return;const f=foot.getBoundingClientRect(),under=getComputedStyle(foot).position==='sticky';
+    const top=Math.max(0,f.top,under?own.getBoundingClientRect().bottom:0),seen=Math.min(innerHeight,f.bottom)-top;
+    if(seen>innerHeight*.35){foot.classList.add('in');removeEventListener('scroll',footIn);}};
+  new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){addEventListener('scroll',footIn,{passive:true});footIn();}else removeEventListener('scroll',footIn);}),{threshold:0}).observe(foot);
 }else document.documentElement.classList.add('no-io');
 function stickyOwn(){const own=$('#own');own.style.top=Math.min(0,innerHeight-own.offsetHeight)+'px';}
 let ownW=innerWidth;stickyOwn();addEventListener('resize',()=>{if(matchMedia('(hover:none)').matches&&innerWidth===ownW)return;ownW=innerWidth;stickyOwn();});document.fonts&&document.fonts.ready.then(stickyOwn);
