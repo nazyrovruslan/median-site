@@ -260,8 +260,9 @@ let lastFocus=null;
 let lockY=0;
 function lockScroll(){lockY=scrollY;document.documentElement.style.overflow='hidden';document.body.style.position='fixed';document.body.style.top=(-lockY)+'px';document.body.style.left='0';document.body.style.right='0';document.body.style.width='100%';}
 function unlockScroll(){const h=document.documentElement;h.style.overflow='';document.body.style.position='';document.body.style.top='';document.body.style.left='';document.body.style.right='';document.body.style.width='';h.style.scrollBehavior='auto';scrollTo({top:lockY,left:0,behavior:'instant'});requestAnimationFrame(()=>{h.style.scrollBehavior='';});}
-function openPanel(p){playIn(p.querySelector('#cVis'),true);$$('.slide-bg video,.vis .art video').forEach(v=>v.pause());lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
-function closePanel(p){p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length){$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));coverVis.forEach(a=>playIn(a,true));}});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
+function openPanel(p){clearTimeout(tmr);if(busy)go(cur,true); // баннер под панелью не листаем: если плашка была в пути — сразу ставим её на место
+  playIn(p.querySelector('#cVis'),true);$$('.slide-bg video,.vis .art video').forEach(v=>v.pause());lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
+function closePanel(p){p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length){if(busy)go(cur,true);restartTimer();$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));coverVis.forEach(a=>playIn(a,true));}});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
 const closeAny=p=>p.id==='casePanel'?closeCase():p.id==='aboutPanel'?closeAbout():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){$$('.panel.on').forEach(closeAny);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
@@ -314,7 +315,8 @@ function playFull(box,src,poster,title){const v=document.createElement('video');
 function fillCase(id,split){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
-  $('#cVis').style.background=cover(k,i);$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap');H.classList.toggle('split',!!split);H.offsetWidth;H.classList.remove('snap'); // раскладка «обложка слева» — только при переходе со «Следующего проекта»$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
+  $('#cVis').style.background=cover(k,i);$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap');H.classList.toggle('split',!!split);H.offsetWidth;H.classList.remove('snap'); // раскладка «обложка слева» — только при переходе со «Следующего проекта»
+  $('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
   const facts=[['Категория',k.cat||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
@@ -362,9 +364,16 @@ function handoffNext(){
   if(handing)return; handing=true;
   const sheet=$('#casePanel .sheet'), nc=$('#cNext'), i=CASES.findIndex(c=>c.id===openId), n=CASES[(i+1)%CASES.length];
   // к концу прокрутки обложка «Следующего проекта» уже на весь экран, как обложка кейса: подменяем контент в том же кадре, без летящей копии (она мигала тёмным фоном, пока Safari декодировал картинку)
-  fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
+  fillCase(n.id); setCaseUrl(n.id,true); scrollHold(sheet); sheet.scrollTop=0; nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{handing=false;}));
 }
+// после перехода гасим инерцию прокрутки (трекпад, тач): иначе она докручивает новый кейс мимо обложки.
+// держим, пока идут колёсные события инерции (но не дольше 1,5 с), и минимум 0,6 с
+let holdUntil=0,holdEnd=0,holdT=0;
+function scrollHold(sh){const t=performance.now();holdUntil=t+600;holdEnd=t+1500;sh.style.overflowY='hidden';clearTimeout(holdT);holdT=setTimeout(()=>releaseHold(sh),600);}
+function releaseHold(sh){const t=performance.now();if(t<holdUntil&&t<holdEnd){clearTimeout(holdT);holdT=setTimeout(()=>releaseHold(sh),holdUntil-t);return;}holdUntil=0;sh.style.overflowY='';}
+$('#casePanel .sheet').addEventListener('wheel',e=>{if(!holdUntil)return;e.preventDefault();holdUntil=Math.max(holdUntil,performance.now()+200);},{passive:false});
+$('#casePanel .sheet').addEventListener('touchmove',e=>{if(holdUntil&&e.cancelable)e.preventDefault();},{passive:false});
 // картинку следующего кейса декодируем заранее, пока блок «Следующий проект» подъезжает, — чтобы обложка нового кейса нарисовалась сразу
 let preDec='';function predecodeNext(){const i=CASES.findIndex(c=>c.id===openId),n=CASES[(i+1)%CASES.length],u=n.vid?poster(n):n.img;if(!u||preDec===u)return;preDec=u;const im=new Image();im.src=u;im.decode&&im.decode().catch(()=>{});}
 $('#cNextCover').onclick=handoffNext;
