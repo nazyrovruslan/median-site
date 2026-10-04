@@ -159,8 +159,8 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .next .narr,.next .ntxt{color:#fff;mix-blend-mode:difference}
 
 
-.down{position:absolute;left:63%;top:100%;translate:-50% -50%;z-index:10;color:var(--paper)}
-.down.ring-link{width:clamp(140px,11vw,210px);margin:0;mix-blend-mode:difference}
+.down{position:absolute;left:63%;top:max(620px,100svh);translate:-50% -50%;z-index:10;color:var(--paper)}
+.down.ring-link{position:absolute;width:clamp(140px,11vw,210px);margin:0;mix-blend-mode:difference}
 .down.ring-link text{font-size:13px} /* кольцо «Смотреть дальше» со стрелкой вниз; центр на нижнем крае экрана — видна верхняя половина */
 .down .arr-d{translate:0 calc(clamp(140px,11vw,210px) / -4);width:12px;height:clamp(26px,2.2vw,42px);display:block;animation:bob 2.4s ease-in-out infinite}
 .down .arr-d *{stroke:var(--paper);stroke-width:1.1;fill:none;vector-effect:non-scaling-stroke}
