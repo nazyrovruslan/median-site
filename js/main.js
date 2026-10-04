@@ -348,10 +348,12 @@ hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDef
 
 
 /* ---------- кольцо «Все проекты»: трекинг подгоняется под длину окружности ---------- */
-function fitRing(){const t=$('#ringText'),tp=t.firstElementChild,ws=[...tp.querySelectorAll('tspan')];t.style.letterSpacing='.12em';
-  ws.forEach(w=>w.removeAttribute('dx'));
-  const C=2*Math.PI*58,L=tp.getComputedTextLength(),gap=Math.max(2,(C-L)/4);
-  ws.forEach(w=>w.setAttribute('dx',gap.toFixed(2)));}  // остаток окружности — поровну в 4 промежутка (dx работает и в Safari)
+function fitRing(){const t=$('#ringText'),tp=t.firstElementChild,ws=[...tp.querySelectorAll('tspan')];
+  // разрядку задаём через dx у каждой буквы, а не letter-spacing: Safari не учитывает letter-spacing в getComputedTextLength, и слово обрезалось
+  t.style.letterSpacing='0';ws.forEach(w=>w.removeAttribute('dx'));
+  const C=2*Math.PI*58,L=tp.getComputedTextLength(),n=ws.reduce((a,w)=>a+w.textContent.length-1,0);
+  let ls=17*.12,gap=(C-L-ls*n)/4; if(gap<ls*3){ls=Math.max(0,(C-L)/(n+12));gap=(C-L-ls*n)/4;}
+  ws.forEach(w=>w.setAttribute('dx',[gap,...Array(w.textContent.length-1).fill(ls)].map(v=>v.toFixed(2)).join(' ')));}  // остаток окружности — поровну в 4 промежутка
 fitRing();document.fonts&&document.fonts.ready.then(fitRing);
 
 /* ---------- logo swap ---------- */
