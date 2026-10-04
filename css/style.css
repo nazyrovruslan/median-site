@@ -572,8 +572,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .own-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:28px}
   .own .card{grid-column:1/-1;max-width:none;margin-right:0}
   .proj{grid-column:span 1;padding:0 6px 0 0}
-  .proj:nth-of-type(2){margin-top:44vw} /* разнесены по высоте: второй проект начинается ниже середины первого */
-  .proj:nth-of-type(3){margin-top:56px}
+  .proj:nth-of-type(2){margin-top:72vw} /* разнесены по высоте: второй проект начинается под текстом первого */
+  .proj:nth-of-type(3){margin-top:120px}
   .proj:nth-of-type(3){grid-column:1/-1;padding:0}
   .proj:nth-of-type(3) .vis{aspect-ratio:16/10}
   .row{grid-template-columns:40px minmax(0,1fr);row-gap:4px}
