@@ -443,7 +443,7 @@ const aboutP=$('#aboutPanel'); let aboutPushed=false;
 // видео о команде: свой файл (с YouTube из облака не скачать); на обложке — короткое превью без звука, по клику — полное видео
 function openAbout(push){if(aboutP.classList.contains('on'))return;
   if(push){history.pushState({about:1},'',ROOT+'about');aboutPushed=true;}
-  document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce)tz.play().catch(()=>{});}
+  document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce){tz.addEventListener('playing',()=>tz.classList.add('on'),{once:true});tz.play().catch(()=>{});}}
 function closeAbout(){if(aboutPushed){aboutPushed=false;history.back();return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel(aboutP);}
 $$('#wavesLink,[data-about]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openAbout(true);}));
 $('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollIntoView({behavior:reduce?'auto':'smooth'});});
