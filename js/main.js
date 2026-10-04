@@ -184,12 +184,12 @@ $$('.dir').forEach((s,i)=>{
 });
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
-/* параллакс превью кейсов в теле сайта (направления, свои проекты): рамка едет медленнее страницы, фото внутри — ещё медленнее */
+/* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок */
 if(!reduce){
-  const px=$$('.dir .vis, .proj .vis').map(v=>({v,a:v.querySelector('.art'),host:v.closest('.dir')||v.closest('.proj')}));let pxQ=0;
-  const pxRun=()=>{pxQ=0;const vh=innerHeight,amp=Math.min(90,vh*.08);px.forEach(({v,a,host})=>{const b=host.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));
-    const sh=p*amp;v.style.translate=`0 ${sh.toFixed(1)}px`;a.style.translate=`0 ${(p*v.offsetHeight*.12).toFixed(1)}px`;
-    const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${(-sh).toFixed(1)}px`;});};
+  const px=$$('.dir').map(d=>({d,els:['.vis','.vlink','.card'].map(q=>d.querySelector(q)),v:d.querySelector('.vis')}));let pxQ=0;
+  const pxRun=()=>{pxQ=0;const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
+    const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2))),sh=(p*amp).toFixed(1);
+    els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});};
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxRun)},{passive:true});addEventListener('resize',pxRun);pxRun();
 }
 $('#art-southhub').style.background=art(CASES[1].c,4);
