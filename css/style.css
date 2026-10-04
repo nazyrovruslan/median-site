@@ -71,7 +71,7 @@ body.touch-cursor #ring{transition:opacity .6s ease;opacity:0;width:96px;height:
 body.touch-cursor #ring .t{transition:none;opacity:1}
 body.touch-cursor #cur{display:none}
 
-.row .n,.row .nm,.row .sb,.rows-tog .rt-t{transition:translate .45s var(--ease)}
+.row .n,.row .nm,.row .sb{transition:translate .45s var(--ease)}
 .row.hover .n,.row.hover .nm,.row.hover .sb{translate:14px 0} /* сдвиг при наведении — translate, не padding: иначе длинные названия переносятся и строки прыгают */
 
 /* ---------- header / menu ---------- */
@@ -711,15 +711,11 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rows-more .row{opacity:0;translate:0 24px;transition:opacity .5s,translate .7s var(--ease),padding .4s var(--ease)}
 .rows-more.open .row{opacity:1;translate:none}
 .rows-more.open .row:nth-child(2){transition-delay:.04s}.rows-more.open .row:nth-child(3){transition-delay:.08s}.rows-more.open .row:nth-child(4){transition-delay:.12s}.rows-more.open .row:nth-child(5){transition-delay:.16s}.rows-more.open .row:nth-child(n+6){transition-delay:.2s}
-.rows-tog{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:center;width:100%;padding:26px 0;border-bottom:1px solid var(--line-dark);text-align:left;color:inherit;transition:padding .4s var(--ease)}
-.rows-tog[hidden]{display:none}
-.rows-tog:hover .rt-t{translate:14px 0}
-.rows-tog .rt-t{font:700 clamp(17px,2.2vw,30px)/1.05 var(--display);text-transform:uppercase}
-.rows-tog .rt-ic{position:relative;width:clamp(44px,3.6vw,64px);aspect-ratio:1;border:1px solid var(--line-dark);border-radius:50%;transition:background .3s,border-color .3s}
-.rows-tog .rt-ic::before,.rows-tog .rt-ic::after{content:"";position:absolute;left:50%;top:50%;width:36%;height:1px;background:var(--paper);translate:-50% -50%;transition:rotate .5s var(--ease),background .3s}
-.rows-tog .rt-ic::after{rotate:90deg}
-.rows-tog[aria-expanded="true"] .rt-ic::after{rotate:0deg}
-.rows-tog:hover .rt-ic{background:var(--paper);border-color:var(--paper)}
-.rows-tog:hover .rt-ic::before,.rows-tog:hover .rt-ic::after{background:var(--ink)}
-@media (max-width:820px){.rows-tog{grid-template-columns:40px minmax(0,1fr) auto;padding:20px 0}}
+.rows-tog-w{display:flex;justify-content:center;padding-top:clamp(32px,4vw,64px)} /* круглая кнопка «Ещё N проектов» под списком, как «Смотреть дальше» */
+.rows-tog-w[hidden]{display:none}
+.rows-tog.ab-ring{margin:0;width:clamp(140px,12vw,220px);color:var(--paper)}
+.rows-tog text{font-size:13px}
+.rows-tog .arr-d{transition:transform .5s var(--ease)}
+.rows-tog[aria-expanded="true"] .arr-d{transform:rotate(180deg)}
+.rows-tog[aria-expanded="true"]:hover .arr-d{transform:rotate(180deg) translateY(6px)}
 @media (prefers-reduced-motion:reduce){.rows-more,.rows-more .row{transition:none}}
