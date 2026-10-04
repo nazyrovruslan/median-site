@@ -397,6 +397,7 @@ $('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollI
 // видео о команде: плеер YouTube подгружаем только по клику
 $('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return;$('#aReel').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${ABOUT_YT}?autoplay=1&rel=0&playsinline=1" title="Team median.agency" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;document.body.className=document.body.className.replace(/\bc-\S+/g,'');});
 const aReelHtml=$('#aReel').innerHTML;
+new IntersectionObserver(([e])=>$('.ab-end').classList.toggle('in',e.isIntersecting),{threshold:.25}).observe($('.ab-end'));
 // «Start a project» внизу страницы: сначала закрываем «О нас», потом открываем бриф, чтобы не сбить блокировку прокрутки
 $('#aBrief').addEventListener('click',()=>{closeAbout();setTimeout(openBrief,350);});
 
@@ -432,8 +433,9 @@ if(fine&&!reduce){
   let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my,state='',stick=null;
   addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;c.style.transform=`translate(${mx}px,${my}px)`;peek.style.transform=`translate(${mx+150}px,${my}px)`;},{passive:true});
   // «Start a project»: копия надписи с перевёрнутыми контур/заливка, видна только внутри круга курсора
-  const sd=$('#start .d');let invOn=false;
-  if(sd){const inv=document.createElement('span');inv.className='d-inv';inv.setAttribute('aria-hidden','true');inv.innerHTML=sd.innerHTML;inv.querySelectorAll('.line>span').forEach(x=>x.classList.toggle('o'));sd.appendChild(inv);sd.classList.add('inv');}
+  // (в подвале и в финале страницы «О нас»)
+  $$('.start .d').forEach(sd=>{const inv=document.createElement('span');inv.className='d-inv';inv.setAttribute('aria-hidden','true');inv.innerHTML=sd.innerHTML;inv.querySelectorAll('.line>span').forEach(x=>x.classList.toggle('o'));sd.appendChild(inv);sd.classList.add('inv');});
+  let sd=null,invOn=false;
   (function loop(){
     let tx=mx,ty=my;
     if(stick){ // кольцо прилипает к центру элемента и чуть тянется за курсором
@@ -445,6 +447,7 @@ if(fine&&!reduce){
       else{r.style.width=(b.width+10)+'px';r.style.height=(b.height+10)+'px';r.style.borderRadius=getComputedStyle(stick).borderRadius;}
     }
     rx+=(tx-rx)*.22;ry+=(ty-ry)*.22;r.style.transform=`translate(${rx}px,${ry}px)`;
+    if(state==='plus'&&stick){const s2=stick.closest('.start').querySelector('.d');if(s2!==sd){if(sd)sd.style.setProperty('--r','0px');sd=s2;}}
     if(sd&&(state==='plus'||invOn)){const b=sd.getBoundingClientRect();invOn=state==='plus';sd.style.setProperty('--cx',(rx-b.left)+'px');sd.style.setProperty('--cy',(ry-b.top)+'px');sd.style.setProperty('--r',invOn?(r.offsetWidth/2)+'px':'0px');}
     requestAnimationFrame(loop)})();
   document.addEventListener('pointerover',e=>{
