@@ -481,7 +481,7 @@ if(fine&&!reduce){
   (function loop(){
     let tx=mx,ty=my;
     if(stick){ // кольцо прилипает к центру элемента и чуть тянется за курсором
-      const b=stick.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
+      const b=(stick.dataset.stickTo&&stick.querySelector(stick.dataset.stickTo)||stick).getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
       const pull=state==='plus'?.5:.15;tx=cx+(mx-cx)*pull;ty=cy+(my-cy)*pull; // плюс «Start a project» тянется за курсором заметно дальше
       const round=stick.dataset.stickShape==='circle'||stick.classList.contains('plus');
       if(state==='plus'){r.style.width=r.style.height=r.style.borderRadius='';} // размер круга задаёт CSS (как на баннере)
