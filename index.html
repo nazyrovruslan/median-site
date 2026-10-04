@@ -21,7 +21,7 @@
 <link rel="preload" href="fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/euclid-circular-a-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css?v=10">
-<link rel="stylesheet" href="css/style.css?v=62">
+<link rel="stylesheet" href="css/style.css?v=63">
 </head>
 <body>
 <div id="loader" aria-hidden="true"><div class="ld-mark"><svg class="ld-o" viewBox="802 818 314 283"><path fill-rule="nonzero" fill="currentColor" d="M 1099.386719 875.800781 C 1105.628906 875.800781 1110.707031 880.878906 1110.707031 887.121094 C 1110.707031 893.363281 1105.628906 898.441406 1099.386719 898.441406 C 1093.144531 898.441406 1088.066406 893.363281 1088.066406 887.121094 C 1088.066406 880.878906 1093.144531 875.800781 1099.386719 875.800781 M 1099.386719 901.269531 C 1107.1875 901.269531 1113.539062 894.921875 1113.539062 887.121094 C 1113.539062 879.320312 1107.1875 872.96875 1099.386719 872.96875 C 1091.585938 872.96875 1085.234375 879.320312 1085.234375 887.121094 C 1085.234375 894.921875 1091.585938 901.269531 1099.386719 901.269531 "/>
@@ -168,17 +168,17 @@
         <p>Чтобы делать сильные коммуникации, нужно говорить на одном языке с клиентами, партнёрами и подрядчиками.</p>
         <p>Поэтому мы запускаем собственные проекты: сообщество и образовательные события для креативной и деловой индустрии юга России.</p>
       </div>
-      <a href="#cases" class="proj" data-c="proj" data-stick data-stick-to=".pa" data-stick-size="80" data-stick-pull=".04" data-magnet=".06" data-case="southhub">
+      <a href="#cases" class="proj" data-c="proj" data-magnet=".06" data-case="southhub">
         <div class="vis"><div class="art" id="art-southhub"></div></div>
         <h3><svg class="pa" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg>South HUB</h3>
         <p>Профессиональное сообщество и ежегодный кэмп для C-level в IT</p>
       </a>
-      <a href="#cases" class="proj" data-c="proj" data-stick data-stick-to=".pa" data-stick-size="80" data-stick-pull=".04" data-magnet=".06" data-case="es">
+      <a href="#cases" class="proj" data-c="proj" data-magnet=".06" data-case="es">
         <div class="vis"><div class="art" id="art-es"></div></div>
         <h3><svg class="pa" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg>Event Surfing</h3>
         <p>Командировка мечты для клиентов агентства: тренды в коммуникациях у моря</p>
       </a>
-      <a href="#cases" class="proj" data-c="proj" data-stick data-stick-to=".pa" data-stick-size="80" data-stick-pull=".04" data-magnet=".06" data-case="podcast">
+      <a href="#cases" class="proj" data-c="proj" data-magnet=".06" data-case="podcast">
         <div class="vis"><div class="art" id="art-podcast"></div><span class="pod-mark d" aria-hidden="true"><span class="o on-dark">Пере</span><br>говорка</span></div>
         <h3><svg class="pa" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg>Переговорка бренда работодателя</h3>
         <p>Видеоподкаст о бренде работодателя с HR-директорами и руководителями крупных компаний</p>
@@ -193,7 +193,7 @@
       <span class="d"><span class="line"><span class="o">Start a</span></span><span class="line"><span>project</span></span></span>
     </button>
     <div class="foot-bar">
-      <a class="mail" id="mail" href="mailto:info@median.agency" data-c="link" data-stick data-stick-to="svg" data-stick-size="116" data-magnet><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>info@median.agency</span></a>
+      <a class="mail" id="mail" href="mailto:info@median.agency" data-c="link" data-magnet><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>info@median.agency</span></a>
       <a class="tel" href="tel:+78622912552" data-c="link" data-stick data-magnet>+7 (862) 291-25-52</a>
       <div class="follow" id="follow">
         <button class="follow-btn" type="button" aria-expanded="false" aria-controls="followLinks" data-c="link" data-stick data-stick-to=".ic" data-stick-size="56" data-magnet><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button>
@@ -221,8 +221,6 @@
       <div class="ch-vis" id="cVis"></div>
       <div class="case-hero-in">
         <h2 class="d ch-ttl" id="cTitle"></h2>
-        <p class="case-lead" id="cSub"></p>
-        <div class="case-meta"><span id="cDir"></span><span id="cYear"></span></div>
       </div>
       <button class="case-down" type="button" data-c="link" data-stick data-stick-shape="circle" aria-label="Листать вниз"><svg viewBox="0 0 24 60" aria-hidden="true"><path d="M12 2v54M4 48l8 8 8-8"/></svg></button>
     </header>
@@ -289,7 +287,7 @@
         <span class="d"><span class="line"><span class="o on-dark">Start a</span></span><span class="line"><span>project</span></span></span>
       </button>
       <div class="foot-bar">
-        <a class="mail" href="mailto:info@median.agency" data-c="link" data-stick data-stick-to="svg" data-stick-size="116" data-magnet><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>info@median.agency</span></a>
+        <a class="mail" href="mailto:info@median.agency" data-c="link" data-magnet><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>info@median.agency</span></a>
         <a class="tel" href="tel:+78622912552" data-c="link" data-stick data-magnet>+7 (862) 291-25-52</a>
         <div class="follow">
           <button class="follow-btn" type="button" aria-expanded="false" aria-controls="followLinksA" data-c="link" data-stick data-stick-to=".ic" data-stick-size="56" data-magnet><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button>
@@ -334,6 +332,6 @@
 
 <div class="toast" id="toast" role="status"></div>
 <script src="js/cases.js?v=17" defer></script>
-<script src="js/main.js?v=53" defer></script>
+<script src="js/main.js?v=54" defer></script>
 </body>
 </html>

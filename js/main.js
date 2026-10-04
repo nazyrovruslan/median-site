@@ -292,13 +292,12 @@ function fillCase(id){
   document.title=k.name+' — Median';
   $('#cVis').style.background=cover(k,i);$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
-  $('#cSub').textContent=k.sub||''; $('#cDir').textContent=DIRS[k.dir]; $('#cYear').textContent=k.year||'';
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
   const facts=[['Категория',k.cat||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
   const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗</a>`).join('<br>');
   if(links)facts.push(['Сайт',links]);
   let tc=0;
-  $('#cBody').innerHTML=`<section class="cb cb-facts wrap"><div class="cf-logo d">${esc(k.client||k.name)}</div><dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead?`<p class="cf-lead">${esc(k.lead)}</p>`:''}</section>`+
+  $('#cBody').innerHTML=`<section class="cb cb-facts wrap"><div class="cf-logo d">${esc(k.client||k.name)}</div><dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
     (k.blocks||[]).map(b=>BLOCK[b.t](b,b.t==='text'?tc++:0)).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),!n.light); $('#cNextName').classList.toggle('dark',!!n.light); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
@@ -339,7 +338,8 @@ function handoffNext(){
   fly.style.background=cover(n,(i+1)%CASES.length);
   fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
   fly.classList.add('on'); nc.classList.add('leaving');
-  flyTo(fly,from,{left:0,top:0,width:v.offsetWidth,height:v.offsetHeight},800,easeIO,()=>{
+  const sr=sheet.getBoundingClientRect();
+  flyTo(fly,from,{left:sr.left+v.offsetLeft,top:sr.top+v.offsetTop,width:v.offsetWidth,height:v.offsetHeight},300,easeIO,()=>{
     // под летящим фото подменяем контент и мгновенно показываем новую обложку
     fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;}));
@@ -360,7 +360,8 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
   const atEnd=sh.scrollTop>=sh.scrollHeight-vh-2;
   const k=atEnd?1:Math.min(1,Math.max(0,-r.top/(r.height-vh)));
   $('#cNextLine').style.transform=`scaleX(${k.toFixed(3)})`;
-  st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото следующего кейса растёт вместе с прокруткой
+  st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото и заголовок следующего кейса переезжают на места обложки кейса
+  $('#cNextName').classList.toggle('out',k>.3); // заголовок съезжает с фото на чёрный — становится светлым
   if(k>=.98&&!handing)handoffNext();
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
