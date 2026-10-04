@@ -224,12 +224,14 @@ const closeAny=p=>p.id==='casePanel'?closeCase():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){$$('.panel.on').forEach(closeAny);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
 let openId=null;
-/* у каждого кейса свой адрес: ?case=<id>. Открытие и переход к следующему кейсу добавляют запись в историю, «назад» возвращает к предыдущему кейсу или на главную */
+/* у каждого кейса свой адрес: /<id> (например /median-site/southhub). Открытие и переход к следующему кейсу добавляют запись в историю, «назад» возвращает к предыдущему кейсу или на главную */
 const baseTitle=document.title; let caseDepth=0;
-const caseUrl=id=>location.pathname+'?case='+encodeURIComponent(id);
+const ROOT=location.pathname.replace(/[^/]*$/,'');
+const caseUrl=id=>ROOT+encodeURIComponent(id);
+const caseFromPath=p=>decodeURIComponent(p.slice(ROOT.length).replace(/\/$/,''));
 function setCaseUrl(id,push){const st={case:id};if(push){history.pushState(st,'',caseUrl(id));caseDepth++;}else history.replaceState(st,'',caseUrl(id));}
-function closeCase(){if(caseDepth>0){history.go(-caseDepth);return;}history.replaceState(null,'',location.pathname);document.title=baseTitle;closePanel($('#casePanel'));}
-addEventListener('popstate',()=>{const id=new URLSearchParams(location.search).get('case'),k=CASES.find(c=>c.id===id),panel=$('#casePanel');
+function closeCase(){if(caseDepth>0){history.go(-caseDepth);return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel($('#casePanel'));}
+addEventListener('popstate',()=>{const id=caseFromPath(location.pathname),k=CASES.find(c=>c.id===id),panel=$('#casePanel');
   if(k){caseDepth=Math.max(0,caseDepth-1);if(id!==openId)fillCase(id);document.title=k.name+' — Median';if(!panel.classList.contains('on'))openPanel(panel);}
   else{caseDepth=0;document.title=baseTitle;if(panel.classList.contains('on'))closePanel(panel);}});
 function fillCase(id){
@@ -397,5 +399,7 @@ if(fine&&!reduce){
 }
 
 /* прямой заход по адресу кейса */
-{const id=new URLSearchParams(location.search).get('case');if(id&&CASES.some(c=>c.id===id)){openCase(id,null,true);setCaseUrl(id,false);}}
+/* прямая ссылка: 404.html кладёт путь в sessionStorage и отправляет на главную; старые ссылки ?case= тоже открываются */
+{let r=null;try{r=sessionStorage.getItem('route');sessionStorage.removeItem('route');}catch(e){}
+ const id=r?caseFromPath(r):new URLSearchParams(location.search).get('case');if(r||location.search)history.replaceState(null,'',ROOT+location.hash);if(id&&CASES.some(c=>c.id===id)){openCase(id,null,true);setCaseUrl(id,false);}}
 })();
