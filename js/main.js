@@ -210,7 +210,7 @@ let lockY=0;
 function lockScroll(){lockY=scrollY;document.documentElement.style.overflow='hidden';document.body.style.position='fixed';document.body.style.top=(-lockY)+'px';document.body.style.left='0';document.body.style.right='0';document.body.style.width='100%';}
 function unlockScroll(){const h=document.documentElement;h.style.overflow='';document.body.style.position='';document.body.style.top='';document.body.style.left='';document.body.style.right='';document.body.style.width='';h.style.scrollBehavior='auto';scrollTo({top:lockY,left:0,behavior:'instant'});requestAnimationFrame(()=>{h.style.scrollBehavior='';});}
 function openPanel(p){lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
-function closePanel(p){p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
+function closePanel(p){if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
 const closeAny=p=>p.id==='casePanel'?closeCase():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){$$('.panel.on').forEach(closeAny);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
@@ -327,7 +327,8 @@ $('#brief').addEventListener('submit',e=>{
 
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
-const showreel=()=>toast('Здесь откроется шоурил агентства (видео подставим из архива)');
+const REEL='Yc6KSaqODQk';
+const showreel=()=>{const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${REEL}?autoplay=1&playsinline=1&rel=0&modestbranding=1" title="Шоурил Median" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;openPanel(p);};
 const ringC=$('#ring circle');
 function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/HOLD);ringC.style.strokeDashoffset=302*(1-p);if(p>=1){endHold();openCase(HERO[cur].id,$('.hero-panel'));return;}holdRaf=requestAnimationFrame(holdTick);}
 function endHold(){cancelAnimationFrame(holdRaf);holdStart=0;ringC.style.strokeDashoffset=302;}

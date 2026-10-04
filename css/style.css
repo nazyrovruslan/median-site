@@ -261,6 +261,11 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 .toast.on{opacity:1}
 
 /* ---------- panels (case + brief) ---------- */
+#reelPanel{display:block}
+#reelPanel .scrim{display:block;position:absolute;inset:0;background:rgba(0,0,0,.94)}
+.reel-frame{position:absolute;left:50%;top:50%;width:min(92vw,calc(84svh*16/9));aspect-ratio:16/9;translate:-50% -50%;background:#000;opacity:0;scale:.96;transition:opacity .4s .15s,scale .6s var(--ease) .15s}
+#reelPanel.on .reel-frame{opacity:1;scale:1}
+.reel-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 .panel{position:fixed;inset:0;z-index:80;display:grid;grid-template-columns:minmax(0,1fr) min(760px,100%);}
 #casePanel{grid-template-columns:minmax(0,1fr)}
 #casePanel .scrim{display:none}
