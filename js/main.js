@@ -349,8 +349,8 @@ $('#brief').addEventListener('submit',e=>{
 
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
-const REEL='Yc6KSaqODQk';
-const showreel=()=>{const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${REEL}?autoplay=1&playsinline=1&rel=0&modestbranding=1" title="Шоурил Median" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;openPanel(p);};
+const REEL='media/video/showreel.mp4'; // Showreel 2022 со старого median.agency (MEDIAN-REEL-LANDING), свой файл вместо YouTube
+const showreel=()=>{const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<video src="${vurl(REEL)}" poster="media/video/showreel.webp" controls autoplay playsinline preload="auto"></video>`;openPanel(p);const v=$('#reelPanel video');v.play().catch(()=>{});};
 const ringC=$('#ring circle');
 function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/HOLD);ringC.style.strokeDashoffset=302*(1-p);if(p>=1){endHold();openCase(HERO[cur].id,$('.hero-panel'));return;}holdRaf=requestAnimationFrame(holdTick);}
 function endHold(){cancelAnimationFrame(holdRaf);holdStart=0;ringC.style.strokeDashoffset=302;}
@@ -430,15 +430,17 @@ if(fine&&!reduce){
     if(st!==stick){stick=st;document.body.classList.toggle('c-stick',!!st);if(!st){r.style.width=r.style.height=r.style.borderRadius='';}}
   });
   // магнит: цель задаётся курсором, элемент догоняет её плавно в общем цикле
-  const mags=$$('[data-magnet]').map(el=>({el,tx:0,ty:0,x:0,y:0,on:false}));
+  const mags=$$('[data-magnet]').map(el=>({el,tx:0,ty:0,x:0,y:0,on:false,cl:el.classList.contains('vis')?()=>el.querySelector('.ttl-clone'):null}));
   mags.forEach(m=>{
-    m.el.addEventListener('pointermove',e=>{const b=m.el.getBoundingClientRect();m.on=true;m.tx=(e.clientX-b.left-b.width/2)*.2;m.ty=(e.clientY-b.top-b.height/2)*.2;});
+    const k=parseFloat(m.el.dataset.magnet)||.2; // большим блокам (обложки направлений) — слабее
+    m.el.addEventListener('pointermove',e=>{const b=m.el.getBoundingClientRect();m.on=true;m.tx=(e.clientX-b.left-b.width/2)*k;m.ty=(e.clientY-b.top-b.height/2)*k;});
     m.el.addEventListener('pointerleave',()=>{m.on=false;m.tx=m.ty=0;});
   });
   (function magLoop(){
     mags.forEach(m=>{m.x+=(m.tx-m.x)*.12;m.y+=(m.ty-m.y)*.12;
-      if(Math.abs(m.x)+Math.abs(m.y)<.05&&!m.on){if(m.el.style.transform){m.el.style.transform='';}return;}
-      m.el.style.transform=`translate(${m.x.toFixed(2)}px,${m.y.toFixed(2)}px)`;});
+      const c=m.cl&&m.cl(); // белая часть заголовка внутри обложки стоит на месте
+      if(Math.abs(m.x)+Math.abs(m.y)<.05&&!m.on){if(m.el.style.transform){m.el.style.transform='';if(c)c.style.transform='';}return;}
+      m.el.style.transform=`translate(${m.x.toFixed(2)}px,${m.y.toFixed(2)}px)`;if(c)c.style.transform=`translate(${(-m.x).toFixed(2)}px,${(-m.y).toFixed(2)}px)`;});
     requestAnimationFrame(magLoop);
   })();
 }

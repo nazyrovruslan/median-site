@@ -268,21 +268,21 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 html.loading{overflow:hidden}
 #loader{position:fixed;inset:0;z-index:300;background:var(--ink);color:var(--paper);display:grid;place-items:center;transition:opacity .7s var(--ease),visibility 0s .7s}
 #loader.done{opacity:0;visibility:hidden}
-.ld-mark{position:relative;width:clamp(110px,10vw,190px);aspect-ratio:314/283} /* знак из макета: контур заполняется сверху вниз по мере загрузки */
+.ld-mark{position:relative;width:clamp(110px,10vw,190px);aspect-ratio:314/283} /* знак из макета: контур заполняется снизу вверх по мере загрузки */
 .ld-mark svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .ld-o path{fill:none;stroke:var(--paper);stroke-width:2.4;vector-effect:non-scaling-stroke}
 .ld-k path{fill:var(--ink)}
 .ld-o path:nth-of-type(-n+2),.ld-k path:nth-of-type(-n+2){fill:var(--paper);stroke:none} /* ® всегда сплошной, как в макете */ /* перекрывает внутренние линии: остаётся только внешний контур знака */
 html.loading #cur,html.loading #ring{opacity:0}
 .ld-f path{fill:var(--paper)}
-.ld-f{clip-path:inset(0 0 calc(100% - var(--p,0) * 100%) 0);transition:clip-path .35s linear}
+.ld-f{clip-path:inset(calc(100% - var(--p,0) * 100%) 0 0 0);transition:clip-path .35s linear}
 
 /* ---------- panels (case + brief) ---------- */
 #reelPanel{display:block}
 #reelPanel .scrim{display:block;position:absolute;inset:0;background:rgba(0,0,0,.94)}
 .reel-frame{position:absolute;left:50%;top:50%;width:min(92vw,calc(84svh*16/9));aspect-ratio:16/9;translate:-50% -50%;background:#000;opacity:0;scale:.96;transition:opacity .4s .15s,scale .6s var(--ease) .15s}
 #reelPanel.on .reel-frame{opacity:1;scale:1}
-.reel-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.reel-frame video,.reel-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 .panel{position:fixed;inset:0;z-index:80;display:grid;grid-template-columns:minmax(0,1fr) min(760px,100%);}
 #casePanel{grid-template-columns:minmax(0,1fr)}
 #casePanel .scrim{display:none}
