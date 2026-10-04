@@ -197,8 +197,8 @@ $$('.dir').forEach((s,i)=>{
 });
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
-/* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок */
-if(!reduce){
+/* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок; на десктопе (мышь) выключен — там обложка магнитится к курсору */
+if(!reduce&&!fine){
   const px=$$('.dir').map(d=>({d,els:['.vis','.vlink','.card'].map(q=>d.querySelector(q)),v:d.querySelector('.vis')}));let pxQ=0;
   const pxRun=()=>{pxQ=0;const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
     const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2))),sh=(p*amp).toFixed(1);
@@ -430,7 +430,7 @@ if(fine&&!reduce){
     if(st!==stick){stick=st;document.body.classList.toggle('c-stick',!!st);if(!st){r.style.width=r.style.height=r.style.borderRadius='';}}
   });
   // магнит: цель задаётся курсором, элемент догоняет её плавно в общем цикле
-  const mags=$$('[data-magnet]').map(el=>({el,tx:0,ty:0,x:0,y:0,on:false,cl:el.classList.contains('vis')?()=>el.querySelector('.ttl-clone'):null}));
+  const mags=$$('[data-magnet]').map(el=>({el,tx:0,ty:0,x:0,y:0,on:false,ttl:el.classList.contains('vis')?el.closest('.dir').querySelector('.ttl'):null}));
   mags.forEach(m=>{
     const k=parseFloat(m.el.dataset.magnet)||.2; // большим блокам (обложки направлений) — слабее
     m.el.addEventListener('pointermove',e=>{const b=m.el.getBoundingClientRect();m.on=true;m.tx=(e.clientX-b.left-b.width/2)*k;m.ty=(e.clientY-b.top-b.height/2)*k;});
@@ -438,9 +438,9 @@ if(fine&&!reduce){
   });
   (function magLoop(){
     mags.forEach(m=>{m.x+=(m.tx-m.x)*.12;m.y+=(m.ty-m.y)*.12;
-      const c=m.cl&&m.cl(); // белая часть заголовка внутри обложки стоит на месте
-      if(Math.abs(m.x)+Math.abs(m.y)<.05&&!m.on){if(m.el.style.transform){m.el.style.transform='';if(c)c.style.transform='';}return;}
-      m.el.style.transform=`translate(${m.x.toFixed(2)}px,${m.y.toFixed(2)}px)`;if(c)c.style.transform=`translate(${(-m.x).toFixed(2)}px,${(-m.y).toFixed(2)}px)`;});
+      const t=m.ttl; // обложка направления тянет за собой заголовок (белая часть внутри обложки едет вместе с ней)
+      if(Math.abs(m.x)+Math.abs(m.y)<.05&&!m.on){if(m.el.style.transform){m.el.style.transform='';if(t)t.style.transform='';}return;}
+      m.el.style.transform=`translate(${m.x.toFixed(2)}px,${m.y.toFixed(2)}px)`;if(t)t.style.transform=m.el.style.transform;});
     requestAnimationFrame(magLoop);
   })();
 }
