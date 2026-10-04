@@ -182,12 +182,14 @@ $$('.dir').forEach((s,i)=>{
   s.querySelector('.vlink').textContent=k.name+(k.year?' '+k.year:'');
   s.querySelector('.cnt').textContent=String(list.length).padStart(2,'0'); // число кейсов направления, как «15» в макете
 });
-function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const a=t.getBoundingClientRect(),b=v.getBoundingClientRect(),art=v.querySelector('.art').getBoundingClientRect();c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
+function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
-/* параллакс превью кейсов в теле сайта (направления, свои проекты): фото внутри рамки едет медленнее страницы */
+/* параллакс превью кейсов в теле сайта (направления, свои проекты): рамка едет медленнее страницы, фото внутри — ещё медленнее */
 if(!reduce){
-  const px=$$('.dir .vis, .proj .vis').map(v=>({v,a:v.querySelector('.art')}));let pxQ=0;
-  const pxRun=()=>{pxQ=0;const vh=innerHeight;px.forEach(({v,a})=>{const b=v.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));a.style.translate=`0 ${(p*b.height*.1).toFixed(1)}px`;});};
+  const px=$$('.dir .vis, .proj .vis').map(v=>({v,a:v.querySelector('.art'),host:v.closest('.dir')||v.closest('.proj')}));let pxQ=0;
+  const pxRun=()=>{pxQ=0;const vh=innerHeight,amp=Math.min(90,vh*.08);px.forEach(({v,a,host})=>{const b=host.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));
+    const sh=p*amp;v.style.translate=`0 ${sh.toFixed(1)}px`;a.style.translate=`0 ${(p*v.offsetHeight*.12).toFixed(1)}px`;
+    const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${(-sh).toFixed(1)}px`;});};
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxRun)},{passive:true});addEventListener('resize',pxRun);pxRun();
 }
 $('#art-southhub').style.background=art(CASES[1].c,4);
