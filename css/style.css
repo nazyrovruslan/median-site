@@ -92,6 +92,7 @@ body.scrolled .logo .lg-mark{opacity:1;transform:none}
 .menu nav a small{font:500 12px var(--body);color:var(--muted);letter-spacing:.1em}
 .menu nav a:hover{transform:translateX(-12px);color:transparent;-webkit-text-stroke:1.3px var(--paper)}
 .menu .meta{margin-top:48px;display:flex;flex-wrap:wrap;gap:12px 32px;color:var(--muted)}
+.menu .meta a{display:inline-block;color:inherit} /* магнит и прилипание курсора, как у ссылок в подвале */
 
 /* ---------- hero ---------- */
 .hero{--strip:max(8.5%,calc(var(--pad) + 96px));--bar:15.5%;--nxw:21%;--nxh:41%;position:relative;height:max(620px,100svh);overflow:hidden;background:var(--ink);isolation:isolate}
