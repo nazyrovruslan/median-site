@@ -213,7 +213,7 @@ $('#art-southhub').style.background=cover(CASES[1],4);$('#art-southhub').innerHT
 // видео-обложки направлений и собственных проектов играют, только пока видны на экране
 const coverVis=new Set();
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)coverVis.add(e.target);else coverVis.delete(e.target);playIn(e.target,e.isIntersecting&&!$$('.panel.on').length);}),{rootMargin:'100px 0px'});$$('.vis .art').forEach(a=>a.querySelector('video.cv')&&io.observe(a));}
-$('#art-es').style.background=cover(CASES.find(c=>c.id==='es'),6);
+{const es=CASES.find(c=>c.id==='es');$('#art-es').style.background=cover(es,6);$('#art-es').innerHTML=vid(es);}
 $('#art-podcast').style.background=cover(CASES.find(c=>c.id==='podcast'),2);
 $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
 
