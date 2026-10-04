@@ -12,8 +12,8 @@
 <link rel="icon" href="media/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/euclid-circular-a-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/fonts.css?v=6">
-<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="stylesheet" href="css/fonts.css?v=8">
+<link rel="stylesheet" href="css/style.css?v=8">
 </head>
 <body>
 <div id="cur"></div>
@@ -189,34 +189,18 @@
   <article class="sheet case" role="dialog" aria-modal="true" aria-labelledby="cTitle">
     <button class="x" data-close data-c="link" data-stick data-stick-shape="circle" data-magnet aria-label="Закрыть">✕</button>
     <header class="case-hero" id="cHero">
-      <div class="case-hero-in">
-        <span class="label" id="cCrumb">Кейс</span>
-        <h2 class="d" id="cTitle"></h2>
-        <p class="case-lead" id="cSub"></p>
-        <div class="case-meta"><span id="cDir"></span><span id="cYear"></span></div>
-      </div>
-      <span class="case-down" aria-hidden="true">↓</span>
+      <div class="ch-vis" id="cVis"></div>
+      <h2 class="d ch-ttl" id="cTitle"></h2>
+      <button class="case-down" type="button" data-c="link" data-stick data-stick-shape="circle" aria-label="Листать вниз"><svg viewBox="0 0 24 60" aria-hidden="true"><path d="M12 2v54M4 48l8 8 8-8"/></svg></button>
     </header>
-    <div class="case-body wrap">
-      <div class="facts">
-        <div><span class="label">Клиент</span><b id="cClient"></b></div>
-        <div><span class="label">Формат</span><b id="cFormat"></b></div>
-        <div><span class="label">Город</span><b id="cCity"></b></div>
+    <div class="case-body" id="cBody"></div>
+    <div class="next-case" id="cNext">
+      <div class="nc-sticky">
+        <button class="nc-cover" id="cNextCover" type="button" data-c="arrow" aria-label="Следующий кейс"></button>
+        <div class="nc-in d" id="cNextName" aria-hidden="true"></div>
+        <div class="nc-bar"><span id="cNextLine"></span></div>
+        <div class="nc-foot wrap"><a href="mailto:info@median.agency" data-c="link">info@median.agency</a><span>Следующий проект</span><span>© Median Agency</span></div>
       </div>
-      <div class="story">
-        <div><h3>Задача</h3><span class="ph"></span><span class="ph"></span><span class="ph s"></span></div>
-        <div><h3>Решение</h3><span class="ph"></span><span class="ph"></span><span class="ph"></span><span class="ph s"></span></div>
-        <div><h3>Результат</h3><span class="ph"></span><span class="ph s"></span></div>
-      </div>
-      <div class="gallery" id="cGallery"></div>
-      <p class="note">Шаблон страницы кейса: обложка на весь экран, задача → решение → результат, галерея и видео. Тексты и фото подставим из архива проекта.</p>
-      <button class="next-case" id="cNext" data-c="link" aria-label="Следующий кейс">
-        <div class="nc-sticky">
-          <div class="nc-cover" id="cNextCover"></div>
-          <div class="nc-in"><b id="cNextName"></b></div>
-          <div class="nc-cta"><span class="nc-hint">Листайте дальше</span><span class="nc-ring" aria-hidden="true"><svg viewBox="0 0 48 48"><circle class="tr" cx="24" cy="24" r="23"/><circle class="pr" id="cNextRing" cx="24" cy="24" r="23"/></svg><span>↓</span></span></div>
-        </div>
-      </button>
     </div>
   </article>
 </div>
@@ -247,6 +231,7 @@
 </div>
 
 <div class="toast" id="toast" role="status"></div>
-<script src="js/main.js?v=6" defer></script>
+<script src="js/cases.js?v=8" defer></script>
+<script src="js/main.js?v=8" defer></script>
 </body>
 </html>

@@ -4,23 +4,14 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine=matchMedia('(pointer: fine)').matches;
 
 const DIRS={external:'Внешние',internal:'Внутренние',outlist:'Out of the list',own:'Свой проект'};
-const CASES=[
- {id:'alfa-dvizh',name:'Альфа Движ',out:'Альфа',solid:'Движ',sub:'Серия событий: Москва, Новосибирск, Екатеринбург, Санкт-Петербург',dir:'internal',year:null,c:['#ef3124','#5a0b07','#120404']},
- {id:'southhub',name:'South HUB',out:'South',solid:'HUB',sub:'Ежегодный кэмп для C-level в IT',dir:'own',year:null,c:['#1db9a8','#0b4a5c','#04151b']},
- {id:'alfa-battle',name:'Alfa Battle',out:'Alfa',solid:'Battle',sub:'BEMA! Лучшее деловое корпоративное событие 2021',dir:'internal',year:2021,c:['#ff5a3c','#7a0f1d','#0d0507']},
- {id:'megafon',name:'MegaFon Bistro 4G',out:'MegaFon',solid:'Bistro 4G',sub:'Корнер МегаФон на Flacon 1170',dir:'external',year:null,c:['#8a4dff','#2fd27a','#140a2e']},
- {id:'vtb',name:'VTB F1',out:'ВТБ',solid:'F1 Sochi',sub:'Интеграция ВТБ в Гран-при Формулы 1 в Сочи',dir:'external',year:2018,c:['#1a46d6','#00a8ff','#030a24']},
- {id:'kaspersky',name:'Kaspersky Lab',out:'Kaspersky',solid:'Interactive',sub:'Интерактивная зона на «Нефоруме блогеров 2017»',dir:'outlist',year:2017,c:['#00a88e','#7fe3c9','#04201b']},
- {id:'wg',name:'WG Awards',out:'WG',solid:'Awards',sub:'Ежегодная церемония вручения премии',dir:'external',year:null,c:['#d9b45a','#3b2a0c','#0c0904']},
- {id:'gridgirls',name:'Grid Girls F1 GP',out:'Grid Girls',solid:'F1 GP',sub:'Grid Girls на Гран-при России Formula 1 2017',dir:'external',year:2017,c:['#e2244f','#9c1a6b','#14040d']}
-];
 const HERO=CASES.slice(0,5);
 const art=(c,seed=0)=>`radial-gradient(120% 90% at ${30+seed*13%50}% ${70-seed*7%40}%, ${c[0]} 0%, transparent 55%), radial-gradient(90% 80% at ${80-seed*11%40}% ${20+seed*9%40}%, ${c[1]} 0%, transparent 60%), ${c[2]}`;
+const cover=(k,seed=0)=>k.img?`url(${k.img}) center/cover no-repeat, ${k.c[2]}`:art(k.c,seed); // фото кейса, пока его нет — градиент
 
 /* ---------- hero ---------- */
 const bgs=$('#bgs'), stage=$('#stage'), bars=$('#bars');
 HERO.forEach((k,i)=>{
-  const b=document.createElement('div');b.className='slide-bg';b.style.background=art(k.c,i);bgs.appendChild(b);
+  const b=document.createElement('div');b.className='slide-bg';b.style.background=cover(k,i);bgs.appendChild(b);
   const t=document.createElement('div');t.className='slide-title';t.setAttribute('aria-hidden','true');
   t.innerHTML=`<div class="d"><span class="line"><span class="o on-dark">${k.out}</span></span><span class="line"><span>${k.solid}</span></span></div><div class="sub small">${k.year?`<b>${k.year}</b>`:''}<span>${k.sub}</span></div>`;
   stage.appendChild(t);
@@ -39,7 +30,7 @@ function go(i,instant){
     cancelAnimationFrame(moveRaf);
     slides.forEach((e,j)=>{e.classList.toggle('on',j===cur);e.style.zIndex=j===cur?1:0;});
     nxt.classList.remove('moving'); nxt.style.cssText='';
-    $('#nextPrev').style.background=art(HERO[n1].c,n1);
+    $('#nextPrev').style.background=cover(HERO[n1],n1);
     nxt2.classList.remove('in'); nxt2.style.cssText='';
     lab.classList.remove('hide');lab.classList.add('on');
     $$('.slide-title').forEach((e,j)=>{if(j===cur){e.classList.remove('out');e.classList.add('on');}else if(e.classList.contains('on')){e.classList.remove('on');e.classList.add('out');setTimeout(()=>e.classList.remove('out'),800);}});
@@ -53,7 +44,7 @@ function go(i,instant){
   const H=$('#hero').getBoundingClientRect(), N=nxt.getBoundingClientRect(), P=$('.hero-panel').getBoundingClientRect();
   const from={t:N.top-H.top,l:N.left-H.left,r:0,b:0}, to={t:0,l:P.left-H.left,r:0,b:H.bottom-P.bottom};
   nxt.classList.add('moving');
-  $('#next2Prev').style.background=art(HERO[n1].c,n1); nxt2.classList.add('in');
+  $('#next2Prev').style.background=cover(HERO[n1],n1); nxt2.classList.add('in');
   $$('.slide-title').forEach((e,j)=>{ // старый заголовок уходит вверх, новый заходит снизу
     if(j===cur){e.classList.remove('out');e.classList.add('on');}
     else if(e.classList.contains('on')){e.classList.remove('on');e.classList.add('out');setTimeout(()=>e.classList.remove('out'),800);}
@@ -177,7 +168,7 @@ if(!fine){
 const DIRCASE={external:'vtb',internal:'alfa-battle',outlist:'kaspersky'};
 $$('.dir').forEach((s,i)=>{
   const d=s.dataset.dir, list=CASES.filter(c=>c.dir===d), k=CASES.find(c=>c.id===DIRCASE[d]);
-  s.querySelector('.art').style.background=art(k.c,i+3);
+  s.querySelector('.art').style.background=cover(k,i+3);
   s.querySelector('.cap').textContent=k.name;
   s.querySelector('.vlink').textContent=k.name+(k.year?' '+k.year:'');
   s.querySelector('.cnt').textContent=String(list.length).padStart(2,'0'); // число кейсов направления, как «15» в макете
@@ -192,7 +183,7 @@ if(!reduce){
     els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});};
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxRun)},{passive:true});addEventListener('resize',pxRun);pxRun();
 }
-$('#art-southhub').style.background=art(CASES[1].c,4);
+$('#art-southhub').style.background=cover(CASES[1],4);
 $('#art-air').style.background=art(['#b9d66b','#2f6b4f','#0d1a12'],6);
 $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
 
@@ -200,9 +191,9 @@ $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.datase
 const rows=$('#rows');
 CASES.forEach((k,i)=>{
   const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
-  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}${k.year?' · '+k.year:''}</span><span class="rp" style="background:${art(k.c,i)}"></span>`;
+  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}${k.year?' · '+k.year:''}</span><span class="rp" style="background:${cover(k,i)}"></span>`;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
-  r.addEventListener('mouseenter',()=>{peek.style.background=art(k.c,i);peek.classList.add('on')});
+  r.addEventListener('mouseenter',()=>{peek.style.background=cover(k,i);peek.classList.add('on')});
   r.addEventListener('mouseleave',()=>peek.classList.remove('on'));
   rows.appendChild(r);
 });
@@ -234,70 +225,88 @@ function closeCase(){if(caseDepth>0){history.go(-caseDepth);return;}history.repl
 addEventListener('popstate',()=>{const id=caseFromPath(location.pathname),k=CASES.find(c=>c.id===id),panel=$('#casePanel');
   if(k){caseDepth=Math.max(0,caseDepth-1);if(id!==openId)fillCase(id);document.title=k.name+' — Median';if(!panel.classList.contains('on'))openPanel(panel);}
   else{caseDepth=0;document.title=baseTitle;if(panel.classList.contains('on'))closePanel(panel);}});
+/* страница кейса по макету: обложка (фото слева, заголовок справа) → факты → серые секции → следующий проект */
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const P=a=>(a||[]).map(t=>`<p>${esc(t)}</p>`).join('');
+const ttlOf=k=>k.ttl||[[k.out,1],[k.solid,0]].filter(l=>l[0]);
+const ttlHtml=(ls,dark)=>ls.map(([t,o])=>`<span class="ln${o?' o'+(dark?' on-dark':''):''}">${esc(t)}</span>`).join('');
+// строки заголовка не вылезают за свою колонку: длинные названия ужимаем
+function fitTitle(el){el.style.fontSize='';const w=el.clientWidth;if(!w)return;let m=0;el.querySelectorAll('.ln').forEach(l=>m=Math.max(m,l.scrollWidth));if(m>w)el.style.fontSize=(parseFloat(getComputedStyle(el).fontSize)*w/m*.98)+'px';}
+const BLOCK={
+  cut:b=>`<section class="grey cb cb-cut"><img src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
+  pairs:b=>`<section class="grey cb cb-pairs">${b.items.map((it,j)=>`<figure class="pf pf${j%3}"><img src="${it.img}" alt="" loading="lazy"><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
+  feature:b=>`<section class="grey cb cb-feat"><h3 class="d"><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure><img src="${b.img}" alt="" loading="lazy"><figcaption>${P(b.text)}</figcaption></figure></section>`,
+  text:(b,j)=>{const w=b.h.split(' ');return `<section class="grey cb cb-text"><h3 class="d">${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
+  stats:b=>`<section class="cb cb-stats wrap">${b.items.map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
+};
 function fillCase(id){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
-  $('#cHero').style.background=art(k.c,i);
-  $('#cTitle').innerHTML=`<span class="o on-dark">${k.out}</span><br>${k.solid}`;
-  $('#cSub').textContent=k.sub; $('#cDir').textContent=DIRS[k.dir]; $('#cYear').textContent=k.year||'';
-  $('#cClient').textContent=k.name.split(' ')[0]; $('#cFormat').textContent=DIRS[k.dir]; $('#cCity').textContent=k.sub.includes('Сочи')?'Сочи':'Москва';
-  $('#cGallery').innerHTML=[0,1,2,3,4].map(j=>`<div style="background:${art(k.c,i+j+1)}"></div>`).join('');
-  $('#cNextName').textContent=n.name; $('#cNextCover').style.background=art(n.c,(i+1)%CASES.length);
+  $('#cVis').style.background=cover(k,i);
+  $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
+  const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
+  const facts=[['Категория',k.cat||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
+  const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗</a>`).join('<br>');
+  if(links)facts.push(['Сайт',links]);
+  let tc=0;
+  $('#cBody').innerHTML=`<section class="cb cb-facts wrap"><div class="cf-logo d">${esc(k.client||k.name)}</div><dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead?`<p class="cf-lead">${esc(k.lead)}</p>`:''}</section>`+
+    (k.blocks||[]).map(b=>BLOCK[b.t](b,b.t==='text'?tc++:0)).join('')+
+    (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
+  $('#cNextName').innerHTML=ttlHtml(ttlOf(n),!n.light); $('#cNextName').classList.toggle('dark',!!n.light); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
+  $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;
+  requestAnimationFrame(()=>{fitTitle($('#cTitle'));fitTitle($('#cNextName'));});
 }
-// бесшовный переход: обложка (баннер или строка списка) разворачивается в обложку страницы кейса
+addEventListener('resize',()=>{if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});
+// бесшовный переход: обложка (баннер или строка списка) превращается в фото на обложке кейса
+function flyTo(fly,from,to,T,ease,done){const t0=performance.now();
+  const step=now=>{const k=ease(Math.min(1,(now-t0)/T));
+    fly.style.left=(from.left+(to.left-from.left)*k)+'px';fly.style.top=(from.top+(to.top-from.top)*k)+'px';
+    fly.style.width=(from.width+(to.width-from.width)*k)+'px';fly.style.height=(from.height+(to.height-from.height)*k)+'px';
+    if(k<1)requestAnimationFrame(step);else done();};
+  requestAnimationFrame(step);}
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 function openCase(id,fromEl,noPush){
   fillCase(id);
   if(!noPush)setCaseUrl(id,true);
   const panel=$('#casePanel');
   if(panel.classList.contains('on')||!fromEl||reduce){ if(!panel.classList.contains('on')) openPanel(panel); return; }
   const i=CASES.findIndex(c=>c.id===id), from=fromEl.getBoundingClientRect(), fly=$('#flyCover');
-  fly.style.background=art(CASES[i].c,i);
+  fly.style.background=cover(CASES[i],i);
   fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
   fly.classList.add('on');
-  // панель открываем сразу, без своей анимации, и прячем её hero — его роль играет летящая обложка
+  // панель открываем сразу, без своей анимации, и прячем её фото — его роль играет летящая обложка
   panel.classList.add('instant'); openPanel(panel); $('#cHero').classList.add('ghost');
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    const to=$('#cHero').getBoundingClientRect();
-    const T=900, ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, t0=performance.now();
-    const step=now=>{const k=ease(Math.min(1,(now-t0)/T));
-      fly.style.left=(from.left+(to.left-from.left)*k)+'px';fly.style.top=(from.top+(to.top-from.top)*k)+'px';
-      fly.style.width=(from.width+(to.width-from.width)*k)+'px';fly.style.height=(from.height+(to.height-from.height)*k)+'px';
-      if(k<1)requestAnimationFrame(step);else{$('#cHero').classList.remove('ghost');fly.classList.remove('on');panel.classList.remove('instant');}};
-    requestAnimationFrame(step);
+    flyTo(fly,from,$('#cVis').getBoundingClientRect(),900,easeIO,()=>{$('#cHero').classList.remove('ghost');fly.classList.remove('on');panel.classList.remove('instant');});
   }));
 }
-// бесшовный переход к следующему кейсу: тизер снизу становится новой обложкой
+// бесшовный переход к следующему кейсу: фото из блока «Следующий проект» встаёт на место фото обложки
 let handing=false;
 function handoffNext(){
   if(handing)return; handing=true;
   const sheet=$('#casePanel .sheet'), nc=$('#cNext'), i=CASES.findIndex(c=>c.id===openId), n=CASES[(i+1)%CASES.length];
-  const from=nc.querySelector('.nc-sticky').getBoundingClientRect(), fly=$('#flyCover');
-  fly.style.background=art(n.c,(i+1)%CASES.length);
+  const from=$('#cNextCover').getBoundingClientRect(), fly=$('#flyCover'), v=$('#cVis');
+  fly.style.background=cover(n,(i+1)%CASES.length);
   fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
-  fly.classList.add('on');
-  const T=700, ease=t=>1-Math.pow(1-t,3), t0=performance.now(), vw=innerWidth, vh=innerHeight;
-  const step=now=>{const k=ease(Math.min(1,(now-t0)/T));
-    fly.style.left=(from.left*(1-k))+'px';fly.style.top=(from.top*(1-k))+'px';fly.style.width=(from.width+(vw-from.width)*k)+'px';fly.style.height=(from.height+(vh-from.height)*k)+'px';
-    if(k<1)requestAnimationFrame(step);
-    else{ // под летящей обложкой подменяем контент и мгновенно показываем новый hero
-      fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; $('#cNextRing').style.strokeDashoffset='144.5'; nc.querySelector('.nc-sticky').style.transform='';
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;}));
-    }};
-  requestAnimationFrame(step);
+  fly.classList.add('on'); nc.classList.add('leaving');
+  flyTo(fly,from,{left:0,top:0,width:v.offsetWidth,height:v.offsetHeight},800,easeIO,()=>{
+    // под летящим фото подменяем контент и мгновенно показываем новую обложку
+    fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform=''; $('#cNextLine').style.transform='';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;}));
+  });
 }
-$('#cNext').onclick=handoffNext;
-$('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('#casePanel .sheet');sh.scrollTo({top:sh.clientHeight,behavior:'smooth'});});
-// параллакс тизера и автопереход, когда тизер занял экран целиком
+$('#cNextCover').onclick=handoffNext;
+$('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('#casePanel .sheet');sh.scrollTo({top:$('#cHero').offsetHeight,behavior:'smooth'});});
+// «Следующий проект» приклеен к экрану, линия под фото заполняется, на полном заполнении — переход
 $('#casePanel .sheet').addEventListener('scroll',()=>{
   const nc=$('#cNext'), st=nc.querySelector('.nc-sticky'), r=nc.getBoundingClientRect(), vh=innerHeight;
   if(r.top>vh||r.bottom<0)return;
-  // сцена «приклеена» к верху экрана, пока тизер проходит мимо (без position:sticky — iOS режет его внутри overflow)
+  // без position:sticky — iOS режет его внутри overflow
   const pin=Math.min(Math.max(0,-r.top),r.height-vh);
   st.style.transform=`translateY(${pin}px)`;
-  // прогресс: 0 — тизер появился снизу, 1 — его низ дошёл до низа экрана
-  const k=Math.min(1,Math.max(0,(vh-r.top)/r.height));
-  $('#cNextCover').style.transform=`scale(${1.08-.08*k})`; $('#cNextCover').style.filter=`brightness(${.7+.3*k})`; $('#cNextRing').style.strokeDashoffset=(144.5*(1-k)).toFixed(1);
+  const k=Math.min(1,Math.max(0,-r.top/(r.height-vh)));
+  $('#cNextLine').style.transform=`scaleX(${k.toFixed(3)})`;
   if(k>=.995&&!handing)handoffNext();
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
