@@ -7,11 +7,14 @@ const DIRS={external:'Внешние',internal:'Внутренние',outlist:'O
 const HERO=CASES.slice(0,5);
 const art=(c,seed=0)=>`radial-gradient(120% 90% at ${30+seed*13%50}% ${70-seed*7%40}%, ${c[0]} 0%, transparent 55%), radial-gradient(90% 80% at ${80-seed*11%40}% ${20+seed*9%40}%, ${c[1]} 0%, transparent 60%), ${c[2]}`;
 const cover=(k,seed=0)=>k.img?`url(${k.img}) center/cover no-repeat, ${k.c[2]}`:art(k.c,seed); // фото кейса, пока его нет — градиент
+// видео-обложка поверх фото: играет только видимая, при «уменьшении движения» и в режиме энергосбережения остаётся фото
+const vid=k=>k.vid&&!reduce?`<video class="cv" src="${k.vid}" poster="${k.vid.replace('.mp4','.webp')}" muted loop playsinline preload="metadata" aria-hidden="true"></video>`:'';
+const playIn=(el,on)=>{const v=el&&el.querySelector('video.cv');if(!v)return;if(on){v.preload='auto';v.play().catch(()=>{});}else v.pause();};
 
 /* ---------- hero ---------- */
 const bgs=$('#bgs'), stage=$('#stage'), bars=$('#bars');
 HERO.forEach((k,i)=>{
-  const b=document.createElement('div');b.className='slide-bg';b.style.background=cover(k,i);bgs.appendChild(b);
+  const b=document.createElement('div');b.className='slide-bg';b.style.background=cover(k,i);b.innerHTML=vid(k);bgs.appendChild(b);
   const t=document.createElement('div');t.className='slide-title';t.setAttribute('aria-hidden','true');
   t.innerHTML=`<div class="d"><span class="line"><span class="o on-dark">${k.out}</span></span><span class="line"><span>${k.solid}</span></span></div><div class="sub small">${k.year?`<b>${k.year}</b>`:''}<span>${k.sub}</span></div>`;
   stage.appendChild(t);
@@ -28,7 +31,7 @@ function go(i,instant){
   const slides=$$('.slide-bg'), nxt=$('#next'), nxt2=$('#next2'), n1=(cur+1)%HERO.length, lab=$('#nxtLabel');
   const land=()=>{ // блок прибыл: обложка под ним становится текущей, плашка мгновенно возвращается с новым превью
     cancelAnimationFrame(moveRaf);
-    slides.forEach((e,j)=>{e.classList.toggle('on',j===cur);e.style.zIndex=j===cur?1:0;});
+    slides.forEach((e,j)=>{e.classList.toggle('on',j===cur);e.style.zIndex=j===cur?1:0;playIn(e,j===cur&&heroSeen&&!$$('.panel.on').length);});
     nxt.classList.remove('moving'); nxt.style.cssText='';
     $('#nextPrev').style.background=cover(HERO[n1],n1);
     nxt2.classList.remove('in'); nxt2.style.cssText='';
@@ -61,6 +64,8 @@ function go(i,instant){
   step(t0);
 }
 $('#next').onclick=()=>go(cur+1);$('#nxtLabel .narr-w').addEventListener('click',()=>go(cur+1));
+let heroSeen=true; // баннер ушёл с экрана — видео на паузе
+if('IntersectionObserver' in window)new IntersectionObserver(([e])=>{heroSeen=e.isIntersecting;$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur&&!$$('.panel.on').length));}).observe($('#hero'));
 go(0,true);if(!reduce)tmr=setTimeout(()=>go(cur+1),DUR);
 let tx=null;$('#hero').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
 $('#hero').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(dx<-50)go(cur+1);tx=null;}); // только справа налево: обратный свайп в iOS занят системным «назад»
@@ -209,8 +214,8 @@ let lastFocus=null;
 let lockY=0;
 function lockScroll(){lockY=scrollY;document.documentElement.style.overflow='hidden';document.body.style.position='fixed';document.body.style.top=(-lockY)+'px';document.body.style.left='0';document.body.style.right='0';document.body.style.width='100%';}
 function unlockScroll(){const h=document.documentElement;h.style.overflow='';document.body.style.position='';document.body.style.top='';document.body.style.left='';document.body.style.right='';document.body.style.width='';h.style.scrollBehavior='auto';scrollTo({top:lockY,left:0,behavior:'instant'});requestAnimationFrame(()=>{h.style.scrollBehavior='';});}
-function openPanel(p){lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
-function closePanel(p){if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
+function openPanel(p){playIn(p.querySelector('#cVis'),true);$$('.slide-bg video').forEach(v=>v.pause());lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
+function closePanel(p){p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length)$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));});if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
 const closeAny=p=>p.id==='casePanel'?closeCase():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){$$('.panel.on').forEach(closeAny);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
@@ -242,7 +247,7 @@ const BLOCK={
 function fillCase(id){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
-  $('#cVis').style.background=cover(k,i);
+  $('#cVis').style.background=cover(k,i);$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
   $('#cSub').textContent=k.sub||''; $('#cDir').textContent=DIRS[k.dir]; $('#cYear').textContent=k.year||'';
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
