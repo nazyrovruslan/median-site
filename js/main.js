@@ -184,7 +184,7 @@ if(!fine){
   const mq=$('#reelLink'), wl=$('#wavesLink');
   const centerHit=()=>{
     const mb=mq.getBoundingClientRect(), mc=mb.top+mb.height/2; mq.classList.toggle('reel',Math.abs(mc-innerHeight/2)<innerHeight*.22);
-    { const cy=innerHeight/2, rows=$$('.row'); const row=rows.find(x=>!x.hidden&&(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect())); if(row&&!row.dataset.rp){row.dataset.rp=1;const i=+row.dataset.i,k=CASES[i],rp=row.querySelector('.rp');rp.style.background=cover(k,i,1);rp.innerHTML=vid(k);} // превью строки грузим, только когда до неё дошли
+    { const cy=innerHeight/2, rows=$$('.row'); const row=rows.find(x=>!x.hidden&&!x.closest('.rows-more:not(.open)')&&(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect())); if(row&&!row.dataset.rp){row.dataset.rp=1;const i=+row.dataset.i,k=CASES[i],rp=row.querySelector('.rp');rp.style.background=cover(k,i,1);rp.innerHTML=vid(k);} // превью строки грузим, только когда до неё дошли
     rows.forEach(x=>{x.classList.toggle('hover',x===row);const v=x.querySelector('.rp video');if(v){if(x===row){v.preload='auto';v.play().catch(()=>{});}else v.pause();}}); }
     const b=wl.getBoundingClientRect(), c=b.top+b.height/2, vh=innerHeight;
     // прогресс метаморфозы: 0 — центр фигуры у нижнего края экрана, 1 — в середине; выше середины держим 1
@@ -253,7 +253,20 @@ addEventListener('scroll',()=>{if(peekEl&&peek.classList.contains('on'))peekAt(p
 function setFilter(f){
   $$('#filters button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===f));
   $$('.row').forEach(r=>r.hidden=!(f==='all'||r.dataset.dir===f));
+  layoutRows(false);
 }
+// список кейсов: в каждом фильтре видны первые 7, остальные — в раскрывающемся блоке под кнопкой «Ещё N кейсов»
+const ROWS_SHOWN=7;
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c;};
+function layoutRows(open){const all=$$('.row'),vis=all.filter(r=>!r.hidden),more=$('#rowsMoreIn'),box=$('#rowsMore'),tog=$('#rowsTog');
+  all.forEach(r=>{const i=vis.indexOf(r);(i>=0&&i<ROWS_SHOWN?$('#rows'):more).appendChild(r);});
+  const n=Math.max(0,vis.length-ROWS_SHOWN);if(open!=null)box.classList.toggle('open',open&&n>0);const o=box.classList.contains('open');
+  tog.hidden=!n;tog.setAttribute('aria-expanded',o);box.toggleAttribute('inert',!o);
+  tog.querySelector('.rt-t').innerHTML=o?'<span class="o on-dark">Свернуть</span>':`<span class="o on-dark">Ещё</span> ${n} ${plural(n,'кейс','кейса','кейсов')}`;}
+$('#rowsTog').addEventListener('click',()=>{const o=!$('#rowsMore').classList.contains('open');
+  if(!o){const t=$('#cases');if(t&&t.getBoundingClientRect().top<0)t.scrollIntoView({behavior:reduce?'auto':'smooth'});} // сворачиваем — возвращаемся к началу списка
+  layoutRows(o);});
+layoutRows(false);
 $$('#filters button').forEach(b=>b.onclick=()=>setFilter(b.dataset.f));
 
 /* ---------- panels ---------- */
