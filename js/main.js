@@ -19,7 +19,7 @@ const bgs=$('#bgs'), stage=$('#stage'), bars=$('#bars');
 HERO.forEach((k,i)=>{
   const b=document.createElement('div');b.className='slide-bg';b.style.background=cover(k,i);b.innerHTML=vid(k);bgs.appendChild(b);
   const t=document.createElement('div');t.className='slide-title';t.setAttribute('aria-hidden','true');
-  t.innerHTML=`<div class="d"><span class="line"><span class="o on-dark">${k.out}</span></span><span class="line"><span>${k.solid}</span></span></div><div class="sub small">${k.year?`<b>${k.year}</b>`:''}<span>${k.sub}</span></div>`;
+  t.innerHTML=`<div class="d"><span class="line"><span class="o on-dark">${k.out}</span></span><span class="line"><span>${k.solid}</span></span></div><div class="sub small"><span>${k.sub}</span></div>`;
   stage.appendChild(t);
   const bt=document.createElement('button');bt.setAttribute('aria-label',`Кейс ${i+1}: ${k.name}`);bt.dataset.c='link';bt.onclick=()=>go(i);bars.appendChild(bt);
 });
@@ -221,7 +221,7 @@ $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.datase
 const rows=$('#rows');
 CASES.forEach((k,i)=>{
   const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
-  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}${k.year?' · '+k.year:''}</span><span class="rp" style="background:${cover(k,i)}"></span>`;
+  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}</span><span class="rp" style="background:${cover(k,i)}"></span>`;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
   r.addEventListener('mouseenter',()=>{peek.replaceChildren();peek.style.background=cover(k,i);peekAt(r);peek.classList.add('on')});
   r.addEventListener('mouseleave',()=>peek.classList.remove('on'));
