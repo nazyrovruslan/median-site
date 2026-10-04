@@ -184,6 +184,12 @@ $$('.dir').forEach((s,i)=>{
 });
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const a=t.getBoundingClientRect(),b=v.getBoundingClientRect(),art=v.querySelector('.art').getBoundingClientRect();c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
+/* параллакс превью кейсов в теле сайта (направления, свои проекты): фото внутри рамки едет медленнее страницы */
+if(!reduce){
+  const px=$$('.dir .vis, .proj .vis').map(v=>({v,a:v.querySelector('.art')}));let pxQ=0;
+  const pxRun=()=>{pxQ=0;const vh=innerHeight;px.forEach(({v,a})=>{const b=v.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));a.style.translate=`0 ${(p*b.height*.1).toFixed(1)}px`;});};
+  addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxRun)},{passive:true});addEventListener('resize',pxRun);pxRun();
+}
 $('#art-southhub').style.background=art(CASES[1].c,4);
 $('#art-air').style.background=art(['#b9d66b','#2f6b4f','#0d1a12'],6);
 $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
