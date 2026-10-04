@@ -6,7 +6,7 @@ const fine=matchMedia('(pointer: fine)').matches;
 const DIRS={external:'Внешние',internal:'Внутренние',outlist:'Out of the list',own:'Свой проект'};
 const HERO=CASES.slice(0,5);
 const art=(c,seed=0)=>`radial-gradient(120% 90% at ${30+seed*13%50}% ${70-seed*7%40}%, ${c[0]} 0%, transparent 55%), radial-gradient(90% 80% at ${80-seed*11%40}% ${20+seed*9%40}%, ${c[1]} 0%, transparent 60%), ${c[2]}`;
-const VV='?v=3'; // сброс кэша постеров и видео-обложек
+const VV='?v=4'; // сброс кэша постеров и видео-обложек
 const thumb=u=>'media/thumb/'+u.split('/').pop().replace(/\.\w+$/,'.webp'); // уменьшенная копия (520 px) для превью
 const poster=k=>k.vid.replace('.mp4','.webp')+VV;
 const cover=(k,seed=0,small)=>{const u=k.vid?poster(k):k.img;return u?`url(${small?thumb(u.replace(VV,'')):u}) center/cover no-repeat, ${k.c[2]}`:art(k.c,seed);}; // фото кейса, пока его нет — градиент
@@ -231,11 +231,14 @@ $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.datase
 
 /* ---------- cases index ---------- */
 const rows=$('#rows');
+// видео превью создаём один раз на кейс и держим: повторное наведение — без перезагрузки; src тот же, что у баннера (первый слайд — из памяти), поэтому уже скачанное берётся из кэша
+const PV={};function peekVid(i){if(i in PV)return PV[i];const t=document.createElement('div');t.innerHTML=vid(CASES[i]);return PV[i]=t.firstElementChild;}
 CASES.forEach((k,i)=>{
   const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
   r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}</span><span class="rp"></span>`;r.dataset.i=i;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
-  r.addEventListener('mouseenter',()=>{peek.innerHTML=vid(k);peek.style.background=cover(k,i,1);peekAt(r);peek.classList.add('on');const v=peek.querySelector('video');if(v){v.preload='auto';v.play().catch(()=>{});}}); // анимированная обложка, если у кейса есть видео
+  r.addEventListener('mouseenter',()=>{const v=peekVid(i);peek.replaceChildren(...(v?[v]:[]));peek.style.background=cover(k,i,1);peekAt(r);peek.classList.add('on');if(v){v.preload='auto';v.play().catch(()=>{});}
+    [i-2,i-1,i+1,i+2].forEach(j=>{const n=CASES[j]&&peekVid(j);if(n&&n.preload!=='auto')n.preload='auto';});}); // анимированная обложка; соседние строки докачиваем заранее
   r.addEventListener('mouseleave',()=>{peek.classList.remove('on');const v=peek.querySelector('video');v&&v.pause();});
   rows.appendChild(r);
 });
