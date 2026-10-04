@@ -438,6 +438,26 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
   .ab-vals{grid-template-columns:minmax(0,1fr)}
   .ab-clients ul{grid-column:1/-1}
 }
+/* подкаст: плейлист и список выпусков */
+.cb-yt{background:#000;padding:clamp(40px,6vw,110px) var(--gutter)}
+.yt-frame{position:relative;aspect-ratio:16/9;max-width:1400px;margin:0 auto;background:#111}
+.yt-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.cb-eps{padding-block:clamp(48px,7vw,135px)}
+.cb-eps h3{font-size:var(--h2);line-height:1;letter-spacing:0;margin:0 0 clamp(28px,4vw,72px)}
+.cb-eps ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.cb-eps li a{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr) minmax(0,2fr) auto;gap:16px;align-items:baseline;padding:clamp(14px,1.4vw,26px) 0;border-bottom:1px solid rgba(11,11,12,.35);transition:padding .4s var(--ease)}
+.cb-eps .n{font:700 var(--ui) var(--display)}
+.cb-eps b{font:400 clamp(17px,1.6vw,30px)/1.25 var(--body)}
+.cb-eps .g{font:400 var(--txt)/1.4 var(--body);color:#333}
+.cb-eps .ar{font-size:clamp(16px,1.3vw,24px)}
+@media (hover:hover){.cb-eps li a:hover{padding-left:12px}}
+/* обложка подкаста, пока нет фото: название крупно поверх градиента */
+.pod-mark{position:absolute;left:8%;bottom:9%;font-size:clamp(20px,3.2vw,60px);line-height:.95;letter-spacing:0;color:var(--paper);pointer-events:none}
+@media (max-width:820px){
+  .cb-eps li a{grid-template-columns:40px minmax(0,1fr) auto;row-gap:4px}
+  .cb-eps .g{grid-column:2}
+  .cb-eps .ar{grid-row:1;grid-column:3}
+}
 .brief h2{font-size:clamp(30px,5vw,56px);margin:64px 0 10px}
 .brief>p{color:rgba(243,243,241,.7);max-width:52ch;margin:0 0 28px}
 .fld{display:grid;gap:6px;margin-bottom:18px}
@@ -525,6 +545,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .own .card{grid-column:1/-1;max-width:none;margin-right:0}
   .proj{grid-column:span 1;padding:0 6px 0 0}
   .proj:nth-of-type(2){margin-top:48px}
+  .proj:nth-of-type(3){grid-column:1/-1;padding:0}
+  .proj:nth-of-type(3) .vis{aspect-ratio:16/10}
   .row{grid-template-columns:40px minmax(0,1fr);row-gap:4px}
   .row .sb{grid-column:2}.row .tg{grid-column:2;justify-self:start}
   .hero{--strip:0%;--bar:18%;--nxw:21%;--nxh:41%}
@@ -582,6 +604,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .proj:nth-of-type(1) .vis{aspect-ratio:636/374}
   .proj:nth-of-type(2){grid-column:5/6;grid-row:1;margin-top:26vw}
   .proj:nth-of-type(2) .vis{aspect-ratio:320/608}
+  .proj:nth-of-type(3){grid-column:1/3;grid-row:2;margin-top:-6vw}
+  .proj:nth-of-type(3) .vis{aspect-ratio:636/374}
   .proj h3,.proj p{margin-left:0}
   .proj:nth-of-type(1) h3,.proj:nth-of-type(1) p{margin-left:50%}
   .proj h3{position:relative;font-size:var(--ui);margin-top:22px}
