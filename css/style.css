@@ -71,7 +71,8 @@ body.touch-cursor #ring{transition:opacity .6s ease;opacity:0;width:96px;height:
 body.touch-cursor #ring .t{transition:none;opacity:1}
 body.touch-cursor #cur{display:none}
 
-.row.hover{padding-left:14px}
+.row .n,.row .nm,.row .sb,.rows-tog .rt-t{transition:translate .45s var(--ease)}
+.row.hover .n,.row.hover .nm,.row.hover .sb{translate:14px 0} /* сдвиг при наведении — translate, не padding: иначе длинные названия переносятся и строки прыгают */
 
 /* ---------- header / menu ---------- */
 .hdr{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;justify-content:space-between;align-items:flex-start;padding:calc(env(safe-area-inset-top,0px) + 22px) var(--pad) 0;mix-blend-mode:difference;color:#fff;pointer-events:none}
@@ -226,7 +227,7 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .filters button[aria-pressed="true"],.filters button:hover{background:var(--paper);color:var(--ink)}
 .rows{border-top:1px solid var(--line-dark)}
 .row{display:grid;grid-template-columns:64px minmax(0,1.2fr) minmax(0,1.4fr) 110px;gap:16px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line-dark);width:100%;text-align:left;transition:padding .45s var(--ease)}
-.row:hover{padding-left:14px}
+.row:hover .n,.row:hover .nm,.row:hover .sb{translate:14px 0}
 .row .n{font:700 12px var(--display);color:var(--muted);font-variant-numeric:tabular-nums}
 .row .nm{font:700 clamp(17px,2.2vw,30px)/1.05 var(--display);text-transform:uppercase}
 .row .sb{color:rgba(243,243,241,.7);font-size:14px}
@@ -712,7 +713,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rows-more.open .row:nth-child(2){transition-delay:.04s}.rows-more.open .row:nth-child(3){transition-delay:.08s}.rows-more.open .row:nth-child(4){transition-delay:.12s}.rows-more.open .row:nth-child(5){transition-delay:.16s}.rows-more.open .row:nth-child(n+6){transition-delay:.2s}
 .rows-tog{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:center;width:100%;padding:26px 0;border-bottom:1px solid var(--line-dark);text-align:left;color:inherit;transition:padding .4s var(--ease)}
 .rows-tog[hidden]{display:none}
-.rows-tog:hover{padding-left:14px}
+.rows-tog:hover .rt-t{translate:14px 0}
 .rows-tog .rt-t{font:700 clamp(17px,2.2vw,30px)/1.05 var(--display);text-transform:uppercase}
 .rows-tog .rt-ic{position:relative;width:clamp(44px,3.6vw,64px);aspect-ratio:1;border:1px solid var(--line-dark);border-radius:50%;transition:background .3s,border-color .3s}
 .rows-tog .rt-ic::before,.rows-tog .rt-ic::after{content:"";position:absolute;left:50%;top:50%;width:36%;height:1px;background:var(--paper);translate:-50% -50%;transition:rotate .5s var(--ease),background .3s}
