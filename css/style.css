@@ -250,7 +250,7 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 
 /* ---------- footer ---------- */
 .own{position:sticky;top:0;z-index:0}
-.foot{min-height:100vh;min-height:100lvh;display:flex;flex-direction:column;justify-content:space-between;padding-block:clamp(90px,10vw,130px) 28px;position:relative;z-index:1;box-shadow:0 -40px 80px rgba(0,0,0,.25)}
+.foot{background:var(--ink);color:var(--paper);min-height:100vh;min-height:100lvh;display:flex;flex-direction:column;justify-content:space-between;padding-block:clamp(90px,10vw,130px) 28px;position:relative;z-index:1;box-shadow:0 -40px 80px rgba(0,0,0,.25)}
 .start{align-self:center;text-align:left;display:flex;gap:clamp(22px,3.2vw,52px);align-items:flex-start;margin-block:auto;font-size:clamp(34px,4.95vw,95px)}
 .start .plus{width:.58em;height:.92em;display:block;position:relative}
 .start .plus::before{content:"";position:absolute;inset:-90%} /* зона магнита шире самого плюса, чтобы он тянулся за курсором дальше */
@@ -440,8 +440,8 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 /* финал: Start a project */
 .ab-end{border-top:1px solid var(--line-dark)} /* подвал как на главной, но в цветах страницы «О нас» */
 .ab-end.foot{position:relative;bottom:auto;z-index:auto;box-shadow:none}
-.ab-end .foot-bar .copy{color:var(--muted)}
-.ab-end .start .o{-webkit-text-stroke-color:var(--paper)} /* на чёрном фоне контур светлый, в том числе у инвертированной копии под кругом */
+.foot .foot-bar .copy{color:var(--muted)} /* подвал чёрный — на главной и на «О нас» */
+.foot .start .o{-webkit-text-stroke-color:var(--paper)} /* на чёрном фоне контур светлый, в том числе у инвертированной копии под кругом */
 @media (max-width:820px){
   .ab-hero{grid-template-columns:minmax(0,1fr);row-gap:56px}
   .ab-l,.ab-r{grid-column:1/-1}
@@ -572,7 +572,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .own-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:28px}
   .own .card{grid-column:1/-1;max-width:none;margin-right:0}
   .proj{grid-column:span 1;padding:0 6px 0 0}
-  .proj:nth-of-type(2){margin-top:48px}
+  .proj:nth-of-type(2){margin-top:44vw} /* разнесены по высоте: второй проект начинается ниже середины первого */
+  .proj:nth-of-type(3){margin-top:56px}
   .proj:nth-of-type(3){grid-column:1/-1;padding:0}
   .proj:nth-of-type(3) .vis{aspect-ratio:16/10}
   .row{grid-template-columns:40px minmax(0,1fr);row-gap:4px}
