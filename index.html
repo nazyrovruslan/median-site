@@ -13,7 +13,7 @@
 <link rel="preload" href="fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/euclid-circular-a-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css?v=10">
-<link rel="stylesheet" href="css/style.css?v=26">
+<link rel="stylesheet" href="css/style.css?v=27">
 </head>
 <body>
 <div id="loader" aria-hidden="true"><div class="ld-mark"><svg class="ld-o" viewBox="802 818 314 283"><path fill-rule="nonzero" fill="currentColor" d="M 1099.386719 875.800781 C 1105.628906 875.800781 1110.707031 880.878906 1110.707031 887.121094 C 1110.707031 893.363281 1105.628906 898.441406 1099.386719 898.441406 C 1093.144531 898.441406 1088.066406 893.363281 1088.066406 887.121094 C 1088.066406 880.878906 1093.144531 875.800781 1099.386719 875.800781 M 1099.386719 901.269531 C 1107.1875 901.269531 1113.539062 894.921875 1113.539062 887.121094 C 1113.539062 879.320312 1107.1875 872.96875 1099.386719 872.96875 C 1091.585938 872.96875 1085.234375 879.320312 1085.234375 887.121094 C 1085.234375 894.921875 1091.585938 901.269531 1099.386719 901.269531 "/>
@@ -51,7 +51,7 @@
     <a href="#cases" data-c="link">Кейсы <small>08</small></a>
     <a href="#directions" data-c="link">Направления <small>03</small></a>
     <a href="#own" data-c="link">Свои проекты <small>02</small></a>
-    <a href="#about" data-c="link">О нас</a>
+    <a href="about" data-c="link" data-about>О нас</a>
     <a href="#contact" data-c="link">Контакты</a>
   </nav>
   <div class="meta small"><span>Сочи · Москва</span><span>info@median.agency</span><a href="https://t.me/+vWOQSalpKvBjZmYy" target="_blank" rel="noopener" data-c="link">Telegram ↗</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="link">Instagram ↗</a></div>
@@ -87,7 +87,7 @@
       <div class="track d" id="mq"></div>
     </a>
     <div class="live-grid wrap">
-      <a href="#about-page" class="waves-link" id="wavesLink" data-c="view" data-label="О нас" aria-label="О нас">
+      <a href="about" class="waves-link" id="wavesLink" data-c="view" data-label="О нас" aria-label="О нас">
         <svg class="waves" id="waves" viewBox="-260 -260 520 520" aria-hidden="true"></svg>
         <span class="waves-badge" id="wavesBadge" aria-hidden="true">О нас</span>
       </a>
@@ -219,6 +219,52 @@
   </article>
 </div>
 
+<!-- «О нас»: отдельная страница по образцу кейса, первый экран — артборды «Кто мы?» из макета -->
+<div class="panel" id="aboutPanel" aria-hidden="true">
+  <div class="scrim" data-close></div>
+  <article class="sheet case about" role="dialog" aria-modal="true" aria-labelledby="aTitle">
+    <button class="x" data-close data-c="link" data-stick data-stick-shape="circle" data-magnet aria-label="Закрыть">✕</button>
+    <header class="ab-hero wrap">
+      <div class="ab-l">
+        <figure class="ab-photo rv"><img src="media/about/sea.webp" alt="Сёрферы в море, вид сверху" loading="lazy"></figure>
+        <h2 class="d ab-ttl rv" id="aTitle"><span class="ln o on-dark">Кто</span><span class="ln">мы?</span></h2>
+        <p class="ab-txt rv">Жизнь у моря научила нас, что нельзя войти в одну воду дважды, поэтому мы основываем нашу креативную культуру на постоянном поиске новых идей. В нашем агентстве нет двух одинаковых решений, дней и проектов. Единственное, что повторяется из раза в раз — это желание идти вперёд.</p>
+      </div>
+      <div class="ab-r">
+        <p class="ab-cap rv">Мы —<br>бутиковое<br>агентство,<br>вдохновлённое<br>морем.</p>
+        <p class="ab-txt rv">Наша команда состоит из молодых специалистов с амбициями и горящими глазами. Каждый проект для нас — это глубокое погружение в мир бренда, где нам всегда интересно.</p>
+        <a href="#values" class="ring-link ab-ring rv" id="aRing" data-c="link" data-magnet aria-label="Наши ценности">
+          <svg class="circ" viewBox="0 0 150 150" aria-hidden="true"><defs><path id="circA" d="M75,75 m-58,0 a58,58 0 1,1 116,0 a58,58 0 1,1 -116,0"/></defs><text id="ringTextA"><textPath href="#circA"><tspan>Наши</tspan><tspan>ценности</tspan><tspan>Наши</tspan><tspan>ценности</tspan></textPath></text></svg>
+          <svg class="arr-d" viewBox="0 0 12 40" aria-hidden="true"><path d="M6 0V38"/><path d="M1.5 33l4.5 5 4.5-5"/></svg>
+        </a>
+      </div>
+    </header>
+    <section class="ab-reel" id="aReel">
+      <button class="ab-play" type="button" data-c="reel" data-label="Play" aria-label="Смотреть видео о команде">
+        <span class="ab-play-in"><span class="label">Видео</span><span class="d"><span class="o on-dark">Team</span><br>median.agency</span></span>
+      </button>
+    </section>
+    <section class="grey cb ab-values" id="values">
+      <h3 class="d"><span class="o">Наши</span> ценности</h3>
+      <p class="cb-txt ab-sub">Несколько причин, почему нас выбирают.</p>
+      <div class="ab-vals">
+        <div><span class="label">01</span><h4 class="d">Прозрачность</h4><p>Мы за прозрачность в отношениях, ради достижения высочайших результатов.</p></div>
+        <div><span class="label">02</span><h4 class="d">Стиль</h4><p>Мы дорожим имиджем клиента, поэтому создаём коммуникации, наполненные стилем.</p></div>
+        <div><span class="label">03</span><h4 class="d">Поиск</h4><p>Мы постоянно находимся в поиске новых и оригинальных идей и решений.</p></div>
+      </div>
+    </section>
+    <section class="cb cb-facts wrap ab-clients">
+      <div class="cf-logo d">Клиенты</div>
+      <ul><li>Альфа-Банк</li><li>МегаФон</li><li>ВТБ</li><li>Kaspersky Lab</li><li>Wargaming</li><li>М.Видео-Эльдорадо</li><li>X5 Tech</li><li>ЦРТ</li></ul>
+    </section>
+    <section class="ab-end wrap">
+      <p class="cb-txt">Креатив должен служить реальным инструментом для целей компании. Расскажите о задаче, и мы предложим, каким событием её решить.</p>
+      <button class="ab-cta d" type="button" id="aBrief" data-c="link" data-stick><span class="o on-dark">Start a</span> project <span class="pl">+</span></button>
+      <div class="nc-foot"><a href="mailto:info@median.agency" data-c="link">info@median.agency</a><span>Сочи · Москва</span><span>© Median Agency</span></div>
+    </section>
+  </article>
+</div>
+
 <div class="panel" id="reelPanel" aria-hidden="true">
   <div class="scrim" data-close></div>
   <button class="x" data-close data-c="link" data-stick data-stick-shape="circle" data-magnet aria-label="Закрыть">✕</button>
@@ -252,6 +298,6 @@
 
 <div class="toast" id="toast" role="status"></div>
 <script src="js/cases.js?v=12" defer></script>
-<script src="js/main.js?v=25" defer></script>
+<script src="js/main.js?v=26" defer></script>
 </body>
 </html>

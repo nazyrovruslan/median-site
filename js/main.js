@@ -139,23 +139,27 @@ R.forEach((pts,i)=>{
     const q=pts[(k-1+M)%M],n=pts[(k+1)%M];let nx=n.Y-q.Y,ny=-(n.X-q.X);const l=Math.hypot(nx,ny)||1;p.nx=nx/l*sgn;p.ny=ny/l*sgn;});
 });
 R.forEach(()=>{const p=document.createElementNS('http://www.w3.org/2000/svg','path');W.appendChild(p);paths.push(p);});
-let wt=0, wspeed=.004, wtarget=.004, morph=0, morphT=0;
+let wt=0, wspeed=.004, wtarget=.004, morph=0, morphT=0, col=0;
 W.addEventListener('mouseenter',()=>{wtarget=.012;morphT=1});W.addEventListener('mouseleave',()=>{wtarget=.004;morphT=0});
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 function drawWaves(){
   if(window.__morphTarget!=null){morphT=window.__morphTarget;wtarget=.004+.008*morphT;}
-  wspeed+=(wtarget-wspeed)*.05; morph+=(morphT-morph)*(window.__morphTarget!=null?.2:.035); wt+=wspeed;
+  // второй этап: когда контуры стали кругами, все круги сходятся в центральный; обратно — сначала расходятся, потом снова волны
+  const colT=morphT>=.999&&morph>.95?1:0;
+  col+=(colT-col)*.045; if(Math.abs(colT-col)<.001)col=colT;
+  wspeed+=(wtarget-wspeed)*.05; if(!(morphT<morph&&col>.03))morph+=(morphT-morph)*(window.__morphTarget!=null?.2:.035); wt+=wspeed;
   const m=ease(Math.min(1,Math.max(0,morph)));
-  const bd=$('#wavesBadge'); if(bd) bd.style.opacity=(m>=.985?1:0);
+  const bd=$('#wavesBadge'); if(bd) bd.style.opacity=(col>=.97?1:0);
   const t=(performance.now()/7000)%1, n=R.length, step=.1, w=.28;
   const ss=(a,x)=>{x=Math.min(1,Math.max(0,(x-a)/w));return x*x*(3-2*x)};
   R.forEach((pts,i)=>{
+    const ci=ease(Math.min(1,Math.max(0,(col-(n-1-i)*.1)/.7))), f=1+(meanR[0]/meanR[i]-1)*ci;   // внешний круг начинает сходиться первым
     const up=ss((n-1-i)*step,t), down=ss(.5+i*step,t);   // внешний первым растёт, внутренний первым возвращается
     const grow=1+.045*up*(1-down)*(1-m);
     const d=pts.map(p=>{
       // в покое — волна: контуры по очереди чуть расширяются снаружи внутрь, потом возвращаются изнутри наружу
       const x0=p.X*grow, y0=p.Y*grow;
-      return (x0+(p.tx-x0)*m).toFixed(1)+','+(y0+(p.ty-y0)*m).toFixed(1);
+      return (x0+(p.tx*f-x0)*m).toFixed(1)+','+(y0+(p.ty*f-y0)*m).toFixed(1);
     });
     paths[i].setAttribute('d','M'+d.join('L')+'Z');
   });
@@ -180,8 +184,6 @@ if(!fine){
     window.__morphTarget=b.bottom<=0?0:Math.min(1,Math.max(0,(vh-c)/(vh/2)));
   };
   addEventListener('scroll',centerHit,{passive:true});addEventListener('resize',centerHit);setTimeout(centerHit,300);
-  // тап по волнам, когда они собраны в круг → «О нас»
-  wl.addEventListener('click',e=>{e.preventDefault();document.querySelector('.live-copy').scrollIntoView({behavior:'smooth',block:'center'});});
   // направления: лёгкий зум у центра
   const arts=$$('.dir .vis .art');
   addEventListener('scroll',()=>{arts.forEach(a=>{const rr=a.parentElement.getBoundingClientRect(),cc=rr.top+rr.height/2,d=Math.min(1,Math.abs(cc-innerHeight/2)/innerHeight);a.style.transform=`scale(${1.06-.06*d})`;});},{passive:true});
@@ -232,8 +234,8 @@ let lockY=0;
 function lockScroll(){lockY=scrollY;document.documentElement.style.overflow='hidden';document.body.style.position='fixed';document.body.style.top=(-lockY)+'px';document.body.style.left='0';document.body.style.right='0';document.body.style.width='100%';}
 function unlockScroll(){const h=document.documentElement;h.style.overflow='';document.body.style.position='';document.body.style.top='';document.body.style.left='';document.body.style.right='';document.body.style.width='';h.style.scrollBehavior='auto';scrollTo({top:lockY,left:0,behavior:'instant'});requestAnimationFrame(()=>{h.style.scrollBehavior='';});}
 function openPanel(p){playIn(p.querySelector('#cVis'),true);$$('.slide-bg video').forEach(v=>v.pause());lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
-function closePanel(p){p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length)$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));});if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
-const closeAny=p=>p.id==='casePanel'?closeCase():closePanel(p);
+function closePanel(p){p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length)$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
+const closeAny=p=>p.id==='casePanel'?closeCase():p.id==='aboutPanel'?closeAbout():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){$$('.panel.on').forEach(closeAny);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
 let openId=null;
@@ -245,6 +247,8 @@ const caseFromPath=p=>decodeURIComponent(p.slice(ROOT.length).replace(/\/$/,''))
 function setCaseUrl(id,push){const st={case:id};if(push){history.pushState(st,'',caseUrl(id));caseDepth++;}else history.replaceState(st,'',caseUrl(id));}
 function closeCase(){if(caseDepth>0){history.go(-caseDepth);return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel($('#casePanel'));}
 addEventListener('popstate',()=>{const id=caseFromPath(location.pathname),k=CASES.find(c=>c.id===id),panel=$('#casePanel');
+  if(id==='about'){openAbout(false);return;}
+  if(aboutP.classList.contains('on')){aboutPushed=false;document.title=baseTitle;closePanel(aboutP);}
   if(k){caseDepth=Math.max(0,caseDepth-1);if(id!==openId)fillCase(id);document.title=k.name+' — Median';if(!panel.classList.contains('on'))openPanel(panel);}
   else{caseDepth=0;document.title=baseTitle;if(panel.classList.contains('on'))closePanel(panel);}});
 /* страница кейса по макету: обложка (фото слева, заголовок справа) → факты → серые секции → следующий проект */
@@ -366,13 +370,14 @@ hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDef
 
 
 /* ---------- кольцо «Все проекты»: трекинг подгоняется под длину окружности ---------- */
-function fitRing(){const t=$('#ringText'),tp=t.firstElementChild,ws=[...tp.querySelectorAll('tspan')];
+function fitRing(t=$('#ringText')){const tp=t.firstElementChild,ws=[...tp.querySelectorAll('tspan')];
   // разрядку задаём через dx у каждой буквы, а не letter-spacing: Safari не учитывает letter-spacing в getComputedTextLength, и слово обрезалось
   t.style.letterSpacing='0';ws.forEach(w=>w.removeAttribute('dx'));
   const C=2*Math.PI*58,L=tp.getComputedTextLength(),n=ws.reduce((a,w)=>a+w.textContent.length-1,0);
   let ls=17*.12,gap=(C-L-ls*n)/4; if(gap<ls*3){ls=Math.max(0,(C-L)/(n+12));gap=(C-L-ls*n)/4;}
   ws.forEach(w=>w.setAttribute('dx',[gap,...Array(w.textContent.length-1).fill(ls)].map(v=>v.toFixed(2)).join(' ')));}  // остаток окружности — поровну в 4 промежутка
-fitRing();document.fonts&&document.fonts.ready.then(fitRing);
+const fitRings=()=>{fitRing();fitRing($('#ringTextA'));};
+fitRings();document.fonts&&document.fonts.ready.then(fitRings);
 
 /* ---------- logo swap ---------- */
 new IntersectionObserver(([e])=>document.body.classList.toggle('scrolled',!e.isIntersecting),{rootMargin:'-120px 0px 0px 0px',threshold:0}).observe($('#hero'));
@@ -380,7 +385,20 @@ new IntersectionObserver(([e])=>document.body.classList.toggle('scrolled',!e.isI
 /* ---------- шоурил и «О нас» (заглушки до появления контента) ---------- */
 $('#reelLink').addEventListener('click',e=>{e.preventDefault();showreel();});
 
-$('#wavesLink').addEventListener('click',e=>{e.preventDefault();document.querySelector('.live-copy').scrollIntoView({behavior:'smooth',block:'center'});});
+/* ---------- «О нас»: своя страница /about, открывается как кейс ---------- */
+const aboutP=$('#aboutPanel'); let aboutPushed=false;
+const ABOUT_YT='VkP2FBvhqF8';
+function openAbout(push){if(aboutP.classList.contains('on'))return;
+  if(push){history.pushState({about:1},'',ROOT+'about');aboutPushed=true;}
+  document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);}
+function closeAbout(){if(aboutPushed){aboutPushed=false;history.back();return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel(aboutP);}
+$$('#wavesLink,[data-about]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openAbout(true);}));
+$('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollIntoView({behavior:reduce?'auto':'smooth'});});
+// видео о команде: плеер YouTube подгружаем только по клику
+$('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return;$('#aReel').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${ABOUT_YT}?autoplay=1&rel=0&playsinline=1" title="Team median.agency" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;document.body.className=document.body.className.replace(/\bc-\S+/g,'');});
+const aReelHtml=$('#aReel').innerHTML;
+// «Start a project» внизу страницы: сначала закрываем «О нас», потом открываем бриф, чтобы не сбить блокировку прокрутки
+$('#aBrief').addEventListener('click',()=>{closeAbout();setTimeout(openBrief,350);});
 
 /* ---------- follow us (баннер и футер): ссылки раскрываются при наведении, на тач — по тапу ---------- */
 $$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
@@ -455,5 +473,6 @@ if(fine&&!reduce){
 /* прямой заход по адресу кейса */
 /* прямая ссылка: 404.html кладёт путь в sessionStorage и отправляет на главную; старые ссылки ?case= тоже открываются */
 {let r=null;try{r=sessionStorage.getItem('route');sessionStorage.removeItem('route');}catch(e){}
- const id=r?caseFromPath(r):new URLSearchParams(location.search).get('case');if(r||location.search)history.replaceState(null,'',ROOT+location.hash);if(id&&CASES.some(c=>c.id===id)){openCase(id,null,true);setCaseUrl(id,false);}}
+ const id=r?caseFromPath(r):new URLSearchParams(location.search).get('case');if(r||location.search)history.replaceState(null,'',ROOT+location.hash);if(id==='about'){history.replaceState({about:1},'',ROOT+'about');openAbout(false);}
+ else if(id&&CASES.some(c=>c.id===id)){openCase(id,null,true);setCaseUrl(id,false);}}
 })();
