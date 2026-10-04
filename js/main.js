@@ -212,8 +212,8 @@ if(!reduce){
 $('#art-southhub').style.background=cover(CASES[1],4);$('#art-southhub').innerHTML=vid(CASES[1]);
 // видео-обложки направлений и собственных проектов играют, только пока видны на экране
 const coverVis=new Set();
+{const es=CASES.find(c=>c.id==='es');$('#art-es').style.background=cover(es,6);$('#art-es').innerHTML=vid({vid:'media/video/es-v.mp4'});} // вертикальная версия ролика под узкую карточку; вставляем до IntersectionObserver, иначе видео не запускается
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)coverVis.add(e.target);else coverVis.delete(e.target);playIn(e.target,e.isIntersecting&&!$$('.panel.on').length);}),{rootMargin:'100px 0px'});$$('.vis .art').forEach(a=>a.querySelector('video.cv')&&io.observe(a));}
-{const es=CASES.find(c=>c.id==='es');$('#art-es').style.background=cover(es,6);$('#art-es').innerHTML=vid(es);}
 $('#art-podcast').style.background=cover(CASES.find(c=>c.id==='podcast'),2);
 $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
 
@@ -223,11 +223,18 @@ CASES.forEach((k,i)=>{
   const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
   r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}${k.year?' · '+k.year:''}</span><span class="rp" style="background:${cover(k,i)}"></span>`;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
-  r.addEventListener('mouseenter',()=>{peek.replaceChildren();peek.style.background=cover(k,i);peek.classList.add('on')});
+  r.addEventListener('mouseenter',()=>{peek.replaceChildren();peek.style.background=cover(k,i);peekAt(r);peek.classList.add('on')});
   r.addEventListener('mouseleave',()=>peek.classList.remove('on'));
   rows.appendChild(r);
 });
 const peek=$('#peek');
+// превью при наведении стоит на месте, а не едет за курсором: у правого края строки, по её центру
+let peekEl=null;
+function peekAt(el){peekEl=el;const b=el.getBoundingClientRect(),w=peek.offsetWidth,m=24;
+  const x=Math.min(innerWidth-m,b.right)-w/2,y=b.top+b.height/2;
+  if(!peek.classList.contains('on'))peek.style.transition='none';
+  peek.style.transform=`translate(${x}px,${y}px)`;peek.offsetWidth;peek.style.transition='';}
+addEventListener('scroll',()=>{if(peekEl&&peek.classList.contains('on'))peekAt(peekEl);},{passive:true,capture:true});
 function setFilter(f){
   $$('#filters button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===f));
   $$('.row').forEach(r=>r.hidden=!(f==='all'||r.dataset.dir===f));
@@ -428,10 +435,10 @@ new IntersectionObserver(([e])=>$('.ab-end').classList.toggle('in',e.isIntersect
 /* короткая версия видео при наведении (десктоп): у шоурила — в превью рядом с курсором, у блоков с видео — прямо в блоке */
 if(fine&&!reduce)$$('[data-teaser]').forEach(el=>{const inPeek=el.dataset.teaserIn==='peek';let v=null;
   const mk=()=>{if(!v){v=document.createElement('video');v.className='tz';v.src=vurl(el.dataset.teaser);v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';v.setAttribute('aria-hidden','true');}return v;};
-  el.addEventListener('mouseenter',()=>{const t=mk();if(inPeek){peek.style.background='#000';peek.replaceChildren(t);peek.classList.add('on','wide');}else if(!t.parentNode)el.prepend(t);t.play().catch(()=>{});el.classList.add('tz-on');});
+  el.addEventListener('mouseenter',()=>{const t=mk();if(inPeek){peek.style.background='#000';peek.replaceChildren(t);peek.classList.add('wide');peekAt(el);peek.classList.add('on');}else if(!t.parentNode)el.prepend(t);t.play().catch(()=>{});el.classList.add('tz-on');});
   el.addEventListener('mouseleave',()=>{if(inPeek)peek.classList.remove('on','wide');if(v)v.pause();el.classList.remove('tz-on');});});
 // выпуски подкаста: при наведении рядом с курсором всплывает обложка выпуска (как у строк кейсов)
-if(fine)$('#cBody').addEventListener('mouseover',e=>{const a=e.target.closest('.cb-eps li a');if(!a||a.contains(e.relatedTarget))return;peek.replaceChildren();peek.style.background=`url(https://i.ytimg.com/vi/${a.dataset.yt}/mqdefault.jpg) center/cover no-repeat, #000`;peek.classList.add('on','wide');});
+if(fine)$('#cBody').addEventListener('mouseover',e=>{const a=e.target.closest('.cb-eps li a');if(!a||a.contains(e.relatedTarget))return;peek.replaceChildren();peek.style.background=`url(https://i.ytimg.com/vi/${a.dataset.yt}/mqdefault.jpg) center/cover no-repeat, #000`;peek.classList.add('wide');peekAt(a);peek.classList.add('on');});
 if(fine)$('#cBody').addEventListener('mouseout',e=>{const a=e.target.closest('.cb-eps li a');if(!a||a.contains(e.relatedTarget))return;peek.classList.remove('on','wide');});
 // «Start a project» внизу страницы: сначала закрываем «О нас», потом открываем бриф, чтобы не сбить блокировку прокрутки
 $('#aBrief').addEventListener('click',()=>{closeAbout();setTimeout(openBrief,350);});
@@ -466,7 +473,7 @@ if(fine&&!reduce){
   document.body.classList.add('has-cursor');
   const c=$('#cur'), r=$('#ring'), lab=r.querySelector('.t');
   let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my,state='',stick=null;
-  addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;c.style.transform=`translate(${mx}px,${my}px)`;peek.style.transform=`translate(${mx+150}px,${my}px)`;},{passive:true});
+  addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;c.style.transform=`translate(${mx}px,${my}px)`;},{passive:true});
   // «Start a project»: копия надписи с перевёрнутыми контур/заливка, видна только внутри круга курсора
   // (в подвале и в финале страницы «О нас»)
   $$('.start .d').forEach(sd=>{const inv=document.createElement('span');inv.className='d-inv';inv.setAttribute('aria-hidden','true');inv.innerHTML=sd.innerHTML;inv.querySelectorAll('.line>span').forEach(x=>x.classList.toggle('o'));sd.appendChild(inv);sd.classList.add('inv');});
