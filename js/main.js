@@ -180,6 +180,7 @@ $$('.dir').forEach((s,i)=>{
   s.querySelector('.art').style.background=art(k.c,i+3);
   s.querySelector('.cap').textContent=k.name;
   s.querySelector('.vlink').textContent=k.name+(k.year?' '+k.year:'');
+  s.querySelector('.cnt').textContent=String(list.length).padStart(2,'0'); // число кейсов направления, как «15» в макете
 });
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const a=t.getBoundingClientRect(),b=v.getBoundingClientRect(),art=v.querySelector('.art').getBoundingClientRect();c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
@@ -190,7 +191,7 @@ $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.datase
 /* ---------- cases index ---------- */
 const rows=$('#rows');
 CASES.forEach((k,i)=>{
-  const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='view';r.dataset.label='Смотреть кейс';
+  const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
   r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}${k.year?' · '+k.year:''}</span><span class="rp" style="background:${art(k.c,i)}"></span>`;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
   r.addEventListener('mouseenter',()=>{peek.style.background=art(k.c,i);peek.classList.add('on')});

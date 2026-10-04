@@ -17,7 +17,7 @@
 </head>
 <body>
 <div id="cur"></div>
-<div id="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48"/></svg><span class="t"></span></div>
+<div id="ring"><svg class="pg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48"/></svg><svg class="ar" viewBox="0 0 64 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H62"/><path d="M56 1l6 5-6 5"/></svg><span class="t"></span></div>
 
 <header class="hdr">
   <a href="#top" class="logo" id="logo" data-c="link" aria-label="median.agency, на главную"><svg class="lg-word" aria-hidden="true" viewBox="473 746 973 427"><path fill-rule="nonzero" fill="currentColor" d="M 762.089844 1083.195312 C 738.382812 1083.195312 720.503906 1064.367188 720.503906 1039.402344 C 720.503906 1014.433594 738.382812 995.605469 762.089844 995.605469 C 785.734375 995.605469 803.5625 1014.433594 803.5625 1039.402344 C 803.5625 1064.367188 785.734375 1083.195312 762.089844 1083.195312 M 843.25 967.015625 L 802.089844 972.660156 C 801.480469 972.742188 801.0625 973.316406 801.164062 973.921875 L 802.953125 984.375 C 802.972656 984.644531 802.621094 984.730469 802.335938 984.378906 L 791.726562 972.667969 C 791.605469 972.535156 791.453125 972.429688 791.285156 972.367188 C 782.410156 968.980469 772.550781 967.242188 762.089844 967.242188 L 762.082031 967.242188 C 741.535156 967.242188 722.875 974.484375 709.53125 987.632812 C 696.191406 1000.777344 688.84375 1019.164062 688.84375 1039.402344 C 688.84375 1049.507812 690.722656 1059.15625 694.429688 1068.082031 C 695.292969 1070.246094 698.179688 1075.535156 699.207031 1077.398438 C 699.429688 1077.800781 699.359375 1078.277344 699.027344 1078.597656 C 697.9375 1079.667969 695.492188 1082.074219 694.277344 1083.359375 C 686.585938 1091.484375 680.042969 1101.09375 680.042969 1118.84375 C 680.554688 1143.339844 700.980469 1165.539062 737.980469 1165.539062 L 789.027344 1165.394531 C 798.523438 1165.394531 800.390625 1167.023438 805.039062 1169.695312 L 842.746094 1169.695312 C 837.78125 1151.777344 821.757812 1138.769531 788.058594 1138.769531 L 734.324219 1138.578125 C 713.394531 1138.578125 707.476562 1127.109375 706.886719 1116.96875 C 706.410156 1108.765625 712.039062 1101.785156 717.945312 1098.585938 C 718.292969 1098.398438 718.691406 1098.40625 719.03125 1098.621094 C 720.394531 1099.480469 724.152344 1101.824219 726.90625 1103.28125 C 737.476562 1108.71875 749.511719 1111.5625 762.089844 1111.5625 C 806.578125 1111.5625 835.328125 1083.238281 835.328125 1039.402344 C 835.328125 1025.058594 831.847656 1011.753906 825.214844 1000.585938 C 824.265625 998.992188 823.253906 997.441406 822.175781 995.933594 L 821.089844 994.410156 C 820.921875 994.132812 821.058594 993.777344 821.492188 993.777344 L 843.398438 993.839844 C 844 993.84375 844.488281 993.355469 844.488281 992.753906 L 844.484375 968.09375 C 844.484375 967.433594 843.902344 966.921875 843.25 967.015625 "/>
@@ -55,7 +55,7 @@
   <section class="hero" id="hero" aria-roledescription="carousel" aria-label="Избранные кейсы">
     <div class="hero-panel"><div id="bgs"></div><div class="grain"></div></div>
     <h1>Median — event-агентство полного цикла. Конференции, корпоративные события и спецпроекты для брендов. Сочи · Москва</h1>
-    <button class="hit" id="hit" data-c="hold" data-label="Держите, чтобы открыть кейс" aria-label="Открыть кейс"></button>
+    <button class="hit" id="hit" data-c="hold" data-label="Посмотреть кейс" aria-label="Открыть кейс"></button>
     <div class="hero-stage" id="stage"></div>
     <a href="#about" class="down" data-c="down" aria-label="Листать вниз">↓</a>
     <div class="hero-bar">
@@ -73,7 +73,7 @@
 
   <!-- 2 · live communications -->
   <section class="live" id="about">
-    <a href="#showreel" class="marquee" id="reelLink" data-c="view" data-label="Showreel" aria-label="Смотреть шоурил">
+    <a href="#showreel" class="marquee" id="reelLink" data-c="reel" data-label="Show reel" aria-label="Смотреть шоурил">
       <div class="track d" id="mq"></div>
     </a>
     <div class="live-grid wrap">
@@ -103,21 +103,24 @@
   <!-- 4–6 · directions -->
   <div id="directions">
     <section class="grey wrap dir" data-dir="external">
+      <div class="cnt" aria-hidden="true"></div>
       <div class="ttl"><h2 class="d"><span class="o">Внешние</span><br><span class="solid">коммуникации</span></h2></div>
       <a href="#cases" class="vlink" data-c="link" data-filter="external"></a>
-      <a href="#cases" class="vis" data-c="view" data-label="Кейсы направления" data-filter="external"><div class="art"></div><span class="cap label">Фото кейса</span></a>
+      <a href="#cases" class="vis" data-c="arrow" aria-label="Кейсы направления" data-filter="external"><div class="art"></div><span class="cap label">Фото кейса</span></a>
       <div class="card"><span class="label">Для клиентов и партнёров</span>Маркетинговое мероприятие / Пресс-мероприятие / Фестиваль / Роуд-шоу / Выставка / Конференция для клиентов / Презентация продукта / Интерактивная зона / Форум</div>
     </section>
     <section class="grey wrap dir" data-dir="internal">
+      <div class="cnt" aria-hidden="true"></div>
       <div class="ttl"><h2 class="d"><span class="o">Внутренние</span><br><span class="solid">коммуникации</span></h2></div>
       <a href="#cases" class="vlink" data-c="link" data-filter="internal"></a>
-      <a href="#cases" class="vis" data-c="view" data-label="Кейсы направления" data-filter="internal"><div class="art"></div><span class="cap label">Фото кейса</span></a>
+      <a href="#cases" class="vis" data-c="arrow" aria-label="Кейсы направления" data-filter="internal"><div class="art"></div><span class="cap label">Фото кейса</span></a>
       <div class="card"><span class="label">Для команды</span>Конференция для сотрудников / Хакатон / Тимбилдинг / Корпоративное событие / День рождения компании / Новогодний корпоратив / Стратегическая сессия</div>
     </section>
     <section class="grey wrap dir" data-dir="outlist">
+      <div class="cnt" aria-hidden="true"></div>
       <div class="ttl"><h2 class="d"><span class="o">Out of the list</span><br><span class="solid">коммуникации</span></h2></div>
       <a href="#cases" class="vlink" data-c="link" data-filter="outlist"></a>
-      <a href="#cases" class="vis" data-c="view" data-label="Кейсы направления" data-filter="outlist"><div class="art"></div><span class="cap label">Фото кейса</span></a>
+      <a href="#cases" class="vis" data-c="arrow" aria-label="Кейсы направления" data-filter="outlist"><div class="art"></div><span class="cap label">Фото кейса</span></a>
       <div class="card"><span class="label">Отдельно от события</span>Креатив, контент, дизайн, мерч и застройка. Любой элемент коммуникации можно заказать отдельно.</div>
     </section>
   </div>
