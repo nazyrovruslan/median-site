@@ -515,6 +515,7 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .cb-reel{background:#000;padding:clamp(40px,6vw,110px) var(--gutter)}
 .reel-box{position:relative;aspect-ratio:16/9;max-width:1400px;margin:0 auto;background:#111}
 .reel-box video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.reel-box .ab-tz{object-fit:cover}
 .px{display:block;overflow:hidden}.px>img{scale:1.14;translate:0 var(--py,0%);will-change:translate} /* параллакс фото в кейсе: картинка чуть крупнее рамки и едет внутри неё */
 .yt-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .cb-eps{padding-block:clamp(48px,7vw,135px)}

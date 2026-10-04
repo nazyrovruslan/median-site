@@ -296,9 +296,15 @@ const BLOCK={
   // список выпусков со ссылками на их страницы (Event Surfing)
   links:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${b.items.map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
   // шоурил кейса со старого median.agency: свой mp4 со звуком, грузится только по нажатию
-  reel:k=>`<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><video src="media/video/reel-${k.id}.mp4" poster="media/video/reel-${k.id}.webp" controls playsinline preload="none" title="Видео: ${esc(k.name)}"></video></div></section>`,
+  reel:k=>`<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${k.id}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(media/video/reel-${k.id}.webp) center/cover"><video class="ab-tz" src="media/video/reel-${k.id}-teaser.mp4" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`,
   stats:b=>`<section class="cb cb-stats wrap">${b.items.map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
+// шоурил кейса: беззвучное превью играет, пока блок виден; по клику — полное видео со звуком
+let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const v=$('#cBody .reel-play .ab-tz');if(!v||reduce||!('IntersectionObserver' in window))return;
+  v.addEventListener('playing',()=>v.classList.add('on'),{once:true});
+  reelIO=new IntersectionObserver(([e])=>{if(e.isIntersecting){v.preload='auto';v.play().catch(()=>{});}else v.pause();},{rootMargin:'100px 0px'});reelIO.observe(v.parentElement);}
+$('#cBody').addEventListener('click',e=>{const b=e.target.closest('.reel-play');if(!b)return;const id=b.dataset.reel,box=b.parentElement;reelIO&&reelIO.disconnect();
+  box.innerHTML=`<video src="media/video/reel-${id}.mp4" poster="media/video/reel-${id}.webp" controls autoplay playsinline preload="auto"></video>`;box.querySelector('video').play().catch(()=>{});document.body.className=document.body.className.replace(/\bc-\S+/g,'');});
 function fillCase(id,split){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
@@ -312,6 +318,7 @@ function fillCase(id,split){
   $('#cBody').innerHTML=`<section class="cb cb-facts wrap"><div class="cf-logo d">${esc(k.client||k.name)}</div><dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
     (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t](b,b.t==='text'?tc++:0)).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
+  reelTeaser();
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),!n.light); $('#cNextName').classList.toggle('dark',!!n.light); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;
