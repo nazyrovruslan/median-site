@@ -297,7 +297,7 @@ const BLOCK={
 function fillCase(id){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
-  $('#cVis').style.background=cover(k,i);$('#cVis').style.translate='';$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
+  $('#cVis').style.background=cover(k,i);$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap','split');H.offsetWidth;H.classList.remove('snap');$('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
   const facts=[['Категория',k.cat||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
@@ -313,6 +313,8 @@ function fillCase(id){
   requestAnimationFrame(()=>{fitTitle($('#cTitle'));fitTitle($('#cNextName'));});
 }
 addEventListener('resize',()=>{if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});
+// после перехода обложка раскрывается из макетной раскладки на весь экран, заголовок уезжает вниз влево
+let expT=0;function expandHero(d){clearTimeout(expT);expT=setTimeout(()=>$('#cHero').classList.remove('split'),reduce?0:d);}
 // бесшовный переход: обложка (баннер или строка списка) превращается в фото на обложке кейса
 function flyTo(fly,from,to,T,ease,done){const t0=performance.now();
   const step=now=>{const k=ease(Math.min(1,(now-t0)/T));
@@ -325,7 +327,7 @@ function openCase(id,fromEl,noPush){
   fillCase(id);
   if(!noPush)setCaseUrl(id,true);
   const panel=$('#casePanel');
-  if(panel.classList.contains('on')||!fromEl||reduce){ if(!panel.classList.contains('on')) openPanel(panel); return; }
+  if(panel.classList.contains('on')||!fromEl||reduce){ if(!panel.classList.contains('on')) openPanel(panel); expandHero(500); return; }
   const i=CASES.findIndex(c=>c.id===id), from=fromEl.getBoundingClientRect(), fly=$('#flyCover');
   fly.style.background=cover(CASES[i],i);
   fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
@@ -333,7 +335,7 @@ function openCase(id,fromEl,noPush){
   // панель открываем сразу, без своей анимации, и прячем её фото — его роль играет летящая обложка
   panel.classList.add('instant'); openPanel(panel); $('#cHero').classList.add('ghost');
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    flyTo(fly,from,$('#cVis').getBoundingClientRect(),900,easeIO,()=>{$('#cHero').classList.remove('ghost');fly.classList.remove('on');panel.classList.remove('instant');});
+    flyTo(fly,from,$('#cVis').getBoundingClientRect(),900,easeIO,()=>{$('#cHero').classList.remove('ghost');fly.classList.remove('on');panel.classList.remove('instant');expandHero(700);});
   }));
 }
 // бесшовный переход к следующему кейсу: фото из блока «Следующий проект» встаёт на место фото обложки
@@ -349,7 +351,7 @@ function handoffNext(){
   flyTo(fly,from,{left:sr.left+v.offsetLeft,top:sr.top+v.offsetTop,width:v.offsetWidth,height:v.offsetHeight},300,easeIO,()=>{
     // под летящим фото подменяем контент и мгновенно показываем новую обложку
     fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;}));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;expandHero(350);}));
   });
 }
 $('#cNextCover').onclick=handoffNext;
