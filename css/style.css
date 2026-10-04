@@ -365,12 +365,13 @@ html.loading #cur,html.loading #ring{opacity:0}
 .cb-stats b{font-size:clamp(22px,2.5vw,48px);line-height:1.05;letter-spacing:0}
 .cb-stats span{font:400 var(--txt)/1.4 var(--body);color:rgba(243,243,241,.7)}
 /* следующий проект */
-.next-case{position:relative;height:170svh;background:#000;color:var(--paper);overflow:hidden}
+.next-case{position:relative;height:230svh;background:#000;color:var(--paper);overflow:hidden}
 .nc-sticky{position:absolute;left:0;right:0;top:0;height:100svh;overflow:hidden;will-change:transform}
-.nc-cover{position:absolute;left:20.9%;top:21.5%;width:58.2%;height:61.8%;background-size:cover;background-position:center;cursor:pointer}
-.nc-in{position:absolute;left:24.8%;top:42%;right:6%;font-size:clamp(28px,5.55vw,107px);line-height:.95;letter-spacing:0;color:var(--paper);pointer-events:none}
+.nc-sticky{--k:0;--l:20.9%;--t:21.5%;--w:58.2%;--h:61.8%} /* --k: насколько дотянули; фото растёт до полного экрана, переход — когда заполнило */
+.nc-cover{position:absolute;left:calc(var(--l) * (1 - var(--k)));top:calc(var(--t) * (1 - var(--k)));width:calc(var(--w) + (100% - var(--w)) * var(--k));height:calc(var(--h) + (100% - var(--h)) * var(--k));background-size:cover;background-position:center;cursor:pointer}
+.nc-in{opacity:calc(1 - var(--k) * 2.2);position:absolute;left:24.8%;top:42%;right:6%;font-size:clamp(28px,5.55vw,107px);line-height:.95;letter-spacing:0;color:var(--paper);pointer-events:none}
 .nc-in.dark{color:var(--ink)}
-.nc-bar{position:absolute;left:20.9%;width:58.2%;top:calc(83.3% + 14px);height:1px;background:rgba(243,243,241,.25)}
+.nc-bar{opacity:calc(1 - var(--k) * 3);position:absolute;left:20.9%;width:58.2%;top:calc(83.3% + 14px);height:1px;background:rgba(243,243,241,.25)}
 .nc-bar span{position:absolute;inset:0;background:var(--paper);transform-origin:0 50%;transform:scaleX(0)}
 .nc-foot{position:absolute;left:0;right:0;bottom:6.7%;display:flex;justify-content:space-between;align-items:center;gap:16px;font:400 var(--ui) var(--body)}
 .nc-foot span:nth-child(2){color:var(--muted)}
@@ -441,7 +442,7 @@ html.loading #cur,html.loading #ring{opacity:0}
   .pf1 .pw{left:auto;right:0}
   .cb-feat figcaption{position:relative;width:auto;bottom:auto;margin:-24px 12px 0}
   .cb-stats{grid-template-columns:1fr 1fr}
-  .nc-cover{left:var(--gutter);width:calc(100% - 2*var(--gutter));top:20%;height:46%}
+  .nc-sticky{--l:var(--gutter);--w:calc(100% - 2*var(--gutter));--t:20%;--h:46%}
   .nc-in{left:calc(var(--gutter) + 12px);top:36%}
   .nc-bar{left:var(--gutter);width:calc(100% - 2*var(--gutter));top:calc(66% + 14px)}
   .nc-foot{flex-wrap:wrap;justify-content:flex-start}

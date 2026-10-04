@@ -315,7 +315,7 @@ function handoffNext(){
   fly.classList.add('on'); nc.classList.add('leaving');
   flyTo(fly,from,{left:0,top:0,width:v.offsetWidth,height:v.offsetHeight},800,easeIO,()=>{
     // под летящим фото подменяем контент и мгновенно показываем новую обложку
-    fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform=''; $('#cNextLine').style.transform='';
+    fillCase(n.id); setCaseUrl(n.id,true); sheet.scrollTop=0; nc.classList.remove('leaving'); nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{fly.classList.remove('on');handing=false;}));
   });
 }
@@ -330,6 +330,7 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
   st.style.transform=`translateY(${pin}px)`;
   const k=Math.min(1,Math.max(0,-r.top/(r.height-vh)));
   $('#cNextLine').style.transform=`scaleX(${k.toFixed(3)})`;
+  st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото следующего кейса растёт вместе с прокруткой
   if(k>=.995&&!handing)handoffNext();
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
