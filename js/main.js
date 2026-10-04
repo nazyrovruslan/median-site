@@ -75,7 +75,7 @@ go(0,true);
   const got=urls.map(()=>0),tot=urls.map(()=>0);let shown=0;
   const swap=()=>$$('video.cv').forEach(v=>{const u=Object.keys(BLOB).find(u=>v.getAttribute('src')===vurl(u));if(u&&v.paused){v.src=BLOB[u];}});
   const finish=()=>{if(ready)return;ready=true;swap();ld.classList.add('done');document.documentElement.classList.remove('loading');
-    go(cur,true);if(!reduce)tmr=setTimeout(()=>go(cur+1),DUR);if($('#casePanel').classList.contains('on'))playIn($('#cVis'),true);};
+    go(cur,true);if(!reduce)tmr=setTimeout(()=>go(cur+1),DUR);if($('#casePanel').classList.contains('on'))playIn($('#cVis'),true);else coverVis.forEach(a=>playIn(a,true));};
   const upd=()=>{const p=urls.reduce((a,u,i)=>a+(tot[i]?Math.min(1,got[i]/tot[i]):0),0)/urls.length;
     if(p>shown){shown=p;ld.style.setProperty('--p',p);}};
   if(reduce||!urls.length||!window.fetch||!window.ReadableStream){finish();return;}
@@ -192,7 +192,7 @@ if(!fine){
 const DIRCASE={external:'vtb',internal:'alfa-battle',outlist:'kaspersky'};
 $$('.dir').forEach((s,i)=>{
   const d=s.dataset.dir, list=CASES.filter(c=>c.dir===d), k=CASES.find(c=>c.id===DIRCASE[d]);
-  s.querySelector('.art').style.background=cover(k,i+3);
+  s.querySelector('.art').style.background=cover(k,i+3);s.querySelector('.art').innerHTML=vid(k);
   s.querySelector('.cap').textContent=k.name;
   s.querySelector('.vlink').textContent=k.name+(k.year?' '+k.year:'');
 });
@@ -209,7 +209,10 @@ if(!reduce){
     const ob=own.getBoundingClientRect();if(ob.bottom>-100&&ob.top<vh+100){const p=Math.max(-1,Math.min(1,((ob.top+ob.height/2)-vh/2)/(vh/2+ob.height/2)));projs.forEach((e,j)=>e.style.translate=`0 ${(p*amp*[.4,.75,.55][j]).toFixed(1)}px`);}};
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxRun)},{passive:true});addEventListener('resize',pxRun);pxRun();
 }
-$('#art-southhub').style.background=cover(CASES[1],4);
+$('#art-southhub').style.background=cover(CASES[1],4);$('#art-southhub').innerHTML=vid(CASES[1]);
+// видео-обложки направлений и собственных проектов играют, только пока видны на экране
+const coverVis=new Set();
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)coverVis.add(e.target);else coverVis.delete(e.target);playIn(e.target,e.isIntersecting&&!$$('.panel.on').length);}),{rootMargin:'100px 0px'});$$('.vis .art').forEach(a=>a.querySelector('video.cv')&&io.observe(a));}
 $('#art-es').style.background=cover(CASES.find(c=>c.id==='es'),6);
 $('#art-podcast').style.background=cover(CASES.find(c=>c.id==='podcast'),2);
 $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
@@ -238,8 +241,8 @@ let lastFocus=null;
 let lockY=0;
 function lockScroll(){lockY=scrollY;document.documentElement.style.overflow='hidden';document.body.style.position='fixed';document.body.style.top=(-lockY)+'px';document.body.style.left='0';document.body.style.right='0';document.body.style.width='100%';}
 function unlockScroll(){const h=document.documentElement;h.style.overflow='';document.body.style.position='';document.body.style.top='';document.body.style.left='';document.body.style.right='';document.body.style.width='';h.style.scrollBehavior='auto';scrollTo({top:lockY,left:0,behavior:'instant'});requestAnimationFrame(()=>{h.style.scrollBehavior='';});}
-function openPanel(p){playIn(p.querySelector('#cVis'),true);$$('.slide-bg video').forEach(v=>v.pause());lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
-function closePanel(p){p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length)$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
+function openPanel(p){playIn(p.querySelector('#cVis'),true);$$('.slide-bg video,.vis .art video').forEach(v=>v.pause());lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
+function closePanel(p){p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length){$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));coverVis.forEach(a=>playIn(a,true));}});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
 const closeAny=p=>p.id==='casePanel'?closeCase():p.id==='aboutPanel'?closeAbout():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){$$('.panel.on').forEach(closeAny);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});

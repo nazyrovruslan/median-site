@@ -313,7 +313,7 @@ html.loading #cur,html.loading #ring{opacity:0}
 /* живые обложки: фото и фоны медленно наезжают и смещаются (баннер, направления, обложка кейса) */
 @keyframes drift{0%{scale:1.04;translate:0 0}33%{scale:1.16;translate:-3% -2%}66%{scale:1.12;translate:3% -3%}100%{scale:1.2;translate:-1.5% 2%}}
 .slide-bg.on,.vis .art,.ch-vis{animation:drift 12s ease-in-out infinite alternate}
-.slide-bg:has(.cv),.ch-vis:has(.cv){animation:none} /* на видео-обложках наезда нет, только на статичных фото */
+.slide-bg:has(.cv),.ch-vis:has(.cv),.vis .art:has(.cv){animation:none} /* на видео-обложках наезда нет, только на статичных фото */
 @media (pointer:fine){.dir .vis .art,.proj .vis .art{animation:none}} /* десктоп: обложки направлений и собственных проектов без наезда, только магнит и параллакс */
 .vis .art{animation-duration:14s}
 /* страница кейса по макету (1920: поля 160, колонки 320) */
