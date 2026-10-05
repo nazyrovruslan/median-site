@@ -7,7 +7,7 @@
   --line-dark:rgba(243,243,241,.14);
   --muted:#8d8d8a;
   --display:"Druk Wide Cyr","Arial Black","Helvetica Neue",Arial,sans-serif;
-  --body:"Euclid Circular A","Helvetica Neue",Arial,sans-serif;
+  --body:"Basis Grotesque Pro","Helvetica Neue",Arial,sans-serif;
   --pad:clamp(16px,4vw,56px); /* поля шапки, меню и баннера */
   --gutter:clamp(16px,4vw,56px); /* поля разделов; на десктопе = половина колонки макета */
   --h2:clamp(30px,4.95vw,95px); /* единый размер заголовков разделов: 95px на 1920 по макету */
