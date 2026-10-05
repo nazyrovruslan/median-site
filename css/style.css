@@ -60,8 +60,8 @@ body.c-row #ring .t,body.c-reel #ring .t{opacity:1;color:#000;font:700 11px/1.15
 body.c-view #ring,body.c-hold #ring,body.c-arrow #ring{width:var(--xl);height:var(--xl);background:transparent;border-color:#fff}
 body.c-view #ring .t,body.c-hold #ring .t,body.c-next #ring .t{opacity:1;color:#fff;font:500 var(--ui)/1.2 var(--body);letter-spacing:0;text-transform:none;text-align:center;max-width:72%}
 /* «Следующий проект» над маленькой карточкой — круг меньше, чтобы не сливался с ней */
-body.c-next #ring{width:clamp(96px,6.7vw,128px);height:clamp(96px,6.7vw,128px);background:transparent;border-color:#fff}
-body.c-next #ring .t{font-size:var(--sm);max-width:80%}
+body.c-next #ring{width:clamp(96px,6.7vw,128px);height:clamp(96px,6.7vw,128px);background:#fff;border-color:#fff} /* залитый: через difference инвертирует карточку под собой */
+body.c-next #ring .t{font-size:var(--sm);max-width:80%;color:#000}
 body:is(.c-link,.c-down,.c-stick,.c-row,.c-reel,.c-view,.c-hold,.c-next,.c-arrow) #cur{opacity:0}
 body.c-plus #ring,body.c-stick.c-plus #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);background:transparent;border-color:#fff} /* «Start a project»: большой контурный круг на плюсе */
 body.c-plus #cur{opacity:0}
