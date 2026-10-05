@@ -510,8 +510,8 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .cl-head p{margin:0;font:400 var(--txt)/1.4 var(--body);color:var(--muted)}
 /* награды: премии сеткой, у каждой — места и номинации */
 .aw-list{grid-column:3/6;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(36px,4vw,72px) clamp(24px,3vw,56px);align-items:start}
-.aw-g h4{margin:0;padding-bottom:clamp(12px,1.2vw,20px);border-bottom:1px solid var(--line-dark)}
-.aw-g h4 img{display:block;height:clamp(44px,4.4vw,84px);width:auto}
+.aw-g h4{--u:clamp(76px,6.6vw,124px);display:flex;align-items:flex-end;height:calc(var(--u) * .8);box-sizing:content-box;margin:0;padding-bottom:clamp(12px,1.2vw,20px);border-bottom:1px solid var(--line-dark)}
+.aw-g h4 img{display:block;height:calc(var(--u) * var(--k,.6));width:auto}
 .aw-g ul{list-style:none;margin:0;padding:0}
 .aw-g li{padding-top:clamp(14px,1.3vw,24px)}
 .aw-g b{display:block;font:400 var(--lead)/1.2 var(--body)}
