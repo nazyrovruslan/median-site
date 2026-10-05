@@ -484,6 +484,7 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .fd+.fd{grid-column:4/6}
 .fd h4{font-size:var(--h3);line-height:1;letter-spacing:0;margin:0}
 .fd .label{color:rgba(243,243,241,.6)}
+.fd p{margin:0;font:400 var(--t2)/1.4 var(--body);max-width:22em;color:rgba(243,243,241,.85)}
 .fd a{align-self:flex-start;font:400 var(--ui) var(--body);border-bottom:1px solid currentColor;padding-bottom:2px}
 .ab-vals{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(28px,3vw,56px);margin-top:clamp(16px,3vw,56px)}
 .ab-vals div{border-top:1px solid var(--ink);padding-top:clamp(16px,1.6vw,30px);display:grid;gap:clamp(10px,1vw,18px);align-content:start}
