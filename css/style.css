@@ -478,6 +478,13 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .ab-values{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));row-gap:clamp(24px,3vw,56px);padding-block:clamp(56px,7.8vw,150px)}
 .ab-values h3{grid-column:1/-1;font-size:var(--h2);line-height:1;letter-spacing:0;margin:0}
 .ab-sub{grid-column:3/6}
+.ab-founders{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));row-gap:clamp(28px,3.4vw,64px);padding-block:clamp(56px,7.8vw,150px);background:#000}
+.ab-founders h3{grid-column:1/-1;font-size:var(--h2);line-height:1;letter-spacing:0;margin:0}
+.fd{grid-column:1/3;display:flex;flex-direction:column;gap:14px;padding-top:clamp(20px,2vw,36px);border-top:1px solid var(--line-dark)}
+.fd+.fd{grid-column:4/6}
+.fd h4{font-size:var(--h3);line-height:1;letter-spacing:0;margin:0}
+.fd .label{color:rgba(243,243,241,.6)}
+.fd a{align-self:flex-start;font:400 var(--ui) var(--body);border-bottom:1px solid currentColor;padding-bottom:2px}
 .ab-vals{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(28px,3vw,56px);margin-top:clamp(16px,3vw,56px)}
 .ab-vals div{border-top:1px solid var(--ink);padding-top:clamp(16px,1.6vw,30px);display:grid;gap:clamp(10px,1vw,18px);align-content:start}
 .ab-vals h4{font-size:var(--h4);line-height:1.05;letter-spacing:0}
@@ -531,6 +538,8 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
   .ab-play-in{bottom:24px}
   .ab-sub{grid-column:1/-1}
   .ab-values{grid-template-columns:minmax(0,1fr)}
+  .ab-founders{grid-template-columns:minmax(0,1fr)}
+  .fd,.fd+.fd{grid-column:1/-1}
   .ab-vals{grid-template-columns:minmax(0,1fr)}
   .ab-awards{grid-template-columns:1fr;row-gap:28px}
   .aw-list{grid-column:1/-1}
