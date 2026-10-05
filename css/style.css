@@ -292,14 +292,14 @@ body.c-proj.c-stick #cur{opacity:1}
 html.loading{overflow:hidden}
 #loader{position:fixed;inset:0;z-index:300;background:var(--ink);color:var(--paper);display:grid;place-items:center;transition:opacity .7s var(--ease),visibility 0s .7s}
 #loader.done{opacity:0;visibility:hidden}
-.ld-mark{position:relative;width:clamp(110px,10vw,190px);aspect-ratio:314/283} /* знак из макета: контур заполняется снизу вверх по мере загрузки */
+.ld-mark{position:relative;width:clamp(110px,10vw,190px);aspect-ratio:314/283} /* знак из макета: контур заполняется сверху вниз по мере загрузки */
 .ld-mark svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .ld-o path{fill:none;stroke:var(--paper);stroke-width:2.4;vector-effect:non-scaling-stroke}
 .ld-k path{fill:var(--ink)}
 .ld-o path:nth-of-type(-n+2),.ld-k path:nth-of-type(-n+2){fill:var(--paper);stroke:none} /* ® всегда сплошной, как в макете */ /* перекрывает внутренние линии: остаётся только внешний контур знака */
 html.loading #cur,html.loading #ring{opacity:0}
 .ld-f path{fill:var(--paper)}
-.ld-f{clip-path:inset(calc(100% - var(--p,0) * 100%) 0 0 0);transition:clip-path .35s linear}
+.ld-f{clip-path:inset(0 0 calc(100% - var(--p,0) * 100%) 0);transition:clip-path .35s linear}
 
 /* ---------- panels (case + brief) ---------- */
 #reelPanel{display:block}
