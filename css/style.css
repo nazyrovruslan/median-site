@@ -41,30 +41,28 @@ html.kbd :focus-visible{outline:2px solid var(--paper);outline-offset:4px} /* р
 #ring .t{font:700 10px/1.1 var(--body);letter-spacing:.08em;text-transform:uppercase;text-align:center;color:#000;opacity:0;transition:opacity .2s;max-width:80px}
 #ring .pg{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);rotate:-90deg;opacity:0}
 #ring .pg circle{fill:none;stroke:#fff;stroke-width:2;stroke-dasharray:302;stroke-dashoffset:302}
-body.c-link #ring{width:64px;height:64px;background:#fff;border-color:#fff}
 /* по макету: над фото и обложкой контурный круг с белой подписью или стрелкой; шоурил и строки кейсов — белый круг */
-body.c-view #ring,body.c-hold #ring,body.c-arrow #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);border-color:#fff}
-body.c-view #ring .t,body.c-hold #ring .t{opacity:1;color:#fff;font:700 clamp(15px,1.3vw,25px)/1.05 var(--body);letter-spacing:0;text-transform:none;text-align:left;max-width:60%}
 /* курсор во всех состояниях инвертируется по фону (mix-blend difference у #cur и #ring) */
-body.c-next #ring{width:clamp(120px,8.6vw,165px);height:clamp(120px,8.6vw,165px);border-color:#fff}
-body.c-next #ring .t{opacity:1;color:#fff;font:500 clamp(13px,.94vw,18px)/1.2 var(--body);letter-spacing:0;text-transform:none;text-align:center} /* «Следующий проект» в курсоре, инвертируется по фону */
+/* состояния курсора — одна система: 4 размера, подпись всегда по центру, точка прячется, как только у кольца есть заливка, подпись или иконка
+   S 38 — контур (по умолчанию) · M 64 — белый круг (ссылки, прилипание) · L 108 — белый круг с тёмной подписью (строки кейсов, видео)
+   XL — контурный круг с белой подписью или стрелкой поверх фото (обложки, баннер, «Следующий проект») */
+#ring{--xl:clamp(130px,10vw,196px)}
+body.c-link #ring,body.c-down #ring,body.c-stick #ring{width:64px;height:64px;background:#fff;border-color:#fff}
+body.c-row #ring,body.c-reel #ring{width:108px;height:108px;background:#fff;border-color:#fff}
+body.c-row #ring .t,body.c-reel #ring .t{opacity:1;color:#000;font:700 11px/1.15 var(--body);letter-spacing:.06em;text-transform:uppercase;text-align:center;max-width:76%}
+body.c-view #ring,body.c-hold #ring,body.c-next #ring,body.c-arrow #ring{width:var(--xl);height:var(--xl);background:transparent;border-color:#fff}
+body.c-view #ring .t,body.c-hold #ring .t,body.c-next #ring .t{opacity:1;color:#fff;font:500 clamp(14px,1.05vw,19px)/1.2 var(--body);letter-spacing:0;text-transform:none;text-align:center;max-width:72%}
+body:is(.c-link,.c-down,.c-stick,.c-row,.c-reel,.c-view,.c-hold,.c-next,.c-arrow) #cur{opacity:0}
 body.c-plus #ring,body.c-stick.c-plus #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);background:transparent;border-color:#fff} /* «Start a project»: большой контурный круг на плюсе */
 body.c-plus #cur{opacity:0}
 /* буквы под кругом инвертируются: контурные становятся сплошными и наоборот (копия надписи, маски по кругу курсора) */
 .start .d{position:relative;--r:0px;--cx:-999px;--cy:-999px}
 .start .d .d-inv{position:absolute;inset:0;pointer-events:none;-webkit-mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),#000 calc(100% - .5px),transparent 100%);mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),#000 calc(100% - .5px),transparent 100%)}
 .start .d.inv>.line{-webkit-mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),transparent calc(100% - .5px),#000 100%);mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),transparent calc(100% - .5px),#000 100%)}
-body.c-row #ring{width:108px;height:108px;background:#fff;border-color:#fff}
-body.c-row #ring .t{opacity:1}
-body.c-reel #ring{width:104px;height:104px;background:#fff;border-color:#fff}
-body.c-reel #ring .t{opacity:1;font:700 15px/1 var(--display);letter-spacing:0;max-width:64px}
 #ring .ar{position:absolute;left:50%;top:50%;translate:-50% -50%;width:64px;height:12px;opacity:0;transition:opacity .2s}
 #ring .ar *{fill:none;stroke:#fff;stroke-width:1.2;vector-effect:non-scaling-stroke}
 body.c-arrow #ring .ar{opacity:1}
 body.c-hold #ring .pg{opacity:1}
-body.c-link #cur,body.c-view #cur,body.c-hold #cur,body.c-row #cur,body.c-reel #cur,body.c-arrow #cur{opacity:0}
-body.c-down #ring{width:64px;height:64px}
-body.c-stick #ring{background:#fff;border-color:#fff}
 body.c-stick #cur{opacity:0}
 body:not(.has-cursor) #cur,body:not(.has-cursor) #ring{display:none}
 body.touch-cursor #ring{transition:opacity .6s ease;opacity:0;width:96px;height:96px}
@@ -403,7 +401,7 @@ html.loading #cur,html.loading #ring{opacity:0}
 /* невидимая рамка с теми же размерами — из неё вылетает фото при клике */
 .nc-frame{visibility:hidden;pointer-events:none}
 .nc-in{position:absolute;z-index:1;left:calc(var(--ht-l) * (1 - var(--k)) + var(--gutter) * var(--k));top:calc(var(--ht-t) * (1 - var(--k)) + (100% - var(--hb)) * var(--k));translate:0 calc(-100% * var(--k));scale:calc(1 + (var(--hs) - 1) * var(--k));transform-origin:0 100%;width:var(--ht-w);color:var(--paper);pointer-events:none}
-.nc-bar{--bw:6px;opacity:calc(1 - max(0, var(--k) - .85) * 6.6);position:absolute;z-index:1;left:calc(var(--hv-l) * (1 - var(--k)) + var(--hv-w) + (100% - var(--hv-w)) * var(--k) - var(--bw));top:calc(var(--hv-t) * (1 - var(--k)));width:var(--bw);height:calc(var(--hv-h) + (100% - var(--hv-h)) * var(--k));background:rgba(243,243,241,.25);pointer-events:none} /* полоса перехода — правый край обложки, заполняется сверху вниз и едет вместе с ним */
+.nc-bar{--bw:6px;opacity:calc(1 - max(0, var(--k) - .85) * 6.6);position:absolute;z-index:1;left:calc(var(--hv-l) * (1 - var(--k)));top:calc(var(--hv-t) * (1 - var(--k)));width:var(--bw);height:calc(var(--hv-h) + (100% - var(--hv-h)) * var(--k));background:rgba(243,243,241,.25);pointer-events:none} /* полоса перехода — левый край обложки, заполняется сверху вниз и едет вместе с ним */
 .nc-bar span{position:absolute;inset:0;background:var(--paper);transform-origin:50% 0;transform:scaleY(0)}
 .nc-foot{opacity:calc(1 - var(--k) * 3);position:absolute;left:0;right:0;bottom:6.7%;display:flex;justify-content:space-between;align-items:center;gap:16px;font:400 var(--ui) var(--body)}
 .nc-foot span:nth-child(2){color:var(--muted)}
