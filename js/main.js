@@ -384,7 +384,7 @@ function handoffNext(){
   if(handing)return; handing=true;
   const sheet=$('#casePanel .sheet'), nc=$('#cNext'), i=CASES.findIndex(c=>c.id===openId), n=CASES[(i+1)%CASES.length];
   // к концу прокрутки обложка «Следующего проекта» уже на весь экран, как обложка кейса: подменяем контент в том же кадре, без летящей копии (она мигала тёмным фоном, пока Safari декодировал картинку)
-  nprog(0); fillCase(n.id); setCaseUrl(n.id,true); scrollHold(sheet); sheet.scrollTop=0; nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
+  fillCase(n.id); setCaseUrl(n.id,true); scrollHold(sheet); sheet.scrollTop=0; nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{handing=false;}));
 }
 // после перехода гасим инерцию прокрутки (трекпад, тач): иначе она докручивает новый кейс мимо обложки.
@@ -394,9 +394,6 @@ function scrollHold(sh){const t=performance.now();holdUntil=t+600;holdEnd=t+1500
 function releaseHold(sh){const t=performance.now();if(t<holdUntil&&t<holdEnd){clearTimeout(holdT);holdT=setTimeout(()=>releaseHold(sh),holdUntil-t);return;}holdUntil=0;sh.style.overflowY='';}
 $('#casePanel .sheet').addEventListener('wheel',e=>{if(!holdUntil)return;e.preventDefault();holdUntil=Math.max(holdUntil,performance.now()+200);},{passive:false});
 $('#casePanel .sheet').addEventListener('touchmove',e=>{if(holdUntil&&e.cancelable)e.preventDefault();},{passive:false});
-// прогресс перехода на десктопе — кольцом вокруг курсора (как удержание на баннере); на тач-экранах — полоса по низу обложки
-const ringPg=$('#ring .pg circle');
-function nprog(k){if(!document.body.classList.contains('has-cursor'))return;const on=k>.005&&k<.98;document.body.classList.toggle('c-nprog',on);ringPg.style.strokeDashoffset=on?(302*(1-k)).toFixed(1):302;}
 // картинку следующего кейса декодируем заранее, пока блок «Следующий проект» подъезжает, — чтобы обложка нового кейса нарисовалась сразу
 let preDec='';function predecodeNext(){const i=CASES.findIndex(c=>c.id===openId),n=CASES[(i+1)%CASES.length],u=n.vid?poster(n):n.img;if(!u||preDec===u)return;preDec=u;const im=new Image();im.src=u;im.decode&&im.decode().catch(()=>{});}
 $('#cNextCover').onclick=handoffNext;
@@ -414,15 +411,14 @@ if(!reduce){const sh=$('#casePanel .sheet');let q=0;const run=()=>{q=0;const vh=
   sh.addEventListener('scroll',()=>{if(!q)q=requestAnimationFrame(run)},{passive:true});}
 $('#casePanel .sheet').addEventListener('scroll',()=>{
   const sh=$('#casePanel .sheet'), nc=$('#cNext'), st=nc.querySelector('.nc-sticky'), r=nc.getBoundingClientRect(), vh=sh.clientHeight;
-  if(r.top>vh||r.bottom<0){nprog(0);return;}
+  if(r.top>vh||r.bottom<0)return;
   predecodeNext();
   // прилипание — position:sticky; вручную только в старых браузерах без overflow:clip
   if(!CLIP)st.style.transform=`translateY(${Math.min(Math.max(0,-r.top),r.height-vh)}px)`;
   // считаем от высоты самой панели (в Safari innerHeight меняется с панелями); у самого низа — ровно 1
   const atEnd=sh.scrollTop>=sh.scrollHeight-vh-2;
   const k=atEnd?1:Math.min(1,Math.max(0,-r.top/(r.height-vh)));
-  $('#cNextLine').style.transform=`scaleX(${k.toFixed(3)})`;
-  nprog(k);
+  $('#cNextLine').style.transform=`scaleY(${k.toFixed(3)})`;
   st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото и заголовок следующего кейса переезжают на места обложки кейса
   if(k>=.98&&!handing)handoffNext();
 },{passive:true});

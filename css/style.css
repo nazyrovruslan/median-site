@@ -403,8 +403,8 @@ html.loading #cur,html.loading #ring{opacity:0}
 /* невидимая рамка с теми же размерами — из неё вылетает фото при клике */
 .nc-frame{visibility:hidden;pointer-events:none}
 .nc-in{position:absolute;z-index:1;left:calc(var(--ht-l) * (1 - var(--k)) + var(--gutter) * var(--k));top:calc(var(--ht-t) * (1 - var(--k)) + (100% - var(--hb)) * var(--k));translate:0 calc(-100% * var(--k));scale:calc(1 + (var(--hs) - 1) * var(--k));transform-origin:0 100%;width:var(--ht-w);color:var(--paper);pointer-events:none}
-.nc-bar{opacity:calc(1 - max(0, var(--k) - .85) * 6.6);position:absolute;z-index:1;left:calc(var(--hv-l) * (1 - var(--k)));width:calc(var(--hv-w) + (100% - var(--hv-w)) * var(--k));top:calc(var(--hv-t) * (1 - var(--k)) + var(--hv-h) + (100% - var(--hv-h)) * var(--k) - 3px);height:3px;background:rgba(243,243,241,.3);pointer-events:none} /* полоса перехода — нижний край обложки: растёт вместе с ней и к концу ложится по низу экрана */
-.nc-bar span{position:absolute;inset:0;background:var(--paper);transform-origin:0 50%;transform:scaleX(0)}
+.nc-bar{--bw:6px;opacity:calc(1 - max(0, var(--k) - .85) * 6.6);position:absolute;z-index:1;left:calc(var(--hv-l) * (1 - var(--k)) + var(--hv-w) + (100% - var(--hv-w)) * var(--k) - var(--bw));top:calc(var(--hv-t) * (1 - var(--k)));width:var(--bw);height:calc(var(--hv-h) + (100% - var(--hv-h)) * var(--k));background:rgba(243,243,241,.25);pointer-events:none} /* полоса перехода — правый край обложки, заполняется сверху вниз и едет вместе с ним */
+.nc-bar span{position:absolute;inset:0;background:var(--paper);transform-origin:50% 0;transform:scaleY(0)}
 .nc-foot{opacity:calc(1 - var(--k) * 3);position:absolute;left:0;right:0;bottom:6.7%;display:flex;justify-content:space-between;align-items:center;gap:16px;font:400 var(--ui) var(--body)}
 .nc-foot span:nth-child(2){color:var(--muted)}
 .next-case.leaving .nc-bar,.next-case.leaving .nc-foot{opacity:0;transition:opacity .3s}
@@ -718,9 +718,3 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rows-tog[aria-expanded="true"] .arr-d{transform:rotate(180deg)}
 .rows-tog[aria-expanded="true"]:hover .arr-d{transform:rotate(180deg) translateY(6px)}
 @media (prefers-reduced-motion:reduce){.rows-more,.rows-more .row{transition:none}}
-/* «Следующий проект»: прогресс перехода — кольцо курсора заполняется по мере прокрутки (полосу на десктопе прячем) */
-body.c-nprog #ring{width:clamp(120px,8.6vw,165px);height:clamp(120px,8.6vw,165px);background:transparent;border-color:rgba(255,255,255,.3)}
-body.c-nprog #ring .pg,body.c-nprog #ring .ar{opacity:1}
-body.c-nprog #ring .t{opacity:0}
-body.c-nprog #cur{opacity:0}
-body.has-cursor .nc-bar{display:none}
