@@ -46,7 +46,7 @@ function go(i,instant){
     $$('.slide-title').forEach((e,j)=>{if(j===cur){e.classList.remove('out');e.classList.add('on');}else if(e.classList.contains('on')){e.classList.remove('on');e.classList.add('out');setTimeout(()=>e.classList.remove('out'),800);}});
     [...bars.children].forEach((e,j)=>{e.classList.remove('run');e.classList.toggle('done',j<cur);if(j===cur){void e.offsetWidth;e.style.setProperty('--dur',DUR+'ms');if(!reduce)e.classList.add('run');}});
     $('#cnt').textContent=String(cur+1).padStart(2,'0');
-    $('#hit').setAttribute('aria-label','Открыть кейс '+HERO[cur].name);
+    $('#hit').setAttribute('aria-label','Открыть проект '+HERO[cur].name);
     busy=false; clearTimeout(tmr); if(!reduce&&!instant) tmr=setTimeout(()=>go(cur+1),DUR);
   };
   if(instant||reduce){land();return;}
@@ -234,7 +234,7 @@ const rows=$('#rows');
 // видео превью создаём один раз на кейс и держим: повторное наведение — без перезагрузки; src тот же, что у баннера (первый слайд — из памяти), поэтому уже скачанное берётся из кэша
 const PV={};function peekVid(i){if(i in PV)return PV[i];const t=document.createElement('div');t.innerHTML=vid(CASES[i]);return PV[i]=t.firstElementChild;}
 CASES.forEach((k,i)=>{
-  const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть кейс';
+  const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть проект';
   r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}</span><span class="rp"></span>`;r.dataset.i=i;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
   r.addEventListener('mouseenter',()=>{const v=peekVid(i);peek.replaceChildren(...(v?[v]:[]));peek.style.background=cover(k,i,1);peekAt(r);peek.classList.add('on');if(v){v.preload='auto';v.play().catch(()=>{});}
