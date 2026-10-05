@@ -403,7 +403,7 @@ html.loading #cur,html.loading #ring{opacity:0}
 /* невидимая рамка с теми же размерами — из неё вылетает фото при клике */
 .nc-frame{visibility:hidden;pointer-events:none}
 .nc-in{position:absolute;z-index:1;left:calc(var(--ht-l) * (1 - var(--k)) + var(--gutter) * var(--k));top:calc(var(--ht-t) * (1 - var(--k)) + (100% - var(--hb)) * var(--k));translate:0 calc(-100% * var(--k));scale:calc(1 + (var(--hs) - 1) * var(--k));transform-origin:0 100%;width:var(--ht-w);color:var(--paper);pointer-events:none}
-.nc-bar{opacity:calc(1 - max(0, var(--k) - .8) * 5);position:absolute;left:var(--ht-l);width:var(--ht-w);top:calc(var(--hv-h) - 3px);height:3px;background:rgba(243,243,241,.3)} /* полоса перехода: заметная и видна почти до конца прокрутки */
+.nc-bar{opacity:calc(1 - max(0, var(--k) - .85) * 6.6);position:absolute;z-index:1;left:calc(var(--hv-l) * (1 - var(--k)));width:calc(var(--hv-w) + (100% - var(--hv-w)) * var(--k));top:calc(var(--hv-t) * (1 - var(--k)) + var(--hv-h) + (100% - var(--hv-h)) * var(--k) - 3px);height:3px;background:rgba(243,243,241,.3);pointer-events:none} /* полоса перехода — нижний край обложки: растёт вместе с ней и к концу ложится по низу экрана */
 .nc-bar span{position:absolute;inset:0;background:var(--paper);transform-origin:0 50%;transform:scaleX(0)}
 .nc-foot{opacity:calc(1 - var(--k) * 3);position:absolute;left:0;right:0;bottom:6.7%;display:flex;justify-content:space-between;align-items:center;gap:16px;font:400 var(--ui) var(--body)}
 .nc-foot span:nth-child(2){color:var(--muted)}
@@ -608,7 +608,6 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .pf1 .pw{left:auto;right:0}
   .cb-feat figcaption{position:relative;width:auto;bottom:auto;margin:-24px 12px 0}
   .cb-stats{grid-template-columns:1fr 1fr}
-  .nc-bar{top:auto;bottom:16%}
   .nc-foot{flex-wrap:wrap;justify-content:flex-start}
 }
 @media (max-width:820px){
