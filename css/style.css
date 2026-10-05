@@ -718,3 +718,9 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rows-tog[aria-expanded="true"] .arr-d{transform:rotate(180deg)}
 .rows-tog[aria-expanded="true"]:hover .arr-d{transform:rotate(180deg) translateY(6px)}
 @media (prefers-reduced-motion:reduce){.rows-more,.rows-more .row{transition:none}}
+/* «Следующий проект»: прогресс перехода — кольцо курсора заполняется по мере прокрутки (полосу на десктопе прячем) */
+body.c-nprog #ring{width:clamp(120px,8.6vw,165px);height:clamp(120px,8.6vw,165px);background:transparent;border-color:rgba(255,255,255,.3)}
+body.c-nprog #ring .pg,body.c-nprog #ring .ar{opacity:1}
+body.c-nprog #ring .t{opacity:0}
+body.c-nprog #cur{opacity:0}
+body.has-cursor .nc-bar{display:none}
