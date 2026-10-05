@@ -489,6 +489,12 @@ function openAbout(push){if(aboutP.classList.contains('on'))return;aboutP.queryS
 
   if(push){history.pushState({about:1},'',ROOT+'about');aboutPushed=true;}
   document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce){tz.addEventListener('playing',()=>tz.classList.add('on'),{once:true});tz.play().catch(()=>{});}}
+// «О нас»: знак-контур из прелоадера; смена фона по скроллу (артборды 29→30)
+{const m=$('#aiMark');if(m)$$('#loader .ld-o,#loader .ld-k').forEach(sv=>m.appendChild(sv.cloneNode(true)));
+ const sh=aboutP.querySelector('.sheet'),top=$('#abTop'),hero=aboutP.querySelector('.ab-hero');let raf=0;
+ const f=()=>{raf=0;const h=innerHeight,hh=hero.offsetHeight,st=0,sp=h*.7; // «Кто мы?» залипает верхом к экрану, за 70% экрана скролла фон чёрный → серый
+   top.style.setProperty('--st',st+'px');const a=top.getBoundingClientRect().bottom-(st+hh);top.style.setProperty('--k',Math.min(1,Math.max(0,1-a/sp)).toFixed(3));};
+ sh.addEventListener('scroll',()=>{if(!raf)raf=requestAnimationFrame(f);},{passive:true});addEventListener('resize',f);f();}
 function closeAbout(){if(aboutPushed){aboutPushed=false;history.back();return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel(aboutP);}
 $$('#wavesLink,[data-about]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openAbout(true);}));
 $('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollIntoView({behavior:reduce?'auto':'smooth'});});
