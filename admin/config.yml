@@ -116,6 +116,13 @@ collections:
             fields:
               - { name: img, label: Фото (png/webp с прозрачным фоном), widget: image }
               - { name: text, label: Абзацы, widget: list, field: { name: p, label: Абзац, widget: text } }
+          - name: hub
+            label: Перебивка — буквенная сетка
+            fields:
+              - { name: start, label: Начало слова (первая клетка), widget: string, hint: "Например, SOUTHU" }
+              - { name: letter, label: Повторяющаяся буква, widget: string, default: U }
+              - { name: end, label: Последняя буква (в правом нижнем углу), widget: string, hint: "Например, B" }
+              - { name: tag, label: Слоган, widget: string }
           - name: stats
             label: Цифры
             fields:

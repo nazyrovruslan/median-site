@@ -318,8 +318,19 @@ const BLOCK={
   // шоурил кейса со старого median.agency: свой mp4 со звуком, грузится только по нажатию
   // reel — путь к mp4; рядом лежат <имя>.webp (постер) и <имя>-teaser.mp4 (превью), их делает tools/media.sh при деплое
   reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`;},
+  // перебивка «буквенная сетка» (South HUB): слово, ряды одной буквы, слоган; буквы у курсора увеличиваются
+  hub:b=>`<section class="cb cb-hub" aria-label="${esc((b.start||'')+(b.end||''))}: ${esc(b.tag||'')}"><div class="hub-g" aria-hidden="true"><b class="hub-s">${esc(b.start)}</b>${`<i><span>${esc(b.letter||'U')}</span></i>`.repeat(54)}<p class="hub-t">${esc(b.tag)}</p><b class="hub-e"><span>${esc(b.end)}</span></b></div></section>`,
   stats:b=>`<section class="cb cb-stats wrap">${(b.items||[]).map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
+// буквенная сетка: буквы рядом с курсором растут (на таче — медленно «гуляющая» волна, пока блок на экране)
+let hubIO=null;function hubInit(){hubIO&&hubIO.disconnect();const g=$('#cBody .hub-g');if(!g||reduce)return;
+  const cells=[...g.querySelectorAll('i,.hub-e')];let px=-1e4,py=-1e4,raf=0,auto=0,t0=0;
+  const draw=()=>{raf=0;const R=g.clientWidth/12*2.3;cells.forEach(c=>{if(!c.offsetParent)return;const r=c.getBoundingClientRect(),d=Math.hypot(r.left+r.width/2-px,r.top+r.height/2-py),k=Math.max(0,1-d/R);c.style.setProperty('--z',(1+1.15*k*k).toFixed(3));});};
+  const at=(x,y)=>{px=x;py=y;if(!raf)raf=requestAnimationFrame(draw);};
+  g.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')at(e.clientX,e.clientY);});
+  g.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')at(-1e4,-1e4);});
+  if(matchMedia('(hover:none)').matches&&'IntersectionObserver' in window){const loop=t=>{if(!auto)return;if(!t0)t0=t;const s=(t-t0)/1000,b=g.getBoundingClientRect();at(b.left+b.width*(.5+.42*Math.sin(s*.7)),b.top+b.height*(.5+.38*Math.sin(s*1.13)));auto=requestAnimationFrame(loop);};
+    hubIO=new IntersectionObserver(([e])=>{if(e.isIntersecting){if(!auto)auto=requestAnimationFrame(loop);}else{cancelAnimationFrame(auto);auto=0;}});hubIO.observe(g);}}
 // шоурил кейса: беззвучное превью играет, пока блок виден; по клику — полное видео со звуком
 let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const v=$('#cBody .reel-play .ab-tz');if(!v||reduce||!('IntersectionObserver' in window))return;
   v.addEventListener('playing',()=>v.classList.add('on'),{once:true});
@@ -346,7 +357,7 @@ function fillCase(id,split){
   $('#cBody').innerHTML=`<section class="cb cb-facts wrap"><div class="cf-logo d">${esc(k.client||k.name)}</div><dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
     (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
-  reelTeaser();
+  reelTeaser();hubInit();
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;

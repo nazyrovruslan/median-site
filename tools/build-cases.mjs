@@ -30,7 +30,7 @@ const cases = fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => {
 const ids = new Set();
 for (const c of cases) { if (ids.has(c.id)) throw new Error(`повтор id: ${c.id}`); ids.add(c.id); delete c.order; }
 const out = '/* СГЕНЕРИРОВАНО tools/build-cases.mjs из content/cases/*.json — правки вносить там (или через /admin), не здесь.\n' +
-  '   Поля: ttl — строки заголовка [текст, контур?], blocks — секции страницы кейса (cut | pairs | feature | text | stats | links | yt | eps) */\n' +
+  '   Поля: ttl — строки заголовка [текст, контур?], blocks — секции страницы кейса (cut | pairs | feature | text | stats | links | yt | eps | hub) */\n' +
   'const CASES=[\n' + cases.map(c => JSON.stringify(c)).join(',\n') + '\n];\n';
 fs.writeFileSync('js/cases.js', out);
 console.log(`js/cases.js: ${cases.length} кейсов`);
