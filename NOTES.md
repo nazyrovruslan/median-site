@@ -70,3 +70,6 @@ Kaspersky — полностью по макету, фото вытащены и
 - Вход: «Sign In with Token» → GitHub fine-grained token: github.com/settings/personal-access-tokens/new → Repository access: Only select → median-site → Permissions: Contents — Read and write → Generate. Токен хранится только в браузере.
 - Деплой (`.github/workflows/pages.yml`): `tools/build-cases.mjs` собирает `js/cases.js` (порядок — поле `order`, первые 5 — баннер), `tools/media.mjs` досоздаёт недостающие производные (HEVC и постер видео-обложки, превью 520 px в `media/thumb`, постер и тизер ролика кейса), всё это коммитится обратно в main с `[skip ci]`; версия `cases.js?v=` на сайте = хэш коммита.
 - Локально после правок в content/: `node tools/build-cases.mjs && node tools/media.mjs`. Поле `reel` теперь путь к mp4 (раньше флаг 1).
+
+## Страница ошибок
+`404.html` — одна страница на все ошибки. GitHub Pages отдаёт её на любой несуществующий адрес. Адреса кейсов и /about она не считает ошибкой и перенаправляет на главную (кейс откроется). Другие коды: `404.html?code=500` (400, 401, 403, 408, 410, 429, 500, 502, 503, 504) — пригодится, если сайт переедет на свой сервер.
