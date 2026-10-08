@@ -319,10 +319,13 @@ const BLOCK={
   // reel — путь к mp4; рядом лежат <имя>.webp (постер) и <имя>-teaser.mp4 (превью), их делает tools/media.sh при деплое
   reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`;},
   // перебивка «буквенная сетка» (South HUB): слово, ряды одной буквы, слоган; буквы у курсора увеличиваются
-  hub:b=>`<section class="cb cb-hub" aria-label="${esc((b.start||'')+(b.end||''))}: ${esc(b.tag||'')}"><div class="hub-g" aria-hidden="true"><b class="hub-s">${esc(b.start)}</b>${`<i><span>${esc(b.letter||'U')}</span></i>`.repeat(54)}<p class="hub-t">${esc(b.tag)}</p><b class="hub-e"><span>${esc(b.end)}</span></b></div></section>`,
+  // буквы South HUB берём их же векторами с southhub.ru; другие буквы — текстом
+  hub:b=>{const gl=t=>HUBSVG[t]?`<img class="hub-svg" src="media/southhub/${HUBSVG[t]}.svg" alt="">`:esc(t);
+    return `<section class="cb cb-hub" aria-label="${esc((b.start||'')+(b.end||''))}: ${esc(b.tag||'')}"><div class="hub-g" aria-hidden="true"><b class="hub-s">${gl(b.start)}</b>${`<i><span>${gl(b.letter||'U')}</span></i>`.repeat(54)}<p class="hub-t">${esc(b.tag)}</p><b class="hub-e"><span>${gl(b.end)}</span></b></div></section>`},
   stats:b=>`<section class="cb cb-stats wrap">${(b.items||[]).map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
 // буквенная сетка: буквы рядом с курсором растут (на таче — медленно «гуляющая» волна, пока блок на экране)
+const HUBSVG={SOUTHU:'southu',U:'u',B:'b'};
 let hubIO=null;function hubInit(){hubIO&&hubIO.disconnect();const g=$('#cBody .hub-g');if(!g||reduce)return;
   const cells=[...g.querySelectorAll('i,.hub-e')];let px=-1e4,py=-1e4,raf=0,auto=0,t0=0;
   const draw=()=>{raf=0;const R=g.clientWidth/12*2.3;cells.forEach(c=>{if(!c.offsetParent)return;const r=c.getBoundingClientRect(),d=Math.hypot(r.left+r.width/2-px,r.top+r.height/2-py),k=Math.max(0,1-d/R);c.style.setProperty('--z',(1+1.15*k*k).toFixed(3));});};

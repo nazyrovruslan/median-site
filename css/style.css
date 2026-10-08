@@ -404,6 +404,9 @@ html.loading #cur,html.loading #ring{opacity:0}
 .hub-s{justify-self:start;padding-left:clamp(14px,1.5vw,30px);white-space:nowrap;font-weight:700;letter-spacing:-.03em}
 .hub-t{grid-row:3;grid-column:8/12;margin:0;font:400 clamp(13px,1.45vw,28px)/1.2 var(--body);letter-spacing:.01em;white-space:nowrap;justify-self:center}
 .hub-e{grid-row:5;grid-column:12}
+.hub-svg{display:block;height:.72em;width:auto}
+.hub-s .hub-svg{height:.62em}
+.hub-t{font-family:'Mont',var(--body)}
 .cb-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(28px,3vw,56px) 0;padding-block:clamp(56px,7vw,135px)}
 .cb-stats div{display:grid;gap:12px;align-content:start;padding-right:16px}
 .cb-stats b{font-size:var(--h3);line-height:1.05;letter-spacing:0}
@@ -782,4 +785,5 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rows-tog .arr-d{transition:transform .5s var(--ease)}
 .rows-tog[aria-expanded="true"] .arr-d{transform:rotate(180deg)}
 .rows-tog[aria-expanded="true"]:hover .arr-d{transform:rotate(180deg) translateY(6px)}
-@media (prefers-reduced-motion:reduce){.rows-more,.rows-more .row{transition:none}}
+@media (prefers-reduced-motion:reduce){.rows-more,.rows-more .row{transition:none}}@font-face{font-family:'Mont';src:url(../fonts/mont-book.otf) format('opentype');font-weight:400 500;font-display:swap}
+
