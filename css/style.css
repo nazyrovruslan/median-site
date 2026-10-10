@@ -787,3 +787,20 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rows-tog[aria-expanded="true"]:hover .arr-d{transform:rotate(180deg) translateY(6px)}
 @media (prefers-reduced-motion:reduce){.rows-more,.rows-more .row{transition:none}}@font-face{font-family:'Mont';src:url(../fonts/mont-book.otf) format('opentype');font-weight:400 500;font-display:swap}
 
+/* юридическое: ссылка на политику в подвале, согласие в брифе, уведомление о cookie */
+.foot-bar .pol{color:var(--muted);white-space:nowrap}
+.foot-bar .pol:hover{color:var(--paper)}
+.foot.grey .foot-bar .pol{color:#333}
+.agree{display:flex;gap:12px;align-items:flex-start;margin:4px 0 18px;font:400 var(--sm)/1.4 var(--body);color:rgba(243,243,241,.7);cursor:pointer;max-width:52ch}
+.agree input{appearance:none;-webkit-appearance:none;flex:none;width:18px;height:18px;margin:1px 0 0;border:1px solid var(--muted);border-radius:0;background:transparent;cursor:pointer;display:grid;place-items:center}
+.agree input:checked{background:var(--paper);border-color:var(--paper)}
+.agree input:checked::after{content:"";width:9px;height:5px;border:solid var(--ink);border-width:0 0 2px 2px;rotate:-45deg;translate:0 -1px}
+.agree input:focus-visible{outline:1px solid var(--paper);outline-offset:3px}
+.agree a{color:var(--paper);text-decoration:underline;text-underline-offset:3px}
+.cookie{position:fixed;left:var(--pad);bottom:calc(env(safe-area-inset-bottom,0px) + var(--pad));z-index:110;max-width:min(440px,calc(100vw - 2 * var(--pad)));display:flex;align-items:center;gap:16px 20px;padding:16px 16px 16px 20px;background:var(--paper);color:var(--ink);font:400 var(--sm)/1.4 var(--body);opacity:0;transform:translateY(16px);transition:opacity .4s,transform .6s var(--ease)}
+.cookie[hidden]{display:none}
+.cookie.on{opacity:1;transform:none}
+.cookie p{margin:0}
+.cookie a{text-decoration:underline;text-underline-offset:3px}
+.cookie button{flex:none;background:var(--ink);color:var(--paper);font:700 var(--sm)/1 var(--body);padding:12px 18px;border-radius:999px}
+@media (max-width:820px){.cookie{left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-width:none}}

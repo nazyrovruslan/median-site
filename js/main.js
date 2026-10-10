@@ -448,9 +448,15 @@ $('#start').addEventListener('touchend',e=>{if(!st0)return;const t=e.changedTouc
 $('#brief').addEventListener('submit',e=>{
   e.preventDefault();const f=e.target;
   if(!f.name.value.trim()||!f.contact.value.trim()){toast('Заполните имя и контакт');(f.name.value.trim()?f.contact:f.name).focus();return;}
+  if(!f.agree.checked){toast('Нужно согласие на обработку данных');f.agree.focus();return;}
   const ok=$('#ok');ok.hidden=false;
   ok.textContent=`Спасибо, ${f.name.value.trim()}. Заявка собрана: «${f.kind.value}». В прототипе она никуда не уходит; на рабочем сайте её получит Telegram-бот агентства и CRM.`;
 });
+
+/* ---------- уведомление о cookie: показываем, пока не нажали «Понятно» (помним год) ---------- */
+{const c=$('#cookie'),K='cookie-ok';let ok=0;try{ok=+localStorage.getItem(K)>Date.now()-365*864e5;}catch(e){}
+ if(!ok){c.hidden=false;requestAnimationFrame(()=>c.classList.add('on'));}
+ $('#cookieOk').onclick=()=>{try{localStorage.setItem(K,Date.now())}catch(e){}c.classList.remove('on');setTimeout(()=>c.hidden=true,400);};}
 
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
