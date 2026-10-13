@@ -198,7 +198,6 @@ if(!fine){
 /* ---------- directions ---------- */
 /* ---------- проекты (бывшие направления): у кейса с видео-обложкой — та же обложка, что в баннере ---------- */
 $$('.dir .vis[data-case]').forEach(v=>{const k=CASES.find(c=>c.id===v.dataset.case);if(!k||!k.vid)return;const a=v.querySelector('.art');a.style.background=cover(k);a.innerHTML=vid(k);});
-$$('.dir .vis[data-vid]').forEach(v=>{v.querySelector('.art').innerHTML=vid({vid:v.dataset.vid});}); // обложка-видео у блока без кейса (People Tech Camp)
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
 /* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок; на десктопе обложка ещё и магнитится к курсору */
