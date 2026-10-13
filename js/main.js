@@ -195,25 +195,9 @@ if(!fine){
   const arts=$$('.dir .vis .art');
   addEventListener('scroll',()=>{arts.forEach(a=>{const rr=a.parentElement.getBoundingClientRect(),cc=rr.top+rr.height/2,d=Math.min(1,Math.abs(cc-innerHeight/2)/innerHeight);a.style.transform=`scale(${1.06-.06*d})`;});},{passive:true});
 }
-/* ---------- directions ---------- */
-const DIRCASE={external:'vtb',internal:'alfa-battle',outlist:'kaspersky'};
-$$('.dir').forEach((s,i)=>{
-  const d=s.dataset.dir, list=CASES.filter(c=>c.dir===d), k=CASES.find(c=>c.id===DIRCASE[d]);
-  s.querySelector('.art').style.background=cover(k,i+3);s.querySelector('.art').innerHTML=vid(k);
-  s.querySelector('.cap').textContent=k.name;
-  s.querySelector('.vlink').textContent=k.name+(k.year?' '+k.year:'');
-});
-function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
-syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
-/* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок; на десктопе обложка ещё и магнитится к курсору */
+/* параллакс: обложки проектов едут внутри рамки */
 if(!reduce){
-  const px=$$('.dir').map(d=>({d,els:['.vis','.vlink','.card'].map(q=>d.querySelector(q)),v:d.querySelector('.vis')}));let pxQ=0;
-  const own=$('#own'),projs=$$('#own .proj');
-  const pxRun=()=>{pxQ=0;const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
-    const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2))),sh=(p*amp).toFixed(1);
-    els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});
-    // собственные проекты: заголовок стоит, карточки едут с разной скоростью (вторая быстрее)
-    const ob=own.getBoundingClientRect();if(ob.bottom>-100&&ob.top<vh+100){const p=Math.max(-1,Math.min(1,((ob.top+ob.height/2)-vh/2)/(vh/2+ob.height/2)));projs.forEach((e,j)=>e.style.translate=`0 ${(p*amp*[.4,.75,.55][j]).toFixed(1)}px`);}};
+  const pxRun=()=>{pxQ=0;};let pxQ=0;
   // вместо «наезда»: обложка едет внутри рамки (у .art запас 4% с каждой стороны), фон первого экрана уезжает медленнее страницы
   const arts=$$('.vis .art'),hero=$('.hero');const pxRun2=()=>{const vh=innerHeight;arts.forEach(a=>{const b=a.parentElement.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;
     const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));a.style.translate=`0 ${(p*-3.5).toFixed(2)}%`;});
@@ -221,13 +205,9 @@ if(!reduce){
   const pxAll=()=>{pxRun();pxRun2();};
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxAll)},{passive:true});addEventListener('resize',pxAll);pxAll();
 }
-$('#art-southhub').style.background=cover(CASES[1],4);$('#art-southhub').innerHTML=vid(CASES[1]);
 // видео-обложки направлений и собственных проектов играют, только пока видны на экране
 const coverVis=new Set();
-{const es=CASES.find(c=>c.id==='es');$('#art-es').style.background=cover(es,6);$('#art-es').innerHTML=vid({vid:'media/video/es-v.mp4'});} // вертикальная версия ролика под узкую карточку; вставляем до IntersectionObserver, иначе видео не запускается
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)coverVis.add(e.target);else coverVis.delete(e.target);playIn(e.target,e.isIntersecting&&!$$('.panel.on').length);}),{rootMargin:'100px 0px'});$$('.vis .art').forEach(a=>a.querySelector('video.cv')&&io.observe(a));}
-$('#art-podcast').style.background=cover(CASES.find(c=>c.id==='podcast'),2);
-$$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
 
 /* ---------- cases index ---------- */
 const rows=$('#rows');
@@ -436,9 +416,7 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
   st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото и заголовок следующего кейса переезжают на места обложки кейса
   if(k>=.98&&!handing)handoffNext();
 },{passive:true});
-$('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
-$('[data-case="es"]').addEventListener('click',e=>{e.preventDefault();openCase('es',e.currentTarget.querySelector('.vis'))});
-$('[data-case="podcast"]').addEventListener('click',e=>{e.preventDefault();openCase('podcast',e.currentTarget.querySelector('.vis'))});
+$$('main [data-case]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openCase(a.dataset.case,a)}));
 const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on'))openPanel(b);};
 $('#start').onclick=openBrief;
 // iOS Safari иногда съедает первый тап по кнопке (считает его наведением) — на таче открываем по отпусканию пальца, без синтетического клика
@@ -476,13 +454,13 @@ hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDef
 
 
 /* ---------- кольцо «Все проекты»: трекинг подгоняется под длину окружности ---------- */
-function fitRing(t=$('#ringText')){const tp=t.firstElementChild,ws=[...tp.querySelectorAll('tspan')];
+function fitRing(t){const tp=t.firstElementChild,ws=[...tp.querySelectorAll('tspan')];
   // разрядку задаём через dx у каждой буквы, а не letter-spacing: Safari не учитывает letter-spacing в getComputedTextLength, и слово обрезалось
   t.style.letterSpacing='0';ws.forEach(w=>w.removeAttribute('dx'));
   const C=2*Math.PI*58,L=tp.getComputedTextLength(),n=ws.reduce((a,w)=>a+w.textContent.length-1,0);
   let ls=17*.12,gap=(C-L-ls*n)/4; if(gap<ls*3){ls=Math.max(0,(C-L)/(n+12));gap=(C-L-ls*n)/4;}
   ws.forEach(w=>w.setAttribute('dx',[gap,...Array(w.textContent.length-1).fill(ls)].map(v=>v.toFixed(2)).join(' ')));}  // остаток окружности — поровну в 4 промежутка
-const fitRings=()=>{fitRing();fitRing($('#ringTextA'));fitRing($('#ringTextD'));fitRing($('#ringTextM'));};
+const fitRings=()=>{fitRing($('#ringTextA'));fitRing($('#ringTextD'));fitRing($('#ringTextM'));};
 fitRings();document.fonts&&document.fonts.ready.then(fitRings);
 
 /* ---------- logo swap ---------- */
@@ -554,6 +532,11 @@ let ownW=innerWidth;stickyOwn();addEventListener('resize',()=>{if(matchMedia('(h
 function toggleMenu(open){document.body.classList.toggle('menu-open',open);$('#burger').setAttribute('aria-expanded',open);$('#menu').setAttribute('aria-hidden',!open);$('#burger').setAttribute('aria-label',open?'Закрыть меню':'Открыть меню');}
 $('#burger').onclick=()=>toggleMenu(!document.body.classList.contains('menu-open'));
 $$('#menu a').forEach(a=>a.addEventListener('click',()=>toggleMenu(false)));
+
+/* ---------- плавающая кнопка «Обсудить проект»: после первого экрана и до подвала ---------- */
+{const cta=$('#cta'),foot=$('#contact'),hero=$('#hero');
+  const f=()=>{const on=scrollY>hero.offsetHeight*.6&&foot.getBoundingClientRect().top>innerHeight*.75&&!$$('.panel.on').length;cta.classList.toggle('on',on);};
+  addEventListener('scroll',f,{passive:true});addEventListener('resize',f);f();}
 
 /* ---------- mail copy ---------- */
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2200);}
