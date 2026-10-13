@@ -365,6 +365,8 @@ html.loading #cur,html.loading #ring{opacity:0}
 /* факты */
 .cb-facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-block:clamp(56px,9.7vw,186px) clamp(56px,8vw,154px);font:400 var(--lead)/1.33 var(--body)}
 .cf-logo{grid-column:1/3;font-size:var(--h4);line-height:1;letter-spacing:.02em;padding-top:.15em;padding-right:1em;overflow-wrap:anywhere}
+.cf-svg{align-self:start;width:min(100%,280px);height:clamp(32px,3vw,56px);padding:0;margin-top:.2em;background:linear-gradient(90deg,var(--c) 50%,rgba(243,243,241,.85) 50%) 100% 0/200% 100% no-repeat;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-position:left center;mask-position:left center;transition:background-position .7s var(--ease),transform .5s var(--ease)}
+.cf-svg:hover{background-position:0 0;transform:translateX(6px)} /* логотип клиента: при наведении заливается фирменным цветом слева направо */
 .cb-facts dl{grid-column:3/6;display:grid;grid-template-columns:1fr 2fr;row-gap:clamp(14px,2vw,40px);margin:0}
 .cb-facts dt{color:var(--muted)}
 .cb-facts dd{margin:0;min-width:0;overflow-wrap:anywhere}

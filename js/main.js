@@ -334,6 +334,10 @@ function playFull(box,src,poster,title){const v=document.createElement('video');
   box.replaceChildren(v);document.body.className=document.body.className.replace(/\bc-\S+/g,'');let user=false;
   const go=()=>v.play().catch(err=>{if(err&&err.name==='NotAllowedError'&&!v.muted){v.muted=true;go();}});
   v.addEventListener('pause',()=>{if(v.readyState>2)user=true;});v.addEventListener('canplay',()=>{if(v.paused&&!user&&!v.ended)go();});go();}
+/* логотип клиента вместо названия в шапке кейса: SVG-маска, при наведении заливается фирменным цветом слева направо; k.logo из CMS важнее */
+const CLOGO=[[/альфа/i,'alfa','#EF3124'],[/x5|х5/i,'x5','#5FAF2D'],[/втб/i,'vtb','#009FDF'],[/м\.видео/i,'mvideo','#E31235'],[/мегафон/i,'megafon','#00B956'],[/црт/i,'crt','#00A0E3'],[/сбер/i,'sber','#21A038'],[/мтс/i,'mts','#E30611'],[/okko/i,'okko','#7B3FF2'],[/самолет/i,'samolet','#0D6EFD'],[/avito|авито/i,'avito','#00AAFF'],[/магнит/i,'magnit','#E30613']];
+function cfLogo(k){const t=k.client||k.name,m=!k.logo&&CLOGO.find(([r])=>r.test(k.client||'')),src=k.logo||(m&&`media/clients/${m[1]}.svg`);
+  return src?`<div class="cf-logo cf-svg" role="img" aria-label="${esc(t)}" style="-webkit-mask-image:url(${src});mask-image:url(${src});--c:${k.logoColor||(m&&m[2])||'#f3f3f1'}"></div>`:`<div class="cf-logo d">${esc(t)}</div>`;}
 function fillCase(id,split){
   const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
   document.title=k.name+' — Median';
@@ -345,7 +349,7 @@ function fillCase(id,split){
   const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗</a>`).join('<br>');
   if(links)facts.push(['Сайт',links]);
   let tc=0;
-  $('#cBody').innerHTML=`<section class="cb cb-facts wrap"><div class="cf-logo d">${esc(k.client||k.name)}</div><dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
+  $('#cBody').innerHTML=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
     (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   reelTeaser();hubInit();
