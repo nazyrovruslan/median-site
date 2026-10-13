@@ -110,6 +110,7 @@ collections:
               - { name: out, label: Контурная часть заголовка, widget: string }
               - { name: solid, label: Залитая часть заголовка, widget: string, required: false }
               - { name: img, label: Фото, widget: image, required: false }
+              - { name: fit, label: Фото целиком без обрезки, widget: boolean, required: false }
               - { name: text, label: Текст карточки, widget: list, field: { name: p, label: Абзац, widget: text } }
           - name: cut
             label: Вырезанное фото + текст
