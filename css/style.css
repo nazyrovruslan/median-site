@@ -192,8 +192,9 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .waves{grid-column:1/4;width:100%;max-width:520px;aspect-ratio:1;justify-self:center}
 .waves path{fill:none;stroke:var(--paper);stroke-width:1.2;stroke-linejoin:round}
 .live-copy{grid-column:4/7;max-width:46ch;min-width:0}
-.live-copy h2{font:700 clamp(20px,2.2vw,28px)/1.25 var(--body);margin:0 0 18px}
-.live-copy p{color:rgba(243,243,241,.72);margin:0 0 14px}
+.live-copy .label{display:block;color:var(--muted);margin:0 0 1.4em}
+.live-copy h2.d{font-size:var(--h4);line-height:1.1;margin:0 0 1.2em;max-width:20em}
+.live-copy .meta{font:400 var(--t2)/1.4 var(--body);color:rgba(243,243,241,.72);margin:0 0 2em}
 .tlink{display:inline-flex;gap:12px;align-items:center;margin-top:16px;font:700 var(--h5) var(--display);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid currentColor;padding-bottom:6px;transition:transform .4s var(--ease)}
 .tlink:hover{transform:translateX(-10px)}
 
@@ -728,8 +729,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .live .live-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:1vw;padding-inline:clamp(16px,2.6vw,50px) var(--gutter);margin-top:clamp(16px,1.6vw,30px)}
   .live .waves-link{grid-column:1/2;justify-items:start}
   .live .waves{max-width:870px}
-  .live-copy{grid-column:2/3;max-width:21em;font-size:var(--lead)}
-  .live-copy h2,.live-copy p{font:400 var(--lead)/1.32 var(--body);color:rgba(243,243,241,.9);margin:0 0 1.3em}
+  .live-copy{grid-column:2/3;max-width:none}
 
   .dir{grid-template-columns:repeat(5,minmax(0,1fr))}
   .dir .vis{grid-column:3/-1;margin-right:calc(-1*var(--gutter));aspect-ratio:1120/668}
