@@ -174,8 +174,8 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 
 
 .down{position:absolute;left:63%;top:max(620px,100svh);translate:-50% -50%;z-index:10;color:var(--paper)}
-.down.ring-link{position:absolute;width:clamp(140px,11vw,210px);margin:0;mix-blend-mode:difference}
-.down.ring-link text{font-size:13px} /* кольцо «Смотреть дальше» со стрелкой вниз; центр на нижнем крае экрана — видна верхняя половина */
+.down.ring-link{position:absolute;margin:0;mix-blend-mode:difference}
+/* кольцо «Смотреть дальше» со стрелкой вниз; центр на нижнем крае экрана — видна верхняя половина */
 .down .arr-d{translate:0 calc(clamp(140px,11vw,210px) / -4 * (1 - var(--dk,0)));width:12px;height:clamp(26px,2.2vw,42px);display:block;animation:bob 2.4s ease-in-out infinite}
 .down .arr-d *{stroke:var(--paper);stroke-width:1.1;fill:none;vector-effect:non-scaling-stroke}
 .down.ring-link:hover .circ{translate:0 0}
@@ -202,11 +202,12 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .or{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-block:clamp(90px,12vw,140px) clamp(60px,8vw,110px);position:relative}
 .or p{max-width:28em;color:var(--paper);font-size:var(--lead);line-height:1.32;margin:0 0 .9em}
 .or .d{font-size:var(--h2);white-space:nowrap}
-.ring-link{display:inline-grid;place-items:center;width:clamp(150px,16.7vw,320px);aspect-ratio:1;margin-top:clamp(24px,3vw,40px);position:relative}
+/* все круглые кнопки-кольца («Смотреть дальше», «Все проекты», «Ещё N проектов», «О нас») одного размера и кегля */
+.ring-link{display:inline-grid;place-items:center;width:clamp(140px,11vw,210px);aspect-ratio:1;margin-top:clamp(24px,3vw,40px);position:relative}
 .ring-link .circ{transition:translate .5s var(--ease)}
 .ring-link:hover .circ{translate:-10px 0}
 .ring-link .circ{position:absolute;inset:0;width:100%;height:100%;animation:spin 16s linear infinite}
-.ring-link text{font:400 17px var(--body);letter-spacing:0;fill:var(--paper);text-transform:uppercase}
+.ring-link text{font:400 13px var(--body);letter-spacing:0;fill:var(--paper);text-transform:uppercase}
 .ring-link .arr{width:30px;height:12px;display:block;transition:transform .4s var(--ease)}
 .ring-link .arr *{stroke:var(--paper);stroke-width:1.1;fill:none;vector-effect:non-scaling-stroke}
 .ring-link:hover .arr{transform:translateX(4px)}
@@ -780,8 +781,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rows-more.open .row:nth-child(2){transition-delay:.04s}.rows-more.open .row:nth-child(3){transition-delay:.08s}.rows-more.open .row:nth-child(4){transition-delay:.12s}.rows-more.open .row:nth-child(5){transition-delay:.16s}.rows-more.open .row:nth-child(n+6){transition-delay:.2s}
 .rows-tog-w{display:flex;justify-content:center;padding-top:clamp(32px,4vw,64px)} /* круглая кнопка «Ещё N проектов» под списком, как «Смотреть дальше» */
 .rows-tog-w[hidden]{display:none}
-.rows-tog.ab-ring{margin:0;width:clamp(140px,12vw,220px);color:var(--paper)}
-.rows-tog text{font-size:13px}
+.rows-tog.ab-ring{margin:0;color:var(--paper)}
 .rows-tog .arr-d{transition:transform .5s var(--ease)}
 .rows-tog[aria-expanded="true"] .arr-d{transform:rotate(180deg)}
 .rows-tog[aria-expanded="true"]:hover .arr-d{transform:rotate(180deg) translateY(6px)}
