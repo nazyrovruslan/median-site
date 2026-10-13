@@ -515,6 +515,10 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .cl-track li{display:flex;align-items:center;padding:0 clamp(26px,3vw,60px)}
 .cl-track .lg{display:block;height:calc(clamp(22px,2.2vw,42px)*var(--s,1));aspect-ratio:var(--ar);background:rgba(243,243,241,.6);-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;transition:background-color .4s} /* SVG-логотип как маска: в покое серый, при наведении — цвет бренда; --s выравнивает визуальный размер */
 .cl-track li:hover .lg{background:var(--c)}
+.cl-track .lg[style*="--hc"]{position:relative}
+.cl-track .lg[style*="--hc"]::after{content:"";position:absolute;inset:0;background:var(--hc) center/contain no-repeat;opacity:0;transition:opacity .4s} /* многоцветный логотип: при наведении — фирменная цветная версия поверх маски */
+.cl-track li:hover .lg[style*="--hc"]{background:transparent}
+.cl-track li:hover .lg[style*="--hc"]::after{opacity:1}
 @keyframes clmq{to{transform:translateX(-50%)}}
 /* награды: проект слева, премии строками справа */
 .ab-awards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-block:clamp(40px,6vw,110px) clamp(56px,8vw,150px);border-top:1px solid var(--line-dark)}
