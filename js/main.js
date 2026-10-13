@@ -394,11 +394,14 @@ function handoffNext(){
   requestAnimationFrame(()=>requestAnimationFrame(()=>{handing=false;}));
 }
 // после перехода гасим инерцию прокрутки (трекпад, тач): иначе она докручивает новый кейс мимо обложки.
-// держим, пока идут колёсные события инерции (но не дольше 1,5 с), и минимум 0,6 с
-let holdUntil=0,holdEnd=0,holdT=0;
-function scrollHold(sh){const t=performance.now();holdUntil=t+600;holdEnd=t+1500;sh.style.overflowY='hidden';clearTimeout(holdT);holdT=setTimeout(()=>releaseHold(sh),600);}
+// держим, пока идут затухающие колёсные события инерции (но не дольше 0,9 с), и минимум 0,35 с;
+// новый жест (рывок колеса/трекпада сильнее затухающего хвоста) сразу отпускает прокрутку — иначе она «застревает»
+let holdUntil=0,holdEnd=0,holdT=0,holdD=0;
+function scrollHold(sh){const t=performance.now();holdUntil=t+350;holdEnd=t+900;holdD=Infinity;sh.style.overflowY='hidden';clearTimeout(holdT);holdT=setTimeout(()=>releaseHold(sh),350);}
 function releaseHold(sh){const t=performance.now();if(t<holdUntil&&t<holdEnd){clearTimeout(holdT);holdT=setTimeout(()=>releaseHold(sh),holdUntil-t);return;}holdUntil=0;sh.style.overflowY='';}
-$('#casePanel .sheet').addEventListener('wheel',e=>{if(!holdUntil)return;e.preventDefault();holdUntil=Math.max(holdUntil,performance.now()+200);},{passive:false});
+$('#casePanel .sheet').addEventListener('wheel',e=>{if(!holdUntil)return;const d=Math.abs(e.deltaY);
+  if(d>=holdD&&d>8){holdUntil=0;holdEnd=0;clearTimeout(holdT);e.currentTarget.style.overflowY='';return;} // не затухает — это новый жест, а не инерция: отпускаем
+  holdD=d;e.preventDefault();holdUntil=Math.max(holdUntil,performance.now()+120);},{passive:false});
 $('#casePanel .sheet').addEventListener('touchmove',e=>{if(holdUntil&&e.cancelable)e.preventDefault();},{passive:false});
 // картинку следующего кейса декодируем заранее, пока блок «Следующий проект» подъезжает, — чтобы обложка нового кейса нарисовалась сразу
 let preDec='';function predecodeNext(){const i=CASES.findIndex(c=>c.id===openId),n=CASES[(i+1)%CASES.length],u=n.vid?poster(n):n.img;if(!u||preDec===u)return;preDec=u;const im=new Image();im.src=u;im.decode&&im.decode().catch(()=>{});}
