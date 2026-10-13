@@ -524,7 +524,8 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 /* награды: премии сеткой, у каждой — места и номинации */
 .aw-list{grid-column:3/6;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(36px,4vw,72px) clamp(24px,3vw,56px);align-items:start}
 .aw-g h4{--u:clamp(76px,6.6vw,124px);display:flex;align-items:flex-end;height:calc(var(--u) * .8);box-sizing:content-box;margin:0;padding-bottom:clamp(12px,1.2vw,20px);border-bottom:1px solid var(--line-dark)}
-.aw-g h4 img{display:block;height:calc(var(--u) * var(--k,.6));width:auto}
+.aw-g h4 .lg{display:block;height:calc(var(--u) * .5 * var(--s,1));aspect-ratio:var(--ar);background:rgba(243,243,241,.6);-webkit-mask-position:left bottom;mask-position:left bottom;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;transition:background-color .4s} /* логотип премии как маска, как у клиентов: серый, при наведении на премию — цвет бренда */
+.aw-g:hover h4 .lg{background:var(--c)}
 .aw-g ul{list-style:none;margin:0;padding:0}
 .aw-g li{padding-top:clamp(14px,1.3vw,24px)}
 .aw-g b{display:block;font:400 var(--lead)/1.2 var(--body)}
