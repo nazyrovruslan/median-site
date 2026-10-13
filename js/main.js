@@ -196,6 +196,13 @@ if(!fine){
   addEventListener('scroll',()=>{arts.forEach(a=>{const rr=a.parentElement.getBoundingClientRect(),cc=rr.top+rr.height/2,d=Math.min(1,Math.abs(cc-innerHeight/2)/innerHeight);a.style.transform=`scale(${1.06-.06*d})`;});},{passive:true});
 }
 /* ---------- directions ---------- */
+const DIRCASE={external:'vtb',internal:'alfa-battle',outlist:'kaspersky'};
+$$('.dir').forEach((s,i)=>{
+  const d=s.dataset.dir, list=CASES.filter(c=>c.dir===d), k=CASES.find(c=>c.id===DIRCASE[d]);
+  s.querySelector('.art').style.background=cover(k,i+3);s.querySelector('.art').innerHTML=vid(k);
+  s.querySelector('.cap').textContent=k.name;
+  s.querySelector('.vlink').textContent=k.name+(k.year?' '+k.year:'');
+});
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
 /* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок; на десктопе обложка ещё и магнитится к курсору */
@@ -219,7 +226,7 @@ $('#art-southhub').style.background=cover(CASES[1],4);$('#art-southhub').innerHT
 const coverVis=new Set();
 {const es=CASES.find(c=>c.id==='es');$('#art-es').style.background=cover(es,6);$('#art-es').innerHTML=vid({vid:'media/video/es-v.mp4'});} // вертикальная версия ролика под узкую карточку; вставляем до IntersectionObserver, иначе видео не запускается
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)coverVis.add(e.target);else coverVis.delete(e.target);playIn(e.target,e.isIntersecting&&!$$('.panel.on').length);}),{rootMargin:'100px 0px'});$$('.vis .art').forEach(a=>a.querySelector('video.cv')&&io.observe(a));}
-$('#art-podcast').style.background='url(media/home/podcast.webp) center/cover no-repeat';
+$('#art-podcast').style.background=cover(CASES.find(c=>c.id==='podcast'),2);
 $$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
 
 /* ---------- cases index ---------- */
@@ -431,7 +438,6 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
 $('[data-case="es"]').addEventListener('click',e=>{e.preventDefault();openCase('es',e.currentTarget.querySelector('.vis'))});
-$$('.dir [data-case]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openCase(a.dataset.case,a.closest('.dir').querySelector('.vis'))}));
 $('[data-case="podcast"]').addEventListener('click',e=>{e.preventDefault();openCase('podcast',e.currentTarget.querySelector('.vis'))});
 const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on'))openPanel(b);};
 $('#start').onclick=openBrief;
