@@ -233,16 +233,12 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .cases{padding-block:clamp(80px,11vw,150px)}
 .cases-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:36px}
 .cases-head .d{font-size:var(--h2)}
-.filters{display:flex;flex-wrap:wrap;gap:8px}
-.filters button{border:1px solid var(--line-dark);border-radius:99px;padding:8px 14px;font:500 var(--sm) var(--body);letter-spacing:.06em;transition:background .25s,color .25s}
-.filters button[aria-pressed="true"],.filters button:hover{background:var(--paper);color:var(--ink)}
 .rows{border-top:1px solid var(--line-dark)}
-.row{display:grid;grid-template-columns:64px minmax(0,1.2fr) minmax(0,1.4fr) 110px;gap:16px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line-dark);width:100%;text-align:left;transition:padding .45s var(--ease)}
+.row{display:grid;grid-template-columns:64px minmax(0,1.2fr) minmax(0,1.4fr);gap:16px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line-dark);width:100%;text-align:left;transition:padding .45s var(--ease)}
 .row:hover .n,.row:hover .nm,.row:hover .sb{translate:14px 0}
 .row .n{font:700 var(--h5) var(--display);color:var(--muted);font-variant-numeric:tabular-nums}
 .row .nm{font:700 var(--h4)/1.05 var(--display);text-transform:uppercase}
 .row .sb{color:rgba(243,243,241,.7);font-size:var(--sm)}
-.row .tg{justify-self:end;font:500 var(--sm) var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .row[hidden]{display:none}
 #peek{position:fixed;left:0;top:0;width:260px;aspect-ratio:4/3;pointer-events:none;z-index:30;opacity:0;scale:.85;transition:opacity .3s,scale .4s var(--ease),transform .45s var(--ease);translate:-50% -50%}
 #peek.on{opacity:1;scale:1}
@@ -517,8 +513,8 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .cl-track ul{display:flex;list-style:none;margin:0;padding:0}
 .cl-mq{background:var(--ink);padding-block:clamp(26px,3vw,56px)}
 .cl-track li{display:flex;align-items:center;padding:0 clamp(26px,3vw,60px)}
-.cl-track img{display:block;height:clamp(30px,3.2vw,60px);width:auto;opacity:.6;transition:opacity .4s} /* белые логотипы на чёрном */
-.cl-track li:hover img{opacity:1}
+.cl-track .lg{display:block;height:calc(clamp(22px,2.2vw,42px)*var(--s,1));aspect-ratio:var(--ar);background:rgba(243,243,241,.6);-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;transition:background-color .4s} /* SVG-логотип как маска: в покое серый, при наведении — цвет бренда; --s выравнивает визуальный размер */
+.cl-track li:hover .lg{background:var(--c)}
 @keyframes clmq{to{transform:translateX(-50%)}}
 /* награды: проект слева, премии строками справа */
 .ab-awards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-block:clamp(40px,6vw,110px) clamp(56px,8vw,150px);border-top:1px solid var(--line-dark)}
@@ -627,7 +623,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .row{position:relative}
   .row:hover,.row.hover{padding-left:0}
   /* место под превью зарезервировано всегда — высота строк не прыгает */
-  .row .nm,.row .sb,.row .tg{margin-right:calc(30% + 14px)}
+  .row .nm,.row .sb{margin-right:calc(30% + 14px)}
   .row .rp{display:block;position:absolute;right:0;top:50%;translate:0 -50%;width:30%;max-width:140px;aspect-ratio:4/3;background-size:cover;background-position:center;opacity:0;scale:.9;transition:opacity .4s,scale .5s var(--ease);pointer-events:none}
   .row.hover .rp{opacity:1;scale:1}
   .cb-eps li a{position:relative}
@@ -700,7 +696,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .proj:nth-of-type(3){grid-column:1/-1;margin-top:92px}
   .proj:nth-of-type(3) .vis{aspect-ratio:16/10}
   .row{grid-template-columns:40px minmax(0,1fr);row-gap:4px}
-  .row .sb{grid-column:2}.row .tg{grid-column:2;justify-self:start}
+  .row .sb{grid-column:2}
   .hero{--strip:0%;--bar:18%;--nxw:21%;--nxh:41%}
   .nxt-label{gap:10px}
   .nxt-label .ntxt{font-size:7px;letter-spacing:0}

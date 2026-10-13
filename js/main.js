@@ -222,7 +222,6 @@ const coverVis=new Set();
 {const es=CASES.find(c=>c.id==='es');$('#art-es').style.background=cover(es,6);$('#art-es').innerHTML=vid({vid:'media/video/es-v.mp4'});} // вертикальная версия ролика под узкую карточку; вставляем до IntersectionObserver, иначе видео не запускается
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)coverVis.add(e.target);else coverVis.delete(e.target);playIn(e.target,e.isIntersecting&&!$$('.panel.on').length);}),{rootMargin:'100px 0px'});$$('.vis .art').forEach(a=>a.querySelector('video.cv')&&io.observe(a));}
 $('#art-podcast').style.background='url(media/home/podcast.webp) center/cover no-repeat';
-$$('[data-filter]').forEach(a=>a.addEventListener('click',()=>setFilter(a.dataset.filter)));
 
 /* ---------- cases index ---------- */
 const rows=$('#rows');
@@ -230,7 +229,7 @@ const rows=$('#rows');
 const PV={};function peekVid(i){if(i in PV)return PV[i];const t=document.createElement('div');t.innerHTML=vid(CASES[i]);return PV[i]=t.firstElementChild;}
 CASES.forEach((k,i)=>{
   const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть проект';
-  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="tg">${DIRS[k.dir]}</span><span class="rp"></span>`;r.dataset.i=i;
+  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="rp"></span>`;r.dataset.i=i;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
   r.addEventListener('mouseenter',()=>{const v=peekVid(i);peek.replaceChildren(...(v?[v]:[]));peek.style.background=cover(k,i,1);peekAt(r);peek.classList.add('on');if(v){v.preload='auto';v.play().catch(()=>{});}
     [i-2,i-1,i+1,i+2].forEach(j=>{const n=CASES[j]&&peekVid(j);if(n&&n.preload!=='auto')n.preload='auto';});}); // анимированная обложка; соседние строки докачиваем заранее
@@ -245,12 +244,7 @@ function peekAt(el){peekEl=el;const b=el.getBoundingClientRect(),w=peek.offsetWi
   if(!peek.classList.contains('on'))peek.style.transition='none';
   peek.style.transform=`translate(${x}px,${y}px)`;peek.offsetWidth;peek.style.transition='';}
 addEventListener('scroll',()=>{if(peekEl&&peek.classList.contains('on'))peekAt(peekEl);},{passive:true,capture:true});
-function setFilter(f){
-  $$('#filters button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===f));
-  $$('.row').forEach(r=>r.hidden=!(f==='all'||r.dataset.dir===f));
-  layoutRows(false);
-}
-// список кейсов: в каждом фильтре видны первые 7, остальные — в раскрывающемся блоке под кнопкой «Ещё N кейсов»
+// список кейсов: один общий список без категорий; видны первые 7, остальные — в раскрывающемся блоке под кнопкой «Ещё N кейсов»
 const ROWS_SHOWN=7;
 const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c;};
 function layoutRows(open){const all=$$('.row'),vis=all.filter(r=>!r.hidden),more=$('#rowsMoreIn'),box=$('#rowsMore'),tog=$('#rowsTog');
@@ -265,7 +259,6 @@ $('#rowsTog').addEventListener('click',()=>{const o=!$('#rowsMore').classList.co
   if(!o){const t=$('#cases');if(t&&t.getBoundingClientRect().top<0)t.scrollIntoView({behavior:reduce?'auto':'smooth'});} // сворачиваем — возвращаемся к началу списка
   layoutRows(o);});
 layoutRows(false);
-$$('#filters button').forEach(b=>b.onclick=()=>setFilter(b.dataset.f));
 
 /* ---------- panels ---------- */
 addEventListener('keydown',e=>{if(e.key==='Tab')document.documentElement.classList.add('kbd');});
