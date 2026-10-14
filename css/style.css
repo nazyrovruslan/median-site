@@ -202,6 +202,8 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .or{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-block:clamp(90px,12vw,140px) clamp(60px,8vw,110px);position:relative}
 .or p{max-width:28em;color:var(--paper);font-size:var(--lead);line-height:1.32;margin:0 0 .9em}
 .or .d{font-size:var(--h2);white-space:nowrap}
+.nw{white-space:nowrap}
+.or .d.goal{font-size:var(--h3);line-height:1.08;white-space:normal;max-width:24em} /* длинная фраза «Наша цель…» — в несколько строк */
 /* все круглые кнопки-кольца («Смотреть дальше», «Все проекты», «Ещё N проектов», «О нас») одного размера и кегля */
 .ring-link{display:inline-grid;place-items:center;width:clamp(140px,11vw,210px);aspect-ratio:1;margin-top:clamp(24px,3vw,40px);position:relative}
 .ring-link .circ{transition:translate .5s var(--ease)}
