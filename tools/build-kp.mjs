@@ -213,7 +213,7 @@ ${counters(k)}
 </head>
 <body>
 <header class="kp-bar">
-  <a class="kp-logo" href="../../" target="_blank" rel="noopener" aria-label="median.agency" title="На сайт">${MARK}</a>
+  <a class="kp-logo" href="../../" target="_blank" rel="noopener" aria-label="median.agency" data-c="mag" data-magnet=".3">${MARK}</a>
   <nav class="kp-acts">
     <button class="kp-rb" data-magnet=".3" type="button" id="kpCopy" aria-label="Скопировать ссылку" data-c="hint" data-label="Скопировать ссылку"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg></button>
     ${dl(k.pdf, 'PDF', 'kp_pdf', 'kp-rb', 'hint" data-label="Скачать презентацию')}

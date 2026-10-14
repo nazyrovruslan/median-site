@@ -32,10 +32,8 @@ p{margin:0}
 /* шапка: знак слева, круглые кнопки справа — как логотип и крестик на сайте */
 .kp-bar{position:fixed;inset:0 0 auto;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:20px var(--pad);pointer-events:none;mix-blend-mode:difference;color:#fff}
 .kp-bar>*{pointer-events:auto}
-.kp-logo{width:40px;display:block;transition:transform .9s var(--ease)}
+.kp-logo{width:40px;display:block}
 .kp-logo svg{width:100%;height:auto}
-/* логотип при наведении делает оборот, без круга-подсказки */
-.kp-logo:hover{transform:rotate(360deg)}
 .kp-acts{display:flex;gap:10px}
 .kp-rb{width:44px;height:44px;border:1px solid currentColor;border-radius:50%;display:grid;place-items:center;font:500 11px/1 var(--body);letter-spacing:.1em;transition:background .3s,color .3s,transform .4s var(--ease)}
 .kp-rb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
