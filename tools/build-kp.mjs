@@ -23,8 +23,10 @@ const MONTHS = ['января', 'февраля', 'марта', 'апреля', 
 const date = s => { const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(s || ''); return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : null; };
 const addDays = (d, n) => new Date(d.getTime() + n * 864e5);
 const long = (d, year = true) => `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}${year ? ' ' + d.getUTCFullYear() : ''}`;
-const short = d => `${String(d.getUTCDate()).padStart(2, '0')}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${d.getUTCFullYear()}`;
+// сколько дней осталось до мероприятия; на странице js/kp.js пересчитывает это по дате у посетителя
 const iso = d => d.toISOString().slice(0, 10);
+const left = d => { const n = Math.round((d - Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) / 864e5); return n > 0 ? `осталось ${days(n)}` : n === 0 ? 'сегодня' : 'прошло'; };
+const short = d => `${String(d.getUTCDate()).padStart(2, '0')}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${d.getUTCFullYear()}`;
 const tgUrl = s => !s ? '' : /^https?:/.test(s) ? s : 'https://t.me/' + String(s).replace(/^@|^t\.me\//, '');
 const has = p => p && (p.name || p.tg || p.phone || p.email);
 const fileUrl = s => !s ? '' : /^https?:/.test(s) ? s : '../../' + String(s).replace(/^\//, '');
@@ -48,7 +50,7 @@ function estimate(k, file) {
   const head = (v, s = 'b') => rows.push([{ v, s }]);
   rows.push([{ v: 'Median Agency', s: 'h' }]);
   head(k.titleText);
-  rows.push([{ v: `${k.client ? k.client + ' · ' : ''}${long(k.dateD)} · актуально до ${short(k.validD)}`, s: 'muted' }]);
+  rows.push([{ v: `${k.client ? k.client + ' · ' : ''}${long(k.dateD)}${k.eventD ? ` · мероприятие ${short(k.eventD)}` : ''} · актуально до ${short(k.validD)}`, s: 'muted' }]);
   rows.push([]);
   rows.push(['№', 'Наименование', 'Кол-во', 'Ед.', 'Цена, ₽', 'Сумма, ₽'].map(v => ({ v, s: 'b' })));
   const totals = [];
@@ -243,8 +245,9 @@ ${counters(k)}
       </div>
     </div>
     <dl class="kp-dl kp-dl-l">
-      ${dd('Актуально до', short(k.validD))}
-      ${dd('Срок', k.days ? days(k.days) : '')}
+      ${k.eventD ? `${dd('Дата мероприятия', short(k.eventD))}
+      ${dd('Срок', `<span data-until="${iso(k.eventD)}">${left(k.eventD)}</span>`)}` : `${dd('Актуально до', short(k.validD))}
+      ${dd('Срок', k.days ? days(k.days) : '')}`}
       ${dd('Этапы', k.stages.length ? `${k.stages.length} ${plural(k.stages.length, 'этап', 'этапа', 'этапов')}` : '')}
       ${dd('Стоимость', `${money(k.total)} ₽`)}
       ${k.scope.length ? dd('Что входит', `<ul class="kp-scope">${k.scope.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`) : ''}
@@ -334,6 +337,7 @@ for (const f of list) {
   k.titleLines = String(raw.title || 'Коммерческое предложение').split('\n').map(s => s.trim()).filter(Boolean);
   k.dateD = date(raw.date) || new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
   k.startD = date(raw.start) || k.dateD;
+  k.eventD = date(raw.event_date);
   k.validD = date(raw.valid_until) || addDays(k.dateD, num(S.valid_days) || 30);
   k.scope = (raw.scope || []).map(s => typeof s === 'object' ? s.text : s).filter(Boolean);
   k.stages = (raw.stages || []).map(st => {
