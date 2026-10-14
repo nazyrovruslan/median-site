@@ -1,13 +1,13 @@
 # Sveltia CMS (совместим с Decap CMS). Вход: «Sign In with Token» — GitHub-токен с доступом к репозиторию (см. NOTES.md).
-# Каждое сохранение — коммит в main; деплой собирает js/cases.js из content/cases и досоздаёт превью/постеры (tools/).
+# Каждое сохранение — коммит в main; деплой собирает js/cases.js из content/cases, страницы КП из content/kp и досоздаёт превью/постеры (tools/).
 backend:
   name: github
   repo: nazyrovruslan/median-site
   branch: main
   commit_messages:
-    create: "CMS: новый кейс {{slug}}"
-    update: "CMS: правка кейса {{slug}}"
-    delete: "CMS: удалён кейс {{slug}}"
+    create: "CMS: создан {{collection}} {{slug}}"
+    update: "CMS: правка — {{collection}} {{slug}}"
+    delete: "CMS: удалён {{collection}} {{slug}}"
     uploadMedia: "CMS: загружен файл {{path}}"
     deleteMedia: "CMS: удалён файл {{path}}"
 
@@ -163,3 +163,122 @@ collections:
                   - { name: id, label: ID видео, widget: string }
                   - { name: title, label: Тема, widget: string }
                   - { name: guest, label: Гость, widget: string, required: false }
+
+  # Скрытый раздел: коммерческие предложения по уникальной ссылке /clients/<адрес>/ (собирает tools/build-kp.mjs)
+  - name: kp
+    label: КП для клиентов
+    label_singular: КП
+    folder: content/kp
+    format: json
+    extension: json
+    identifier_field: client
+    slug: "{{uuid_shorter}}"
+    summary: "{{client}} · {{date}}"
+    sortable_fields: [date, client]
+    preview_path: "clients/{{slug}}/"
+    create: true
+    delete: true
+    media_folder: /media/kp
+    public_folder: media/kp
+    description: "Страница КП: https://nazyrovruslan.github.io/median-site/clients/<имя файла>/ — адрес случайный, на сайте раздел нигде не виден и закрыт от поисковиков. Ссылку видно кнопкой «Открыть на сайте» после деплоя (1–2 минуты)."
+    fields:
+      - { name: client, label: Клиент, widget: string, hint: "Для списка в CMS и подписи на странице" }
+      - { name: draft, label: Черновик (страница не публикуется), widget: boolean, required: false, default: false }
+      - { name: title, label: Заголовок, widget: text, hint: "Каждая строка — отдельной строкой заголовка" }
+      - { name: date, label: Дата предложения, widget: datetime, time_format: false, format: "YYYY-MM-DD", default: "{{now}}" }
+      - { name: valid_until, label: Актуально до, widget: datetime, time_format: false, format: "YYYY-MM-DD", required: false, hint: "Если пусто — дата предложения + срок из настроек КП" }
+      - { name: start, label: Старт работ (для графика), widget: datetime, time_format: false, format: "YYYY-MM-DD", required: false, hint: "Если пусто — дата предложения" }
+      - name: scope
+        label: Что входит (коротко)
+        label_singular: пункт
+        widget: list
+        required: false
+        field: { name: text, label: Пункт, widget: string }
+      - { name: task, label: "Задача: описание", widget: text, required: false }
+      - { name: sequence, label: "Задача: последовательность", widget: text, required: false }
+      - name: stages
+        label: Этапы
+        label_singular: этап
+        widget: list
+        summary: "{{fields.title}} · {{fields.days}} дн."
+        fields:
+          - { name: title, label: Название, widget: string }
+          - { name: description, label: Описание, widget: text, required: false }
+          - { name: result, label: Результат работ, widget: text, required: false }
+          - { name: days, label: Срок (календарных дней), widget: number, value_type: int, required: false }
+          - { name: amount, label: "Стоимость, ₽", widget: number, value_type: int, required: false, hint: "Если пусто — сумма строк сметы ниже" }
+          - name: items
+            label: Строки сметы
+            label_singular: строку
+            widget: list
+            required: false
+            summary: "{{fields.name}} — {{fields.qty}} × {{fields.price}}"
+            fields:
+              - { name: name, label: Наименование, widget: string }
+              - { name: qty, label: Кол-во, widget: number, value_type: float, default: 1 }
+              - { name: unit, label: Ед., widget: string, required: false }
+              - { name: price, label: "Цена, ₽", widget: number, value_type: float }
+      - { name: price_note, label: Примечание к стоимости, widget: string, required: false, hint: "Например, «без НДС». Если пусто — из настроек КП" }
+      - { name: schedule_note, label: Пояснение к графику, widget: text, required: false }
+      - name: cases
+        label: Релевантный опыт (кейсы с сайта)
+        label_singular: кейс
+        widget: list
+        required: false
+        fields:
+          - { name: id, label: Кейс, widget: relation, collection: cases, value_field: id, search_fields: [name, id], display_fields: [name] }
+          - { name: text, label: Почему это важно для клиента, widget: text, required: false, hint: "Если пусто — подзаголовок кейса" }
+      - name: format
+        label: Формат работы (если пусто — из настроек)
+        label_singular: пункт
+        widget: list
+        required: false
+        fields:
+          - { name: title, label: Заголовок, widget: string }
+          - { name: text, label: Текст, widget: text }
+      - { name: pdf, label: Презентация (PDF), widget: file, required: false, hint: "Файл до ~50 МБ или ссылка на облако" }
+      - { name: xlsx, label: Смета Excel (свой файл), widget: file, required: false, hint: "Если пусто — смета соберётся из этапов автоматически" }
+      - { name: track_url, label: Ссылка из сквозной аналитики, widget: string, required: false, hint: "Уникальная ссылка из сервиса аналитики для этого КП — её копирует кнопка-скрепка" }
+      - { name: code, label: Код счётчиков только для этого КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Вставляется в <head> этой страницы" }
+      - name: manager
+        label: Контакт по этому КП (если пусто — из настроек)
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { name: name, label: Имя, widget: string, required: false }
+          - { name: role, label: Должность, widget: string, required: false }
+          - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+          - { name: phone, label: Телефон, widget: string, required: false }
+          - { name: email, label: Почта, widget: string, required: false }
+
+  - name: settings
+    label: Настройки
+    files:
+      - name: kp
+        label: Настройки КП и счётчики
+        file: content/settings/kp.json
+        fields:
+          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, hint: "Только цифры. Цели: kp_open, kp_read_30s, kp_total_seen, kp_pdf, kp_xlsx, kp_contact, kp_copy, kp_case" }
+          - { name: vk, label: ID пикселя VK, widget: string, required: false }
+          - { name: head, label: Код в <head> всех КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Счётчик сквозной аналитики (Roistat, Calltouch, CoMagic и т.п.), пиксели" }
+          - { name: body, label: Код в конце <body> всех КП, widget: code, default_language: html, output_code_only: true, required: false }
+          - { name: valid_days, label: Срок актуальности КП по умолчанию (дней), widget: number, value_type: int, default: 30 }
+          - { name: price_note, label: Примечание к стоимости по умолчанию, widget: string, required: false }
+          - name: contact
+            label: Контакт по умолчанию
+            widget: object
+            fields:
+              - { name: name, label: Имя, widget: string, required: false }
+              - { name: role, label: Должность, widget: string, required: false }
+              - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+              - { name: phone, label: Телефон, widget: string, required: false }
+              - { name: email, label: Почта, widget: string, required: false }
+          - name: format
+            label: Формат работы по умолчанию
+            label_singular: пункт
+            widget: list
+            required: false
+            fields:
+              - { name: title, label: Заголовок, widget: string }
+              - { name: text, label: Текст, widget: text }

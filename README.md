@@ -5,5 +5,6 @@
 - Деплой: GitHub Pages, автоматически при пуше в `main` (`.github/workflows/pages.yml`).
 - Локально: открыть `index.html` в браузере или `python3 -m http.server` в корне.
 - Кейсы: массив `CASES` в начале `js/main.js` (имя, подзаголовок, направление, год, цвета обложки).
+- КП для клиентов: content/kp/*.json → clients/<адрес>/ (tools/build-kp.mjs), см. NOTES.md.
 - Медиа складываем в `media/` (webp для фото, mp4 h.264 для видео), пути прописываем в `CASES`.
 - Шрифты: Druk Wide Cyr (заголовки), Basis Grotesque Pro (текст) — `css/fonts.css`.
