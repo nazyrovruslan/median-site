@@ -79,7 +79,9 @@ p{margin:0}
 .kp-file:hover svg{transform:translateY(3px)}
 .kp-file-all{background:var(--paper);color:var(--ink)}
 .kp-file-all:hover{background:none;color:var(--paper)}
-.kp-dl{grid-column:3/6;display:grid;grid-template-columns:1fr 2fr;row-gap:clamp(14px,2vw,40px);column-gap:16px;margin:0}
+/* колонки 1fr 2fr без зазора: подпись занимает ровно одну колонку сетки, значение начинается на направляющей */
+.kp-dl{grid-column:3/6;display:grid;grid-template-columns:1fr 2fr;row-gap:clamp(14px,2vw,40px);column-gap:0;margin:0}
+.kp-dl dt{padding-right:16px}
 .kp-dl dt{color:var(--muted)}
 .kp-dl dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .kp-dl-l{font:400 var(--lead)/1.33 var(--body)}
