@@ -182,7 +182,16 @@ collections:
     public_folder: media/kp
     description: "Страница КП: https://nazyrovruslan.github.io/median-site/clients/<имя файла>/ — адрес случайный, на сайте раздел нигде не виден и закрыт от поисковиков. Ссылку видно кнопкой «Открыть на сайте» после деплоя (1–2 минуты)."
     fields:
-      - { name: client, label: Клиент, widget: string, hint: "Для списка в CMS и подписи на странице" }
+      - { name: client, label: Клиент (компания), widget: string, hint: "Название в списке CMS и на странице" }
+      - { name: client_logo, label: Логотип клиента, widget: image, required: false, hint: "SVG или PNG на прозрачном фоне, светлый — страница тёмная. Если пусто — название текстом" }
+      - name: client_contact
+        label: Контакт со стороны клиента
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { name: name, label: Имя, widget: string, required: false }
+          - { name: role, label: Должность, widget: string, required: false }
       - { name: draft, label: Черновик (страница не публикуется), widget: boolean, required: false, default: false }
       - { name: title, label: Заголовок, widget: text, hint: "Каждая строка — отдельной строкой заголовка" }
       - { name: date, label: Дата предложения, widget: datetime, time_format: false, format: "YYYY-MM-DD", default: "{{now}}" }
@@ -240,17 +249,48 @@ collections:
       - { name: xlsx, label: Смета Excel (свой файл), widget: file, required: false, hint: "Если пусто — смета соберётся из этапов автоматически" }
       - { name: track_url, label: Ссылка из сквозной аналитики, widget: string, required: false, hint: "Уникальная ссылка из сервиса аналитики для этого КП — её копирует кнопка-скрепка" }
       - { name: code, label: Код счётчиков только для этого КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Вставляется в <head> этой страницы" }
-      - name: manager
-        label: Контакт по этому КП (если пусто — из настроек)
+      - name: contacts
+        label: Контакты Median (пустые — из настроек)
         widget: object
-        required: false
         collapsed: true
         fields:
-          - { name: name, label: Имя, widget: string, required: false }
-          - { name: role, label: Должность, widget: string, required: false }
-          - { name: tg, label: Telegram (ник без @), widget: string, required: false }
-          - { name: phone, label: Телефон, widget: string, required: false }
-          - { name: email, label: Почта, widget: string, required: false }
+          - name: main
+            label: Основной контакт
+            widget: object
+            required: false
+            collapsed: true
+            hint: "Показывается наверху КП и в кнопке «Связаться»"
+            fields:
+              - { name: name, label: Имя, widget: string, required: false }
+              - { name: role, label: Должность, widget: string, required: false }
+              - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+              - { name: phone, label: Телефон, widget: string, required: false }
+              - { name: email, label: Почта, widget: string, required: false }
+              - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
+          - name: pm
+            label: Менеджер проекта
+            widget: object
+            required: false
+            collapsed: true
+            fields:
+              - { name: name, label: Имя, widget: string, required: false }
+              - { name: role, label: Должность, widget: string, required: false }
+              - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+              - { name: phone, label: Телефон, widget: string, required: false }
+              - { name: email, label: Почта, widget: string, required: false }
+              - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
+          - name: head
+            label: Руководитель (аккаунт-директор)
+            widget: object
+            required: false
+            collapsed: true
+            fields:
+              - { name: name, label: Имя, widget: string, required: false }
+              - { name: role, label: Должность, widget: string, required: false }
+              - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+              - { name: phone, label: Телефон, widget: string, required: false }
+              - { name: email, label: Почта, widget: string, required: false }
+              - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
 
   - name: settings
     label: Настройки
@@ -259,21 +299,53 @@ collections:
         label: Настройки КП и счётчики
         file: content/settings/kp.json
         fields:
-          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, hint: "Только цифры. Цели: kp_open, kp_read_30s, kp_total_seen, kp_pdf, kp_xlsx, kp_contact, kp_copy, kp_case" }
+          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, hint: "Только цифры. Цели: kp_open, kp_read_30s, kp_total_seen, kp_pdf, kp_xlsx, kp_zip, kp_contact, kp_copy, kp_case" }
           - { name: vk, label: ID пикселя VK, widget: string, required: false }
           - { name: head, label: Код в <head> всех КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Счётчик сквозной аналитики (Roistat, Calltouch, CoMagic и т.п.), пиксели" }
           - { name: body, label: Код в конце <body> всех КП, widget: code, default_language: html, output_code_only: true, required: false }
           - { name: valid_days, label: Срок актуальности КП по умолчанию (дней), widget: number, value_type: int, default: 30 }
           - { name: price_note, label: Примечание к стоимости по умолчанию, widget: string, required: false }
-          - name: contact
-            label: Контакт по умолчанию
+          - name: contacts
+            label: Контакты по умолчанию
             widget: object
             fields:
-              - { name: name, label: Имя, widget: string, required: false }
-              - { name: role, label: Должность, widget: string, required: false }
-              - { name: tg, label: Telegram (ник без @), widget: string, required: false }
-              - { name: phone, label: Телефон, widget: string, required: false }
-              - { name: email, label: Почта, widget: string, required: false }
+              - name: main
+                label: Основной контакт
+                widget: object
+                required: false
+                collapsed: true
+                hint: "Показывается наверху КП и в кнопке «Связаться»"
+                fields:
+                  - { name: name, label: Имя, widget: string, required: false }
+                  - { name: role, label: Должность, widget: string, required: false }
+                  - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+                  - { name: phone, label: Телефон, widget: string, required: false }
+                  - { name: email, label: Почта, widget: string, required: false }
+                  - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
+              - name: pm
+                label: Менеджер проекта
+                widget: object
+                required: false
+                collapsed: true
+                fields:
+                  - { name: name, label: Имя, widget: string, required: false }
+                  - { name: role, label: Должность, widget: string, required: false }
+                  - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+                  - { name: phone, label: Телефон, widget: string, required: false }
+                  - { name: email, label: Почта, widget: string, required: false }
+                  - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
+              - name: head
+                label: Руководитель (аккаунт-директор)
+                widget: object
+                required: false
+                collapsed: true
+                fields:
+                  - { name: name, label: Имя, widget: string, required: false }
+                  - { name: role, label: Должность, widget: string, required: false }
+                  - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+                  - { name: phone, label: Телефон, widget: string, required: false }
+                  - { name: email, label: Почта, widget: string, required: false }
+                  - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
           - name: format
             label: Формат работы по умолчанию
             label_singular: пункт

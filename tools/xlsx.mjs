@@ -1,4 +1,5 @@
 // Минимальная запись .xlsx без зависимостей: один лист, строки ячеек, жирный/деньги/перенос, ширины колонок, объединения, формулы.
+// zip() годится и для архива «Скачать всё» на странице КП: [[имя, строка | Buffer], …]
 // Ячейка: строка | число | { v, f (формула без «=»), s: 'b' | 'money' | 'bmoney' | 'wrap' | 'h' | 'muted' } | null
 import zlib from 'zlib';
 
@@ -54,11 +55,11 @@ const styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
 const CRC = new Uint32Array(256).map((_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
 const crc32 = b => { let c = ~0; for (const x of b) c = CRC[(c ^ x) & 255] ^ (c >>> 8); return ~c >>> 0; };
 
-function zip(files) {
+export function zip(files) {
   const local = [], central = [];
   let off = 0;
   for (const [name, text] of files) {
-    const data = Buffer.from(text, 'utf8'), comp = zlib.deflateRawSync(data), nm = Buffer.from(name);
+    const data = Buffer.isBuffer(text) ? text : Buffer.from(text, 'utf8'), comp = zlib.deflateRawSync(data), nm = Buffer.from(name);
     const h = Buffer.alloc(30); h.writeUInt32LE(0x04034b50, 0); h.writeUInt16LE(20, 4); h.writeUInt16LE(0x0800, 6); h.writeUInt16LE(8, 8);
     h.writeUInt16LE(0, 10); h.writeUInt16LE(0x21, 12); h.writeUInt32LE(crc32(data), 14); h.writeUInt32LE(comp.length, 18); h.writeUInt32LE(data.length, 22); h.writeUInt16LE(nm.length, 26);
     const c = Buffer.alloc(46); c.writeUInt32LE(0x02014b50, 0); c.writeUInt16LE(20, 4); c.writeUInt16LE(20, 6); c.writeUInt16LE(0x0800, 8); c.writeUInt16LE(8, 10);

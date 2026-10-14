@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { xlsx } from './xlsx.mjs';
+import { xlsx, zip } from './xlsx.mjs';
 
 const SRC = 'content/kp', OUT = 'clients', SITE = 'https://nazyrovruslan.github.io/median-site/';
 const read = f => JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -26,6 +26,7 @@ const long = (d, year = true) => `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}${
 const short = d => `${String(d.getUTCDate()).padStart(2, '0')}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${d.getUTCFullYear()}`;
 const iso = d => d.toISOString().slice(0, 10);
 const tgUrl = s => !s ? '' : /^https?:/.test(s) ? s : 'https://t.me/' + String(s).replace(/^@|^t\.me\//, '');
+const has = p => p && (p.name || p.tg || p.phone || p.email);
 const fileUrl = s => !s ? '' : /^https?:/.test(s) ? s : '../../' + String(s).replace(/^\//, '');
 
 const MARK = fs.readFileSync('media/mark.svg', 'utf8').replace(' xmlns="http://www.w3.org/2000/svg"', '').trim(); // знак median, красится через currentColor
@@ -76,32 +77,36 @@ function estimate(k, file) {
 }
 
 function page(k) {
-  const scope = k.scope.length ? `<ul class="kp-scope">${k.scope.map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : '';
-  const dl = (href, label, goal, cls = '') => href ? `<a class="kp-btn ${cls}" href="${esc(href)}" download data-goal="${goal}" target="_blank" rel="noopener">${label}</a>` : '';
+  const ARR = '<svg class="ar" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg>';
+  const DL = '<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0v14"/><path d="M1.5 9.5 6 14l4.5-4.5"/></svg>';
+  // data-c — состояние курсора-кольца (как на главной): hint — круг с подписью, link — белый круг, row — круг с подписью над строкой
+  const dl = (href, label, goal, cls, c = 'link') => href ? `<a class="${cls}" href="${esc(href)}" download data-goal="${goal}" target="_blank" rel="noopener" data-c="${c}">${label}</a>` : '';
+  const dd = (t, v) => v ? `<dt>${t}</dt><dd>${v}</dd>` : '';
+  const pad2 = i => String(i + 1).padStart(2, '0');
+
   const stages = k.stages.map((st, i) => `
-  <section class="kp-row kp-stage">
-    <h2 class="kp-h">${String(i + 1).padStart(2, '0')} этап</h2>
-    <div class="kp-body">
-      <h3 class="kp-st">${esc(st.title)}</h3>
-      ${st.description ? `<div class="kp-pair"><span class="kp-l">Описание</span><div class="kp-t">${para(st.description)}</div></div>` : ''}
-      ${st.result ? `<div class="kp-pair"><span class="kp-l">Результат работ</span><div class="kp-t">${para(st.result)}</div></div>` : ''}
-      ${st.items.length ? `<table class="kp-items"><thead><tr><th>Наименование</th><th>Кол-во</th><th>Цена, ₽</th><th>Сумма, ₽</th></tr></thead><tbody>${st.items.map(it => `<tr><td>${esc(it.name)}</td><td>${esc(it.qty)}${it.unit ? ' ' + esc(it.unit) : ''}</td><td>${money(it.price)}</td><td>${money(it.qty * it.price)}</td></tr>`).join('')}</tbody></table>` : ''}
-      <div class="kp-pair kp-sum"><span class="kp-l">Срок<br>Стоимость, руб.</span><span class="kp-days">${st.days ? days(st.days) : '—'}</span><span class="kp-amt">${money(st.amount)}</span></div>
-    </div>
-  </section>`).join('');
+    <article class="kp-stage g5">
+      <div class="kp-num d o" aria-hidden="true">${pad2(i)}</div>
+      <div class="kp-sc">
+        <span class="label">Этап ${i + 1}</span>
+        <h3 class="d kp-st">${esc(st.title)}</h3>
+        <dl class="kp-dl">${dd('Описание', txt(st.description))}${dd('Результат', txt(st.result))}</dl>
+        ${st.items.length ? `<table class="kp-items"><thead><tr><th>Наименование</th><th>Кол-во</th><th>Цена, ₽</th><th>Сумма, ₽</th></tr></thead><tbody>${st.items.map(it => `<tr><td>${esc(it.name)}</td><td>${esc(it.qty)}${it.unit ? ' ' + esc(it.unit) : ''}</td><td>${money(it.price)}</td><td>${money(it.qty * it.price)}</td></tr>`).join('')}</tbody></table>` : ''}
+        <div class="kp-sum"><span class="label">${st.days ? days(st.days) : ''}</span><span class="d">${money(st.amount)} ₽</span></div>
+      </div>
+    </article>`).join('');
 
   // график: этапы идут подряд от даты старта
   let gantt = '';
   if (k.days && k.startD) {
     let acc = 0;
     gantt = `
-  <section class="kp-row kp-plan">
-    <h2 class="kp-h">График работ</h2>
-    <div class="kp-body">${para(k.scheduleNote || `Ориентировочный график при старте ${long(k.startD)} года. Паузы на согласования и ожидание материалов учитываются отдельно.`)}</div>
+  <section class="kp-sec wrap">
+    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">График</span><span class="ln">работ</span></h2><div class="kp-lead">${para(k.scheduleNote || `Ориентировочный график при старте ${long(k.startD)} года. Паузы на согласования и ожидание материалов учитываются отдельно.`)}</div></div>
     <div class="kp-gantt">${k.stages.filter(s => s.days).map((st, i) => {
       const a = addDays(k.startD, acc), b = addDays(k.startD, acc + st.days - 1);
       const l = acc / k.days * 100, w = st.days / k.days * 100; acc += st.days;
-      return `<div class="kp-g"><div class="kp-gl"><span>Этап ${i + 1}. ${esc(st.title)}</span><span>${days(st.days)} (${long(a, false)} — ${long(b, false)})</span></div><div class="kp-gb"><i style="left:${l.toFixed(3)}%;width:${w.toFixed(3)}%"></i></div></div>`;
+      return `<div class="kp-g"><div class="kp-gl"><span>${pad2(i)} · ${esc(st.title)}</span><span>${days(st.days)} · ${long(a, false)} — ${long(b, false)}</span></div><div class="kp-gb"><i style="left:${l.toFixed(3)}%;width:${w.toFixed(3)}%"></i></div></div>`;
     }).join('')}
       <div class="kp-gl kp-ge"><span>Старт ${long(k.startD)}</span><span>Окончание ${long(addDays(k.startD, k.days - 1))}</span></div>
     </div>
@@ -109,34 +114,59 @@ function page(k) {
   }
 
   const cases = k.cases.length ? `
-  <section class="kp-row kp-cases">
-    <h2 class="kp-h">Релевантный опыт</h2>
-    <div class="kp-body">${k.cases.map(c => `
-      <a class="kp-case" href="../../${esc(c.id)}" target="_blank" rel="noopener" data-goal="kp_case">
-        ${c.img ? `<span class="kp-ci" style="background-image:url('${esc(c.img)}')"></span>` : '<span class="kp-ci"></span>'}
-        <span class="kp-cn">${esc(c.name)}${c.year ? ` <small>${esc(c.year)}</small>` : ''}</span>
-        <span class="kp-t">${para(c.text || c.sub)}</span>
-        <span class="kp-more">Смотреть кейс ↗</span>
+  <section class="kp-sec wrap">
+    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Релевантный</span><span class="ln">опыт</span></h2></div>
+    <div class="kp-cases">${k.cases.map(c => `
+      <a class="kp-case g5" href="../../${esc(c.id)}" target="_blank" rel="noopener" data-goal="kp_case" data-c="row" data-label="Смотреть кейс">
+        <span class="kp-ci"${c.img ? ` style="background-image:url('${esc(c.img)}')"` : ''}></span>
+        <span class="kp-cb"><span class="d kp-cn">${esc(c.name)}</span>${c.year ? `<span class="label">${esc(c.year)}</span>` : ''}<span class="kp-ct">${txt(c.text || c.sub)}</span></span>
+        <span class="kp-more">${ARR}</span>
       </a>`).join('')}
     </div>
   </section>` : '';
 
   const format = k.format.length ? `
-  <section class="kp-row">
-    <h2 class="kp-h">Формат работы</h2>
-    <div class="kp-body">${k.format.map(f => `<div class="kp-pair"><span class="kp-l">${esc(f.title)}</span><div class="kp-t">${para(f.text)}</div></div>`).join('')}</div>
+  <section class="kp-sec wrap">
+    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Формат</span><span class="ln">работы</span></h2></div>
+    <div class="g5"><dl class="kp-dl kp-dl-l">${k.format.map(f => dd(esc(f.title), txt(f.text))).join('')}</dl></div>
   </section>` : '';
 
-  const m = k.manager, contact = k.contactUrl;
+  const m = k.main, contact = k.contactUrl;
+  const nick = p => '@' + String(p.tg).replace(/^@|^https?:\/\/t\.me\//, '');
+  const links = p => [
+    p.tg ? `<a href="${esc(tgUrl(p.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link">${esc(nick(p))}</a>` : '',
+    p.phone ? `<a href="tel:${esc(String(p.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link">${esc(p.phone)}</a>` : '',
+    p.email ? `<a href="mailto:${esc(p.email)}" data-goal="kp_contact" data-c="link">${esc(p.email)}</a>` : ''].filter(Boolean).join('');
+  const person = (p, kind, cls = '') => `
+      <div class="kp-person ${cls}">
+        ${p.photo ? `<span class="kp-ph" style="background-image:url('${esc(fileUrl(p.photo))}')"></span>` : ''}
+        <span class="label">${esc(kind)}</span>
+        ${p.name ? `<span class="d kp-pn">${esc(p.name)}</span>` : ''}
+        ${p.role ? `<span class="kp-pr">${esc(p.role)}</span>` : ''}
+        <span class="kp-pl">${links(p)}</span>
+      </div>`;
+  const team = k.team.filter(([p]) => has(p));
+  const teamSec = team.length ? `
+  <section class="kp-sec wrap">
+    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Команда</span><span class="ln">проекта</span></h2></div>
+    <div class="kp-team">${team.map(([p, kind]) => person(p, kind)).join('')}</div>
+  </section>` : '';
+  const client = k.client || k.clientLogo || has(k.clientContact) ? `
+      <div class="kp-client">
+        <span class="label">Клиент</span>
+        ${k.clientLogo ? `<img class="kp-clogo" src="${esc(k.clientLogo)}" alt="${esc(k.client)}">` : `<span class="d kp-pn">${esc(k.client)}</span>`}
+        ${has(k.clientContact) ? `<span class="kp-pr">${[k.clientContact.name, k.clientContact.role].filter(Boolean).map(esc).join(', ')}</span><span class="kp-pl">${links(k.clientContact)}</span>` : ''}
+      </div>` : '';
   const data = { slug: k.slug, client: k.client || '', total: k.total, link: k.track_url || '', metrika: /^\d+$/.test(String(S.metrika || '')) ? +S.metrika : 0 };
 
   return `<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#0b0b0c">
 <title>${esc(k.titleText)} | Median Agency</title>
 <meta property="og:title" content="${esc(k.titleText)}">
 <meta property="og:site_name" content="Median Agency">
@@ -144,74 +174,82 @@ function page(k) {
 <link rel="icon" href="../../media/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="../../media/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="../../media/apple-touch-icon.png">
+<link rel="preload" href="../../fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../css/fonts.css">
 <link rel="stylesheet" href="../../css/kp.css?v=${k.v}">
 ${counters(k)}
 </head>
 <body>
 <header class="kp-bar">
-  <a class="kp-pill" href="../../" target="_blank" rel="noopener" aria-label="median.agency">${MARK}<span>КП · Median</span></a>
+  <a class="kp-logo" href="../../" target="_blank" rel="noopener" aria-label="median.agency" data-c="hint" data-label="На сайт">${MARK}</a>
   <nav class="kp-acts">
-    <button class="kp-btn kp-ic" type="button" id="kpCopy" aria-label="Скопировать ссылку" title="Скопировать ссылку"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg></button>
-    ${dl(k.pdf, 'PDF', 'kp_pdf', 'kp-ic')}
-    ${dl(k.xlsx, 'XLS', 'kp_xlsx', 'kp-ic')}
+    <button class="kp-rb" type="button" id="kpCopy" aria-label="Скопировать ссылку" data-c="hint" data-label="Скопировать ссылку"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg></button>
+    ${dl(k.pdf, 'PDF', 'kp_pdf', 'kp-rb', 'hint" data-label="Скачать презентацию')}
+    ${dl(k.xlsx, 'XLS', 'kp_xlsx', 'kp-rb', 'hint" data-label="Скачать смету')}
+    ${dl(k.zip, 'ZIP', 'kp_zip', 'kp-rb', 'hint" data-label="Скачать всё архивом')}
   </nav>
 </header>
 
-<main class="kp">
-  <section class="kp-hero">
-    <div class="kp-mark">${MARK}</div>
-    <div class="kp-head">
-      <h1 class="kp-title">${k.titleLines.map(l => `<span>${esc(l)}</span>`).join('')}</h1>
-      <div class="kp-date">${long(k.dateD)}${k.client ? ` · ${esc(k.client)}` : ''}</div>
-    </div>
-    <div class="kp-scope-w">${scope}</div>
-    <div class="kp-files">
-      <span class="kp-l">Материалы</span>
-      <div class="kp-fl">${dl(k.pdf, 'Презентация', 'kp_pdf', 'kp-wide')}${dl(k.xlsx, 'Смета в Excel', 'kp_xlsx', 'kp-wide')}</div>
-    </div>
+<main>
+  <section class="kp-hero wrap">
+    <span class="label">Коммерческое предложение · ${long(k.dateD)}</span>
+    <h1 class="d kp-title">${k.titleLines.map((l, i) => `<span class="ln${i === 0 ? ' o' : ''}">${esc(l)}</span>`).join('')}</h1>
   </section>
 
-  <div class="kp-facts">
-    <span><span class="kp-l">Актуально до</span>${short(k.validD)}</span>
-    ${k.days ? `<span>${days(k.days)}</span>` : ''}
-    <span>${k.stages.length} ${plural(k.stages.length, 'этап', 'этапа', 'этапов')}</span>
-    <span class="kp-fsum">${money(k.total)} ₽</span>
-  </div>
-
-  ${k.task || k.sequence ? `
-  <section class="kp-row">
-    <h2 class="kp-h">Задача</h2>
-    <div class="kp-body">
-      ${k.task ? `<div class="kp-pair"><span class="kp-l">Описание</span><div class="kp-t kp-big">${para(k.task)}</div></div>` : ''}
-      ${k.sequence ? `<div class="kp-pair"><span class="kp-l">Последовательность</span><div class="kp-t kp-big">${para(k.sequence)}</div></div>` : ''}
-    </div>
-  </section>` : ''}
-  ${stages}
-
-  <section class="kp-total" id="kpTotal">
-    <h2 class="kp-h">Итоговый срок<br>и стоимость проекта</h2>
-    <span class="kp-days">${k.days ? days(k.days) : ''}</span>
-    <span class="kp-amt">${money(k.total)}</span>
-    <p class="kp-note">${[k.priceNote, `Расчёт актуален до ${long(k.validD)} года`].filter(Boolean).map(esc).join('<br>')}</p>
-  </section>
-  ${gantt}${cases}${format}
-
-  <section class="kp-row kp-contact">
-    <h2 class="kp-h">Контакты</h2>
-    <div class="kp-body">
-      ${m.name ? `<div class="kp-mn">${esc(m.name)}${m.role ? `<span class="kp-l">${esc(m.role)}</span>` : ''}</div>` : ''}
-      <div class="kp-cl">
-        ${m.tg ? `<a href="${esc(tgUrl(m.tg))}" target="_blank" rel="noopener" data-goal="kp_contact">Telegram ${esc('@' + String(m.tg).replace(/^@|^https?:\/\/t\.me\//, ''))}</a>` : ''}
-        ${m.phone ? `<a href="tel:${esc(String(m.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact">${esc(m.phone)}</a>` : ''}
-        ${m.email ? `<a href="mailto:${esc(m.email)}" data-goal="kp_contact">${esc(m.email)}</a>` : ''}
+  <section class="kp-facts wrap g5">
+    <div class="kp-fl">
+      ${client}
+      ${has(m) ? person(m, 'Основной контакт', 'kp-main') : ''}
+      <div class="kp-files">
+      ${dl(k.pdf, `<span>Презентация</span>${DL}`, 'kp_pdf', 'kp-file')}
+      ${dl(k.xlsx, `<span>Смета в Excel</span>${DL}`, 'kp_xlsx', 'kp-file')}
+      ${dl(k.zip, `<span>Скачать всё архивом</span>${DL}`, 'kp_zip', 'kp-file kp-file-all')}
       </div>
     </div>
+    <dl class="kp-dl kp-dl-l">
+      ${dd('Актуально до', short(k.validD))}
+      ${dd('Срок', k.days ? days(k.days) : '')}
+      ${dd('Этапы', k.stages.length ? `${k.stages.length} ${plural(k.stages.length, 'этап', 'этапа', 'этапов')}` : '')}
+      ${dd('Стоимость', `${money(k.total)} ₽`)}
+      ${k.scope.length ? dd('Что входит', `<ul class="kp-scope">${k.scope.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`) : ''}
+    </dl>
+  </section>
+
+  ${k.task || k.sequence ? `
+  <section class="kp-sec wrap">
+    <div class="g5 kp-sh"><h2 class="d kp-h2">Задача</h2><div class="kp-lead">${para(k.task)}</div></div>
+    ${k.sequence ? `<div class="g5"><dl class="kp-dl">${dd('Последовательность', txt(k.sequence))}</dl></div>` : ''}
+  </section>` : ''}
+
+  ${k.stages.length ? `
+  <section class="kp-sec wrap">
+    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Этапы</span><span class="ln">и смета</span></h2></div>
+    ${stages}
+  </section>` : ''}
+
+  <section class="kp-total grey wrap" id="kpTotal">
+    <div class="g5">
+      <span class="label kp-tl">Итоговый срок<br>и стоимость проекта</span>
+      <div class="d kp-tv">${k.days ? `<span class="ln o">${days(k.days)}</span>` : ''}<span class="ln">${money(k.total)} ₽</span></div>
+      <p class="label kp-note">${[k.priceNote, `Расчёт актуален до ${long(k.validD)} года`].filter(Boolean).map(esc).join('<br>')}</p>
+    </div>
+  </section>
+  ${gantt}${cases}${format}${teamSec}
+
+  <section class="kp-end wrap">
+    <h2 class="d kp-big"><span class="ln o">Обсудим</span><span class="ln">проект?</span></h2>
+    <div class="kp-links">
+      ${m.email ? `<a class="kp-mail" href="mailto:${esc(m.email)}" data-goal="kp_contact" data-c="link">${ARR}<span>${esc(m.email)}</span></a>` : ''}
+      ${m.tg ? `<a href="${esc(tgUrl(m.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link">${esc(nick(m))}</a>` : ''}
+      ${m.phone ? `<a href="tel:${esc(String(m.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link">${esc(m.phone)}</a>` : ''}
+      ${m.name ? `<span class="kp-mn">${esc(m.name)}${m.role ? ` · ${esc(m.role)}` : ''}</span>` : ''}
+    </div>
+    <div class="kp-foot"><span>© Median Agency ${k.dateD.getUTCFullYear()}</span><span>Предложение подготовлено лично для вас. Пожалуйста, не публикуйте ссылку.</span></div>
   </section>
 </main>
 
-<footer class="kp-foot"><span>© Median Agency</span><span>Предложение подготовлено лично для вас. Пожалуйста, не публикуйте ссылку.</span></footer>
-${contact ? `<a class="kp-cta" href="${esc(contact)}" target="_blank" rel="noopener" data-goal="kp_contact">Связаться</a>` : ''}
+${contact ? `<a class="kp-cta" href="${esc(contact)}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="hint" data-label="${m.tg ? 'Написать в Telegram' : 'Написать письмо'}">Связаться</a>` : ''}
+<div id="cur" aria-hidden="true"></div><div id="ring" aria-hidden="true"><span class="t"></span></div>
 <div class="kp-toast" id="kpToast" role="status" aria-live="polite"></div>
 <script type="application/json" id="kpData">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>
 <script src="../../js/kp.js?v=${k.v}"></script>
@@ -254,9 +292,16 @@ for (const f of list) {
     const th = cover && 'media/thumb/' + path.basename(cover).replace(/\.\w+$/, '.webp');
     return { id: c.id, name: cs.name, year: cs.year, sub: cs.sub, text: c.text, img: th && fs.existsSync(th) ? '../../' + th : cover ? '../../' + cover : '' };
   }).filter(Boolean);
-  const mg = Object.fromEntries(Object.entries(raw.manager || {}).filter(([, v]) => v));
-  k.manager = { ...(S.contact || {}), ...mg };
-  k.contactUrl = k.manager.tg ? tgUrl(k.manager.tg) : k.manager.email ? `mailto:${k.manager.email}` : '';
+  // контакты: основной (наверху и в кнопке «Связаться»), менеджер проекта, руководитель; пустые поля КП берутся из настроек
+  const filled = o => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v));
+  const SC = S.contacts || { main: S.contact };
+  const C = raw.contacts || { main: raw.manager };
+  const pick = r => { const own = filled(C[r]); return has(own) ? { ...filled(SC[r]), ...own } : filled(SC[r]); };
+  k.main = pick('main');
+  k.team = [[k.main, 'Основной контакт'], [pick('pm'), 'Менеджер проекта'], [pick('head'), 'Руководитель проекта']];
+  k.clientLogo = raw.client_logo ? fileUrl(raw.client_logo) : '';
+  k.clientContact = filled(raw.client_contact);
+  k.contactUrl = k.main.tg ? tgUrl(k.main.tg) : k.main.email ? `mailto:${k.main.email}` : '';
   k.pdf = fileUrl(raw.pdf);
   const dir = `${OUT}/${slug}`;
   fs.mkdirSync(dir, { recursive: true });
@@ -268,6 +313,13 @@ for (const f of list) {
     estimate(k, `${dir}/${name}`);
     k.xlsx = name;
   }
+  // «Скачать всё»: презентация и смета одним zip. Внешние ссылки (облако) в архив не попадают.
+  // Архив не коммитится (.gitignore) — он собирается при каждом деплое, чтобы не раздувать репозиторий копиями PDF.
+  for (const old of fs.readdirSync(dir)) if (old.endsWith('.zip')) fs.rmSync(`${dir}/${old}`);
+  const local = (u, own) => !u || /^https?:/.test(u) ? null : own ? `${dir}/${u}` : u.replace(/^(\.\.\/)+/, '');
+  const pack = [[local(k.pdf), `median-${slug}-presentation`], [local(k.xlsx, !raw.xlsx), `median-${slug}-smeta`]]
+    .filter(([f]) => f && fs.existsSync(f)).map(([f, n]) => [n + path.extname(f), fs.readFileSync(f)]);
+  if (pack.length > 1) { k.zip = `median-kp-${slug}.zip`; fs.writeFileSync(`${dir}/${k.zip}`, zip(pack)); }
   fs.writeFileSync(`${dir}/index.html`, page(k));
   built.add(slug);
 }

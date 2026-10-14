@@ -30,6 +30,31 @@
     if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){say('Ссылка скопирована')},fb);else fb();
   });
 
+  // курсор как на главной: точка + кольцо, над кнопками кольцо растёт и показывает подсказку (data-c / data-label)
+  if(matchMedia('(hover:hover) and (pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
+    var c=document.getElementById('cur'),r=document.getElementById('ring'),lab=r&&r.querySelector('.t');
+    if(c&&r){
+      document.body.classList.add('has-cursor');
+      var mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my,state='',seen=false;
+      addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY;c.style.transform='translate('+mx+'px,'+my+'px)';if(!seen){seen=true;rx=mx;ry=my;document.body.classList.add('cur-on')}},{passive:true});
+      document.documentElement.addEventListener('pointerleave',function(){document.body.classList.remove('cur-on');seen=false});
+      // подсказка у маленьких кнопок не закрывает саму кнопку: круг уходит под курсор (у нижнего края экрана — над ним)
+      var oy=0;
+      (function loop(){var to=state==='hint'?(my<innerHeight*.6?78:-78):0;oy+=(to-oy)*.22;rx+=(mx-rx)*.22;ry+=(my-ry)*.22;r.style.transform='translate('+rx+'px,'+(ry+oy)+'px)';requestAnimationFrame(loop)})();
+      document.addEventListener('pointerover',function(e){
+        var t=e.target.closest('[data-c]'),s=t?t.getAttribute('data-c'):'';
+        if(s!==state){if(state)document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s)}
+        lab.textContent=t&&t.getAttribute('data-label')||'';
+      });
+      // магнит у круглых кнопок, как на сайте
+      [].forEach.call(document.querySelectorAll('.kp-rb,.kp-logo,.kp-more'),function(el){
+        var k=.3;
+        el.addEventListener('pointermove',function(e){var b=el.getBoundingClientRect();el.style.translate=((e.clientX-b.left-b.width/2)*k).toFixed(1)+'px '+((e.clientY-b.top-b.height/2)*k).toFixed(1)+'px'});
+        el.addEventListener('pointerleave',function(){el.style.translate=''});
+      });
+    }
+  }
+
   if(!('IntersectionObserver' in window))return;
   // клиент долистал до итоговой стоимости
   var tot=document.getElementById('kpTotal');
@@ -40,7 +65,7 @@
     g.classList.add('pre');
     new IntersectionObserver(function(es,o){es.forEach(function(x){if(x.isIntersecting){g.classList.remove('pre');o.disconnect()}})},{threshold:.3}).observe(g);
   }
-  // кнопка «Связаться» прячется у блока контактов
-  var cta=document.querySelector('.kp-cta'),ct=document.querySelector('.kp-contact');
+  // кнопка «Связаться» прячется у финального блока с контактами
+  var cta=document.querySelector('.kp-cta'),ct=document.querySelector('.kp-end');
   if(cta&&ct)new IntersectionObserver(function(es){es.forEach(function(x){cta.classList.toggle('dim',x.isIntersecting)})}).observe(ct);
 })();
