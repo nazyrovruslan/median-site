@@ -22,7 +22,7 @@
 <link rel="apple-touch-icon" href="../../media/apple-touch-icon.png">
 <link rel="preload" href="../../fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../css/fonts.css">
-<link rel="stylesheet" href="../../css/kp.css?v=541f150">
+<link rel="stylesheet" href="../../css/kp.css?v=49e921c">
 
 </head>
 <body>
@@ -85,7 +85,7 @@
   <section class="kp-sec wrap">
     <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Этапы</span><span class="ln">и смета</span></h2></div>
     
-    <article class="kp-stage g5">
+    <article class="kp-stage g5" id="stage-1">
       <div class="kp-num d o" aria-hidden="true">01</div>
       <div class="kp-sc">
         <span class="label">Этап 1</span>
@@ -95,7 +95,7 @@
         <div class="kp-sum"><span class="label">10 дней</span><span class="d">310 000 ₽</span></div>
       </div>
     </article>
-    <article class="kp-stage g5">
+    <article class="kp-stage g5" id="stage-2">
       <div class="kp-num d o" aria-hidden="true">02</div>
       <div class="kp-sc">
         <span class="label">Этап 2</span>
@@ -105,7 +105,7 @@
         <div class="kp-sum"><span class="label">20 дней</span><span class="d">600 000 ₽</span></div>
       </div>
     </article>
-    <article class="kp-stage g5">
+    <article class="kp-stage g5" id="stage-3">
       <div class="kp-num d o" aria-hidden="true">03</div>
       <div class="kp-sc">
         <span class="label">Этап 3</span>
@@ -127,7 +127,7 @@
   
   <section class="kp-sec wrap">
     <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">График</span><span class="ln">работ</span></h2><div class="kp-lead"><p>Ориентировочный график при старте 2 ноября 2026 года. Паузы на согласования и ожидание материалов учитываются отдельно.</p></div></div>
-    <div class="kp-gantt"><div class="kp-g"><div class="kp-gl"><span>01 · Концепция и площадка</span><span>10 дней · 2 ноября — 11 ноября</span></div><div class="kp-gb"><i style="left:0.000%;width:28.571%"></i></div></div><div class="kp-g"><div class="kp-gl"><span>02 · Программа и подготовка</span><span>20 дней · 12 ноября — 1 декабря</span></div><div class="kp-gb"><i style="left:28.571%;width:57.143%"></i></div></div><div class="kp-g"><div class="kp-gl"><span>03 · Проведение и отчёт</span><span>5 дней · 2 декабря — 6 декабря</span></div><div class="kp-gb"><i style="left:85.714%;width:14.286%"></i></div></div>
+    <div class="kp-gantt"><a class="kp-g" href="#stage-1" data-c="row" data-label="К этапу 1"><div class="kp-gl"><span>01 · Концепция и площадка</span><span>10 дней · 2 ноября — 11 ноября</span></div><div class="kp-gb"><i style="left:0.000%;width:28.571%"></i></div></a><a class="kp-g" href="#stage-2" data-c="row" data-label="К этапу 2"><div class="kp-gl"><span>02 · Программа и подготовка</span><span>20 дней · 12 ноября — 1 декабря</span></div><div class="kp-gb"><i style="left:28.571%;width:57.143%"></i></div></a><a class="kp-g" href="#stage-3" data-c="row" data-label="К этапу 3"><div class="kp-gl"><span>03 · Проведение и отчёт</span><span>5 дней · 2 декабря — 6 декабря</span></div><div class="kp-gb"><i style="left:85.714%;width:14.286%"></i></div></a>
       <div class="kp-gl kp-ge"><span>Старт 2 ноября 2026</span><span>Окончание 6 декабря 2026</span></div>
     </div>
   </section>
@@ -186,7 +186,7 @@
 <div id="peek" aria-hidden="true"></div><div id="cur" aria-hidden="true"></div><div id="ring" aria-hidden="true"><span class="t"></span></div>
 <div class="kp-toast" id="kpToast" role="status" aria-live="polite"></div>
 <script type="application/json" id="kpData">{"slug":"03de7495","client":"Тестовая компания","total":1780000,"link":"","metrika":0}</script>
-<script src="../../js/kp.js?v=541f150"></script>
+<script src="../../js/kp.js?v=49e921c"></script>
 
 </body>
 </html>

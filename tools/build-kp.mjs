@@ -105,7 +105,7 @@ function page(k) {
   const pad2 = i => String(i + 1).padStart(2, '0');
 
   const stages = k.stages.map((st, i) => `
-    <article class="kp-stage g5">
+    <article class="kp-stage g5" id="stage-${i + 1}">
       <div class="kp-num d o" aria-hidden="true">${pad2(i)}</div>
       <div class="kp-sc">
         <span class="label">Этап ${i + 1}</span>
@@ -123,10 +123,12 @@ function page(k) {
     gantt = `
   <section class="kp-sec wrap">
     <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">График</span><span class="ln">работ</span></h2><div class="kp-lead">${para(k.scheduleNote || `Ориентировочный график при старте ${long(k.startD)} года. Паузы на согласования и ожидание материалов учитываются отдельно.`)}</div></div>
-    <div class="kp-gantt">${k.stages.filter(s => s.days).map((st, i) => {
+    <div class="kp-gantt">${k.stages.map((st, i) => {
+      if (!st.days) return '';
       const a = addDays(k.startD, acc), b = addDays(k.startD, acc + st.days - 1);
       const l = acc / k.days * 100, w = st.days / k.days * 100; acc += st.days;
-      return `<div class="kp-g"><div class="kp-gl"><span>${pad2(i)} · ${esc(st.title)}</span><span>${days(st.days)} · ${long(a, false)} — ${long(b, false)}</span></div><div class="kp-gb"><i style="left:${l.toFixed(3)}%;width:${w.toFixed(3)}%"></i></div></div>`;
+      // строка графика ведёт к своему этапу в смете
+      return `<a class="kp-g" href="#stage-${i + 1}" data-c="row" data-label="К этапу ${i + 1}"><div class="kp-gl"><span>${pad2(i)} · ${esc(st.title)}</span><span>${days(st.days)} · ${long(a, false)} — ${long(b, false)}</span></div><div class="kp-gb"><i style="left:${l.toFixed(3)}%;width:${w.toFixed(3)}%"></i></div></a>`;
     }).join('')}
       <div class="kp-gl kp-ge"><span>Старт ${long(k.startD)}</span><span>Окончание ${long(addDays(k.startD, k.days - 1))}</span></div>
     </div>

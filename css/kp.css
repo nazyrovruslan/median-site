@@ -71,7 +71,9 @@ p{margin:0}
 .kp-pl a:hover{border-color:var(--paper)}
 .kp-ph{width:clamp(72px,6vw,112px);aspect-ratio:1;border-radius:50%;background:#b4b4b0 center/cover no-repeat;margin-bottom:8px;filter:grayscale(1)}
 .kp-main .kp-pn{font-size:var(--h4)}
-.kp-team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px var(--gutter)}
+/* команда на сетке: каждый контакт — две колонки, начинается на направляющей */
+.kp-team{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:40px 0}
+.kp-team .kp-person{grid-column:span 2;margin-right:16px}
 .kp-team .kp-person{padding-top:24px;border-top:1px solid var(--paper);font-size:var(--ui)}
 .kp-file{display:inline-flex;align-items:center;gap:16px;height:52px;padding:0 26px;border:1px solid var(--paper);border-radius:99px;font:500 var(--sm)/1 var(--body);letter-spacing:.14em;text-transform:uppercase;transition:background .3s,color .3s}
 .kp-file svg{width:10px;height:14px;fill:none;stroke:currentColor;stroke-width:1.4;transition:transform .4s var(--ease)}
@@ -105,6 +107,8 @@ p{margin:0}
 .kp-items{width:100%;border-collapse:collapse;margin-top:clamp(28px,3vw,56px);font-size:var(--ui)}
 .kp-items th{text-align:left;font:500 var(--sm)/1.3 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 12px 12px 0;font-weight:500}
 .kp-items td{padding:12px 12px 12px 0;border-top:1px solid var(--line);vertical-align:top}
+/* название строки — две колонки сетки, цифры — в последней, сумма кончается на направляющей */
+.kp-items th:first-child{width:66.667%}
 .kp-items th:nth-child(n+2),.kp-items td:nth-child(n+2){text-align:right;white-space:nowrap;padding-right:0;padding-left:12px}
 .kp-sum{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:clamp(28px,3vw,56px);padding-top:20px;border-top:1px solid var(--paper)}
 .kp-sum .d{font-size:var(--h4);white-space:nowrap}
@@ -125,18 +129,28 @@ p{margin:0}
 .kp-gb{position:relative;height:clamp(28px,3vw,56px);background:rgba(11,11,12,.08)}
 .kp-gb i{position:absolute;top:0;bottom:0;background:var(--paper);transform-origin:left;transition:transform 1.2s var(--ease)}
 .kp-gantt.pre .kp-gb i{transform:scaleX(0)}
+/* строка графика — ссылка на этап: при наведении подпись сдвигается, как строки кейсов */
+.kp-g{display:block}
+.kp-g .kp-gl>span:first-child{transition:translate .45s var(--ease)}
+.kp-g:hover .kp-gl>span:first-child{translate:14px 0}
+.kp-g:hover .kp-gb{background:rgba(11,11,12,.14)}
+.kp-gb{transition:background .3s}
+.kp-stage{scroll-margin-top:90px}
 .kp-ge{margin:8px 0 0}
 .kp-ge span:last-child{color:inherit}
 
 /* кейсы — как «Все проекты» на главной (css/style.css .rows/.row/#peek) */
 .kp-ch{font-size:var(--h2);margin-bottom:36px;white-space:nowrap}
 .rows{border-top:1px solid var(--line)}
-.row{display:grid;grid-template-columns:64px minmax(0,1.2fr) minmax(0,1.4fr);gap:16px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line);position:relative}
+/* строки кейсов на сетке 5 колонок: номер — 1-я, название — 2–3-я, подпись — 4–5-я */
+.row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;align-items:center;padding:22px 0;border-bottom:1px solid var(--line);position:relative}
 .row .n,.row .nm,.row .sb{transition:translate .45s var(--ease)}
 .row:hover .n,.row:hover .nm,.row:hover .sb{translate:14px 0}
 .row .n{font:700 var(--h5,clamp(12px,.94vw,18px)) var(--display);color:var(--muted);font-variant-numeric:tabular-nums}
 .row .nm{font:700 var(--h4)/1.05 var(--display);text-transform:uppercase}
 .row .sb{color:rgba(11,11,12,.72);font-size:var(--sm);line-height:1.5}
+.row .nm{grid-column:2/4;padding-right:16px}
+.row .sb{grid-column:4/6}
 .row .rp{display:none}
 #peek{position:fixed;left:0;top:0;width:260px;aspect-ratio:4/3;pointer-events:none;z-index:30;opacity:0;scale:.85;transition:opacity .3s,scale .4s var(--ease),transform .45s var(--ease);translate:-50% -50%;overflow:hidden;background:#b4b4b0 center/cover no-repeat}
 #peek.on{opacity:1;scale:1}
@@ -178,7 +192,13 @@ p{margin:0}
 .foot.in .start .d .line>span{transform:none}
 .foot.in .foot-bar{opacity:1;transform:none}
 @media (hover:hover){.foot.in .start .plus:hover svg,.foot.in .start:hover .plus svg{transform:rotate(90deg);transition-delay:0s}}
-@media (min-width:821px){.start{align-self:flex-start;margin-left:calc(40% - .58em - clamp(22px,3.2vw,52px))}.foot-bar{font-size:var(--ui)}.mail{margin-left:calc(-40px - 14px)}}
+@media (min-width:821px){.start{align-self:flex-start;margin-left:calc(40% - .58em - clamp(22px,3.2vw,52px))}.foot-bar{font-size:var(--ui)}.mail{margin-left:calc(-40px - 14px)}
+  /* строка подвала на сетке: каждый пункт начинается на своей направляющей; Follow us раскрывается вверх, чтобы не наезжать на соседей */
+  .foot-bar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
+  .foot-bar>*{justify-self:start}
+  .follow{position:relative}
+  .follow .links{position:absolute;left:-8px;bottom:calc(100% + 6px);max-width:none;background:var(--black);transition:opacity .3s,visibility 0s .3s}
+  .follow:hover .links,.follow:focus-within .links,.follow.open .links{max-width:none}}
 /* курсор на «Start a project» — большой контурный круг, как на сайте */
 body.c-plus #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);background:transparent;border-color:#fff}
 body.has-cursor.c-plus #cur{opacity:0}
@@ -235,7 +255,7 @@ body.has-cursor.c-mag #cur,body.has-cursor.c-hint #cur,body.has-cursor.c-link #c
   .kp-ge{flex-direction:row}
   .kp-ch{font-size:clamp(20px,6.4vw,48px);white-space:normal}
   .row{grid-template-columns:40px minmax(0,1fr);row-gap:4px}
-  .row .sb{grid-column:2}
+  .row .nm,.row .sb{grid-column:2}
   .kp-items th:nth-child(3),.kp-items td:nth-child(3){display:none}
   .start{font-size:clamp(28px,9vw,72px)}
   .foot-bar{gap:12px 16px}
@@ -244,6 +264,7 @@ body.has-cursor.c-mag #cur,body.has-cursor.c-hint #cur,body.has-cursor.c-link #c
   .follow .links{position:absolute;right:-8px;bottom:calc(100% + 6px);max-width:none;background:var(--black)}
   .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{opacity:0;visibility:hidden;pointer-events:none}
   .kp-team{grid-template-columns:1fr}
+  .kp-team .kp-person{grid-column:auto;margin-right:0}
   .foot{padding-bottom:110px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}.start .plus svg,.start .d .line>span,.foot-bar{transform:none!important;opacity:1!important}}
