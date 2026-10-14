@@ -228,7 +228,7 @@ ${counters(k)}
 
   <section class="kp-facts wrap g5">
     <div class="kp-fl">
-      ${has(m) ? person(m, 'Основной контакт', 'kp-main') : ''}
+      ${has(k.pm) ? person(k.pm, 'Менеджер проекта', 'kp-main') : ''}
       <div class="kp-files">
       ${dl(k.pdf, `<span>Презентация</span>${DL}`, 'kp_pdf', 'kp-file')}
       ${dl(k.xlsx, `<span>Смета в Excel</span>${DL}`, 'kp_xlsx', 'kp-file')}
@@ -328,7 +328,8 @@ for (const f of list) {
   const pick = r => { const own = filled(C[r]); return has(own) ? { ...filled(SC[r]), ...own } : filled(SC[r]); };
   k.main = pick('main');
   // основной контакт — только наверху и в «Связаться», в команде его нет
-  k.team = [[pick('pm'), 'Менеджер проекта'], [pick('head'), 'Руководитель проекта']];
+  k.pm = pick('pm');
+  k.team = [[k.pm, 'Менеджер проекта'], [pick('head'), 'Account director']];
   k.clientLogo = raw.client_logo ? fileUrl(raw.client_logo) : '';
   k.clientContact = filled(raw.client_contact);
   k.contactUrl = k.main.tg ? tgUrl(k.main.tg) : k.main.email ? `mailto:${k.main.email}` : '';

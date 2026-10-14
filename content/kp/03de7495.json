@@ -89,17 +89,7 @@
   },
   "contacts": {
     "main": {},
-    "pm": {
-      "name": "Имя Фамилия",
-      "role": "Менеджер проекта",
-      "tg": "medianprojects",
-      "phone": "+7 (862) 291-25-52"
-    },
-    "head": {
-      "name": "Имя Фамилия",
-      "role": "Аккаунт-директор",
-      "tg": "medianprojects",
-      "email": "info@median.agency"
-    }
+    "pm": {},
+    "head": {}
   }
 }

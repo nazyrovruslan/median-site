@@ -259,7 +259,7 @@ collections:
             widget: object
             required: false
             collapsed: true
-            hint: "Показывается наверху КП и в кнопке «Связаться»"
+            hint: "Кнопка «Связаться» и финальный блок с контактами"
             fields:
               - { name: name, label: Имя, widget: string, required: false }
               - { name: role, label: Должность, widget: string, required: false }
@@ -272,6 +272,7 @@ collections:
             widget: object
             required: false
             collapsed: true
+            hint: "Показывается наверху КП и в команде проекта"
             fields:
               - { name: name, label: Имя, widget: string, required: false }
               - { name: role, label: Должность, widget: string, required: false }
@@ -280,7 +281,7 @@ collections:
               - { name: email, label: Почта, widget: string, required: false }
               - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
           - name: head
-            label: Руководитель (аккаунт-директор)
+            label: Account director
             widget: object
             required: false
             collapsed: true
@@ -314,7 +315,7 @@ collections:
                 widget: object
                 required: false
                 collapsed: true
-                hint: "Показывается наверху КП и в кнопке «Связаться»"
+                hint: "Кнопка «Связаться» и финальный блок с контактами"
                 fields:
                   - { name: name, label: Имя, widget: string, required: false }
                   - { name: role, label: Должность, widget: string, required: false }
@@ -335,7 +336,7 @@ collections:
                   - { name: email, label: Почта, widget: string, required: false }
                   - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
               - name: head
-                label: Руководитель (аккаунт-директор)
+                label: Account director
                 widget: object
                 required: false
                 collapsed: true

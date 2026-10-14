@@ -21,13 +21,19 @@
   ],
   "contacts": {
     "main": {
-      "name": "Median Agency",
-      "role": "Отдел проектов",
-      "tg": "medianprojects",
-      "phone": "+7 (862) 291-25-52",
-      "email": "info@median.agency"
+      "name": "Алина Саяпова",
+      "tg": "asayapova",
+      "email": "a.sayapova@median.agency"
     },
-    "pm": {},
-    "head": {}
+    "pm": {
+      "name": "Алина Саяпова",
+      "tg": "asayapova",
+      "email": "a.sayapova@median.agency"
+    },
+    "head": {
+      "name": "Алина Саяпова",
+      "tg": "asayapova",
+      "email": "a.sayapova@median.agency"
+    }
   }
 }
