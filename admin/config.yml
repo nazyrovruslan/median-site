@@ -48,6 +48,8 @@ collections:
       - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/<id>. После публикации лучше не менять." }
       - { name: name, label: Название, widget: string }
       - { name: sub, label: Подзаголовок, widget: string, hint: "Строка в списке кейсов и под заголовком в баннере" }
+      - { name: hide, label: Скрыть с сайта (только для КП), widget: boolean, required: false, default: false, hint: "Кейса не будет на главной и в списке проектов, но он есть в закрытом каталоге кейсов и его можно добавить в КП; страница кейса открывается по прямой ссылке" }
+      - { name: kp, label: Категории для КП, widget: select, multiple: true, required: false, options: [{ label: "Стенды и зоны", value: stands }, { label: "Конференции и форумы", value: conf }, { label: "Выездные мероприятия и кэмпы", value: camp }, { label: "Фестивали и road show", value: fest }, { label: "Хакатоны и IT-соревнования", value: hack }, { label: "Корпоративы и церемонии", value: corp }, { label: "Спецпроекты и digital", value: special }], hint: "По ним КП подбирает релевантный опыт: кейсы категории КП прикрепляются по умолчанию (в порядке списка)" }
       - { name: dir, label: Направление, widget: select, options: [{ label: Внешние, value: external }, { label: Внутренние, value: internal }, { label: Out of the list, value: outlist }, { label: Свой проект, value: own }] }
       - { name: out, label: "Заголовок: контурное слово", widget: string, required: false, hint: "Первая строка заголовка (контуром). Если ниже заданы «Строки заголовка» — используются они." }
       - { name: solid, label: "Заголовок: залитое слово", widget: string, required: false }
@@ -194,6 +196,7 @@ collections:
         fields:
           - { name: name, label: Имя, widget: string, required: false }
           - { name: role, label: Должность, widget: string, required: false }
+      - { name: category, label: Категория предложения, widget: select, required: false, options: [{ label: "Стенды и зоны", value: stands }, { label: "Конференции и форумы", value: conf }, { label: "Выездные мероприятия и кэмпы", value: camp }, { label: "Фестивали и road show", value: fest }, { label: "Хакатоны и IT-соревнования", value: hack }, { label: "Корпоративы и церемонии", value: corp }, { label: "Спецпроекты и digital", value: special }], hint: "Если «Релевантный опыт» ниже пуст — туда сами встают кейсы этой категории. Чтобы заменить или добавить — заполните список вручную" }
       - { name: draft, label: Черновик (страница не публикуется), widget: boolean, required: false, default: false }
       - { name: title, label: Заголовок, widget: text, hint: "Каждая строка — отдельной строкой заголовка" }
       - { name: date, label: Дата предложения, widget: datetime, time_format: false, format: "YYYY-MM-DD", default: "{{now}}" }
@@ -233,7 +236,7 @@ collections:
       - { name: price_note, label: Примечание к стоимости, widget: string, required: false, hint: "Например, «без НДС». Если пусто — из настроек КП" }
       - { name: schedule_note, label: Пояснение к графику, widget: text, required: false }
       - name: cases
-        label: Релевантный опыт (кейсы с сайта)
+        label: Релевантный опыт (кейсы; если пусто — по категории предложения)
         label_singular: кейс
         widget: list
         required: false
@@ -308,6 +311,8 @@ collections:
           - { name: vk, label: ID пикселя VK, widget: string, required: false }
           - { name: head, label: Код в <head> всех КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Счётчик сквозной аналитики (Roistat, Calltouch, CoMagic и т.п.), пиксели" }
           - { name: body, label: Код в конце <body> всех КП, widget: code, default_language: html, output_code_only: true, required: false }
+          - { name: catalog, label: Адрес закрытого каталога кейсов, widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница, цифры и дефис'], hint: "Каталог всех кейсов (и скрытых) с категориями: https://nazyrovruslan.github.io/median-site/clients/<адрес>/, для Битрикс24 — …/clients/<адрес>/cases.json. Смените адрес, если ссылка утекла" }
+          - { name: cases_default, label: Сколько кейсов подставлять по категории, widget: number, value_type: int, default: 4 }
           - { name: valid_days, label: Срок актуальности КП по умолчанию (дней), widget: number, value_type: int, default: 30 }
           - { name: price_note, label: Примечание к стоимости по умолчанию, widget: string, required: false }
           - name: footer

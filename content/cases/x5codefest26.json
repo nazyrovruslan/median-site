@@ -5,6 +5,9 @@
   "out": "X5 Tech",
   "solid": "Control Room",
   "dir": "external",
+  "kp": [
+    "stands"
+  ],
   "year": "2026",
   "client": "X5 Tech",
   "c": [

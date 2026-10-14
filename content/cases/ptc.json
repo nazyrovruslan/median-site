@@ -7,6 +7,9 @@
   "out": "People",
   "solid": "Tech Camp",
   "dir": "external",
+  "kp": [
+    "camp"
+  ],
   "year": "2025",
   "client": "SENSE",
   "c": [

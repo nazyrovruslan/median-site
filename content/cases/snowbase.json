@@ -6,6 +6,9 @@
   "out": "Snow",
   "solid": "Base",
   "dir": "own",
+  "kp": [
+    "camp"
+  ],
   "year": "2026",
   "c": [
     "#9cc8f0",

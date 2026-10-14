@@ -8,6 +8,9 @@
   "solid": "Interactive",
   "sub": "Интерактивная зона на «Нефоруме блогеров»",
   "dir": "outlist",
+  "kp": [
+    "stands"
+  ],
   "year": "2017",
   "c": [
     "#00c0a0",

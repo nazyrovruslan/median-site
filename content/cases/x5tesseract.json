@@ -5,6 +5,9 @@
   "out": "X5 Tech",
   "solid": "Tesseract",
   "dir": "external",
+  "kp": [
+    "stands"
+  ],
   "year": "2025",
   "client": "X5 Tech",
   "c": [

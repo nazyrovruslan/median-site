@@ -5,6 +5,9 @@
   "out": "X5 Tech",
   "solid": "Shop",
   "dir": "external",
+  "kp": [
+    "stands"
+  ],
   "year": "2023",
   "client": "X5 Tech",
   "c": [

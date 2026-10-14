@@ -39,5 +39,7 @@
   "footer": {
     "email": "info@median.agency",
     "tg": "medianprojects"
-  }
+  },
+  "cases_default": 4,
+  "catalog": "cases-e9e16831"
 }

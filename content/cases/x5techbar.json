@@ -5,6 +5,9 @@
   "out": "X5",
   "solid": "Tech Bar",
   "dir": "external",
+  "kp": [
+    "stands"
+  ],
   "c": [
     "#b8d432",
     "#1f6b3b",

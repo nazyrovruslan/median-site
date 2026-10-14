@@ -5,6 +5,9 @@
   "out": "Alfa",
   "solid": "Contact Day",
   "dir": "internal",
+  "kp": [
+    "fest"
+  ],
   "c": [
     "#ef3124",
     "#2b0d3a",

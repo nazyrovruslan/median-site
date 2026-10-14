@@ -8,6 +8,10 @@
   "solid": "HUB",
   "sub": "Кэмп-конференция для C-level в IT",
   "dir": "own",
+  "kp": [
+    "camp",
+    "conf"
+  ],
   "year": "2022–2026",
   "c": [
     "#1db9a8",

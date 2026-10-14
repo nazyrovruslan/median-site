@@ -8,6 +8,9 @@
   "solid": "Battle",
   "sub": "5 часов остросюжетного кодинга",
   "dir": "internal",
+  "kp": [
+    "hack"
+  ],
   "c": [
     "#ff5a3c",
     "#7a0f1d",

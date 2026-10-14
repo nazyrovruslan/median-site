@@ -11,6 +11,13 @@ const SRC = 'content/kp', OUT = 'clients', SITE = 'https://nazyrovruslan.github.
 const read = f => JSON.parse(fs.readFileSync(f, 'utf8'));
 const S = fs.existsSync('content/settings/kp.json') ? read('content/settings/kp.json') : {};
 const CASES = Object.fromEntries(fs.readdirSync('content/cases').filter(f => f.endsWith('.json')).map(f => { const c = read(`content/cases/${f}`); return [c.id || f.slice(0, -5), c]; }));
+// категории предложений — те же, что в /admin (кейс → «Категории для КП», КП → «Категория предложения»)
+const CATS = { stands: 'Стенды и зоны', conf: 'Конференции и форумы', camp: 'Выездные мероприятия и кэмпы', fest: 'Фестивали и road show', hack: 'Хакатоны и IT-соревнования', corp: 'Корпоративы и церемонии', special: 'Спецпроекты и digital' };
+const ORDERED = Object.values(CASES).sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9) || String(a.id).localeCompare(String(b.id)));
+// кейсы категории по умолчанию: первые N в порядке списка кейсов (N — «Сколько кейсов подставлять» в настройках КП)
+const byCat = cat => ORDERED.filter(c => (c.kp || []).includes(cat)).slice(0, num(S.cases_default) || 4);
+// обложка кейса для строк списка: превью из media/thumb, если оно уже есть
+const caseCover = cs => { const cover = cs.img || (cs.vid ? cs.vid.replace(/\.mp4$/, '.webp') : ''); const th = cover && 'media/thumb/' + path.basename(cover).replace(/\.\w+$/, '.webp'); return th && fs.existsSync(th) ? th : cover; };
 
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const txt = s => esc(String(s ?? '').trim()).replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>');
@@ -301,6 +308,58 @@ ${S.body || ''}
 `;
 }
 
+// страница закрытого каталога: фильтр по категориям, строки как «Релевантный опыт» в КП
+function catalogPage(list) {
+  const counts = Object.fromEntries(Object.keys(CATS).map(id => [id, list.filter(c => c.categories.includes(id)).length]));
+  return `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#c9c9c6">
+<title>Каталог кейсов | Median Agency</title>
+<link rel="icon" href="../../media/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../../fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/kp.css?v=${ver}">
+</head>
+<body>
+<header class="kp-bar">
+  <a class="kp-logo" href="../../" target="_blank" rel="noopener" aria-label="median.agency" data-c="mag" data-magnet=".3">${MARK}</a>
+</header>
+<main>
+  <section class="kp-hero kp-cat-hero wrap">
+    <span class="label">Закрытый каталог · ${list.length} ${plural(list.length, 'кейс', 'кейса', 'кейсов')} · ${list.filter(c => !c.on_site).length} скрыто с сайта</span>
+    <h1 class="d kp-title"><span class="ln o">Все</span><span class="ln">кейсы</span></h1>
+    <div class="kp-chips" role="group" aria-label="Категории">
+      <button class="kp-chip on" type="button" data-cat="" data-c="mag" data-magnet=".3">Все <i>${list.length}</i></button>${Object.entries(CATS).map(([id, name]) => `
+      <button class="kp-chip" type="button" data-cat="${id}" data-c="mag" data-magnet=".3">${esc(name)} <i>${counts[id]}</i></button>`).join('')}
+    </div>
+  </section>
+  <section class="kp-sec kp-cases wrap">
+    <div class="rows">${list.map((c, i) => `
+      <a class="row" href="../../${esc(c.id)}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть кейс" data-cats="${c.categories.join(' ')}"${c.cover ? ` data-img="${esc(c.cover.replace(SITE, '../../'))}"` : ''}>
+        <span class="n">${String(i + 1).padStart(2, '0')}</span><span class="nm">${esc(c.name)}</span><span class="sb">${esc([c.client, c.year].filter(Boolean).join(' · ') || c.sub)}<span class="kp-tags">${c.categories.map(id => `<em>${esc(CATS[id] || id)}</em>`).join('')}${c.on_site ? '' : '<em class="off">Скрыт с сайта</em>'}</span></span>
+        <span class="rp"${c.cover ? ` style="background-image:url('${esc(c.cover.replace(SITE, '../../'))}')"` : ''}></span>
+      </a>`).join('')}
+    </div>
+  </section>
+</main>
+<div id="peek" aria-hidden="true"></div><div id="cur" aria-hidden="true"></div><div id="ring" aria-hidden="true"><span class="t"></span></div>
+<script src="../../js/kp.js?v=${ver}"></script>
+<script>
+// фильтр по категории; номера строк пересчитываются под видимые
+(function(){var b=document.querySelectorAll('.kp-chip'),r=document.querySelectorAll('.row');
+[].forEach.call(b,function(x){x.addEventListener('click',function(){var c=x.getAttribute('data-cat'),n=0;
+[].forEach.call(b,function(y){y.classList.toggle('on',y===x)});
+[].forEach.call(r,function(w){var on=!c||(' '+w.getAttribute('data-cats')+' ').indexOf(' '+c+' ')>=0;w.hidden=!on;if(on)w.querySelector('.n').textContent=String(++n).padStart(2,'0')})})})})();
+</script>
+</body>
+</html>
+`;
+}
+
 // ---- сборка ----
 // версия css/js в ссылках = хэш их содержимого (сбрасывает кэш только когда они меняются)
 const ver = crypto.createHash('md5').update(fs.readFileSync('css/kp.css')).update(fs.readFileSync('js/kp.js')).digest('hex').slice(0, 7);
@@ -350,11 +409,13 @@ for (const f of list) {
   k.priceNote = raw.price_note ?? S.price_note ?? '';
   k.scheduleNote = raw.schedule_note || '';
   k.format = (raw.format && raw.format.length ? raw.format : S.format || []).filter(f => f && f.title);
-  k.cases = (raw.cases || []).map(c => {
+  // «Релевантный опыт»: список из КП, а если он пуст — кейсы категории предложения
+  k.catName = CATS[raw.category] || '';
+  const picked = (raw.cases || []).filter(c => c && c.id);
+  k.cases = (picked.length ? picked : raw.category ? byCat(raw.category).map(c => ({ id: c.id })) : []).map(c => {
     const cs = CASES[c.id]; if (!cs) { console.warn(`${f}: нет кейса ${c.id}`); return null; }
-    const cover = cs.img || (cs.vid ? cs.vid.replace(/\.mp4$/, '.webp') : '');
-    const th = cover && 'media/thumb/' + path.basename(cover).replace(/\.\w+$/, '.webp');
-    return { id: c.id, name: cs.name, year: cs.year, sub: cs.sub, text: c.text, vid: cs.vid ? '../../' + cs.vid : '', img: th && fs.existsSync(th) ? '../../' + th : cover ? '../../' + cover : '' };
+    const img = caseCover(cs);
+    return { id: c.id, name: cs.name, year: cs.year, sub: cs.sub, text: c.text, vid: cs.vid ? '../../' + cs.vid : '', img: img ? '../../' + img : '' };
   }).filter(Boolean);
   // контакты: основной (наверху и в кнопке «Связаться»), менеджер проекта, руководитель; пустые поля КП берутся из настроек
   const filled = o => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v));
@@ -397,6 +458,18 @@ for (const f of list) {
   fs.writeFileSync(`${dir}/index.html`, page(k));
   built.add(slug);
 }
+const kpCount = built.size;
+// закрытый каталог всех кейсов (и скрытых с сайта): clients/<адрес из настроек>/ — страница для менеджеров и cases.json для Битрикс24
+if (S.catalog && /^[a-z0-9-]+$/.test(S.catalog)) {
+  const dir = `${OUT}/${S.catalog}`;
+  fs.mkdirSync(dir, { recursive: true });
+  const list = ORDERED.map(c => ({ id: c.id, name: c.name, client: c.client || '', year: c.year || '', sub: c.sub || '', categories: c.kp || [], on_site: !c.hide, url: SITE + c.id, cover: caseCover(c) ? SITE + caseCover(c) : '' }));
+  const json = { updated: new Date().toISOString(), default_count: num(S.cases_default) || 4, categories: Object.entries(CATS).map(([id, name]) => ({ id, name, default: byCat(id).map(c => c.id) })), cases: list };
+  fs.writeFileSync(`${dir}/cases.json`, JSON.stringify(json, null, 2));
+  fs.writeFileSync(`${dir}/index.html`, catalogPage(list));
+  built.add(S.catalog);
+  console.log(`clients/${S.catalog}/: каталог, ${list.length} ${plural(list.length, "кейс", "кейса", "кейсов")}`);
+}
 // удалённые и черновые КП — убрать со страниц
 if (fs.existsSync(OUT)) for (const d of fs.readdirSync(OUT)) if (!built.has(d)) fs.rmSync(`${OUT}/${d}`, { recursive: true, force: true });
-console.log(`clients/: ${built.size} КП`);
+console.log(`clients/: ${kpCount} КП`);

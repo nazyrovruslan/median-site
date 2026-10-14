@@ -5,6 +5,9 @@
   "out": "Tech",
   "solid": "Monsters Night",
   "dir": "internal",
+  "kp": [
+    "corp"
+  ],
   "c": [
     "#e4002b",
     "#4a1a7a",

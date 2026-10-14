@@ -5,6 +5,9 @@
   "out": "Alfa",
   "solid": "Battle Camp",
   "dir": "internal",
+  "kp": [
+    "camp"
+  ],
   "c": [
     "#ff6a3d",
     "#0f7c8c",

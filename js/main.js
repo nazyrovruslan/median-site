@@ -278,10 +278,11 @@ let openId=null;
 const baseTitle=document.title; let caseDepth=0;
 const ROOT=location.pathname.replace(/[^/]*$/,'');
 const caseUrl=id=>ROOT+encodeURIComponent(id);
+const caseById=id=>(typeof CASES_ALL!=='undefined'?CASES_ALL:CASES).find(c=>c.id===id); // и скрытые с сайта (только для КП) — по прямой ссылке
 const caseFromPath=p=>decodeURIComponent(p.slice(ROOT.length).replace(/\/$/,''));
 function setCaseUrl(id,push){const st={case:id};if(push){history.pushState(st,'',caseUrl(id));caseDepth++;}else history.replaceState(st,'',caseUrl(id));}
 function closeCase(){if(caseDepth>0){history.go(-caseDepth);return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel($('#casePanel'));}
-addEventListener('popstate',()=>{const id=caseFromPath(location.pathname),k=CASES.find(c=>c.id===id),panel=$('#casePanel');
+addEventListener('popstate',()=>{const id=caseFromPath(location.pathname),k=caseById(id),panel=$('#casePanel');
   if(id==='about'){openAbout(false);return;}
   if(aboutP.classList.contains('on')){aboutPushed=false;document.title=baseTitle;closePanel(aboutP);}
   if(k){caseDepth=Math.max(0,caseDepth-1);if(id!==openId)fillCase(id);document.title=k.name+' — Median';if(!panel.classList.contains('on'))openPanel(panel);}
@@ -339,9 +340,9 @@ const CLOGO=[[/альфа/i,'alfa','#EF3124'],[/x5|х5/i,'x5','#5FAF2D'],[/вт�
 function cfLogo(k){const t=k.client||k.name,m=!k.logo&&CLOGO.find(([r])=>r.test(k.client||'')),src=k.logo||(m&&`media/clients/${m[1]}.svg`);
   return src?`<div class="cf-logo cf-svg" role="img" aria-label="${esc(t)}" style="-webkit-mask-image:url(${src});mask-image:url(${src});--c:${k.logoColor||(m&&m[2])||'#f3f3f1'}"></div>`:`<div class="cf-logo d">${esc(t)}</div>`;}
 function fillCase(id,split){
-  const i=CASES.findIndex(c=>c.id===id), k=CASES[i], n=CASES[(i+1)%CASES.length]; openId=id;
+  const k=caseById(id), i=CASES.indexOf(k), n=CASES[(i+1)%CASES.length]; openId=id; // у скрытого кейса i=-1: «Следующий проект» — первый в списке
   document.title=k.name+' — Median';
-  $('#cVis').style.background=cover(k,i);$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap');H.classList.toggle('split',!!split);H.offsetWidth;H.classList.remove('snap'); // раскладка «обложка слева» — только при переходе со «Следующего проекта»
+  $('#cVis').style.background=cover(k,Math.max(i,0));$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap');H.classList.toggle('split',!!split);H.offsetWidth;H.classList.remove('snap'); // раскладка «обложка слева» — только при переходе со «Следующего проекта»
   $('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
@@ -375,7 +376,7 @@ function openCase(id,fromEl,noPush){
   const panel=$('#casePanel');
   if(panel.classList.contains('on')||!fromEl||reduce){ if(!panel.classList.contains('on')) openPanel(panel); expandHero(500); return; }
   const i=CASES.findIndex(c=>c.id===id), from=fromEl.getBoundingClientRect(), fly=$('#flyCover');
-  fly.style.background=cover(CASES[i],i);
+  fly.style.background=cover(caseById(id),Math.max(i,0));
   fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
   fly.classList.add('on');
   // панель открываем сразу, без своей анимации, и прячем её фото — его роль играет летящая обложка
@@ -610,5 +611,5 @@ if(fine&&!reduce){
 /* прямая ссылка: 404.html кладёт путь в sessionStorage и отправляет на главную; старые ссылки ?case= тоже открываются */
 {let r=null;try{r=sessionStorage.getItem('route');sessionStorage.removeItem('route');}catch(e){}
  const id=r?caseFromPath(r):new URLSearchParams(location.search).get('case');if(r||location.search)history.replaceState(null,'',ROOT+location.hash);if(id==='about'){history.replaceState({about:1},'',ROOT+'about');openAbout(false);}
- else if(id&&CASES.some(c=>c.id===id)){openCase(id,null,true);setCaseUrl(id,false);}}
+ else if(id&&caseById(id)){openCase(id,null,true);setCaseUrl(id,false);}}
 })();

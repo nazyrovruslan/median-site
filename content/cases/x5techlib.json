@@ -5,6 +5,9 @@
   "out": "X5",
   "solid": "Tech LIB",
   "dir": "external",
+  "kp": [
+    "stands"
+  ],
   "c": [
     "#5faa35",
     "#0d5c3a",

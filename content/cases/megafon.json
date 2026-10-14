@@ -9,6 +9,10 @@
   "solid": "Bistro 4G",
   "sub": "Корнер МегаФон на Flacon 1170",
   "dir": "external",
+  "kp": [
+    "stands",
+    "special"
+  ],
   "c": [
     "#8a4dff",
     "#2fd27a",

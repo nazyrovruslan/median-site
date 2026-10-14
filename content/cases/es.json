@@ -7,6 +7,10 @@
   "out": "Event",
   "solid": "Surfing",
   "dir": "own",
+  "kp": [
+    "camp",
+    "conf"
+  ],
   "c": [
     "#2fb9d8",
     "#f3c86b",

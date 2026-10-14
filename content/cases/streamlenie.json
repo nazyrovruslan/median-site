@@ -5,6 +5,9 @@
   "out": "STREAM",
   "solid": "ление",
   "dir": "internal",
+  "kp": [
+    "conf"
+  ],
   "year": "2025",
   "client": "СИБУР",
   "c": [

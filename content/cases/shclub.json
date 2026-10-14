@@ -5,6 +5,9 @@
   "out": "South",
   "solid": "HUB Club",
   "dir": "own",
+  "kp": [
+    "conf"
+  ],
   "c": [
     "#22c3a6",
     "#1c3f73",

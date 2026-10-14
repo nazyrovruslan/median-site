@@ -5,6 +5,10 @@
   "out": "X5 Tech",
   "solid": "Data Fest",
   "dir": "external",
+  "kp": [
+    "fest",
+    "conf"
+  ],
   "year": "2026",
   "client": "X5 Tech",
   "c": [

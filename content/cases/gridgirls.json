@@ -8,6 +8,9 @@
   "solid": "F1 GP",
   "sub": "Grid Girls на Гран-при России Formula 1 2017",
   "dir": "external",
+  "kp": [
+    "special"
+  ],
   "year": "2017",
   "c": [
     "#e2244f",

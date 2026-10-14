@@ -5,6 +5,9 @@
   "out": "One",
   "solid": "Swipe Offer",
   "dir": "internal",
+  "kp": [
+    "special"
+  ],
   "c": [
     "#e5004f",
     "#ff8a00",

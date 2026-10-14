@@ -5,6 +5,9 @@
   "out": "Альфа-Банк",
   "solid": "× МФТИ",
   "dir": "internal",
+  "kp": [
+    "special"
+  ],
   "c": [
     "#ff4d3d",
     "#14306b",

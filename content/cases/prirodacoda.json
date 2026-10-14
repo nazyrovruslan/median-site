@@ -5,6 +5,9 @@
   "out": "Природа",
   "solid": "кода",
   "dir": "internal",
+  "kp": [
+    "special"
+  ],
   "c": [
     "#7cc36b",
     "#1a5a4a",
