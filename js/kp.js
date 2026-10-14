@@ -102,6 +102,12 @@
     new IntersectionObserver(function(es,o){es.forEach(function(x){if(x.isIntersecting){g.classList.remove('pre');o.disconnect()}})},{threshold:.3}).observe(g);
   }
   // кнопка «Связаться» прячется у финального блока с контактами
+  // «Связаться» инвертируется, когда под ней чёрный блок
+  var ctaEl=document.querySelector('.kp-cta'),ctaT=0;
+  function ctaInv(){ctaT=0;if(!ctaEl)return;var b=ctaEl.getBoundingClientRect(),x=b.left+b.width/2,y=b.top+b.height/2;
+    var dark=document.elementsFromPoint(x,y).some(function(e){return e!==ctaEl&&!ctaEl.contains(e)&&e.closest&&e.closest('.grey,.foot,.kp-hero-cover')});
+    ctaEl.classList.toggle('inv',dark)}
+  if(ctaEl){addEventListener('scroll',function(){if(!ctaT)ctaT=requestAnimationFrame(ctaInv)},{passive:true});addEventListener('resize',ctaInv);ctaInv()}
   // кнопка «Связаться» прячется у подвала и на обложке шапки (там она тёмная на тёмном)
   var cta=document.querySelector('.kp-cta'),hid={};
   function dim(k,v){hid[k]=v;if(cta)cta.classList.toggle('dim',!!(hid.end||hid.hero))}

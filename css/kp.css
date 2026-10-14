@@ -251,7 +251,9 @@ body.has-cursor.c-mag #cur,body.has-cursor.c-hint #cur,body.has-cursor.c-link #c
 
 /* плавающая кнопка и уведомление */
 /* по центру без translate — translate занят магнитом */
-.kp-cta{position:fixed;left:0;right:0;width:max-content;margin-inline:auto;bottom:calc(env(safe-area-inset-bottom,0px) + clamp(16px,2.5vw,32px));z-index:21;display:flex;align-items:center;height:56px;padding:0 44px;border-radius:99px;background:var(--paper);color:var(--ink);font:700 var(--sm)/1 var(--display);letter-spacing:.04em;text-transform:uppercase;box-shadow:0 10px 40px rgba(0,0,0,.35);transition:transform .4s var(--ease),opacity .3s}
+.kp-cta{position:fixed;left:0;right:0;width:max-content;margin-inline:auto;bottom:calc(env(safe-area-inset-bottom,0px) + clamp(16px,2.5vw,32px));z-index:21;display:flex;align-items:center;height:56px;padding:0 44px;border-radius:99px;background:var(--black);color:var(--white);font:700 var(--sm)/1 var(--display);letter-spacing:.04em;text-transform:uppercase;box-shadow:0 10px 40px rgba(0,0,0,.35);transition:transform .4s var(--ease),opacity .3s,background .3s,color .3s}
+/* над чёрными блоками (итог, подвал) кнопка инвертируется — класс .inv ставит kp.js */
+.kp-cta.inv{background:var(--white);color:var(--black)}
 .kp-cta:hover{transform:scale(1.06)}
 .kp-cta.dim{opacity:0;pointer-events:none}
 .kp-toast{position:fixed;left:50%;top:84px;z-index:22;translate:-50% -10px;padding:14px 22px;border-radius:99px;background:var(--paper);color:var(--ink);font:500 var(--sm)/1 var(--body);letter-spacing:.14em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .3s,translate .3s var(--ease)}
