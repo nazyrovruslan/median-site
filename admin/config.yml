@@ -197,7 +197,7 @@ collections:
       - { name: draft, label: Черновик (страница не публикуется), widget: boolean, required: false, default: false }
       - { name: title, label: Заголовок, widget: text, hint: "Каждая строка — отдельной строкой заголовка" }
       - { name: date, label: Дата предложения, widget: datetime, time_format: false, format: "YYYY-MM-DD", default: "{{now}}" }
-      - { name: event_date, label: Дата мероприятия, widget: datetime, time_format: false, format: "YYYY-MM-DD", required: false, hint: "Дата начала мероприятия. Показывается наверху КП вместо «Актуально до», а в «Срок» — сколько дней до неё осталось" }
+      - { name: event_date, label: Дата мероприятия, widget: datetime, time_format: false, format: "YYYY-MM-DD", required: false, hint: "Дата начала мероприятия. Показывается наверху КП («Мероприятие») вместо «Актуально до», а в «Срок» — сколько дней до неё осталось" }
       - { name: valid_until, label: Актуально до, widget: datetime, time_format: false, format: "YYYY-MM-DD", required: false, hint: "Если пусто — дата предложения + срок из настроек КП" }
       - { name: start, label: Старт работ (для графика), widget: datetime, time_format: false, format: "YYYY-MM-DD", required: false, hint: "Если пусто — дата предложения" }
       - name: scope

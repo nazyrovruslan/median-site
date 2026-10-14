@@ -245,7 +245,7 @@ ${counters(k)}
       </div>
     </div>
     <dl class="kp-dl kp-dl-l">
-      ${k.eventD ? `${dd('Дата мероприятия', short(k.eventD))}
+      ${k.eventD ? `${dd('Мероприятие', short(k.eventD))}
       ${dd('Срок', `<span data-until="${iso(k.eventD)}">${left(k.eventD)}</span>`)}` : `${dd('Актуально до', short(k.validD))}
       ${dd('Срок', k.days ? days(k.days) : '')}`}
       ${dd('Этапы', k.stages.length ? `${k.stages.length} ${plural(k.stages.length, 'этап', 'этапа', 'этапов')}` : '')}
