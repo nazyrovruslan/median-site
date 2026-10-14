@@ -65,12 +65,22 @@
   var peek=document.getElementById('peek'),pel=null;
   function peekAt(el){pel=el;var b=el.getBoundingClientRect(),w=peek.offsetWidth,x=Math.min(innerWidth-24,b.right)-w/2,y=b.top+b.height/2;
     if(!peek.classList.contains('on'))peek.style.transition='none';peek.style.transform='translate('+x+'px,'+y+'px)';peek.offsetWidth;peek.style.transition=''}
-  if(peek&&matchMedia('(hover:hover)').matches)[].forEach.call(document.querySelectorAll('.row'),function(r){
-    r.addEventListener('mouseenter',function(){var im=r.getAttribute('data-img'),vd=r.getAttribute('data-vid');
-      peek.style.backgroundImage=im?'url("'+im+'")':'';peek.innerHTML=vd?'<video src="'+vd+'" muted loop playsinline autoplay></video>':'';
-      var v=peek.querySelector('video');if(v)v.play().catch(function(){});peekAt(r);peek.classList.add('on')});
-    r.addEventListener('mouseleave',function(){peek.classList.remove('on');var v=peek.querySelector('video');if(v)v.pause()});
-  });
+  // видео-обложки кейсов: как на главной — один элемент на кейс, HEVC там, где поддерживается, грузятся заранее после загрузки страницы; пока видео не пошло, видна картинка
+  var HEVC=false;try{HEVC=document.createElement('video').canPlayType('video/mp4; codecs="hvc1"')!==''}catch(e){}
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,VS=[];
+  function pv(r){if(r._v!==undefined)return r._v;var u=r.getAttribute('data-vid');if(!u||reduce)return r._v=null;
+    var v=document.createElement('video');v.className='cv';v.muted=true;v.loop=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('aria-hidden','true');v.preload='none';
+    v.src=HEVC?u.replace(/\.mp4$/,'.hevc.mp4'):u;v.addEventListener('playing',function(){v.classList.add('on')});VS.push(v);return r._v=v}
+  if(peek&&matchMedia('(hover:hover)').matches){
+    var rows=document.querySelectorAll('.row');
+    addEventListener('load',function(){[].forEach.call(rows,function(r){var v=pv(r);if(v){v.preload='auto';v.load()}})});
+    [].forEach.call(rows,function(r){
+      r.addEventListener('mouseenter',function(){var im=r.getAttribute('data-img'),v=pv(r);
+        peek.style.backgroundImage=im?'url("'+im+'")':'';peek.replaceChildren?peek.replaceChildren.apply(peek,v?[v]:[]):(peek.innerHTML='',v&&peek.appendChild(v));
+        if(v){v.preload='auto';v.play().catch(function(){})}peekAt(r);peek.classList.add('on')});
+      r.addEventListener('mouseleave',function(){peek.classList.remove('on');var v=peek.querySelector('video');if(v)v.pause()});
+    });
+  }
   addEventListener('scroll',function(){if(pel&&peek.classList.contains('on'))peekAt(pel)},{passive:true});
 
   // Follow us в подвале: раскрывается при наведении, на тач — по тапу
