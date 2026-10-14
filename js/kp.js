@@ -39,11 +39,15 @@
       addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY;c.style.transform='translate('+mx+'px,'+my+'px)';if(!seen){seen=true;rx=mx;ry=my;document.body.classList.add('cur-on')}},{passive:true});
       document.documentElement.addEventListener('pointerleave',function(){document.body.classList.remove('cur-on');seen=false});
       // подсказка (data-c="hint") — как «Следующий проект» на сайте: кольцо становится контурным кругом, текст из data-label в центре
-      (function loop(){rx+=(mx-rx)*.22;ry+=(my-ry)*.22;r.style.transform='translate('+rx+'px,'+ry+'px)';requestAnimationFrame(loop)})();
+      // над круглой кнопкой шапки кольцо встаёт по центру кнопки (на её заливку), в остальных случаях — за курсором
+      var hel=null;
+      (function loop(){var gx=mx,gy=my;if(hel&&hel.isConnected){var b=hel.getBoundingClientRect();gx=b.left+b.width/2;gy=b.top+b.height/2}
+        rx+=(gx-rx)*.22;ry+=(gy-ry)*.22;r.style.transform='translate('+rx+'px,'+ry+'px)';requestAnimationFrame(loop)})();
       document.addEventListener('pointerover',function(e){
         var t=e.target.closest('[data-c]'),s=t?t.getAttribute('data-c'):'';
         if(s!==state){if(state)document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s)}
         lab.textContent=(s==='row'||s==='hint')&&t.getAttribute('data-label')||'';
+        hel=s==='hint'&&t.matches('.kp-rb')?t:null;
       });
       // магнит, как на сайте: элементы с data-magnet (сила — значение атрибута) плавно тянутся за курсором
       var mags=[].map.call(document.querySelectorAll('[data-magnet]'),function(el){return{el:el,k:parseFloat(el.getAttribute('data-magnet'))||.2,tx:0,ty:0,x:0,y:0,on:false}});

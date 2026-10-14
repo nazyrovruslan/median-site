@@ -238,10 +238,15 @@ body.has-cursor.cur-on.c-mag #ring{opacity:0}
 body.has-cursor.c-mag #cur,body.has-cursor.c-hint #cur,body.has-cursor.c-link #cur,body.has-cursor.c-row #cur{opacity:0}
 /* подсказка строкой под кнопкой */
 /* под курсором-подсказкой сама кнопка прячется, чтобы текст подсказки не наезжал на её подпись */
-.has-cursor .kp-rb:hover{background:none;color:transparent;border-color:transparent}
+/* круглая кнопка в шапке при наведении — как «Связаться»: заливка (в шапке с «разницей» это инверсия) вырастает до круга курсора, кольцо с подписью встаёт ровно на неё; сама кнопка остаётся 44 px, чтобы не перекрывать соседние */
+.kp-bar{--rs:clamp(112px,7.8vw,140px)}
+.kp-rb{position:relative;isolation:isolate}
+.kp-rb::before{content:"";position:absolute;left:50%;top:50%;width:var(--rs);height:var(--rs);margin:calc(var(--rs) / -2);border-radius:50%;background:#fff;transform:scale(0);transition:transform .45s var(--ease);pointer-events:none;z-index:-1}
+.has-cursor .kp-rb:hover{background:none;color:transparent;border-color:transparent;transform:none}
+.has-cursor .kp-rb:hover::before{transform:scale(1)}
 .has-cursor .kp-rb:hover *{opacity:0}
 .has-cursor .kp-cta:hover{color:transparent}
-.kp-rb{transition-property:transform,background,color,opacity;transition-duration:.4s;transition-timing-function:var(--ease)}
+.kp-rb{transition-property:transform,background,color,opacity,border-color;transition-duration:.4s;transition-timing-function:var(--ease)}
 
 /* плавающая кнопка и уведомление */
 /* по центру без translate — translate занят магнитом */
