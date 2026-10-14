@@ -32,9 +32,10 @@ p{margin:0}
 /* шапка: знак слева, круглые кнопки справа — как логотип и крестик на сайте */
 .kp-bar{position:fixed;inset:0 0 auto;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:20px var(--pad);pointer-events:none;mix-blend-mode:difference;color:#fff}
 .kp-bar>*{pointer-events:auto}
-.kp-logo{width:40px;display:block;transition:transform .5s var(--ease)}
+.kp-logo{width:40px;display:block;transition:transform .9s var(--ease)}
 .kp-logo svg{width:100%;height:auto}
-.kp-logo:hover{transform:rotate(-8deg) scale(1.06)}
+/* логотип при наведении делает оборот, без круга-подсказки */
+.kp-logo:hover{transform:rotate(360deg)}
 .kp-acts{display:flex;gap:10px}
 .kp-rb{width:44px;height:44px;border:1px solid currentColor;border-radius:50%;display:grid;place-items:center;font:500 11px/1 var(--body);letter-spacing:.1em;transition:background .3s,color .3s,transform .4s var(--ease)}
 .kp-rb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
@@ -144,17 +145,41 @@ p{margin:0}
   .row .rp{display:block;position:absolute;right:0;top:50%;translate:0 -50%;width:30%;max-width:140px;aspect-ratio:4/3;background:#b4b4b0 center/cover no-repeat}
 }
 
-/* финал — как «Start a project» в подвале сайта */
-.kp-end{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;padding-top:clamp(90px,10vw,130px);padding-bottom:28px;border-top:1px solid var(--line)}
-.kp-big{font-size:var(--h1);margin:auto 0;padding-block:60px}
-.kp-links{display:flex;flex-wrap:wrap;align-items:center;gap:16px clamp(28px,4vw,72px);font:500 var(--t2)/1.3 var(--body);padding-bottom:clamp(28px,3vw,48px)}
-.kp-links a{border-bottom:1px solid transparent;transition:border-color .3s}
-.kp-links a:hover{border-color:currentColor}
-.kp-mail{display:inline-flex;align-items:center;gap:14px}
-.kp-mail .ar{width:40px;height:12px;fill:none;stroke:currentColor;stroke-width:1.2;vector-effect:non-scaling-stroke;transition:transform .5s var(--ease)}
-.kp-mail:hover .ar{transform:translateX(6px)}
-.kp-mn{color:var(--muted);font-weight:400}
-.kp-foot{display:flex;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;padding-top:24px;border-top:1px solid var(--line);font:400 var(--ui)/1.4 var(--body);color:var(--muted)}
+/* подвал — как на основном сайте (css/style.css .foot/.start/.foot-bar): чёрный, «Start a project» с плюсом, строка контактов */
+.foot{background:var(--black);color:var(--white);min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;padding-block:clamp(90px,10vw,130px) 28px;position:relative}
+.start{align-self:center;text-align:left;display:flex;gap:clamp(22px,3.2vw,52px);align-items:flex-start;margin-block:auto;font-size:var(--h2)}
+.start .plus{width:.58em;height:.92em;display:block;position:relative}
+.start .plus svg{width:100%;height:100%;display:block;overflow:visible;transform:rotate(-90deg) scale(.6);opacity:0;transition:transform .9s var(--ease) .35s,opacity .6s .35s}
+.start .plus line{stroke:currentColor;stroke-width:1.2;vector-effect:non-scaling-stroke}
+.start .d{font:700 1em/.95 var(--display);text-transform:uppercase}
+.start .d .line{display:block;overflow:hidden;padding:.1em 0 .06em;margin:-.1em 0 -.06em}
+.start .d .line>span{display:block;transform:translateY(110%);transition:transform 1s var(--ease)}
+.start .d .line:nth-child(2)>span{transition-delay:.1s}
+.foot .start .o{-webkit-text-stroke-color:var(--white)}
+.foot-bar{display:flex;justify-content:space-between;align-items:center;gap:12px 24px;flex-wrap:wrap;font:500 var(--sm)/1.3 var(--body);opacity:0;transform:translateY(12px);transition:opacity .6s .6s,transform .8s var(--ease) .6s}
+.foot-bar .copy{color:#8d8d8a;white-space:nowrap}
+.foot-bar .pol{color:#8d8d8a;white-space:nowrap}
+.foot-bar .pol:hover{color:var(--white)}
+.tel{display:inline-block;white-space:nowrap}
+.mail{display:inline-flex;gap:14px;align-items:center;font-weight:500;white-space:nowrap}
+.mail svg{width:40px;height:12px;display:block;overflow:visible}
+.mail svg *{stroke:currentColor;stroke-width:1.1;fill:none;vector-effect:non-scaling-stroke}
+.follow{display:inline-flex;align-items:center;gap:14px}
+.follow-btn{display:inline-flex;gap:12px;align-items:center;white-space:nowrap;text-transform:inherit}
+.follow .ic{width:12px;height:12px;display:block}
+.follow .ic *{stroke:currentColor;stroke-width:1.2;fill:none}
+.follow .ic circle{fill:currentColor;stroke:none}
+.follow .links{display:inline-flex;gap:4px;max-width:0;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transition:max-width .6s var(--ease),opacity .3s,visibility 0s .6s}
+.follow .links a{padding:6px 8px;white-space:nowrap}
+.follow:hover .links,.follow:focus-within .links,.follow.open .links{max-width:320px;opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s}
+.foot.in .start .plus svg{transform:none;opacity:1}
+.foot.in .start .d .line>span{transform:none}
+.foot.in .foot-bar{opacity:1;transform:none}
+@media (hover:hover){.foot.in .start .plus:hover svg,.foot.in .start:hover .plus svg{transform:rotate(90deg);transition-delay:0s}}
+@media (min-width:821px){.start{align-self:flex-start;margin-left:calc(40% - .58em - clamp(22px,3.2vw,52px))}.foot-bar{font-size:var(--ui)}.mail{margin-left:calc(-40px - 14px)}}
+/* курсор на «Start a project» — большой контурный круг, как на сайте */
+body.c-plus #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);background:transparent;border-color:#fff}
+body.has-cursor.c-plus #cur{opacity:0}
 
 /* курсор — как на главной (css/style.css): точка и кольцо с mix-blend difference; над кнопками кольцо — белый круг с подсказкой */
 #cur,#ring{position:fixed;left:0;top:0;pointer-events:none;z-index:999;border-radius:50%;translate:-50% -50%;opacity:0;transition:opacity .3s}
@@ -175,10 +200,10 @@ body.c-hint #ring .t{opacity:1;color:#fff;font:500 var(--sm)/1.2 var(--body);let
 body.has-cursor.c-hint #cur,body.has-cursor.c-link #cur,body.has-cursor.c-row #cur{opacity:0}
 /* подсказка строкой под кнопкой */
 /* под курсором-подсказкой сама кнопка прячется, чтобы текст подсказки не наезжал на её подпись */
-.has-cursor :is(.kp-rb,.kp-logo):hover{background:none;color:transparent;border-color:transparent}
-.has-cursor :is(.kp-rb,.kp-logo):hover *{opacity:0}
+.has-cursor .kp-rb:hover{background:none;color:transparent;border-color:transparent}
+.has-cursor .kp-rb:hover *{opacity:0}
 .has-cursor .kp-cta:hover{color:transparent}
-.kp-rb,.kp-logo{transition-property:transform,background,color,translate,opacity;transition-duration:.4s;transition-timing-function:var(--ease)}
+.kp-rb{transition-property:transform,background,color,translate,opacity;transition-duration:.4s;transition-timing-function:var(--ease)}
 
 /* плавающая кнопка и уведомление */
 .kp-cta{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + clamp(16px,2.5vw,32px));z-index:21;translate:-50% 0;display:inline-flex;align-items:center;height:56px;padding:0 44px;border-radius:99px;background:var(--paper);color:var(--ink);font:700 var(--sm)/1 var(--display);letter-spacing:.04em;text-transform:uppercase;box-shadow:0 10px 40px rgba(0,0,0,.35);transition:transform .4s var(--ease),opacity .3s}
@@ -208,10 +233,14 @@ body.has-cursor.c-hint #cur,body.has-cursor.c-link #cur,body.has-cursor.c-row #c
   .row{grid-template-columns:40px minmax(0,1fr);row-gap:4px}
   .row .sb{grid-column:2}
   .kp-items th:nth-child(3),.kp-items td:nth-child(3){display:none}
-  .kp-big{font-size:clamp(30px,10.4vw,72px)}
-  .kp-links{flex-direction:column;align-items:flex-start}
+  .start{font-size:clamp(28px,9vw,72px)}
+  .foot-bar{gap:12px 16px}
+  .mail svg{width:28px}
+  .follow{position:relative}
+  .follow .links{position:absolute;right:-8px;bottom:calc(100% + 6px);max-width:none;background:var(--black)}
+  .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{opacity:0;visibility:hidden;pointer-events:none}
   .kp-team{grid-template-columns:1fr}
-  .kp-end{padding-bottom:110px}
+  .foot{padding-bottom:110px}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-@media print{.kp-bar,.kp-cta,.kp-toast{display:none}.kp-gantt.pre .kp-gb i{transform:none}.kp-hero,.kp-end{min-height:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}.start .plus svg,.start .d .line>span,.foot-bar{transform:none!important;opacity:1!important}}
+@media print{.kp-bar,.kp-cta,.kp-toast{display:none}.kp-gantt.pre .kp-gb i{transform:none}.kp-hero,.kp-end{min-height:0}.start .plus svg,.start .d .line>span,.foot-bar{transform:none;opacity:1}}

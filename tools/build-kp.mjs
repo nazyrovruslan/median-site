@@ -211,7 +211,7 @@ ${counters(k)}
 </head>
 <body>
 <header class="kp-bar">
-  <a class="kp-logo" href="../../" target="_blank" rel="noopener" aria-label="median.agency" data-c="hint" data-label="На сайт">${MARK}</a>
+  <a class="kp-logo" href="../../" target="_blank" rel="noopener" aria-label="median.agency" title="На сайт">${MARK}</a>
   <nav class="kp-acts">
     <button class="kp-rb" type="button" id="kpCopy" aria-label="Скопировать ссылку" data-c="hint" data-label="Скопировать ссылку"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg></button>
     ${dl(k.pdf, 'PDF', 'kp_pdf', 'kp-rb', 'hint" data-label="Скачать презентацию')}
@@ -265,16 +265,19 @@ ${counters(k)}
   </section>
   ${gantt}${cases}${format}${teamSec}
 
-  <section class="kp-end wrap">
-    <h2 class="d kp-big"><span class="ln o">Обсудим</span><span class="ln">проект?</span></h2>
-    <div class="kp-links">
-      ${m.email ? `<a class="kp-mail" href="mailto:${esc(m.email)}" data-goal="kp_contact" data-c="link">${ARR}<span>${esc(m.email)}</span></a>` : ''}
-      ${m.tg ? `<a href="${esc(tgUrl(m.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link">${esc(nick(m))}</a>` : ''}
-      ${m.phone ? `<a href="tel:${esc(String(m.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link">${esc(m.phone)}</a>` : ''}
-      ${m.name ? `<span class="kp-mn">${esc(m.name)}${m.role ? ` · ${esc(m.role)}` : ''}</span>` : ''}
+  <!-- подвал — как на основном сайте (index.html footer.foot): «Start a project» с плюсом и строка контактов; ведёт к основному контакту КП -->
+  <footer class="foot wrap kp-end">
+    <a class="start"${contact ? ` href="${esc(contact)}" target="_blank" rel="noopener" data-goal="kp_contact"` : ''} data-c="plus">
+      <span class="plus" aria-hidden="true"><svg viewBox="0 0 58 92" preserveAspectRatio="none"><line x1="29" y1="18" x2="29" y2="74"/><line x1="1" y1="46" x2="57" y2="46"/></svg></span>
+      <span class="d"><span class="line"><span class="o">Start a</span></span><span class="line"><span>project</span></span></span>
+    </a>
+    <div class="foot-bar">
+      ${m.email ? `<a class="mail" href="mailto:${esc(m.email)}" data-goal="kp_contact" data-c="link"><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>${esc(m.email)}</span></a>` : ''}
+      ${m.tg ? `<a class="tel" href="${esc(tgUrl(m.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link">${esc(nick(m))}</a>` : m.phone ? `<a class="tel" href="tel:${esc(String(m.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link">${esc(m.phone)}</a>` : ''}
+      <div class="follow"><button class="follow-btn" type="button" aria-expanded="false" aria-controls="kpFollow" data-c="link"><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button><div class="links" id="kpFollow"><a href="https://t.me/medianagency" target="_blank" rel="noopener" data-c="link">Telegram</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="link">Instagram</a><a href="https://youtube.com/@median.agency" target="_blank" rel="noopener" data-c="link">YouTube</a><a href="https://www.facebook.com/median.agency/" target="_blank" rel="noopener" data-c="link">Facebook</a></div></div>
+      <a class="pol" href="../../privacy.html" data-c="link">Политика конфиденциальности</a><span class="copy">© Median Agency ${k.dateD.getUTCFullYear()}</span>
     </div>
-    <div class="kp-foot"><span>© Median Agency ${k.dateD.getUTCFullYear()}</span><span>Предложение подготовлено лично для вас. Пожалуйста, не публикуйте ссылку.</span></div>
-  </section>
+  </footer>
 </main>
 
 ${contact ? `<a class="kp-cta" href="${esc(contact)}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="hint" data-label="${m.tg ? 'Написать в Telegram' : 'Написать письмо'}">Связаться</a>` : ''}

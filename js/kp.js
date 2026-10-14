@@ -46,7 +46,7 @@
         lab.textContent=(s==='row'||s==='hint')&&t.getAttribute('data-label')||'';
       });
       // магнит у круглых кнопок, как на сайте
-      [].forEach.call(document.querySelectorAll('.kp-rb,.kp-logo'),function(el){
+      [].forEach.call(document.querySelectorAll('.kp-rb'),function(el){
         var k=.3;
         el.addEventListener('pointermove',function(e){var b=el.getBoundingClientRect();el.style.translate=((e.clientX-b.left-b.width/2)*k).toFixed(1)+'px '+((e.clientY-b.top-b.height/2)*k).toFixed(1)+'px'});
         el.addEventListener('pointerleave',function(){el.style.translate=''});
@@ -66,7 +66,15 @@
   });
   addEventListener('scroll',function(){if(pel&&peek.classList.contains('on'))peekAt(pel)},{passive:true});
 
-  if(!('IntersectionObserver' in window))return;
+  // Follow us в подвале: раскрывается при наведении, на тач — по тапу
+  [].forEach.call(document.querySelectorAll('.follow'),function(f){var b=f.querySelector('.follow-btn');
+    b.addEventListener('click',function(e){e.stopPropagation();var o=!f.classList.contains('open');f.classList.toggle('open',o);b.setAttribute('aria-expanded',o)});
+    document.addEventListener('click',function(e){if(e.target.closest('.follow')!==f){f.classList.remove('open');b.setAttribute('aria-expanded','false')}})});
+
+  var ft=document.querySelector('.foot');
+  if(!('IntersectionObserver' in window)){if(ft)ft.classList.add('in');return}
+  // подвал: плюс и «Start a project» выезжают, когда подвал показался, как на сайте
+  if(ft)new IntersectionObserver(function(es,o){es.forEach(function(x){if(x.isIntersecting){ft.classList.add('in');o.disconnect()}})},{threshold:.25}).observe(ft);
   // клиент долистал до итоговой стоимости
   var tot=document.getElementById('kpTotal');
   if(tot)new IntersectionObserver(function(es,o){es.forEach(function(x){if(x.isIntersecting){goal('kp_total_seen',1);o.disconnect()}})},{threshold:.5}).observe(tot);
