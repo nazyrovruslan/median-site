@@ -154,6 +154,9 @@ function page(k) {
   </section>` : '';
 
   const m = k.main, contact = k.contactUrl;
+  // подвал — общие контакты агентства, как на главной (персональные — в команде и в кнопке «Связаться»)
+  const F = { email: 'info@median.agency', tg: 'medianprojects', ...Object.fromEntries(Object.entries(S.footer || {}).filter(([, v]) => v)) };
+  F.tg = String(F.tg).replace(/^.*t\.me\//, '').replace(/^@/, '');
   const nick = p => '@' + String(p.tg).replace(/^@|^https?:\/\/t\.me\//, '');
   const links = p => [
     p.tg ? `<a href="${esc(tgUrl(p.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="mag" data-magnet>${esc(nick(p))}</a>` : '',
@@ -223,12 +226,14 @@ ${counters(k)}
 </header>
 
 <main>
-  <section class="kp-hero wrap">
+  <section class="kp-hero wrap${k.coverImg || k.coverVid ? ' kp-hero-cover' : ''}" id="kpHero">${k.coverImg || k.coverVid ? `
+    <div class="kp-cv"${k.coverImg ? ` style="background-image:url('${esc(k.coverImg)}')"` : ''}>${k.coverVid ? `<video src="${esc(k.coverVid)}"${k.coverImg ? ` poster="${esc(k.coverImg)}"` : ''} muted loop playsinline autoplay preload="auto"></video>` : ''}</div>` : ''}
     <span class="label">Коммерческое предложение · ${long(k.dateD)}</span>
-    <h1 class="d kp-title">${k.titleLines.map((l, i) => `<span class="ln${i === 0 ? ' o' : ''}">${esc(l)}</span>`).join('')}</h1>${client}
+    <h1 class="d kp-title">${k.titleLines.map((l, i) => `<span class="ln${i === 0 ? ' o' : ''}">${esc(l)}</span>`).join('')}</h1>${client}${k.coverImg || k.coverVid ? `
+    <a class="kp-down" href="#kpFacts" data-c="mag" data-magnet aria-label="Листать вниз"><svg viewBox="0 0 24 60" aria-hidden="true"><path d="M12 2v54M4 48l8 8 8-8"/></svg></a>` : ''}
   </section>
 
-  <section class="kp-facts wrap g5">
+  <section class="kp-facts wrap g5" id="kpFacts">
     <div class="kp-fl">
       ${has(k.pm) ? person(k.pm, 'Менеджер проекта', 'kp-main') : ''}
       <div class="kp-files">
@@ -269,13 +274,13 @@ ${counters(k)}
 
   <!-- подвал — как на основном сайте (index.html footer.foot): «Start a project» с плюсом и строка контактов; ведёт к основному контакту КП -->
   <footer class="foot wrap kp-end">
-    <a class="start"${contact ? ` href="${esc(contact)}" target="_blank" rel="noopener" data-goal="kp_contact"` : ''} data-c="plus">
+    <a class="start" href="${esc(tgUrl(F.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="plus">
       <span class="plus" aria-hidden="true" data-magnet=".55"><svg viewBox="0 0 58 92" preserveAspectRatio="none"><line x1="29" y1="18" x2="29" y2="74"/><line x1="1" y1="46" x2="57" y2="46"/></svg></span>
       <span class="d"><span class="line"><span class="o">Start a</span></span><span class="line"><span>project</span></span></span>
     </a>
     <div class="foot-bar">
-      ${m.email ? `<a class="mail" data-magnet href="mailto:${esc(m.email)}" data-goal="kp_contact" data-c="mag"><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>${esc(m.email)}</span></a>` : ''}
-      ${m.tg ? `<a class="tel" data-magnet href="${esc(tgUrl(m.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="mag">${esc(nick(m))}</a>` : m.phone ? `<a class="tel" data-magnet href="tel:${esc(String(m.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="mag">${esc(m.phone)}</a>` : ''}
+      <a class="mail" data-magnet href="mailto:${esc(F.email)}" data-goal="kp_contact" data-c="mag"><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>${esc(F.email)}</span></a>
+      <a class="tel" data-magnet href="${esc(tgUrl(F.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="mag">@${esc(F.tg)}</a>
       <div class="follow"><button class="follow-btn" data-magnet type="button" aria-expanded="false" aria-controls="kpFollow" data-c="mag"><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button><div class="links" id="kpFollow"><a href="https://t.me/medianagency" target="_blank" rel="noopener" data-c="mag" data-magnet>Telegram</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="mag" data-magnet>Instagram</a><a href="https://youtube.com/@median.agency" target="_blank" rel="noopener" data-c="mag" data-magnet>YouTube</a><a href="https://www.facebook.com/median.agency/" target="_blank" rel="noopener" data-c="mag" data-magnet>Facebook</a></div></div>
       <a class="pol" data-magnet href="../../privacy.html" data-c="mag">Политика конфиденциальности</a><span class="copy">© Median Agency ${k.dateD.getUTCFullYear()}</span>
     </div>
@@ -359,6 +364,9 @@ for (const f of list) {
   k.pm = bxPm && has(filled(bxPm)) ? filled(bxPm) : pick('pm');
   k.team = [[k.pm, 'Менеджер проекта'], [pick('head'), 'Account director']];
   k.clientLogo = raw.client_logo ? fileUrl(raw.client_logo) : '';
+  // шапка КП как у кейса на сайте: фото и/или видео во весь экран (видео играет поверх фото, фото — его постер)
+  k.coverImg = fileUrl(raw.cover);
+  k.coverVid = fileUrl(raw.cover_video);
   k.clientContact = filled(raw.client_contact);
   k.contactUrl = k.main.tg ? tgUrl(k.main.tg) : k.main.email ? `mailto:${k.main.email}` : '';
   k.pdf = fileUrl(raw.pdf);

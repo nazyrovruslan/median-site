@@ -91,5 +91,7 @@
     "main": {},
     "pm": {},
     "head": {}
-  }
+  },
+  "cover": "media/video/southhub.webp",
+  "cover_video": "media/video/southhub.mp4"
 }

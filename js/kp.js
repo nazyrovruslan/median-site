@@ -88,6 +88,9 @@
     new IntersectionObserver(function(es,o){es.forEach(function(x){if(x.isIntersecting){g.classList.remove('pre');o.disconnect()}})},{threshold:.3}).observe(g);
   }
   // кнопка «Связаться» прячется у финального блока с контактами
-  var cta=document.querySelector('.kp-cta'),ct=document.querySelector('.kp-end');
-  if(cta&&ct)new IntersectionObserver(function(es){es.forEach(function(x){cta.classList.toggle('dim',x.isIntersecting)})}).observe(ct);
+  // кнопка «Связаться» прячется у подвала и на обложке шапки (там она тёмная на тёмном)
+  var cta=document.querySelector('.kp-cta'),hid={};
+  function dim(k,v){hid[k]=v;if(cta)cta.classList.toggle('dim',!!(hid.end||hid.hero))}
+  [['end',document.querySelector('.kp-end')],['hero',document.querySelector('.kp-hero-cover')]].forEach(function(p){
+    if(cta&&p[1])new IntersectionObserver(function(es){es.forEach(function(x){dim(p[0],x.isIntersecting)})},{threshold:p[0]==='hero'?.35:0}).observe(p[1])});
 })();

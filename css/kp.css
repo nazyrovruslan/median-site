@@ -43,6 +43,21 @@ p{margin:0}
 /* первый экран: заголовок как «Start a project» — первая строка контуром */
 .kp-hero{min-height:88vh;min-height:88svh;display:flex;flex-direction:column;justify-content:flex-end;padding-top:140px;padding-bottom:clamp(48px,6vw,110px)}
 .kp-hero .label{margin-bottom:clamp(20px,2.2vw,40px)}
+/* шапка с обложкой — как у кейса на сайте: фото/видео во весь экран, затемнение снизу, белый заголовок внизу слева, кнопка «вниз» справа */
+.kp-hero-cover{position:relative;isolation:isolate;height:100vh;height:100svh;min-height:560px;min-height:max(560px,100svh);padding-bottom:clamp(28px,4vw,64px);background:var(--black);color:var(--white)}
+.kp-hero-cover::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55) 100%)}
+.kp-cv{position:absolute;inset:0;z-index:-2;background:center/cover no-repeat;overflow:hidden}
+.kp-cv video{width:100%;height:100%;object-fit:cover;display:block}
+.kp-hero-cover .label{color:rgba(243,243,241,.75)}
+.kp-hero-cover .o{-webkit-text-stroke-color:var(--white)}
+.kp-hero-cover .kp-title{padding-right:clamp(72px,8vw,140px)}
+.kp-hero-cover .kp-hc{border-top-color:rgba(243,243,241,.3);padding-right:clamp(72px,8vw,140px)}
+.kp-hero-cover .kp-hcp span{color:rgba(243,243,241,.75)}
+.kp-hero-cover .kp-pl a{border-color:rgba(243,243,241,.4)}
+.kp-hero-cover .kp-clogo{filter:brightness(0) invert(1)}
+.kp-down{position:absolute;right:var(--gutter);bottom:clamp(28px,4vw,64px);width:clamp(56px,5.5vw,106px);aspect-ratio:1;border:1px solid currentColor;border-radius:50%;display:grid;place-items:center}
+.kp-down svg{width:22%;height:52%;fill:none;stroke:currentColor;stroke-width:1.2;vector-effect:non-scaling-stroke;animation:kpbob 2.4s ease-in-out infinite}
+@keyframes kpbob{50%{transform:translateY(6px)}}
 /* клиент в шапке: компания крупно, контакт (имя, должность) рядом */
 .kp-hc{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px clamp(16px,2vw,40px);margin-top:clamp(32px,4vw,72px);padding-top:clamp(16px,1.6vw,28px);border-top:1px solid var(--line)}
 .kp-hc .label{margin:0;flex-basis:100%}
@@ -263,6 +278,8 @@ body.has-cursor.c-mag #cur,body.has-cursor.c-hint #cur,body.has-cursor.c-link #c
   .follow{position:relative}
   .follow .links{position:absolute;right:-8px;bottom:calc(100% + 6px);max-width:none;background:var(--black)}
   .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{opacity:0;visibility:hidden;pointer-events:none}
+  .kp-down{display:none}
+  .kp-hero-cover .kp-title,.kp-hero-cover .kp-hc{padding-right:0}
   .kp-team{grid-template-columns:1fr}
   .kp-team .kp-person{grid-column:auto;margin-right:0}
   .foot{padding-bottom:110px}

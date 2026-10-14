@@ -183,7 +183,9 @@ collections:
     description: "Страница КП: https://nazyrovruslan.github.io/median-site/clients/<имя файла>/ — адрес случайный, на сайте раздел нигде не виден и закрыт от поисковиков. Ссылку видно кнопкой «Открыть на сайте» после деплоя (1–2 минуты)."
     fields:
       - { name: client, label: Клиент (компания), widget: string, hint: "Название в списке CMS и на странице" }
-      - { name: client_logo, label: Логотип клиента, widget: image, required: false, hint: "SVG или PNG на прозрачном фоне, светлый — страница тёмная. Если пусто — название текстом" }
+      - { name: client_logo, label: Логотип клиента, widget: image, required: false, hint: "SVG или PNG на прозрачном фоне, тёмный — фон страницы серый (на обложке шапки логотип станет белым). Если пусто — название текстом" }
+      - { name: cover, label: Обложка шапки (фото), widget: image, required: false, hint: "Как у проектов на сайте: шапка КП во весь экран с заголовком поверх. Горизонтальное, от 1920 px, тёмное внизу слева — там белый заголовок. Если пусто — шапка серая без обложки" }
+      - { name: cover_video, label: Обложка шапки (видео), widget: file, required: false, hint: "mp4 без звука, 6–10 с, до 1280 px, до ~2 МБ. Играет поверх фото (фото — заставка, пока видео грузится)" }
       - name: client_contact
         label: Контакт со стороны клиента
         widget: object
@@ -307,6 +309,13 @@ collections:
           - { name: body, label: Код в конце <body> всех КП, widget: code, default_language: html, output_code_only: true, required: false }
           - { name: valid_days, label: Срок актуальности КП по умолчанию (дней), widget: number, value_type: int, default: 30 }
           - { name: price_note, label: Примечание к стоимости по умолчанию, widget: string, required: false }
+          - name: footer
+            label: Подвал КП — общие контакты агентства
+            widget: object
+            collapsed: true
+            fields:
+              - { name: email, label: Почта, widget: string, default: info@median.agency }
+              - { name: tg, label: Telegram (ник без @), widget: string, default: medianprojects }
           - name: contacts
             label: Контакты по умолчанию
             widget: object
