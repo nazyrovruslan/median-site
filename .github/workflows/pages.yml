@@ -29,6 +29,8 @@ jobs:
           node tools/build-cases.mjs
           node tools/build-kp.mjs
           node tools/media.mjs
+          # обложки превью ссылок КП (og.png) — через Chrome, который есть на раннере
+          node tools/og-kp.mjs || echo "обложки превью КП не нарисованы"
           # сброс кэша данных кейсов: номер версии = короткий хэш коммита
           sed -i -E "s#js/cases\.js\?v=[^\"]+#js/cases.js?v=${GITHUB_SHA::7}#" index.html
       - name: Commit generated files

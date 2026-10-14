@@ -38,22 +38,42 @@
       var mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my,state='',seen=false;
       addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY;c.style.transform='translate('+mx+'px,'+my+'px)';if(!seen){seen=true;rx=mx;ry=my;document.body.classList.add('cur-on')}},{passive:true});
       document.documentElement.addEventListener('pointerleave',function(){document.body.classList.remove('cur-on');seen=false});
-      // подсказка у маленьких кнопок не закрывает саму кнопку: круг уходит под курсор (у нижнего края экрана — над ним)
-      var oy=0;
-      (function loop(){var to=state==='hint'?(my<innerHeight*.6?78:-78):0;oy+=(to-oy)*.22;rx+=(mx-rx)*.22;ry+=(my-ry)*.22;r.style.transform='translate('+rx+'px,'+(ry+oy)+'px)';requestAnimationFrame(loop)})();
+      // подсказка (data-c="hint"): у круглых кнопок кольцо прилипает к кнопке, как у логотипа на сайте, а подпись выходит строкой под ней
+      var tip=document.getElementById('tip'),hel=null,tx=0,ty=0;
+      (function loop(){
+        var gx=mx,gy=my;
+        if(hel&&hel.isConnected){var b=hel.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
+          if(hel.matches('.kp-rb,.kp-logo')){gx=cx+(mx-cx)*.15;gy=cy+(my-cy)*.15;r.style.width=r.style.height=(Math.max(b.width,b.height)+12)+'px'}
+          // подпись: под кнопкой, у нижнего края экрана — над ней
+          var below=b.bottom+44<innerHeight;tx=cx;ty=below?b.bottom+16:b.top-16;tip.style.transform='translate('+tx+'px,'+ty+'px) translate(-50%,'+(below?'0':'-100%')+')'}
+        rx+=(gx-rx)*.22;ry+=(gy-ry)*.22;r.style.transform='translate('+rx+'px,'+ry+'px)';requestAnimationFrame(loop)})();
       document.addEventListener('pointerover',function(e){
         var t=e.target.closest('[data-c]'),s=t?t.getAttribute('data-c'):'';
         if(s!==state){if(state)document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s)}
-        lab.textContent=t&&t.getAttribute('data-label')||'';
+        var h=s==='hint'?t:null;
+        if(h!==hel){hel=h;document.body.classList.toggle('c-stick',!!h&&h.matches('.kp-rb,.kp-logo'));if(!h){r.style.width=r.style.height=''}tip.textContent=h?h.getAttribute('data-label')||'':'';tip.classList.toggle('on',!!h)}
+        lab.textContent=s==='row'&&t.getAttribute('data-label')||'';
       });
       // магнит у круглых кнопок, как на сайте
-      [].forEach.call(document.querySelectorAll('.kp-rb,.kp-logo,.kp-more'),function(el){
+      [].forEach.call(document.querySelectorAll('.kp-rb,.kp-logo'),function(el){
         var k=.3;
         el.addEventListener('pointermove',function(e){var b=el.getBoundingClientRect();el.style.translate=((e.clientX-b.left-b.width/2)*k).toFixed(1)+'px '+((e.clientY-b.top-b.height/2)*k).toFixed(1)+'px'});
         el.addEventListener('pointerleave',function(){el.style.translate=''});
       });
     }
   }
+
+  // превью кейса при наведении на строку — как на главной: стоит у правого края строки, по её центру; если у кейса видео-обложка — играет она
+  var peek=document.getElementById('peek'),pel=null;
+  function peekAt(el){pel=el;var b=el.getBoundingClientRect(),w=peek.offsetWidth,x=Math.min(innerWidth-24,b.right)-w/2,y=b.top+b.height/2;
+    if(!peek.classList.contains('on'))peek.style.transition='none';peek.style.transform='translate('+x+'px,'+y+'px)';peek.offsetWidth;peek.style.transition=''}
+  if(peek&&matchMedia('(hover:hover)').matches)[].forEach.call(document.querySelectorAll('.row'),function(r){
+    r.addEventListener('mouseenter',function(){var im=r.getAttribute('data-img'),vd=r.getAttribute('data-vid');
+      peek.style.backgroundImage=im?'url("'+im+'")':'';peek.innerHTML=vd?'<video src="'+vd+'" muted loop playsinline autoplay></video>':'';
+      var v=peek.querySelector('video');if(v)v.play().catch(function(){});peekAt(r);peek.classList.add('on')});
+    r.addEventListener('mouseleave',function(){peek.classList.remove('on');var v=peek.querySelector('video');if(v)v.pause()});
+  });
+  addEventListener('scroll',function(){if(pel&&peek.classList.contains('on'))peekAt(pel)},{passive:true});
 
   if(!('IntersectionObserver' in window))return;
   // клиент долистал до итоговой стоимости

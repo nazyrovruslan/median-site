@@ -76,6 +76,26 @@ function estimate(k, file) {
   fs.writeFileSync(file, xlsx(rows, { title: k.titleText, widths: [6, 60, 9, 8, 14, 16], merges }));
 }
 
+// обложка для превью ссылки (Telegram, WhatsApp и т.п.): og.html → og.png 1200×630 рисует tools/og-kp.mjs через headless Chrome
+function ogHtml(k) {
+  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="../../css/fonts.css"><style>
+*{box-sizing:border-box;margin:0}html,body{width:1200px;height:630px;overflow:hidden;background:#c9c9c6;color:#0b0b0c}
+body{background-image:linear-gradient(90deg,rgba(255,255,255,.55) 1px,transparent 1px);background-size:211.2px 100%;background-position:72px 0;background-repeat:repeat-x}
+body{position:relative;padding:64px 72px;display:flex;flex-direction:column;justify-content:space-between;font-family:"Basis Grotesque Pro",Arial,sans-serif}
+.top{display:flex;justify-content:space-between;align-items:center}.top svg{width:64px;height:auto;color:#0b0b0c}
+.l{font-weight:500;font-size:20px;letter-spacing:.14em;text-transform:uppercase;color:#55554f}
+h1{font-family:"Druk Wide Cyr",Arial Black,sans-serif;font-weight:700;text-transform:uppercase;line-height:.95;letter-spacing:-.01em;font-size:var(--fs,64px)}
+h1 span{display:block}h1 .o{color:transparent;-webkit-text-stroke:1.6px #0b0b0c}
+.bot{display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
+.c{font-family:"Druk Wide Cyr",Arial Black,sans-serif;font-weight:700;text-transform:uppercase;font-size:26px}
+</style></head><body>
+<div class="top">${MARK}<span class="l">Коммерческое предложение</span></div>
+<h1 id="t">${k.titleLines.map((l, i) => `<span${i === 0 ? ' class="o"' : ''}>${esc(l)}</span>`).join('')}</h1>
+<div class="bot"><span class="c">${esc(k.client || 'Median Agency')}</span><span class="l">${long(k.dateD)}</span></div>
+<script>/* заголовок ужимается, чтобы влезть в обложку */var t=document.getElementById('t'),f=72;document.fonts.ready.then(function(){while(f>30&&(t.scrollWidth>1056||t.offsetHeight>330)){f-=2;t.style.setProperty('--fs',f+'px')}document.title='ready'});</script>
+</body></html>`;
+}
+
 function page(k) {
   const ARR = '<svg class="ar" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg>';
   const DL = '<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0v14"/><path d="M1.5 9.5 6 14l4.5-4.5"/></svg>';
@@ -113,14 +133,14 @@ function page(k) {
   </section>`;
   }
 
+  // «Релевантный опыт» — как список «Все проекты» на главной: номер, название, подпись; обложка кейса всплывает справа у строки
   const cases = k.cases.length ? `
-  <section class="kp-sec wrap">
-    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Релевантный</span><span class="ln">опыт</span></h2></div>
-    <div class="kp-cases">${k.cases.map(c => `
-      <a class="kp-case g5" href="../../${esc(c.id)}" target="_blank" rel="noopener" data-goal="kp_case" data-c="row" data-label="Смотреть кейс">
-        <span class="kp-ci"${c.img ? ` style="background-image:url('${esc(c.img)}')"` : ''}></span>
-        <span class="kp-cb"><span class="d kp-cn">${esc(c.name)}</span>${c.year ? `<span class="label">${esc(c.year)}</span>` : ''}<span class="kp-ct">${txt(c.text || c.sub)}</span></span>
-        <span class="kp-more">${ARR}</span>
+  <section class="kp-sec kp-cases wrap">
+    <h2 class="d kp-ch"><span class="o">Релевантный</span> опыт</h2>
+    <div class="rows">${k.cases.map((c, i) => `
+      <a class="row" href="../../${esc(c.id)}" target="_blank" rel="noopener" data-goal="kp_case" data-c="row" data-label="Смотреть кейс" data-img="${esc(c.img)}"${c.vid ? ` data-vid="${esc(c.vid)}"` : ''}>
+        <span class="n">${pad2(i)}</span><span class="nm">${esc(c.name)}</span><span class="sb">${txt(c.text || c.sub)}</span>
+        <span class="rp"${c.img ? ` style="background-image:url('${esc(c.img)}')"` : ''}></span>
       </a>`).join('')}
     </div>
   </section>` : '';
@@ -166,11 +186,18 @@ function page(k) {
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="theme-color" content="#0b0b0c">
+<meta name="theme-color" content="#c9c9c6">
 <title>${esc(k.titleText)} | Median Agency</title>
 <meta property="og:title" content="${esc(k.titleText)}">
 <meta property="og:site_name" content="Median Agency">
-<meta property="og:image" content="${SITE}media/og.jpg">
+<meta property="og:description" content="${esc(['Median Agency', k.client, long(k.dateD)].filter(Boolean).join(' · '))}">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="${SITE}clients/${k.slug}/">
+<meta property="og:image" content="${SITE}clients/${k.slug}/og.png?v=${k.ogv}">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${SITE}clients/${k.slug}/og.png?v=${k.ogv}">
 <link rel="icon" href="../../media/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="../../media/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="../../media/apple-touch-icon.png">
@@ -249,7 +276,7 @@ ${counters(k)}
 </main>
 
 ${contact ? `<a class="kp-cta" href="${esc(contact)}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="hint" data-label="${m.tg ? 'Написать в Telegram' : 'Написать письмо'}">Связаться</a>` : ''}
-<div id="cur" aria-hidden="true"></div><div id="ring" aria-hidden="true"><span class="t"></span></div>
+<div id="peek" aria-hidden="true"></div><div id="cur" aria-hidden="true"></div><div id="ring" aria-hidden="true"><span class="t"></span></div><div id="tip" aria-hidden="true"></div>
 <div class="kp-toast" id="kpToast" role="status" aria-live="polite"></div>
 <script type="application/json" id="kpData">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>
 <script src="../../js/kp.js?v=${k.v}"></script>
@@ -290,7 +317,7 @@ for (const f of list) {
     const cs = CASES[c.id]; if (!cs) { console.warn(`${f}: нет кейса ${c.id}`); return null; }
     const cover = cs.img || (cs.vid ? cs.vid.replace(/\.mp4$/, '.webp') : '');
     const th = cover && 'media/thumb/' + path.basename(cover).replace(/\.\w+$/, '.webp');
-    return { id: c.id, name: cs.name, year: cs.year, sub: cs.sub, text: c.text, img: th && fs.existsSync(th) ? '../../' + th : cover ? '../../' + cover : '' };
+    return { id: c.id, name: cs.name, year: cs.year, sub: cs.sub, text: c.text, vid: cs.vid ? '../../' + cs.vid : '', img: th && fs.existsSync(th) ? '../../' + th : cover ? '../../' + cover : '' };
   }).filter(Boolean);
   // контакты: основной (наверху и в кнопке «Связаться»), менеджер проекта, руководитель; пустые поля КП берутся из настроек
   const filled = o => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v));
@@ -320,6 +347,9 @@ for (const f of list) {
   const pack = [[local(k.pdf), `median-${slug}-presentation`], [local(k.xlsx, !raw.xlsx), `median-${slug}-smeta`]]
     .filter(([f]) => f && fs.existsSync(f)).map(([f, n]) => [n + path.extname(f), fs.readFileSync(f)]);
   if (pack.length > 1) { k.zip = `median-kp-${slug}.zip`; fs.writeFileSync(`${dir}/${k.zip}`, zip(pack)); }
+  const og = ogHtml(k);
+  k.ogv = crypto.createHash('md5').update(og).digest('hex').slice(0, 7);
+  fs.writeFileSync(`${dir}/og.html`, og);
   fs.writeFileSync(`${dir}/index.html`, page(k));
   built.add(slug);
 }
