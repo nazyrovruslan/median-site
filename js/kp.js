@@ -45,12 +45,15 @@
         if(s!==state){if(state)document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s)}
         lab.textContent=(s==='row'||s==='hint')&&t.getAttribute('data-label')||'';
       });
-      // магнит у круглых кнопок, как на сайте
-      [].forEach.call(document.querySelectorAll('.kp-rb'),function(el){
-        var k=.3;
-        el.addEventListener('pointermove',function(e){var b=el.getBoundingClientRect();el.style.translate=((e.clientX-b.left-b.width/2)*k).toFixed(1)+'px '+((e.clientY-b.top-b.height/2)*k).toFixed(1)+'px'});
-        el.addEventListener('pointerleave',function(){el.style.translate=''});
+      // магнит, как на сайте: элементы с data-magnet (сила — значение атрибута) плавно тянутся за курсором
+      var mags=[].map.call(document.querySelectorAll('[data-magnet]'),function(el){return{el:el,k:parseFloat(el.getAttribute('data-magnet'))||.2,tx:0,ty:0,x:0,y:0,on:false}});
+      mags.forEach(function(m){
+        m.el.addEventListener('pointermove',function(e){var b=m.el.getBoundingClientRect();m.on=true;m.tx=(e.clientX-b.left-b.width/2)*m.k;m.ty=(e.clientY-b.top-b.height/2)*m.k});
+        m.el.addEventListener('pointerleave',function(){m.on=false;m.tx=m.ty=0});
       });
+      (function magLoop(){mags.forEach(function(m){m.x+=(m.tx-m.x)*.12;m.y+=(m.ty-m.y)*.12;
+        if(Math.abs(m.x)+Math.abs(m.y)<.05&&!m.on){if(m.el.style.translate)m.el.style.translate='';return}
+        m.el.style.translate=m.x.toFixed(2)+'px '+m.y.toFixed(2)+'px'});requestAnimationFrame(magLoop)})();
     }
   }
 

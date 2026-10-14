@@ -100,7 +100,7 @@ function page(k) {
   const ARR = '<svg class="ar" viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg>';
   const DL = '<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M6 0v14"/><path d="M1.5 9.5 6 14l4.5-4.5"/></svg>';
   // data-c — состояние курсора-кольца (как на главной): hint — круг с подписью, link — белый круг, row — круг с подписью над строкой
-  const dl = (href, label, goal, cls, c = 'link') => href ? `<a class="${cls}" href="${esc(href)}" download data-goal="${goal}" target="_blank" rel="noopener" data-c="${c}">${label}</a>` : '';
+  const dl = (href, label, goal, cls, c = 'link') => href ? `<a class="${cls}" href="${esc(href)}" download data-goal="${goal}" target="_blank" rel="noopener" data-c="${c}"${c === 'mag' ? ' data-magnet' : cls === 'kp-rb' ? ' data-magnet=".3"' : ''}>${label}</a>` : '';
   const dd = (t, v) => v ? `<dt>${t}</dt><dd>${v}</dd>` : '';
   const pad2 = i => String(i + 1).padStart(2, '0');
 
@@ -213,7 +213,7 @@ ${counters(k)}
 <header class="kp-bar">
   <a class="kp-logo" href="../../" target="_blank" rel="noopener" aria-label="median.agency" title="На сайт">${MARK}</a>
   <nav class="kp-acts">
-    <button class="kp-rb" type="button" id="kpCopy" aria-label="Скопировать ссылку" data-c="hint" data-label="Скопировать ссылку"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg></button>
+    <button class="kp-rb" data-magnet=".3" type="button" id="kpCopy" aria-label="Скопировать ссылку" data-c="hint" data-label="Скопировать ссылку"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg></button>
     ${dl(k.pdf, 'PDF', 'kp_pdf', 'kp-rb', 'hint" data-label="Скачать презентацию')}
     ${dl(k.xlsx, 'XLS', 'kp_xlsx', 'kp-rb', 'hint" data-label="Скачать смету')}
     ${dl(k.zip, 'ZIP', 'kp_zip', 'kp-rb', 'hint" data-label="Скачать всё архивом')}
@@ -230,9 +230,9 @@ ${counters(k)}
     <div class="kp-fl">
       ${has(k.pm) ? person(k.pm, 'Менеджер проекта', 'kp-main') : ''}
       <div class="kp-files">
-      ${dl(k.pdf, `<span>Презентация</span>${DL}`, 'kp_pdf', 'kp-file')}
-      ${dl(k.xlsx, `<span>Смета в Excel</span>${DL}`, 'kp_xlsx', 'kp-file')}
-      ${dl(k.zip, `<span>Скачать всё архивом</span>${DL}`, 'kp_zip', 'kp-file kp-file-all')}
+      ${dl(k.pdf, `<span>Презентация</span>${DL}`, 'kp_pdf', 'kp-file', 'mag')}
+      ${dl(k.xlsx, `<span>Смета в Excel</span>${DL}`, 'kp_xlsx', 'kp-file', 'mag')}
+      ${dl(k.zip, `<span>Скачать всё архивом</span>${DL}`, 'kp_zip', 'kp-file kp-file-all', 'mag')}
       </div>
     </div>
     <dl class="kp-dl kp-dl-l">
@@ -268,14 +268,14 @@ ${counters(k)}
   <!-- подвал — как на основном сайте (index.html footer.foot): «Start a project» с плюсом и строка контактов; ведёт к основному контакту КП -->
   <footer class="foot wrap kp-end">
     <a class="start"${contact ? ` href="${esc(contact)}" target="_blank" rel="noopener" data-goal="kp_contact"` : ''} data-c="plus">
-      <span class="plus" aria-hidden="true"><svg viewBox="0 0 58 92" preserveAspectRatio="none"><line x1="29" y1="18" x2="29" y2="74"/><line x1="1" y1="46" x2="57" y2="46"/></svg></span>
+      <span class="plus" aria-hidden="true" data-magnet=".55"><svg viewBox="0 0 58 92" preserveAspectRatio="none"><line x1="29" y1="18" x2="29" y2="74"/><line x1="1" y1="46" x2="57" y2="46"/></svg></span>
       <span class="d"><span class="line"><span class="o">Start a</span></span><span class="line"><span>project</span></span></span>
     </a>
     <div class="foot-bar">
-      ${m.email ? `<a class="mail" href="mailto:${esc(m.email)}" data-goal="kp_contact" data-c="link"><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>${esc(m.email)}</span></a>` : ''}
-      ${m.tg ? `<a class="tel" href="${esc(tgUrl(m.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link">${esc(nick(m))}</a>` : m.phone ? `<a class="tel" href="tel:${esc(String(m.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link">${esc(m.phone)}</a>` : ''}
-      <div class="follow"><button class="follow-btn" type="button" aria-expanded="false" aria-controls="kpFollow" data-c="link"><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button><div class="links" id="kpFollow"><a href="https://t.me/medianagency" target="_blank" rel="noopener" data-c="link">Telegram</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="link">Instagram</a><a href="https://youtube.com/@median.agency" target="_blank" rel="noopener" data-c="link">YouTube</a><a href="https://www.facebook.com/median.agency/" target="_blank" rel="noopener" data-c="link">Facebook</a></div></div>
-      <a class="pol" href="../../privacy.html" data-c="link">Политика конфиденциальности</a><span class="copy">© Median Agency ${k.dateD.getUTCFullYear()}</span>
+      ${m.email ? `<a class="mail" data-magnet href="mailto:${esc(m.email)}" data-goal="kp_contact" data-c="link"><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>${esc(m.email)}</span></a>` : ''}
+      ${m.tg ? `<a class="tel" data-magnet href="${esc(tgUrl(m.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link">${esc(nick(m))}</a>` : m.phone ? `<a class="tel" data-magnet href="tel:${esc(String(m.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link">${esc(m.phone)}</a>` : ''}
+      <div class="follow"><button class="follow-btn" data-magnet type="button" aria-expanded="false" aria-controls="kpFollow" data-c="link"><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button><div class="links" id="kpFollow"><a href="https://t.me/medianagency" target="_blank" rel="noopener" data-c="link">Telegram</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="link">Instagram</a><a href="https://youtube.com/@median.agency" target="_blank" rel="noopener" data-c="link">YouTube</a><a href="https://www.facebook.com/median.agency/" target="_blank" rel="noopener" data-c="link">Facebook</a></div></div>
+      <a class="pol" data-magnet href="../../privacy.html" data-c="link">Политика конфиденциальности</a><span class="copy">© Median Agency ${k.dateD.getUTCFullYear()}</span>
     </div>
   </footer>
 </main>
