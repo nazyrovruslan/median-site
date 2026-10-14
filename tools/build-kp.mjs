@@ -278,7 +278,7 @@ ${counters(k)}
 </main>
 
 ${contact ? `<a class="kp-cta" href="${esc(contact)}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="hint" data-label="${m.tg ? 'Написать в Telegram' : 'Написать письмо'}">Связаться</a>` : ''}
-<div id="peek" aria-hidden="true"></div><div id="cur" aria-hidden="true"></div><div id="ring" aria-hidden="true"><span class="t"></span></div><div id="tip" aria-hidden="true"></div>
+<div id="peek" aria-hidden="true"></div><div id="cur" aria-hidden="true"></div><div id="ring" aria-hidden="true"><span class="t"></span></div>
 <div class="kp-toast" id="kpToast" role="status" aria-live="polite"></div>
 <script type="application/json" id="kpData">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>
 <script src="../../js/kp.js?v=${k.v}"></script>

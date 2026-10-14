@@ -30,7 +30,7 @@
     if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){say('Ссылка скопирована')},fb);else fb();
   });
 
-  // курсор как на главной: точка + кольцо, над кнопками кольцо растёт и показывает подсказку (data-c / data-label)
+  // курсор как на главной: точка + кольцо, над кнопками кольцо растёт и показывает подсказку в центре (data-c / data-label)
   if(matchMedia('(hover:hover) and (pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
     var c=document.getElementById('cur'),r=document.getElementById('ring'),lab=r&&r.querySelector('.t');
     if(c&&r){
@@ -38,21 +38,12 @@
       var mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my,state='',seen=false;
       addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY;c.style.transform='translate('+mx+'px,'+my+'px)';if(!seen){seen=true;rx=mx;ry=my;document.body.classList.add('cur-on')}},{passive:true});
       document.documentElement.addEventListener('pointerleave',function(){document.body.classList.remove('cur-on');seen=false});
-      // подсказка (data-c="hint"): у круглых кнопок кольцо прилипает к кнопке, как у логотипа на сайте, а подпись выходит строкой под ней
-      var tip=document.getElementById('tip'),hel=null,tx=0,ty=0;
-      (function loop(){
-        var gx=mx,gy=my;
-        if(hel&&hel.isConnected){var b=hel.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
-          if(hel.matches('.kp-rb,.kp-logo')){gx=cx+(mx-cx)*.15;gy=cy+(my-cy)*.15;r.style.width=r.style.height=(Math.max(b.width,b.height)+12)+'px'}
-          // подпись: под кнопкой, у нижнего края экрана — над ней
-          var below=b.bottom+44<innerHeight;tx=cx;ty=below?b.bottom+16:b.top-16;tip.style.transform='translate('+tx+'px,'+ty+'px) translate(-50%,'+(below?'0':'-100%')+')'}
-        rx+=(gx-rx)*.22;ry+=(gy-ry)*.22;r.style.transform='translate('+rx+'px,'+ry+'px)';requestAnimationFrame(loop)})();
+      // подсказка (data-c="hint") — как «Следующий проект» на сайте: кольцо становится контурным кругом, текст из data-label в центре
+      (function loop(){rx+=(mx-rx)*.22;ry+=(my-ry)*.22;r.style.transform='translate('+rx+'px,'+ry+'px)';requestAnimationFrame(loop)})();
       document.addEventListener('pointerover',function(e){
         var t=e.target.closest('[data-c]'),s=t?t.getAttribute('data-c'):'';
         if(s!==state){if(state)document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s)}
-        var h=s==='hint'?t:null;
-        if(h!==hel){hel=h;document.body.classList.toggle('c-stick',!!h&&h.matches('.kp-rb,.kp-logo'));if(!h){r.style.width=r.style.height=''}tip.textContent=h?h.getAttribute('data-label')||'':'';tip.classList.toggle('on',!!h)}
-        lab.textContent=s==='row'&&t.getAttribute('data-label')||'';
+        lab.textContent=(s==='row'||s==='hint')&&t.getAttribute('data-label')||'';
       });
       // магнит у круглых кнопок, как на сайте
       [].forEach.call(document.querySelectorAll('.kp-rb,.kp-logo'),function(el){
