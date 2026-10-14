@@ -294,3 +294,12 @@ body.has-cursor.c-mag #cur,body.has-cursor.c-hint #cur,body.has-cursor.c-link #c
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}.start .plus svg,.start .d .line>span,.foot-bar{transform:none!important;opacity:1!important}}
 @media print{.kp-bar,.kp-cta,.kp-toast{display:none}.kp-gantt.pre .kp-gb i{transform:none}.kp-hero,.kp-end{min-height:0}.start .plus svg,.start .d .line>span,.foot-bar{transform:none;opacity:1}}
+
+/* копирайт в подвале — как на основном сайте (css/style.css .copy) */
+.foot-bar .copy{position:relative;white-space:nowrap}
+.foot-bar .cp-l{position:absolute;right:0;bottom:calc(100% + .7em)}
+.foot-bar>.copy{justify-self:end}
+.foot-bar .copy a{color:inherit;text-decoration:underline;text-decoration-thickness:.12em;text-underline-offset:.32em;transition:color .3s}
+.foot-bar .copy a:hover{color:var(--white)}
+@media (max-width:820px){.foot-bar .copy{display:flex;flex-direction:column;gap:.5em}.foot-bar .cp-l{position:static}}
+@media (min-width:821px) and (max-width:1699px){.foot-bar>.copy{grid-column:1/-1;margin-top:3.2em}} /* в пятую колонку не помещается — отдельной строкой справа */

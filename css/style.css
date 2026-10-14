@@ -809,3 +809,11 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .cookie a{text-decoration:underline;text-underline-offset:3px}
 .cookie button{flex:none;background:var(--ink);color:var(--paper);font:700 var(--sm)/1 var(--body);padding:12px 18px;border-radius:999px}
 @media (max-width:820px){.cookie{left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-width:none}}
+
+/* копирайт в подвале — как на new.mdncy.ru: подпись «Copyright» по правому краю над строкой, «median» подчёркнуто толстой линией */
+.foot-bar .copy{position:relative;white-space:nowrap}
+.foot-bar .cp-l{position:absolute;right:0;bottom:calc(100% + .7em)} /* подпись над строкой, высоту строки контактов не меняет */
+.foot-bar .copy a{color:inherit;text-decoration:underline;text-decoration-thickness:.12em;text-underline-offset:.32em;transition:color .3s}
+.foot .foot-bar .copy a:hover{color:var(--paper)}
+.foot.grey .foot-bar .copy a:hover{color:var(--ink)}
+@media (max-width:820px){.foot-bar .copy{display:flex;flex-direction:column;gap:.5em}.foot-bar .cp-l{position:static}}

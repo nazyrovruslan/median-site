@@ -285,7 +285,7 @@ ${counters(k)}
       <a class="mail" data-magnet href="mailto:${esc(F.email)}" data-goal="kp_contact" data-c="mag"><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>${esc(F.email)}</span></a>
       <a class="tel" data-magnet href="${esc(tgUrl(F.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="mag">@${esc(F.tg)}</a>
       <div class="follow"><button class="follow-btn" data-magnet type="button" aria-expanded="false" aria-controls="kpFollow" data-c="mag"><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button><div class="links" id="kpFollow"><a href="https://t.me/medianagency" target="_blank" rel="noopener" data-c="mag" data-magnet>Telegram</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="mag" data-magnet>Instagram</a><a href="https://youtube.com/@median.agency" target="_blank" rel="noopener" data-c="mag" data-magnet>YouTube</a><a href="https://www.facebook.com/median.agency/" target="_blank" rel="noopener" data-c="mag" data-magnet>Facebook</a></div></div>
-      <a class="pol" data-magnet href="../../privacy.html" data-c="mag">Политика конфиденциальности</a><span class="copy">© Median Agency ${k.dateD.getUTCFullYear()}</span>
+      <a class="pol" data-magnet href="../../privacy.html" data-c="mag">Политика конфиденциальности</a><span class="copy"><span class="cp-l">Copyright</span><span class="cp-t">${k.dateD.getUTCFullYear()} © median agency. Design by <a href="../../" data-c="mag">median</a>.</span></span>
     </div>
   </footer>
 </main>
