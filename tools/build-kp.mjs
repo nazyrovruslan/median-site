@@ -171,12 +171,15 @@ function page(k) {
     <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Команда</span><span class="ln">проекта</span></h2></div>
     <div class="kp-team">${team.map(([p, kind]) => person(p, kind)).join('')}</div>
   </section>` : '';
-  const client = k.client || k.clientLogo || has(k.clientContact) ? `
-      <div class="kp-client">
-        <span class="label">Клиент</span>
-        ${k.clientLogo ? `<img class="kp-clogo" src="${esc(k.clientLogo)}" alt="${esc(k.client)}">` : `<span class="d kp-pn">${esc(k.client)}</span>`}
-        ${has(k.clientContact) ? `<span class="kp-pr">${[k.clientContact.name, k.clientContact.role].filter(Boolean).map(esc).join(', ')}</span><span class="kp-pl">${links(k.clientContact)}</span>` : ''}
-      </div>` : '';
+  // клиент и его контакт — в шапке КП, под заголовком
+  const cc = k.clientContact;
+  const client = k.client || k.clientLogo || has(cc) ? `
+    <div class="kp-hc">
+      <span class="label">Клиент</span>
+      ${k.clientLogo ? `<img class="kp-clogo" src="${esc(k.clientLogo)}" alt="${esc(k.client)}">` : `<span class="d kp-hcn">${esc(k.client)}</span>`}
+      ${cc.name || cc.role ? `<span class="kp-hcp">${cc.name ? `<b>${esc(cc.name)}</b>` : ''}${cc.role ? `<span>${esc(cc.role)}</span>` : ''}</span>` : ''}
+      ${has(cc) && (cc.tg || cc.phone || cc.email) ? `<span class="kp-pl">${links(cc)}</span>` : ''}
+    </div>` : '';
   const data = { slug: k.slug, client: k.client || '', total: k.total, link: k.track_url || '', metrika: /^\d+$/.test(String(S.metrika || '')) ? +S.metrika : 0 };
 
   return `<!doctype html>
@@ -220,12 +223,11 @@ ${counters(k)}
 <main>
   <section class="kp-hero wrap">
     <span class="label">Коммерческое предложение · ${long(k.dateD)}</span>
-    <h1 class="d kp-title">${k.titleLines.map((l, i) => `<span class="ln${i === 0 ? ' o' : ''}">${esc(l)}</span>`).join('')}</h1>
+    <h1 class="d kp-title">${k.titleLines.map((l, i) => `<span class="ln${i === 0 ? ' o' : ''}">${esc(l)}</span>`).join('')}</h1>${client}
   </section>
 
   <section class="kp-facts wrap g5">
     <div class="kp-fl">
-      ${client}
       ${has(m) ? person(m, 'Основной контакт', 'kp-main') : ''}
       <div class="kp-files">
       ${dl(k.pdf, `<span>Презентация</span>${DL}`, 'kp_pdf', 'kp-file')}
@@ -325,7 +327,8 @@ for (const f of list) {
   const C = raw.contacts || { main: raw.manager };
   const pick = r => { const own = filled(C[r]); return has(own) ? { ...filled(SC[r]), ...own } : filled(SC[r]); };
   k.main = pick('main');
-  k.team = [[k.main, 'Основной контакт'], [pick('pm'), 'Менеджер проекта'], [pick('head'), 'Руководитель проекта']];
+  // основной контакт — только наверху и в «Связаться», в команде его нет
+  k.team = [[pick('pm'), 'Менеджер проекта'], [pick('head'), 'Руководитель проекта']];
   k.clientLogo = raw.client_logo ? fileUrl(raw.client_logo) : '';
   k.clientContact = filled(raw.client_contact);
   k.contactUrl = k.main.tg ? tgUrl(k.main.tg) : k.main.email ? `mailto:${k.main.email}` : '';
