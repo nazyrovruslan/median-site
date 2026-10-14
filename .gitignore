@@ -1,5 +1,4 @@
 .DS_Store
 node_modules/
 clients/*/*.zip
-clients/*/og.png
 clients/*/og.html

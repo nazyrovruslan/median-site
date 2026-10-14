@@ -1,6 +1,6 @@
 // Рисует обложки превью для КП: clients/<адрес>/og.html → og.png (1200×630) через headless Chrome/Chromium.
 // В GitHub Actions Chrome уже установлен (google-chrome). Локально можно указать путь: CHROME=/путь/к/chrome node tools/og-kp.mjs
-// og.png не коммитится (.gitignore) — рисуется при каждом деплое; без браузера шаг просто пропускается.
+// og.png рисуется при каждом деплое и сохраняется в репозиторий вместе с КП; без браузера шаг просто пропускается.
 import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
