@@ -25,6 +25,9 @@ jobs:
         run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
       # кейсы и КП правятся в content/ (через /admin) — собираем js/cases.js, страницы clients/<адрес>/ и досоздаём превью для новых медиа
       - name: Build content
+        env:
+          # вебхук Битрикс24 (менеджер проекта из сделки КП); если секрета нет — КП собираются без него
+          BITRIX_WEBHOOK: ${{ secrets.BITRIX_WEBHOOK }}
         run: |
           node tools/build-cases.mjs
           node tools/build-kp.mjs

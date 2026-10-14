@@ -294,6 +294,27 @@ ${S.body || ''}
 // ---- сборка ----
 // версия css/js в ссылках = хэш их содержимого (сбрасывает кэш только когда они меняются)
 const ver = crypto.createHash('md5').update(fs.readFileSync('css/kp.css')).update(fs.readFileSync('js/kp.js')).digest('hex').slice(0, 7);
+// Битрикс24: менеджер проекта = ответственный по сделке (crm.deal.get → user.get).
+// Вебхук — секрет BITRIX_WEBHOOK в настройках репозитория на GitHub (в репозиторий и CMS не пишется); без него или без номера сделки — контакт из CMS/настроек.
+const HOOK = (process.env.BITRIX_WEBHOOK || '').trim().replace(/\/?$/, '/');
+const bx = async (method, params) => {
+  const r = await fetch(`${HOOK}${method}.json?${new URLSearchParams(params)}`), j = await r.json();
+  if (j.error) throw new Error(j.error_description || j.error);
+  return j.result;
+};
+const dealId = v => (String(v || '').match(/deal\/details\/(\d+)/) || String(v || '').match(/^\s*(\d+)\s*$/) || [])[1];
+async function bitrixPm(deal, f) {
+  const id = dealId(deal);
+  if (!process.env.BITRIX_WEBHOOK || !id) return null;
+  try {
+    const d = await bx('crm.deal.get', { id });
+    const [u] = await bx('user.get', { ID: d.ASSIGNED_BY_ID });
+    if (!u) return null;
+    const tg = String(u.UF_USR_TELEGRAM || u.UF_TELEGRAM || '').replace(/^.*t\.me\//, '').replace(/^@/, '');
+    return { name: [u.NAME, u.LAST_NAME].filter(Boolean).join(' '), role: u.WORK_POSITION || '', email: u.EMAIL || '', phone: u.PERSONAL_MOBILE || u.WORK_PHONE || '', tg };
+  } catch (e) { console.warn(`${f}: Битрикс24, сделка ${id} — ${e.message}`); return null; }
+}
+
 const list = fs.existsSync(SRC) ? fs.readdirSync(SRC).filter(f => f.endsWith('.json')) : [];
 const built = new Set();
 for (const f of list) {
@@ -331,7 +352,9 @@ for (const f of list) {
   const pick = r => { const own = filled(C[r]); return has(own) ? { ...filled(SC[r]), ...own } : filled(SC[r]); };
   k.main = pick('main');
   // основной контакт — только наверху и в «Связаться», в команде его нет
-  k.pm = pick('pm');
+  // менеджер проекта: из CMS для этого КП → ответственный по сделке в Битрикс24 → настройки
+  const bxPm = has(filled(C.pm)) ? null : await bitrixPm(raw.bitrix_deal, f);
+  k.pm = bxPm && has(filled(bxPm)) ? filled(bxPm) : pick('pm');
   k.team = [[k.pm, 'Менеджер проекта'], [pick('head'), 'Account director']];
   k.clientLogo = raw.client_logo ? fileUrl(raw.client_logo) : '';
   k.clientContact = filled(raw.client_contact);

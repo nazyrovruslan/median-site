@@ -247,6 +247,7 @@ collections:
           - { name: text, label: Текст, widget: text }
       - { name: pdf, label: Презентация (PDF), widget: file, required: false, hint: "Файл до ~50 МБ или ссылка на облако" }
       - { name: xlsx, label: Смета Excel (свой файл), widget: file, required: false, hint: "Если пусто — смета соберётся из этапов автоматически" }
+      - { name: bitrix_deal, label: Сделка в Битрикс24, widget: string, required: false, hint: "Номер сделки или ссылка на неё. Менеджер проекта берётся из ответственного по сделке (если ниже в «Контактах» менеджер не заполнен)" }
       - { name: track_url, label: Ссылка из сквозной аналитики, widget: string, required: false, hint: "Уникальная ссылка из сервиса аналитики для этого КП — её копирует кнопка-скрепка" }
       - { name: code, label: Код счётчиков только для этого КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Вставляется в <head> этой страницы" }
       - name: contacts
