@@ -175,9 +175,9 @@ function page(k) {
   F.tg = String(F.tg).replace(/^.*t\.me\//, '').replace(/^@/, '');
   const nick = p => '@' + String(p.tg).replace(/^@|^https?:\/\/t\.me\//, '');
   const links = p => [
-    p.tg ? `<a href="${esc(tgUrl(p.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="mag" data-magnet>${esc(nick(p))}</a>` : '',
-    p.phone ? `<a href="tel:${esc(String(p.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="mag" data-magnet>${esc(p.phone)}</a>` : '',
-    p.email ? `<a href="mailto:${esc(p.email)}" data-goal="kp_contact" data-c="mag" data-magnet>${esc(p.email)}</a>` : ''].filter(Boolean).join('');
+    p.tg ? `<a href="${esc(tgUrl(p.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link" data-stick data-magnet>${esc(nick(p))}</a>` : '',
+    p.phone ? `<a href="tel:${esc(String(p.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link" data-stick data-magnet>${esc(p.phone)}</a>` : '',
+    p.email ? `<a href="mailto:${esc(p.email)}" data-goal="kp_contact" data-c="link" data-stick data-magnet>${esc(p.email)}</a>` : ''].filter(Boolean).join('');
   const person = (p, kind, cls = '') => `
       <div class="kp-person ${cls}">
         ${p.photo ? `<span class="kp-ph" style="background-image:url('${esc(fileUrl(p.photo))}')"></span>` : ''}
@@ -296,10 +296,10 @@ ${counters(k)}
       <span class="d"><span class="line"><span class="o">Start a</span></span><span class="line"><span>project</span></span></span>
     </a>
     <div class="foot-bar">
-      <a class="mail" data-magnet href="mailto:${esc(F.email)}" data-goal="kp_contact" data-c="mag"><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>${esc(F.email)}</span></a>
-      <a class="tel" data-magnet href="${esc(tgUrl(F.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="mag">@${esc(F.tg)}</a>
-      <div class="follow"><button class="follow-btn" data-magnet type="button" aria-expanded="false" aria-controls="kpFollow" data-c="mag"><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button><div class="links" id="kpFollow"><a href="https://t.me/medianagency" target="_blank" rel="noopener" data-c="mag" data-magnet>Telegram</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="mag" data-magnet>Instagram</a><a href="https://youtube.com/@median.agency" target="_blank" rel="noopener" data-c="mag" data-magnet>YouTube</a><a href="https://www.facebook.com/median.agency/" target="_blank" rel="noopener" data-c="mag" data-magnet>Facebook</a></div></div>
-      <a class="pol" data-magnet href="../../privacy.html" data-c="mag">Политика конфиденциальности</a><span class="copy"><span class="cp-l">Copyright</span><span class="cp-t">${k.dateD.getUTCFullYear()} © median agency. Design by <a href="../../" data-c="mag">median</a>.</span></span>
+      <a class="mail" data-stick data-stick-to="svg" data-stick-size="foot" data-magnet href="mailto:${esc(F.email)}" data-goal="kp_contact" data-c="link"><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>${esc(F.email)}</span></a>
+      <a class="tel" data-stick data-stick-size="foot" data-magnet href="${esc(tgUrl(F.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link">@${esc(F.tg)}</a>
+      <div class="follow"><button class="follow-btn" data-stick data-stick-to=".ic" data-stick-size="foot" data-magnet type="button" aria-expanded="false" aria-controls="kpFollow" data-c="link"><svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><circle cx="9.5" cy="2.5" r="1.6"/><circle cx="2.5" cy="6" r="1.6"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="M4 5.2l4-2M4 6.8l4 2"/></svg><span>Follow us</span></button><div class="links" id="kpFollow"><a href="https://t.me/medianagency" target="_blank" rel="noopener" data-c="link" data-stick data-stick-size="foot" data-magnet>Telegram</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="link" data-stick data-stick-size="foot" data-magnet>Instagram</a><a href="https://youtube.com/@median.agency" target="_blank" rel="noopener" data-c="link" data-stick data-stick-size="foot" data-magnet>YouTube</a><a href="https://www.facebook.com/median.agency/" target="_blank" rel="noopener" data-c="link" data-stick data-stick-size="foot" data-magnet>Facebook</a></div></div>
+      <a class="pol" data-stick data-magnet href="../../privacy.html" data-c="link">Политика конфиденциальности</a><span class="copy"><span class="cp-l">Copyright</span><span class="cp-t">${k.dateD.getUTCFullYear()} © median agency. Design by <a href="../../" data-c="link">median</a>.</span></span>
     </div>
   </footer>
 </main>

@@ -241,7 +241,7 @@ body.c-hint #ring{width:clamp(112px,7.8vw,140px);height:clamp(112px,7.8vw,140px)
 body.c-hint #ring .t{opacity:1;color:#fff;font:500 var(--sm)/1.2 var(--body);letter-spacing:0;text-transform:none;max-width:76%}
 /* кнопки скачивания — магнитные, кольцо над ними прячется, состояние показывает заливка кнопки */
 body.has-cursor.cur-on.c-mag #ring{opacity:0}
-body.has-cursor.c-mag #cur,body.has-cursor.c-hint #cur,body.has-cursor.c-link #cur,body.has-cursor.c-row #cur{opacity:0}
+body.has-cursor.c-stick #cur,body.has-cursor.c-mag #cur,body.has-cursor.c-hint #cur,body.has-cursor.c-link #cur,body.has-cursor.c-row #cur{opacity:0}
 /* подсказка строкой под кнопкой */
 /* под курсором-подсказкой сама кнопка прячется, чтобы текст подсказки не наезжал на её подпись */
 /* круглая кнопка в шапке при наведении — как «Связаться»: заливка (в шапке с «разницей» это инверсия) вырастает до круга курсора, кольцо с подписью встаёт ровно на неё; сама кнопка остаётся 44 px, чтобы не перекрывать соседние */
