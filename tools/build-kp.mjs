@@ -284,8 +284,8 @@ ${counters(k)}
 
   <!-- подвал — как на основном сайте (index.html footer.foot): «Start a project» с плюсом и строка контактов; ведёт к основному контакту КП -->
   <footer class="foot wrap kp-end">
-    <a class="start" href="${esc(tgUrl(F.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="plus">
-      <span class="plus" aria-hidden="true" data-magnet=".55"><svg viewBox="0 0 58 92" preserveAspectRatio="none"><line x1="29" y1="18" x2="29" y2="74"/><line x1="1" y1="46" x2="57" y2="46"/></svg></span>
+    <a class="start" href="${esc(tgUrl(F.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link">
+      <span class="plus" aria-hidden="true" data-c="plus" data-stick data-magnet=".55"><svg viewBox="0 0 58 92" preserveAspectRatio="none"><line x1="29" y1="18" x2="29" y2="74"/><line x1="1" y1="46" x2="57" y2="46"/></svg></span>
       <span class="d"><span class="line"><span class="o">Start a</span></span><span class="line"><span>project</span></span></span>
     </a>
     <div class="foot-bar">

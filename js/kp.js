@@ -46,14 +46,27 @@
       document.documentElement.addEventListener('pointerleave',function(){document.body.classList.remove('cur-on');seen=false});
       // подсказка (data-c="hint") — как «Следующий проект» на сайте: кольцо становится контурным кругом, текст из data-label в центре
       // над круглой кнопкой шапки кольцо встаёт по центру кнопки (на её заливку), в остальных случаях — за курсором
-      var hel=null;
+      var hel=null,stk=null;
+      // «Start a project» в подвале: копия надписи с перевёрнутыми контур/заливка, видна только внутри круга курсора на плюсе
+      [].forEach.call(document.querySelectorAll('.start .d'),function(sd){var inv=document.createElement('span');inv.className='d-inv';inv.setAttribute('aria-hidden','true');inv.innerHTML=sd.innerHTML;
+        [].forEach.call(inv.querySelectorAll('.line>span'),function(x){x.classList.toggle('o')});sd.appendChild(inv);sd.classList.add('inv')});
+      var sd=null,invOn=false;
       (function loop(){var gx=mx,gy=my;if(hel&&hel.isConnected){var b=hel.getBoundingClientRect();gx=b.left+b.width/2;gy=b.top+b.height/2}
-        rx+=(gx-rx)*.22;ry+=(gy-ry)*.22;r.style.transform='translate('+rx+'px,'+ry+'px)';requestAnimationFrame(loop)})();
+        // над плюсом кольцо прилипает к его центру и тянется за курсором наполовину, как на сайте
+        else if(state==='plus'&&stk){var p=stk.getBoundingClientRect(),cx=p.left+p.width/2,cy=p.top+p.height/2;gx=cx+(mx-cx)*.5;gy=cy+(my-cy)*.5}
+        rx+=(gx-rx)*.22;ry+=(gy-ry)*.22;r.style.transform='translate('+rx+'px,'+ry+'px)';
+        if(state==='plus'&&stk){var s2=stk.closest('.start').querySelector('.d');if(s2!==sd){if(sd)sd.style.setProperty('--r','0px');sd=s2}}
+        if(sd&&(state==='plus'||invOn)){invOn=state==='plus';
+          // маска считается для каждого блока отдельно: у второй строки своя система отсчёта
+          [sd].concat([].slice.call(sd.querySelectorAll(':scope>.line'))).forEach(function(el){var b=el.getBoundingClientRect();el.style.setProperty('--cx',(rx-b.left)+'px');el.style.setProperty('--cy',(ry-b.top)+'px')});
+          sd.style.setProperty('--r',invOn?(r.offsetWidth/2)+'px':'0px')}
+        requestAnimationFrame(loop)})();
       document.addEventListener('pointerover',function(e){
         var t=e.target.closest('[data-c]'),s=t?t.getAttribute('data-c'):'';
         if(s!==state){if(state)document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s)}
         lab.textContent=(s==='row'||s==='hint')&&t.getAttribute('data-label')||'';
         hel=s==='hint'&&t.matches('.kp-rb')?t:null;
+        stk=e.target.closest('[data-stick]');
       });
       // магнит, как на сайте: элементы с data-magnet (сила — значение атрибута) плавно тянутся за курсором
       var mags=[].map.call(document.querySelectorAll('[data-magnet]'),function(el){return{el:el,k:parseFloat(el.getAttribute('data-magnet'))||.2,tx:0,ty:0,x:0,y:0,on:false}});
