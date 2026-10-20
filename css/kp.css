@@ -311,7 +311,14 @@ body.has-cursor.c-stick #cur,body.has-cursor.c-mag #cur,body.has-cursor.c-hint #
 .foot-bar .copy a{color:inherit;text-decoration:underline;text-decoration-thickness:.12em;text-underline-offset:.32em;transition:color .3s}
 .foot-bar .copy a:hover{color:var(--white)}
 @media (max-width:820px){.foot-bar .copy{display:flex;flex-direction:column;gap:.5em}.foot-bar .cp-l{position:static}}
-@media (min-width:821px) and (max-width:1699px){.foot-bar>.copy{grid-column:1/-1;margin-top:3.2em}} /* в пятую колонку не помещается — отдельной строкой справа */
+@media (min-width:821px) and (max-width:1199px){.foot-bar>.copy{grid-column:1/-1;margin-top:3.2em}} /* на планшете строка контактов занимает всю ширину — копирайт отдельной строкой справа */
+/* десктоп: копирайт на одном уровне со строкой контактов — делит 4–5 колонки с политикой, прижат вправо; в одну строку рядом с политикой не помещается, поэтому «2026 © median agency.» поднимается над «Design by median.», а «Copyright» — над ними; высота строки контактов не меняется */
+@media (min-width:1200px){
+  .foot-bar>.pol{grid-row:1;grid-column:4}
+  .foot-bar>.copy{grid-row:1;grid-column:4/-1;justify-self:end}
+  .foot-bar .cp-a{position:absolute;right:0;bottom:100%}
+  .foot-bar .cp-l{bottom:calc(100% + 1.3em + .7em)}
+}
 /* закрытый каталог кейсов (clients/<каталог>/): фильтр-«пилюли» и метки категорий в строках */
 .kp-cat-hero{min-height:auto;padding-bottom:clamp(32px,4vw,64px)}
 .kp-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:clamp(28px,3vw,56px)}
