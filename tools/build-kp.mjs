@@ -175,9 +175,9 @@ function page(k) {
   F.tg = String(F.tg).replace(/^.*t\.me\//, '').replace(/^@/, '');
   const nick = p => '@' + String(p.tg).replace(/^@|^https?:\/\/t\.me\//, '');
   const links = p => [
-    p.tg ? `<a href="${esc(tgUrl(p.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link" data-stick data-magnet>${esc(nick(p))}</a>` : '',
-    p.phone ? `<a href="tel:${esc(String(p.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link" data-stick data-magnet>${esc(p.phone)}</a>` : '',
-    p.email ? `<a href="mailto:${esc(p.email)}" data-goal="kp_contact" data-c="link" data-stick data-magnet>${esc(p.email)}</a>` : ''].filter(Boolean).join('');
+    p.tg ? `<a href="${esc(tgUrl(p.tg))}" target="_blank" rel="noopener" data-goal="kp_contact" data-c="link" data-stick data-stick-size="foot" data-magnet>${esc(nick(p))}</a>` : '',
+    p.phone ? `<a href="tel:${esc(String(p.phone).replace(/[^\d+]/g, ''))}" data-goal="kp_contact" data-c="link" data-stick data-stick-size="foot" data-magnet>${esc(p.phone)}</a>` : '',
+    p.email ? `<a href="mailto:${esc(p.email)}" data-goal="kp_contact" data-c="link" data-stick data-stick-size="foot" data-magnet>${esc(p.email)}</a>` : ''].filter(Boolean).join('');
   const person = (p, kind, cls = '') => `
       <div class="kp-person ${cls}">
         ${p.photo ? `<span class="kp-ph" style="background-image:url('${esc(fileUrl(p.photo))}')"></span>` : ''}
