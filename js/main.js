@@ -293,17 +293,24 @@ const P=a=>(a||[]).map(t=>`<p>${esc(t)}</p>`).join('');
 const ttlOf=k=>k.ttl||[[k.out,1],[k.solid,0]].filter(l=>l[0]);
 const ttlHtml=(ls,dark)=>ls.map(([t,o])=>`<span class="ln${o?' o'+(dark?' on-dark':''):''}">${esc(t)}</span>`).join('');
 // строки заголовка не вылезают за свою колонку: длинные названия ужимаем
+// крупный текст не вылезает за свою колонку: если неразрывный кусок (число «4 000+», длинное слово) шире колонки — уменьшаем шрифт.
+// Метка data-fit; внутри data-fit-g уменьшаем всех одинаково (цифры одного блока — одним размером)
+function fitW(els){els.forEach(e=>e.style.fontSize='');let r=1;els.forEach(e=>{const w=e.clientWidth,s=e.scrollWidth;if(w&&s>w)r=Math.min(r,w/s);});
+  if(r<1)els.forEach(e=>e.style.fontSize=(parseFloat(getComputedStyle(e).fontSize)*r*.98)+'px');}
+function fitAll(root){const g=new Map();(root||document).querySelectorAll('[data-fit]').forEach(e=>{if(!e.offsetParent)return;const k=e.closest('[data-fit-g]')||e;g.has(k)||g.set(k,[]);g.get(k).push(e);});g.forEach(fitW);}
+// числа не рвём: «4 000+», «44,2 млн», «3 дня» — одним куском (пробелы между разрядами и короткая единица после числа)
+const nw=t=>esc(t).replace(/[^\s\d]*\d(?:[ \u00a0\u202f]\d[^\s]*|[^\s])*(?:[ \u00a0\u202f][^\s\d]{1,4}(?=\s|$))?/g,m=>`<span class="nw">${m}</span>`);
 function fitTitle(el){el.style.fontSize='';const w=el.clientWidth;if(!w)return;let m=0;el.querySelectorAll('.ln').forEach(l=>m=Math.max(m,l.scrollWidth));if(m>w)el.style.fontSize=(parseFloat(getComputedStyle(el).fontSize)*w/m*.98)+'px';}
 const BLOCK={
   cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
   pairs:b=>`<section class="grey cb cb-pairs">${(b.items||[]).map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
-  feature:b=>`<section class="grey cb cb-feat"><h3 class="d"><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure>${b.img?(b.fit?`<img class="fit" src="${b.img}" alt="" loading="lazy">`:`<span class="px"><img src="${b.img}" alt="" loading="lazy"></span>`):''}<figcaption>${P(b.text)}</figcaption></figure></section>`,
-  text:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean);return `<section class="grey cb cb-text"><h3 class="d">${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
+  feature:b=>`<section class="grey cb cb-feat"><h3 class="d" data-fit><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure>${b.img?(b.fit?`<img class="fit" src="${b.img}" alt="" loading="lazy">`:`<span class="px"><img src="${b.img}" alt="" loading="lazy"></span>`):''}<figcaption>${P(b.text)}</figcaption></figure></section>`,
+  text:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean);return `<section class="grey cb cb-text"><h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
   yt:b=>`<section class="cb cb-yt"><div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${b.list}&rel=0" title="Плейлист" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></section>`,
   // список выпусков подкаста: номер, тема, гость; ссылка открывает выпуск на YouTube
-  eps:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(j+1).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
+  eps:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(j+1).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
   // список выпусков со ссылками на их страницы (Event Surfing)
-  links:b=>`<section class="grey cb cb-eps"><h3 class="d"><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
+  links:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
   // шоурил кейса со старого median.agency: свой mp4 со звуком, грузится только по нажатию
   // reel — путь к mp4; рядом лежат <имя>.webp (постер) и <имя>-teaser.mp4 (превью), их делает tools/media.sh при деплое
   reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`;},
@@ -311,7 +318,7 @@ const BLOCK={
   // буквы South HUB берём их же векторами с southhub.ru; другие буквы — текстом
   hub:b=>{const gl=t=>HUBSVG[t]?`<img class="hub-svg" src="media/southhub/${HUBSVG[t]}.svg" alt="">`:esc(t);
     return `<section class="cb cb-hub" aria-label="${esc((b.start||'')+(b.end||''))}: ${esc(b.tag||'')}"><div class="hub-g" aria-hidden="true"><b class="hub-s">${gl(b.start)}</b>${`<i><span>${gl(b.letter||'U')}</span></i>`.repeat(54)}<p class="hub-t">${esc(b.tag)}</p><b class="hub-e"><span>${gl(b.end)}</span></b></div></section>`},
-  stats:b=>`<section class="cb cb-stats wrap">${(b.items||[]).map(m=>`<div><b class="d">${esc(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
+  stats:b=>`<section class="cb cb-stats wrap" data-fit-g>${(b.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
 };
 // буквенная сетка: буквы рядом с курсором растут (на таче — медленно «гуляющая» волна, пока блок на экране)
 const HUBSVG={SOUTHU:'southu',U:'u',B:'b'};
@@ -357,9 +364,10 @@ function fillCase(id,split){
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;
-  requestAnimationFrame(()=>{fitTitle($('#cTitle'));fitTitle($('#cNextName'));});
+  requestAnimationFrame(()=>{fitTitle($('#cTitle'));fitTitle($('#cNextName'));fitAll($('#cBody'));});
 }
-addEventListener('resize',()=>{if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});
+addEventListener('resize',()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});
+document.fonts&&document.fonts.ready.then(()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});fitAll();
 // после перехода обложка раскрывается из макетной раскладки на весь экран, заголовок уезжает вниз влево
 let expT=0;function expandHero(d){clearTimeout(expT);expT=setTimeout(()=>$('#cHero').classList.remove('split'),reduce?0:d);}
 // бесшовный переход: обложка (баннер или строка списка) превращается в фото на обложке кейса

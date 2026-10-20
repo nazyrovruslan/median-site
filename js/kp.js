@@ -17,6 +17,9 @@
     var t=new Date(),n=Math.round((Date.UTC(+m[1],m[2]-1,+m[3])-Date.UTC(t.getFullYear(),t.getMonth(),t.getDate()))/864e5),a=n%100,b=n%10;
     el.textContent=n>0?'осталось '+n+' '+(a>10&&a<20?'дней':b===1?'день':b>1&&b<5?'дня':'дней'):n===0?'сегодня':'прошло';
   });
+  // крупный текст не вылезает за колонку: неразрывный кусок (сумма, длинное слово) шире колонки — уменьшаем шрифт (метка data-fit)
+  function fit(){[].forEach.call(document.querySelectorAll('[data-fit]'),function(e){e.style.fontSize='';var w=e.clientWidth,s=e.scrollWidth;if(w&&s>w)e.style.fontSize=(parseFloat(getComputedStyle(e).fontSize)*w/s*.98)+'px'})}
+  fit();addEventListener('resize',fit);if(document.fonts)document.fonts.ready.then(fit);
   goal('kp_open',1);
   // 30 секунд на странице — КП читают, а не закрыли сразу
   setTimeout(function(){if(!document.hidden)goal('kp_read_30s',1)},30000);

@@ -411,9 +411,9 @@ html.loading #cur,html.loading #ring{opacity:0}
 .hub-s .hub-svg{height:.62em}
 .hub-t{font-family:'Mont',var(--body)}
 .cb-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(28px,3vw,56px) 0;padding-block:clamp(56px,7vw,135px)}
-.cb-stats div{display:grid;gap:12px;align-content:start;padding-right:16px}
-.cb-stats b{font-size:var(--h3);line-height:1.05;letter-spacing:0}
-.cb-stats span{font:400 var(--txt)/1.4 var(--body);color:rgba(243,243,241,.7)}
+.cb-stats div{display:grid;gap:12px;align-content:start;padding-right:clamp(16px,1.6vw,32px)}
+.cb-stats b{font-size:var(--h3);line-height:1.05;letter-spacing:0;min-width:0} /* число не рвётся (span.nw), шире колонки — js ужимает шрифт (data-fit) */
+.cb-stats div>span{font:400 var(--txt)/1.4 var(--body);color:rgba(243,243,241,.7)}
 /* следующий проект */
 .next-case{position:relative;height:230svh;background:#000;color:var(--paper);overflow:hidden}
 /* настоящий sticky: прилипание делает браузер, без отставания от прокрутки. overflow:clip не создаёт контейнер прокрутки, поэтому sticky работает */

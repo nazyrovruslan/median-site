@@ -27,6 +27,8 @@ const num = v => { const n = Number(String(v ?? '').replace(/\s/g, '').replace('
 const money = n => Math.round(n).toLocaleString('ru-RU').replace(/\u00a0|\u202f/g, ' ');
 const plural = (n, a, b, c) => { const m = Math.abs(n) % 100, k = m % 10; return m > 10 && m < 20 ? c : k === 1 ? a : k > 1 && k < 5 ? b : c; };
 const days = n => `${n} ${plural(n, 'день', 'дня', 'дней')}`;
+// в вёрстке число с единицей не переносим: «1 250 000 ₽», «45 дней» — одним куском
+const nw = s => `<span class="nw">${s}</span>`;
 const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const date = s => { const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(s || ''); return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : null; };
 const addDays = (d, n) => new Date(d.getTime() + n * 864e5);
@@ -128,7 +130,7 @@ function page(k) {
         <h3 class="d kp-st">${esc(st.title)}</h3>
         <dl class="kp-dl">${dd('Описание', txt(st.description))}${dd('Результат', txt(st.result))}</dl>
         ${st.items.length ? `<table class="kp-items"><thead><tr><th>Наименование</th><th>Кол-во</th><th>Цена, ₽</th><th>Сумма, ₽</th></tr></thead><tbody>${st.items.map(it => `<tr><td>${esc(it.name)}</td><td>${esc(it.qty)}${it.unit ? ' ' + esc(it.unit) : ''}</td><td>${money(it.price)}</td><td>${money(it.qty * it.price)}</td></tr>`).join('')}</tbody></table>` : ''}
-        <div class="kp-sum"><span class="label">${st.days ? days(st.days) : ''}</span><span class="d">${money(st.amount)} ₽</span></div>
+        <div class="kp-sum"><span class="label">${st.days ? days(st.days) : ''}</span><span class="d" data-fit>${money(st.amount)} ₽</span></div>
       </div>
     </article>`).join('');
 
@@ -138,13 +140,13 @@ function page(k) {
     let acc = 0;
     gantt = `
   <section class="kp-sec wrap">
-    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">График</span><span class="ln">работ</span></h2><div class="kp-lead">${para(k.scheduleNote || `Ориентировочный график при старте ${long(k.startD)} года. Паузы на согласования и ожидание материалов учитываются отдельно.`)}</div></div>
+    <div class="g5 kp-sh"><h2 class="d kp-h2" data-fit><span class="ln o">График</span><span class="ln">работ</span></h2><div class="kp-lead">${para(k.scheduleNote || `Ориентировочный график при старте ${long(k.startD)} года. Паузы на согласования и ожидание материалов учитываются отдельно.`)}</div></div>
     <div class="kp-gantt">${k.stages.map((st, i) => {
       if (!st.days) return '';
       const a = addDays(k.startD, acc), b = addDays(k.startD, acc + st.days - 1);
       const l = acc / k.days * 100, w = st.days / k.days * 100; acc += st.days;
       // строка графика ведёт к своему этапу в смете
-      return `<a class="kp-g" href="#stage-${i + 1}" data-c="row" data-label="К этапу ${i + 1}"><div class="kp-gl"><span>${pad2(i)} · ${esc(st.title)}</span><span>${days(st.days)} · ${long(a, false)} — ${long(b, false)}</span></div><div class="kp-gb"><i style="left:${l.toFixed(3)}%;width:${w.toFixed(3)}%"></i></div></a>`;
+      return `<a class="kp-g" href="#stage-${i + 1}" data-c="row" data-label="К этапу ${i + 1}"><div class="kp-gl"><span>${pad2(i)} · ${esc(st.title)}</span><span>${nw(days(st.days))} · ${nw(long(a, false))} — ${nw(long(b, false))}</span></div><div class="kp-gb"><i style="left:${l.toFixed(3)}%;width:${w.toFixed(3)}%"></i></div></a>`;
     }).join('')}
       <div class="kp-gl kp-ge"><span>Старт ${long(k.startD)}</span><span>Окончание ${long(addDays(k.startD, k.days - 1))}</span></div>
     </div>
@@ -154,7 +156,7 @@ function page(k) {
   // «Релевантный опыт» — как список «Все проекты» на главной: номер, название, подпись; обложка кейса всплывает справа у строки
   const cases = k.cases.length ? `
   <section class="kp-sec kp-cases wrap">
-    <h2 class="d kp-ch"><span class="o">Релевантный</span> опыт</h2>
+    <h2 class="d kp-ch" data-fit><span class="o">Релевантный</span> опыт</h2>
     <div class="rows">${k.cases.map((c, i) => `
       <a class="row" href="../../${esc(c.id)}" target="_blank" rel="noopener" data-goal="kp_case" data-c="row" data-label="Смотреть кейс" data-img="${esc(c.img)}"${c.vid ? ` data-vid="${esc(c.vid)}"` : ''}>
         <span class="n">${pad2(i)}</span><span class="nm">${esc(c.name)}</span><span class="sb">${txt(c.text || c.sub)}</span>
@@ -165,7 +167,7 @@ function page(k) {
 
   const format = k.format.length ? `
   <section class="kp-sec wrap">
-    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Формат</span><span class="ln">работы</span></h2></div>
+    <div class="g5 kp-sh"><h2 class="d kp-h2" data-fit><span class="ln o">Формат</span><span class="ln">работы</span></h2></div>
     <div class="g5"><dl class="kp-dl kp-dl-l">${k.format.map(f => dd(esc(f.title), txt(f.text))).join('')}</dl></div>
   </section>` : '';
 
@@ -189,7 +191,7 @@ function page(k) {
   const team = k.team.filter(([p]) => has(p));
   const teamSec = team.length ? `
   <section class="kp-sec wrap">
-    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Команда</span><span class="ln">проекта</span></h2></div>
+    <div class="g5 kp-sh"><h2 class="d kp-h2" data-fit><span class="ln o">Команда</span><span class="ln">проекта</span></h2></div>
     <div class="kp-team">${team.map(([p, kind]) => person(p, kind)).join('')}</div>
   </section>` : '';
   // клиент и его контакт — в шапке КП, под заголовком
@@ -245,7 +247,7 @@ ${counters(k)}
   <section class="kp-hero wrap${k.coverImg || k.coverVid ? ' kp-hero-cover' : ''}" id="kpHero">${k.coverImg || k.coverVid ? `
     <div class="kp-cv"${k.coverImg ? ` style="background-image:url('${esc(k.coverImg)}')"` : ''}>${k.coverVid ? `<video src="${esc(k.coverVid)}"${k.coverImg ? ` poster="${esc(k.coverImg)}"` : ''} muted loop playsinline autoplay preload="auto"></video>` : ''}</div>` : ''}
     <span class="label">Коммерческое предложение · ${long(k.dateD)}</span>
-    <h1 class="d kp-title">${k.titleLines.map((l, i) => `<span class="ln${i === 0 ? ' o' : ''}">${esc(l)}</span>`).join('')}</h1>${client}${k.coverImg || k.coverVid ? `
+    <h1 class="d kp-title" data-fit>${k.titleLines.map((l, i) => `<span class="ln${i === 0 ? ' o' : ''}">${esc(l)}</span>`).join('')}</h1>${client}${k.coverImg || k.coverVid ? `
     <a class="kp-down" href="#kpFacts" data-c="mag" data-magnet aria-label="Листать вниз"><svg viewBox="0 0 24 60" aria-hidden="true"><path d="M12 2v54M4 48l8 8 8-8"/></svg></a>` : ''}
   </section>
 
@@ -261,29 +263,29 @@ ${counters(k)}
     <dl class="kp-dl kp-dl-l">
       ${k.eventD ? `${dd('Мероприятие', short(k.eventD))}
       ${dd('Срок', `<span data-until="${iso(k.eventD)}">${left(k.eventD)}</span>`)}` : `${dd('Актуально до', short(k.validD))}
-      ${dd('Срок', k.days ? days(k.days) : '')}`}
+      ${dd('Срок', k.days ? nw(days(k.days)) : '')}`}
       ${dd('Этапы', k.stages.length ? `${k.stages.length} ${plural(k.stages.length, 'этап', 'этапа', 'этапов')}` : '')}
-      ${dd('Стоимость', `${money(k.total)} ₽`)}
+      ${dd('Стоимость', nw(`${money(k.total)} ₽`))}
       ${k.scope.length ? dd('Что входит', `<ul class="kp-scope">${k.scope.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`) : ''}
     </dl>
   </section>
 
   ${k.task || k.sequence ? `
   <section class="kp-sec wrap">
-    <div class="g5 kp-sh"><h2 class="d kp-h2">Задача</h2><div class="kp-lead">${para(k.task)}</div></div>
+    <div class="g5 kp-sh"><h2 class="d kp-h2" data-fit>Задача</h2><div class="kp-lead">${para(k.task)}</div></div>
     ${k.sequence ? `<div class="g5"><dl class="kp-dl">${dd('Последовательность', txt(k.sequence))}</dl></div>` : ''}
   </section>` : ''}
 
   ${k.stages.length ? `
   <section class="kp-sec wrap">
-    <div class="g5 kp-sh"><h2 class="d kp-h2"><span class="ln o">Этапы</span><span class="ln">и смета</span></h2></div>
+    <div class="g5 kp-sh"><h2 class="d kp-h2" data-fit><span class="ln o">Этапы</span><span class="ln">и смета</span></h2></div>
     ${stages}
   </section>` : ''}
 
   <section class="kp-total grey wrap" id="kpTotal">
     <div class="g5">
       <span class="label kp-tl">Итоговый срок<br>и стоимость проекта</span>
-      <div class="d kp-tv">${k.days ? `<span class="ln o">${days(k.days)}</span>` : ''}<span class="ln">${money(k.total)} ₽</span></div>
+      <div class="d kp-tv" data-fit>${k.days ? `<span class="ln o">${days(k.days)}</span>` : ''}<span class="ln">${money(k.total)} ₽</span></div>
       <p class="label kp-note">${[k.priceNote, `Расчёт актуален до ${long(k.validD)} года`].filter(Boolean).map(esc).join('<br>')}</p>
     </div>
   </section>
@@ -338,7 +340,7 @@ function catalogPage(list) {
 <main>
   <section class="kp-hero kp-cat-hero wrap">
     <span class="label">Закрытый каталог · ${list.length} ${plural(list.length, 'кейс', 'кейса', 'кейсов')} · ${list.filter(c => !c.on_site).length} скрыто с сайта</span>
-    <h1 class="d kp-title"><span class="ln o">Все</span><span class="ln">кейсы</span></h1>
+    <h1 class="d kp-title" data-fit><span class="ln o">Все</span><span class="ln">кейсы</span></h1>
     <div class="kp-chips" role="group" aria-label="Категории">
       <button class="kp-chip on" type="button" data-cat="" data-c="mag" data-magnet=".3">Все <i>${list.length}</i></button>${Object.entries(CATS).map(([id, name]) => `
       <button class="kp-chip" type="button" data-cat="${id}" data-c="mag" data-magnet=".3">${esc(name)} <i>${counts[id]}</i></button>`).join('')}
