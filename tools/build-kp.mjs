@@ -5,6 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { execFileSync } from 'child_process';
 import { xlsx, zip } from './xlsx.mjs';
 
 const SRC = 'content/kp', OUT = 'clients', SITE = 'https://nazyrovruslan.github.io/median-site/';
@@ -86,8 +87,10 @@ function estimate(k, file) {
 }
 
 // обложка для превью ссылки (Telegram, WhatsApp и т.п.): og.html → og.png 1200×630 рисует tools/og-kp.mjs через headless Chrome
-const OG_REV = '2'; // поменять, чтобы Telegram и др. скачали обложки заново (часть адреса og.png?v=)
+const OG_REV = '3'; // поменять, чтобы Telegram и др. скачали обложки заново (часть адреса og.png?v=)
+// если у КП есть обложка шапки (фото или кадр видео) — превью как шапка КП: фото во весь кадр, белый заголовок поверх
 function ogHtml(k) {
+  const cv = k.coverImg;
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="../../css/fonts.css"><style>
 *{box-sizing:border-box;margin:0}html,body{width:1200px;height:630px;overflow:hidden;background:#c9c9c6;color:#0b0b0c}
 body{background-image:linear-gradient(90deg,rgba(255,255,255,.55) 1px,transparent 1px);background-size:211.2px 100%;background-position:72px 0;background-repeat:repeat-x}
@@ -98,11 +101,14 @@ h1{font-family:"Druk Wide Cyr",Arial Black,sans-serif;font-weight:700;text-trans
 h1 span{display:block}h1 .o{color:transparent;-webkit-text-stroke:1.6px #0b0b0c}
 .bot{display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
 .c{font-family:"Druk Wide Cyr",Arial Black,sans-serif;font-weight:700;text-transform:uppercase;font-size:26px}
-</style></head><body>
+body.cv{background:#0b0b0c center/cover no-repeat;color:#f3f3f1}
+body.cv::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,.15) 50%,rgba(0,0,0,.7) 100%)}
+body.cv{isolation:isolate}body.cv .top svg{color:#f3f3f1}body.cv .l{color:rgba(243,243,241,.8)}body.cv h1 .o{-webkit-text-stroke-color:#f3f3f1}
+</style></head><body${cv ? ` class="cv" style="background-image:url('${esc(cv)}')"` : ''}>
 <div class="top">${MARK}<span class="l">Коммерческое предложение</span></div>
 <h1 id="t">${k.titleLines.map((l, i) => `<span${i === 0 ? ' class="o"' : ''}>${esc(l)}</span>`).join('')}</h1>
 <div class="bot"><span class="c">${esc(k.client || 'Median Agency')}</span><span class="l">${long(k.dateD)}</span></div>
-<script>/* заголовок ужимается, чтобы влезть в обложку */var t=document.getElementById('t'),f=72;document.fonts.ready.then(function(){while(f>30&&(t.scrollWidth>1056||t.offsetHeight>330)){f-=2;t.style.setProperty('--fs',f+'px')}document.title='ready'});</script>
+<script>/* заголовок ужимается, чтобы влезть в обложку */var t=document.getElementById('t'),f=72;var im=new Image();im.onload=im.onerror=go;im.src=${JSON.stringify(cv || 'data:,')};function go(){document.fonts.ready.then(function(){while(f>30&&(t.scrollWidth>1056||t.offsetHeight>330)){f-=2;t.style.setProperty('--fs',f+'px')}document.title='ready'})}</script>
 </body></html>`;
 }
 
@@ -438,6 +444,16 @@ for (const f of list) {
   k.pdf = fileUrl(raw.pdf);
   const dir = `${OUT}/${slug}`;
   fs.mkdirSync(dir, { recursive: true });
+  // только видео без фото: фото = первый кадр видео (заставка, пока видео грузится или если не сыграло, и обложка превью ссылки)
+  if (fs.existsSync(`${dir}/cover.jpg`) && (raw.cover || !raw.cover_video)) fs.rmSync(`${dir}/cover.jpg`);
+  if (!raw.cover && raw.cover_video && !/^https?:/.test(raw.cover_video)) {
+    const src = String(raw.cover_video).replace(/^\//, ''), frame = `${dir}/cover.jpg`;
+    try {
+      if (!fs.existsSync(frame) || fs.statSync(frame).mtimeMs < fs.statSync(src).mtimeMs)
+        execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', src, '-frames:v', '1', '-vf', "scale='min(1920,iw)':-2", '-q:v', '3', frame]);
+      k.coverImg = 'cover.jpg';
+    } catch { console.log(`clients/${slug}/: не удалось взять кадр из видео обложки (нужен ffmpeg)`); }
+  }
   // смета: загруженный файл из CMS или собранная из этапов
   for (const old of fs.readdirSync(dir)) if (old.endsWith('.xlsx')) fs.rmSync(`${dir}/${old}`);
   if (raw.xlsx) k.xlsx = fileUrl(raw.xlsx);

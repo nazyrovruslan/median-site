@@ -2,7 +2,7 @@
 // В GitHub Actions Chrome уже установлен (google-chrome). Локально можно указать путь: CHROME=/путь/к/chrome node tools/og-kp.mjs
 // og.png рисуется при каждом деплое и сохраняется в репозиторий вместе с КП; без браузера шаг просто пропускается.
 // Снимок делается через DevTools-протокол: окно ровно 1200×630, ждём загрузки шрифтов (og.html ставит title «ready»).
-// Если картинка вышла не той (фон не серый), старая og.png остаётся — битая обложка на сайт не попадает.
+// Если картинка вышла пустой (почти одноцветной), старая og.png остаётся — битая обложка на сайт не попадает.
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -39,9 +39,13 @@ const send = (method, params = {}, sessionId) => new Promise((ok, fail) => {
   ws.send(JSON.stringify({ id: n, method, params, sessionId }));
 });
 
-// цвет пикселя (10,10) — фон обложки #c9c9c6; если он другой, снимок не удался
-const bg = file => [...execFileSync('ffmpeg', ['-loglevel', 'error', '-i', file, '-vf', 'crop=1:1:10:10', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'])];
-const okBg = px => px.length === 3 && Math.abs(px[0] - 201) < 12 && Math.abs(px[1] - 201) < 12 && Math.abs(px[2] - 198) < 12;
+// проверка снимка: уменьшаем до 16×16 — у нормальной обложки (фото или серый фон с заголовком) есть перепады яркости,
+// у неудачного снимка (пустой или почти одноцветный кадр) их нет
+const okShot = file => {
+  const px = [...execFileSync('ffmpeg', ['-loglevel', 'error', '-i', file, '-vf', 'scale=16:16', '-f', 'rawvideo', '-pix_fmt', 'gray', '-'])];
+  const avg = px.reduce((a, b) => a + b, 0) / px.length, sd = Math.sqrt(px.reduce((a, b) => a + (b - avg) ** 2, 0) / px.length);
+  return { ok: px.length === 256 && sd > 6 && avg > 12, info: `яркость ${avg.toFixed(0)}, разброс ${sd.toFixed(1)}` };
+};
 
 let done = 0;
 try {
@@ -62,9 +66,9 @@ try {
       await sleep(200);
       const { data } = await send('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: 1200, height: 630, scale: 1 }, captureBeyondViewport: false }, sessionId);
       fs.writeFileSync(tmp, Buffer.from(data, 'base64'));
-      const px = bg(tmp);
-      if (ready && okBg(px)) { fs.renameSync(tmp, png); done++; }
-      else { fs.rmSync(tmp); console.log(`og-kp: ${d} — снимок не удался (ready=${ready}, фон ${px.join(',')}), оставлена прежняя обложка`); }
+      const chk = okShot(tmp);
+      if (ready && chk.ok) { fs.renameSync(tmp, png); done++; }
+      else { fs.rmSync(tmp); console.log(`og-kp: ${d} — снимок не удался (ready=${ready}, ${chk.info}), оставлена прежняя обложка`); }
     } finally {
       await send('Target.closeTarget', { targetId }).catch(() => {});
     }

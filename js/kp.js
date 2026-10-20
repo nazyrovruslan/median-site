@@ -133,3 +133,11 @@
   [['end',document.querySelector('.kp-end')],['hero',document.querySelector('.kp-hero-cover')]].forEach(function(p){
     if(cta&&p[1])new IntersectionObserver(function(es){es.forEach(function(x){dim(p[0],x.isIntersecting)})},{threshold:p[0]==='hero'?.35:0}).observe(p[1])});
 })();
+
+/* обложка шапки: если видео не загрузилось или не играет — убираем его, остаётся фото (или первый кадр видео) */
+(function(){
+  var v=document.querySelector('.kp-cv video');if(!v)return;
+  function off(){if(v.parentNode)v.parentNode.removeChild(v)}
+  v.addEventListener('error',off);if(v.error)off();
+  var p=v.play&&v.play();if(p&&p.catch)p.catch(function(){if(v.readyState<2)off()});
+})();
