@@ -213,11 +213,11 @@ p{margin:0}
 .foot.in .foot-bar{opacity:1;transform:none}
 @media (hover:hover){.foot.in .start .plus:hover svg,.foot.in .start:hover .plus svg{transform:rotate(90deg);transition-delay:0s}}
 @media (min-width:821px){.start{align-self:flex-start;margin-left:calc(40% - .58em - clamp(22px,3.2vw,52px))}.foot-bar{font-size:var(--ui)}.mail{margin-left:calc(-40px - 14px)}
-  /* строка подвала на сетке: каждый пункт начинается на своей направляющей; Follow us раскрывается вверх, чтобы не наезжать на соседей */
+  /* строка подвала на сетке: каждый пункт начинается на своей направляющей; Follow us раскрывается вверх, чтобы не наезжать на соседей; отступ — padding, а не зазор, чтобы курсор доходил до ссылок без потери наведения */
   .foot-bar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
   .foot-bar>*{justify-self:start}
   .follow{position:relative}
-  .follow .links{position:absolute;left:-8px;bottom:calc(100% + 6px);max-width:none;background:var(--black);transition:opacity .3s,visibility 0s .3s}
+  .follow .links{position:absolute;left:-8px;bottom:100%;padding-bottom:6px;max-width:none;background:var(--black);transition:opacity .3s,visibility 0s .3s}
   .follow:hover .links,.follow:focus-within .links,.follow.open .links{max-width:none}}
 /* курсор на «Start a project» — большой контурный круг, как на сайте */
 body.c-plus #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);background:transparent;border-color:#fff}
