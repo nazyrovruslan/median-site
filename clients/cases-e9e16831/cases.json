@@ -1,0 +1,510 @@
+{
+  "updated": "2026-10-20T16:09:21.366Z",
+  "default_count": 4,
+  "categories": [
+    {
+      "id": "stands",
+      "name": "Стенды и зоны",
+      "default": [
+        "megafon",
+        "x5mobius",
+        "x5codefest26",
+        "x5picnic"
+      ]
+    },
+    {
+      "id": "conf",
+      "name": "Конференции и форумы",
+      "default": [
+        "southhub",
+        "streamlenie",
+        "x5datafest",
+        "es"
+      ]
+    },
+    {
+      "id": "camp",
+      "name": "Выездные мероприятия и кэмпы",
+      "default": [
+        "southhub",
+        "snowbase",
+        "abcamp",
+        "es"
+      ]
+    },
+    {
+      "id": "fest",
+      "name": "Фестивали и road show",
+      "default": [
+        "alfa-dvizh",
+        "x5datafest",
+        "x5picnic",
+        "alfacontactday"
+      ]
+    },
+    {
+      "id": "hack",
+      "name": "Хакатоны и IT-соревнования",
+      "default": [
+        "alfa-battle",
+        "hackathon",
+        "techrace",
+        "alfabattle2"
+      ]
+    },
+    {
+      "id": "corp",
+      "name": "Корпоративы и церемонии",
+      "default": [
+        "wg",
+        "tmn"
+      ]
+    },
+    {
+      "id": "special",
+      "name": "Спецпроекты и digital",
+      "default": [
+        "megafon",
+        "vtb",
+        "gridgirls",
+        "alfaxmipt"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "alfa-dvizh",
+      "name": "Альфа Движ",
+      "client": "Альфа-Банк",
+      "year": "2023–2024",
+      "sub": "Серия фестов для умных и свободных: Москва, Новосибирск, Екатеринбург, Санкт-Петербург",
+      "categories": [
+        "fest"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/alfa-dvizh",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfa-dvizh-cover.webp"
+    },
+    {
+      "id": "southhub",
+      "name": "South HUB",
+      "client": "",
+      "year": "2022–2026",
+      "sub": "Кэмп-конференция для C-level в IT",
+      "categories": [
+        "camp",
+        "conf"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/southhub",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/southhub-cover.webp"
+    },
+    {
+      "id": "alfa-battle",
+      "name": "Alfa Battle",
+      "client": "Альфа-банк",
+      "year": "",
+      "sub": "5 часов остросюжетного кодинга",
+      "categories": [
+        "hack"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/alfa-battle",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfa-battle-cover.webp"
+    },
+    {
+      "id": "megafon",
+      "name": "MegaFon Bistro 4G",
+      "client": "МегаФон",
+      "year": "",
+      "sub": "Корнер МегаФон на Flacon 1170",
+      "categories": [
+        "stands",
+        "special"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/megafon",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/megafon.webp"
+    },
+    {
+      "id": "vtb",
+      "name": "VTB F1",
+      "client": "ВТБ",
+      "year": "2018",
+      "sub": "Интеграция ВТБ в Гран-при Формулы 1 в Сочи",
+      "categories": [
+        "special"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/vtb",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/vtb-hero.webp"
+    },
+    {
+      "id": "snowbase",
+      "name": "Snow Base",
+      "client": "",
+      "year": "2026",
+      "sub": "Зимний кэмп для лидеров в AI, продуктах и технологиях",
+      "categories": [
+        "camp"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/snowbase",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/snowbase-cover.webp"
+    },
+    {
+      "id": "streamlenie",
+      "name": "STREAMление",
+      "client": "СИБУР",
+      "year": "2025",
+      "sub": "Форум молодых специалистов СИБУРа",
+      "categories": [
+        "conf"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/streamlenie",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/streamlenie-kv.webp"
+    },
+    {
+      "id": "x5datafest",
+      "name": "X5 Tech Data Fest",
+      "client": "X5 Tech",
+      "year": "2026",
+      "sub": "Фестиваль бренда работодателя X5 Tech для ML, Data Science и AI",
+      "categories": [
+        "fest",
+        "conf"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5datafest",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5datafest-cover.webp"
+    },
+    {
+      "id": "x5mobius",
+      "name": "X5 Tech на Mobius",
+      "client": "X5 Tech",
+      "year": "2026",
+      "sub": "Engineering Bar: стенд-speakeasy с меню из продуктов X5",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5mobius",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5mobius-cover.webp"
+    },
+    {
+      "id": "x5codefest26",
+      "name": "X5 Tech Control Room",
+      "client": "X5 Tech",
+      "year": "2026",
+      "sub": "Стенд X5 Tech на CodeFest в концепции центра управления ритейлом",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5codefest26",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5cf26-cover.webp"
+    },
+    {
+      "id": "x5picnic",
+      "name": "X5 Tech на ИТ-Пикнике",
+      "client": "X5 Tech",
+      "year": "2025",
+      "sub": "«Магазин будущего»: стенд X5 Tech на семейном IT-фестивале",
+      "categories": [
+        "stands",
+        "fest"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5picnic",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5picnic-4.webp"
+    },
+    {
+      "id": "x5tesseract",
+      "name": "X5 Tech Tesseract",
+      "client": "X5 Tech",
+      "year": "2025",
+      "sub": "Стенд X5 Tech на HighLoad++ и TeamLead Conf",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5tesseract",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5hl25-cover.webp"
+    },
+    {
+      "id": "x5epic",
+      "name": "X5 Tech на Epic Growth",
+      "client": "X5 Tech",
+      "year": "2025",
+      "sub": "Пространство продуктового бренда X5 Tech для продактов и CPO",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5epic",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5epic-1.webp"
+    },
+    {
+      "id": "x5codefest25",
+      "name": "X5 Tech на CodeFest",
+      "client": "X5 Tech",
+      "year": "2025",
+      "sub": "«Просто кодим сложное»: стенд X5 Tech на CodeFest",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5codefest25",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5cf25-1.webp"
+    },
+    {
+      "id": "x5techshop",
+      "name": "X5 Tech Shop",
+      "client": "X5 Tech",
+      "year": "2023",
+      "sub": "Ретрофутуристичный магазин технологий на Saint HighLoad++ и Saint TeamLead Conf",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5techshop",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5shop23-1.webp"
+    },
+    {
+      "id": "kaspersky",
+      "name": "Kaspersky Lab",
+      "client": "Kaspersky Lab",
+      "year": "2017",
+      "sub": "Интерактивная зона на «Нефоруме блогеров»",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/kaspersky",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/kaspersky-hero.webp"
+    },
+    {
+      "id": "wg",
+      "name": "WG Awards",
+      "client": "Wargaming",
+      "year": "",
+      "sub": "Ежегодная церемония вручения премии",
+      "categories": [
+        "corp"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/wg",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/wg.webp"
+    },
+    {
+      "id": "gridgirls",
+      "name": "Grid Girls F1 GP",
+      "client": "",
+      "year": "2017",
+      "sub": "Grid Girls на Гран-при России Formula 1 2017",
+      "categories": [
+        "special"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/gridgirls",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/gridgirls.webp"
+    },
+    {
+      "id": "alfacontactday",
+      "name": "Alfa Contact Day",
+      "client": "Альфа-Банк",
+      "year": "2023–2024",
+      "sub": "Road show",
+      "categories": [
+        "fest"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/alfacontactday",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfacontactday-cover.webp"
+    },
+    {
+      "id": "alfaxmipt",
+      "name": "Альфа-Банк × МФТИ",
+      "client": "Альфа-Банк",
+      "year": "",
+      "sub": "Самый быстроразвивающийся и первый частный банк в России для физических лиц. Первое мобиль",
+      "categories": [
+        "special"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/alfaxmipt",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfaxmipt-cover.webp"
+    },
+    {
+      "id": "osoffer",
+      "name": "One Swipe Offer",
+      "client": "Группа М.Видео-Эльдорадо",
+      "year": "2022",
+      "sub": "Группа М.Видео-Эльдорадо – ведущая российская компания в сфере электронной коммерции и роз",
+      "categories": [
+        "special"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/osoffer",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/osoffer-cover.webp"
+    },
+    {
+      "id": "abcamp",
+      "name": "Alfa Battle Camp",
+      "client": "Альфа-Банк",
+      "year": "",
+      "sub": "Лучший сёрфер тот, кто получает больше всех удовольствия.",
+      "categories": [
+        "camp"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/abcamp",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/abcamp-cover.webp"
+    },
+    {
+      "id": "es",
+      "name": "Event Surfing",
+      "client": "",
+      "year": "",
+      "sub": "Посёрфим тренды в коммуникациях!",
+      "categories": [
+        "camp",
+        "conf"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/es",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/es-cover.webp"
+    },
+    {
+      "id": "podcast",
+      "name": "Переговорка бренда работодателя",
+      "client": "median.agency",
+      "year": "",
+      "sub": "Видеоподкаст median.agency о бренде работодателя",
+      "categories": [
+        "special"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/podcast",
+      "cover": ""
+    },
+    {
+      "id": "shclub",
+      "name": "South HUB Club",
+      "client": "",
+      "year": "",
+      "sub": "South НUВ — это пространство для совместного развития.",
+      "categories": [
+        "conf"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/shclub",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/shclub-cover.webp"
+    },
+    {
+      "id": "hackathon",
+      "name": "Кросс-групповой хакатон",
+      "client": "Четыре компании группы (NDA)",
+      "year": "",
+      "sub": "Межгрупповой продуктовый хакатон",
+      "categories": [
+        "hack"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/hackathon",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/hackathon-cover.webp"
+    },
+    {
+      "id": "tmn",
+      "name": "Tech Monsters Night",
+      "client": "Группа «М.Видео-Эльдорадо»",
+      "year": "",
+      "sub": "Розничная компания №1 с технологией OneRetail.",
+      "categories": [
+        "corp"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/tmn",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/tmn-cover.webp"
+    },
+    {
+      "id": "x5techlib",
+      "name": "X5 Tech LIB",
+      "client": "X5 Tech – IT-команда Х5 Group",
+      "year": "",
+      "sub": "Открывай X5 Tech!",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5techlib",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5techlib-cover.webp"
+    },
+    {
+      "id": "techrace",
+      "name": "Tech Race",
+      "client": "ЦРТ",
+      "year": "",
+      "sub": "Tech Race — онлайн-гонка на выбывание для шарпистов.",
+      "categories": [
+        "hack"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/techrace",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/techrace-cover.webp"
+    },
+    {
+      "id": "x5techbar",
+      "name": "X5 Tech Bar",
+      "client": "X5 Tech – IT-команда Х5 Group",
+      "year": "",
+      "sub": "X5 Tech – IT-команда Х5 Group, разрабатывающая цифровые решения, которые помогают десяткам",
+      "categories": [
+        "stands"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/x5techbar",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5techbar-cover.webp"
+    },
+    {
+      "id": "prirodacoda",
+      "name": "Природа кода",
+      "client": "Х5 Tech — цифровая команда Х5 Group",
+      "year": "",
+      "sub": "«В цифровизации – сила» — говорят современники. «Компьютеры – бесполезны. Они дают лишь ответы», — отвечает им Пабло Пикассо.",
+      "categories": [
+        "special"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/prirodacoda",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/prirodacoda-cover.webp"
+    },
+    {
+      "id": "alfabattle2",
+      "name": "Alfa Battle 2.0",
+      "client": "Альфа-Банк",
+      "year": "",
+      "sub": "«Шестинедельный хакатон – потому что математические модели просчитываются небыстро»",
+      "categories": [
+        "hack"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/alfabattle2",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfabattle2-cover.webp"
+    },
+    {
+      "id": "ptc",
+      "name": "People Tech Camp",
+      "client": "SENSE",
+      "year": "2025",
+      "sub": "Бизнес-ретрит для 150 лидеров в сфере технологий и HR",
+      "categories": [
+        "camp"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/ptc",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/ptc.webp"
+    }
+  ]
+}
