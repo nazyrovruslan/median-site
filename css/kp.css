@@ -233,6 +233,9 @@ body:not(.has-cursor) #cur,body:not(.has-cursor) #ring{display:none}
 #ring{width:38px;height:38px;border:1px solid rgba(255,255,255,.75);mix-blend-mode:difference;display:grid;place-items:center;transition:opacity .3s,width .35s var(--ease),height .35s var(--ease),background .3s,border-color .3s}
 #ring .t{font:700 11px/1.15 var(--body);letter-spacing:.06em;text-transform:uppercase;text-align:center;color:#000;opacity:0;transition:opacity .2s;max-width:76%}
 body.c-link #ring{width:64px;height:64px;background:#fff;border-color:#fff}
+/* текстовые ссылки (data-stick-size="text") — один круг на всех, как на сайте: токен --cur-text (DESIGN-SYSTEM.md) */
+#ring{--cur-text:calc(var(--ui)*5.7 + 12px)}
+body.c-stick.c-txt #ring{width:var(--cur-text);height:var(--cur-text)}
 /* на сером фоне «разница» даёт грязно-серый круг, поэтому круг «Смотреть кейс» — просто чёрный с белой подписью */
 body.c-row #ring{width:108px;height:108px;background:var(--black);border-color:var(--black);mix-blend-mode:normal}
 body.c-row #ring .t{color:var(--white)}

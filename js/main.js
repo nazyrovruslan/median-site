@@ -573,16 +573,16 @@ if(fine&&!reduce){
   // (в подвале и в финале страницы «О нас»)
   $$('.start .d').forEach(sd=>{const inv=document.createElement('span');inv.className='d-inv';inv.setAttribute('aria-hidden','true');inv.innerHTML=sd.innerHTML;inv.querySelectorAll('.line>span').forEach(x=>x.classList.toggle('o'));sd.appendChild(inv);sd.classList.add('inv');});
   let sd=null,invOn=false;
-  // подвал: у всех пунктов один круг — по самой длинной соцссылке
-  const footSz=()=>Math.round(Math.max(...$$('.foot-bar .links a').map(a=>a.getBoundingClientRect().width))+12);
+  // текстовые ссылки (data-stick-size="text": меню, подвал, контакты) — у всех один круг, размер задаёт CSS-токен --cur-text (см. DESIGN-SYSTEM.md)
+  const isTxt=el=>/^(text|foot)$/.test(el.dataset.stickSize||'');
   (function loop(){
     let tx=mx,ty=my;
     if(stick){ // кольцо прилипает к центру элемента и чуть тянется за курсором
       const b=(stick.dataset.stickTo&&stick.querySelector(stick.dataset.stickTo)||stick).getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
       const pull=state==='plus'?.5:+(stick.dataset.stickPull||.15);tx=cx+(mx-cx)*pull;ty=cy+(my-cy)*pull; // плюс «Start a project» тянется за курсором заметно дальше
       // курсор всегда круглый: при прилипании — круг по большей стороне элемента
-      if(state==='plus'){r.style.width=r.style.height=r.style.borderRadius='';} // размер круга задаёт CSS (как на баннере)
-      else{const ss=stick.dataset.stickSize,sz=ss==='foot'?footSz():+ss||Math.min(180,Math.max(b.width,b.height)+12);r.style.width=r.style.height=sz+'px';r.style.borderRadius='';}
+      if(state==='plus'||isTxt(stick)){r.style.width=r.style.height=r.style.borderRadius='';} // размер круга задаёт CSS (плюс — как на баннере, текст — --cur-text)
+      else{const sz=+stick.dataset.stickSize||Math.min(180,Math.max(b.width,b.height)+12);r.style.width=r.style.height=sz+'px';r.style.borderRadius='';}
     }
     rx+=(tx-rx)*.22;ry+=(ty-ry)*.22;r.style.transform=`translate(${rx}px,${ry}px)`;
     if(state==='plus'&&stick){const s2=stick.closest('.start').querySelector('.d');if(s2!==sd){if(sd)sd.style.setProperty('--r','0px');sd=s2;}}
@@ -596,7 +596,7 @@ if(fine&&!reduce){
     if(s!==state){document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s);}
     lab.textContent=t&&t.dataset.label?t.dataset.label:'';
     const st=e.target.closest('[data-stick]');
-    if(st!==stick){stick=st;document.body.classList.toggle('c-stick',!!st);if(!st){r.style.width=r.style.height=r.style.borderRadius='';}}
+    if(st!==stick){stick=st;document.body.classList.toggle('c-stick',!!st);document.body.classList.toggle('c-txt',!!st&&isTxt(st));if(!st){r.style.width=r.style.height=r.style.borderRadius='';}}
   });
   // магнит: цель задаётся курсором, элемент догоняет её плавно в общем цикле
   const mags=$$('[data-magnet]').map(el=>({el,tx:0,ty:0,x:0,y:0,on:false,fol:el.classList.contains('vis')?el.closest('.dir').querySelector('.vlink'):null}));

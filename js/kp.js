@@ -54,12 +54,13 @@
       [].forEach.call(document.querySelectorAll('.start .d'),function(sd){var inv=document.createElement('span');inv.className='d-inv';inv.setAttribute('aria-hidden','true');inv.innerHTML=sd.innerHTML;
         [].forEach.call(inv.querySelectorAll('.line>span'),function(x){x.classList.toggle('o')});sd.appendChild(inv);sd.classList.add('inv')});
       var sd=null,invOn=false;
-      var footSz=function(){return Math.round(Math.max.apply(null,[].map.call(document.querySelectorAll('.foot-bar .links a'),function(a){return a.getBoundingClientRect().width}).concat([0]))+12)};
+      // текстовые ссылки (data-stick-size="text") — один круг на всех, размер задаёт CSS-токен --cur-text, как на сайте (DESIGN-SYSTEM.md)
+      var isTxt=function(el){return /^(text|foot)$/.test(el.getAttribute('data-stick-size')||'')};
       (function loop(){var gx=mx,gy=my;if(hel&&hel.isConnected){var b=hel.getBoundingClientRect();gx=b.left+b.width/2;gy=b.top+b.height/2}
         // над плюсом кольцо прилипает к его центру и тянется за курсором наполовину, как на сайте
         else if(stk){var to=stk.getAttribute('data-stick-to'),p=(to&&stk.querySelector(to)||stk).getBoundingClientRect(),cx=p.left+p.width/2,cy=p.top+p.height/2,k=state==='plus'?.5:.15;gx=cx+(mx-cx)*k;gy=cy+(my-cy)*k;
-          // контакты и соцсети: белый круг по центру ссылки (в подвале у всех один размер — по самой длинной соцссылке), текст под ним инвертируется
-          if(state==='plus')r.style.width=r.style.height='';else{var ss=stk.getAttribute('data-stick-size'),fs=ss==='foot'&&footSz(),sz=fs>40?fs:Math.min(180,Math.max(p.width,p.height)+12);r.style.width=r.style.height=sz+'px'}}
+          // контакты и соцсети: белый круг по центру ссылки (у всех текстовых ссылок один размер — --cur-text), текст под ним инвертируется
+          if(state==='plus'||isTxt(stk))r.style.width=r.style.height='';else{var sz=+stk.getAttribute('data-stick-size')||Math.min(180,Math.max(p.width,p.height)+12);r.style.width=r.style.height=sz+'px'}}
         rx+=(gx-rx)*.22;ry+=(gy-ry)*.22;r.style.transform='translate('+rx+'px,'+ry+'px)';
         if(state==='plus'&&stk){var s2=stk.closest('.start').querySelector('.d');if(s2!==sd){if(sd)sd.style.setProperty('--r','0px');sd=s2}}
         if(sd&&(state==='plus'||invOn)){invOn=state==='plus';
@@ -72,7 +73,7 @@
         if(s!==state){if(state)document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s)}
         lab.textContent=(s==='row'||s==='hint')&&t.getAttribute('data-label')||'';
         hel=s==='hint'&&t.matches('.kp-rb')?t:null;
-        var st=e.target.closest('[data-stick]');if(st!==stk){stk=st;document.body.classList.toggle('c-stick',!!st);if(!st)r.style.width=r.style.height=''}
+        var st=e.target.closest('[data-stick]');if(st!==stk){stk=st;document.body.classList.toggle('c-stick',!!st);document.body.classList.toggle('c-txt',!!st&&isTxt(st));if(!st)r.style.width=r.style.height=''}
       });
       // магнит, как на сайте: элементы с data-magnet (сила — значение атрибута) плавно тянутся за курсором
       var mags=[].map.call(document.querySelectorAll('[data-magnet]'),function(el){return{el:el,k:parseFloat(el.getAttribute('data-magnet'))||.2,tx:0,ty:0,x:0,y:0,on:false}});

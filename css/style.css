@@ -44,7 +44,7 @@ html.kbd :focus-visible{outline:2px solid var(--paper);outline-offset:4px} /* р
 .has-cursor, .has-cursor *{cursor:none!important}
 #cur,#ring{position:fixed;left:0;top:0;pointer-events:none;z-index:999;border-radius:50%;translate:-50% -50%}
 #cur{width:6px;height:6px;background:#fff;mix-blend-mode:difference}
-#ring{width:38px;height:38px;border:1px solid rgba(255,255,255,.75);mix-blend-mode:difference;display:grid;place-items:center;transition:width .35s var(--ease),height .35s var(--ease),background .3s,border-color .3s,border-radius .35s var(--ease)}
+#ring{width:38px;height:38px;border:1px solid rgba(255,255,255,.75);mix-blend-mode:difference;display:grid;place-items:center;transition:opacity .2s,width .35s var(--ease),height .35s var(--ease),background .3s,border-color .3s,border-radius .35s var(--ease)}
 #ring .t{font:700 10px/1.1 var(--body);letter-spacing:.08em;text-transform:uppercase;text-align:center;color:#000;opacity:0;transition:opacity .2s;max-width:80px}
 #ring .pg{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);rotate:-90deg;opacity:0}
 #ring .pg circle{fill:none;stroke:#fff;stroke-width:2;stroke-dasharray:302;stroke-dashoffset:302}
@@ -53,7 +53,9 @@ html.kbd :focus-visible{outline:2px solid var(--paper);outline-offset:4px} /* р
 /* состояния курсора — одна система: 4 размера, подпись всегда по центру, точка прячется, как только у кольца есть заливка, подпись или иконка
    S 38 — контур (по умолчанию) · M 64 — белый круг (ссылки, прилипание) · L 108 — белый круг с тёмной подписью (строки кейсов, видео)
    XL — контурный круг с белой подписью или стрелкой поверх фото (обложки, баннер, «Следующий проект») */
-#ring{--xl:clamp(130px,10vw,196px)}
+#ring{--xl:clamp(130px,10vw,196px);--cur-text:calc(var(--ui)*5.7 + 12px)}
+/* текстовые ссылки (data-stick-size="text": меню, подвал, контакты) — один круг на всех, по ширине самой длинной соцссылки; длинный текст (почта, телефон) под ним просто инвертируется */
+body.c-stick.c-txt #ring{width:var(--cur-text);height:var(--cur-text)}
 body.c-link #ring,body.c-down #ring,body.c-stick #ring{width:64px;height:64px;background:#fff;border-color:#fff}
 body.c-row #ring,body.c-reel #ring{width:108px;height:108px;background:#fff;border-color:#fff}
 body.c-row #ring .t,body.c-reel #ring .t{opacity:1;color:#000;font:700 11px/1.15 var(--body);letter-spacing:.06em;text-transform:uppercase;text-align:center;max-width:76%}
@@ -68,6 +70,8 @@ body.c-about #ring .t{opacity:1;color:#000;font:500 var(--ui)/1.2 var(--body);le
 body:is(.c-link,.c-down,.c-stick,.c-row,.c-reel,.c-view,.c-hold,.c-next,.c-arrow,.c-about) #cur{opacity:0}
 body.c-plus #ring,body.c-stick.c-plus #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);background:transparent;border-color:#fff} /* «Start a project»: большой контурный круг на плюсе */
 body.c-plus #cur{opacity:0}
+/* кнопки со своей формой (чипы брифа, «Отправить») — магнитные, кольцо и точка прячутся, наведение показывает сама кнопка (как c-mag в КП) */
+body.c-mag #ring,body.c-mag #cur{opacity:0}
 /* буквы под кругом инвертируются: контурные становятся сплошными и наоборот (копия надписи, маски по кругу курсора) */
 .start .d{position:relative;--r:0px;--cx:-999px;--cy:-999px}
 .start .d .d-inv{position:absolute;inset:0;pointer-events:none;-webkit-mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),#000 calc(100% - .5px),transparent 100%);mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),#000 calc(100% - .5px),transparent 100%)}
@@ -615,9 +619,11 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .chips input{position:absolute;opacity:0;pointer-events:none}
 .chips label{border:1px solid var(--line-dark);border-radius:99px;padding:8px 14px;font:500 var(--sm) var(--body);letter-spacing:0;text-transform:none;color:var(--paper);cursor:pointer;transition:background .25s,color .25s}
 .chips input:checked+label{background:var(--paper);color:var(--ink)}
+.has-cursor .chips label:hover{border-color:var(--paper)}
 html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline-offset:2px}
 .panel [data-magnet]{will-change:transform;backface-visibility:hidden} /* магнитные кнопки в панелях — на своём слое, иначе при сдвиге в Chrome остаются полосы от старых позиций */
-.send{margin-top:10px;background:var(--paper);color:var(--ink);font:700 var(--h5) var(--display);text-transform:uppercase;padding:18px 26px;display:inline-flex;gap:14px}
+.send{margin-top:10px;background:var(--paper);color:var(--ink);border:1px solid var(--paper);font:700 var(--h5) var(--display);text-transform:uppercase;padding:18px 26px;display:inline-flex;gap:14px;transition:background .3s,color .3s}
+.has-cursor .send:hover{background:transparent;color:var(--paper)}
 .ok{margin-top:22px;padding:16px;border:1px solid var(--paper)}
 
 /* ---------- marquee: превью шоурила внутри слова LIVE ---------- */
