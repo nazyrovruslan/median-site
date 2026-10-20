@@ -43,7 +43,7 @@ jobs:
           git add -A js/cases.js media clients 2>/dev/null || git add -A js/cases.js media
           if ! git diff --cached --quiet; then
             git commit -m "Сборка: js/cases.js, КП и превью из content/ [skip ci]"
-            git pull --rebase -q origin main && git push -q origin HEAD:main || echo "не удалось сохранить в репозиторий — на сайт всё равно уйдёт"
+            git pull --rebase --autostash -q origin main && git push -q origin HEAD:main || echo "не удалось сохранить в репозиторий — на сайт всё равно уйдёт"
           fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

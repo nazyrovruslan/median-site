@@ -86,6 +86,7 @@ function estimate(k, file) {
 }
 
 // обложка для превью ссылки (Telegram, WhatsApp и т.п.): og.html → og.png 1200×630 рисует tools/og-kp.mjs через headless Chrome
+const OG_REV = '2'; // поменять, чтобы Telegram и др. скачали обложки заново (часть адреса og.png?v=)
 function ogHtml(k) {
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><link rel="stylesheet" href="../../css/fonts.css"><style>
 *{box-sizing:border-box;margin:0}html,body{width:1200px;height:630px;overflow:hidden;background:#c9c9c6;color:#0b0b0c}
@@ -453,7 +454,7 @@ for (const f of list) {
     .filter(([f]) => f && fs.existsSync(f)).map(([f, n]) => [n + path.extname(f), fs.readFileSync(f)]);
   if (pack.length > 1) { k.zip = `median-kp-${slug}.zip`; fs.writeFileSync(`${dir}/${k.zip}`, zip(pack)); }
   const og = ogHtml(k);
-  k.ogv = crypto.createHash('md5').update(og).digest('hex').slice(0, 7);
+  k.ogv = crypto.createHash('md5').update(og + OG_REV).digest('hex').slice(0, 7);
   fs.writeFileSync(`${dir}/og.html`, og);
   fs.writeFileSync(`${dir}/index.html`, page(k));
   built.add(slug);
