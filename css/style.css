@@ -857,6 +857,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .jb-mail span{border-bottom:1px solid currentColor;padding-bottom:2px}
 .jb-mail-big{font-size:var(--lead)}
 .jb-rows,.jb-cases .rows,.jb-more .rows{grid-column:1/-1}
+.jb-cases h3{font-size:var(--h3)} /* заголовок длинный — на кегль меньше остальных, «Проекты,» контуром в строку */
 .jrow .sb{font-size:var(--ui)}
 .jb-rows[hidden],.jb-hh[hidden],#jobPanel section[hidden],.jb-fd[hidden],.jb-links a[hidden]{display:none}
 /* шапка вакансии: чёрный экран с направляющими, ярлык, заголовок --h1, факты строкой, отклик */
