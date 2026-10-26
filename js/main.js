@@ -4,6 +4,7 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine=matchMedia('(pointer: fine)').matches;
 
 const DIRS={external:'Внешние',internal:'Внутренние',outlist:'Out of the list',own:'Свой проект'};
+const TAGS={employer:'Бренд работодателя',internal:'Внутренние коммуникации',community:'Сообщества',own:'Собственные проекты'}; // категории проектов (поле tags, в CMS — «Категории проекта»): фильтры над «Все проекты», у кейса их может быть несколько
 const HERO=CASES.slice(0,5);
 const art=(c,seed=0)=>`radial-gradient(120% 90% at ${30+seed*13%50}% ${70-seed*7%40}%, ${c[0]} 0%, transparent 55%), radial-gradient(90% 80% at ${80-seed*11%40}% ${20+seed*9%40}%, ${c[1]} 0%, transparent 60%), ${c[2]}`;
 const VV='?v=4'; // сброс кэша постеров и видео-обложек
@@ -228,7 +229,7 @@ const rows=$('#rows');
 // видео превью создаём один раз на кейс и держим: повторное наведение — без перезагрузки; src тот же, что у баннера (первый слайд — из памяти), поэтому уже скачанное берётся из кэша
 const PV={};function peekVid(i){if(i in PV)return PV[i];const t=document.createElement('div');t.innerHTML=vid(CASES[i]);return PV[i]=t.firstElementChild;}
 CASES.forEach((k,i)=>{
-  const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.c='row';r.dataset.label='Смотреть проект';
+  const r=document.createElement('button');r.className='row';r.dataset.dir=k.dir;r.dataset.tags=(k.tags||[]).join(' ');r.dataset.c='row';r.dataset.label='Смотреть проект';
   r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${k.name}</span><span class="sb">${k.sub}</span><span class="rp"></span>`;r.dataset.i=i;
   r.onclick=()=>openCase(k.id,peek.classList.contains('on')?peek:r);
   r.addEventListener('mouseenter',()=>{const v=peekVid(i);peek.replaceChildren(...(v?[v]:[]));peek.style.background=cover(k,i,1);peekAt(r);peek.classList.add('on');if(v){v.preload='auto';v.play().catch(()=>{});}
@@ -247,7 +248,7 @@ addEventListener('scroll',()=>{if(peekEl&&peek.classList.contains('on'))peekAt(p
 // список кейсов: один общий список без категорий; видны первые 7, остальные — в раскрывающемся блоке под кнопкой «Ещё N кейсов»
 const ROWS_SHOWN=7;
 const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c;};
-function layoutRows(open){const all=$$('.row'),vis=all.filter(r=>!r.hidden),more=$('#rowsMoreIn'),box=$('#rowsMore'),tog=$('#rowsTog');
+function layoutRows(open){const all=$$('#cases .row'),vis=all.filter(r=>!r.hidden),more=$('#rowsMoreIn'),box=$('#rowsMore'),tog=$('#rowsTog');
   all.forEach(r=>{const i=vis.indexOf(r);(i>=0&&i<ROWS_SHOWN?$('#rows'):more).appendChild(r);});
   const n=Math.max(0,vis.length-ROWS_SHOWN);if(open!=null)box.classList.toggle('open',open&&n>0);const o=box.classList.contains('open');
   tog.parentElement.hidden=!n;tog.setAttribute('aria-expanded',o);box.toggleAttribute('inert',!o);
@@ -259,6 +260,15 @@ $('#rowsTog').addEventListener('click',()=>{const o=!$('#rowsMore').classList.co
   if(!o){const t=$('#cases');if(t&&t.getBoundingClientRect().top<0)t.scrollIntoView({behavior:reduce?'auto':'smooth'});} // сворачиваем — возвращаемся к началу списка
   layoutRows(o);});
 layoutRows(false);
+// фильтры по категориям: одна активная, повторный клик — снова «Все»; пустые категории не показываем; номера строк пересчитываются по видимым
+{const fl=$('#flt'),tags=Object.keys(TAGS).filter(t=>CASES.some(k=>(k.tags||[]).includes(t)));
+  if(!tags.length)fl.hidden=true;
+  const btn=(t,name,n)=>`<button type="button" data-t="${t}" data-c="mag" data-magnet aria-pressed="${!t}">${name}<sup>${n}</sup></button>`;
+  fl.innerHTML=btn('','Все',CASES.length)+tags.map(t=>btn(t,TAGS[t],CASES.filter(k=>(k.tags||[]).includes(t)).length)).join('');
+  fl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.getAttribute('aria-pressed')==='true'?'':b.dataset.t;
+    fl.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.t===t));
+    let n=0;CASES.forEach((k,i)=>{const r=rows.parentElement.querySelector(`.row[data-i="${i}"]`);r.hidden=!!t&&!(k.tags||[]).includes(t);if(!r.hidden)r.querySelector('.n').textContent=String(++n).padStart(2,'0');});
+    peek.classList.remove('on');layoutRows();});}
 
 /* ---------- panels ---------- */
 addEventListener('keydown',e=>{if(e.key==='Tab')document.documentElement.classList.add('kbd');});
@@ -357,7 +367,7 @@ function fillCase(id,split){
   $('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
-  const facts=[['Категория',k.cat||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
+  const facts=[['Категория',k.cat||(k.tags||[]).map(t=>TAGS[t]).filter(Boolean).join(', ')||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
   const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗</a>`).join('<br>');
   if(links)facts.push(['Сайт',links]);
   let tc=0;

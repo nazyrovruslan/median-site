@@ -241,6 +241,13 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .cases{padding-block:clamp(80px,11vw,150px)}
 .cases-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:36px}
 .cases-head .d{font-size:var(--h2)}
+.flt{display:flex;flex-wrap:wrap;gap:8px;flex-basis:100%} /* фильтры «Все проекты» — чипы как в брифе */
+.flt button{border:1px solid var(--line-dark);border-radius:99px;padding:8px 14px;font:500 var(--sm) var(--body);color:var(--paper);white-space:nowrap;transition:background .25s,color .25s,border-color .25s}
+.flt sup{font-size:.75em;margin-left:4px;color:var(--muted);vertical-align:super;line-height:0;transition:color .25s}
+.has-cursor .flt button:hover{border-color:var(--paper)}
+.flt button[aria-pressed="true"]{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.flt button[aria-pressed="true"] sup{color:var(--ink);opacity:.55}
+html.kbd .flt button:focus-visible{outline:2px solid var(--paper);outline-offset:2px}
 .rows{border-top:1px solid var(--line-dark)}
 .row{display:grid;grid-template-columns:64px minmax(0,1.2fr) minmax(0,1.4fr);gap:16px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line-dark);width:100%;text-align:left;transition:padding .45s var(--ease)}
 .row:hover .n,.row:hover .nm,.row:hover .sb{translate:14px 0}

@@ -16,6 +16,9 @@
     "#06120a"
   ],
   "sub": "Engineering Bar: стенд-speakeasy с меню из продуктов X5",
+  "tags": [
+    "employer"
+  ],
   "city": "Москва",
   "format": "Интеграция бренда работодателя в конференцию",
   "blocks": [

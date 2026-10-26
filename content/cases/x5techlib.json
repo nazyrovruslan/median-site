@@ -15,6 +15,9 @@
   ],
   "client": "X5 Tech – IT-команда Х5 Group",
   "sub": "Открывай X5 Tech!",
+  "tags": [
+    "employer"
+  ],
   "blocks": [
     {
       "t": "text",

@@ -18,6 +18,9 @@
   "city": "Ульяновск, Барнаул, Самара, Саратов, Воронеж, Липецк, Хабаровск",
   "format": "Road show",
   "sub": "Road show",
+  "tags": [
+    "employer"
+  ],
   "blocks": [
     {
       "t": "text",

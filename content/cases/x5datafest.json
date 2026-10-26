@@ -18,6 +18,10 @@
   ],
   "vid": "media/video/x5datafest-clean.mp4",
   "sub": "Фестиваль бренда работодателя X5 Tech для ML, Data Science и AI",
+  "tags": [
+    "employer",
+    "community"
+  ],
   "city": "Москва",
   "format": "Ивент бренда работодателя",
   "blocks": [
