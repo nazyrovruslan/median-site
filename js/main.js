@@ -605,7 +605,7 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   const ck=v.img||v.vid?{img:v.img,vid:v.vid,c:['#222','#333','#111']}:ks[0],jv=$('#jVis');
   $('#jHero').classList.toggle('has-vis',!!ck);jv.style.background=ck?cover(ck,0):'';jv.innerHTML=ck?vid(ck):'';if(ck)playIn(jv,true);
   $('#jBody').innerHTML=(v.lead?`<section class="cb wrap jb-lead"><div class="cf-logo d">О вакансии</div><div class="cf-lead">${P(v.lead.split(/\n\s*\n/))}</div></section>`:'')+sec+
-    (ks.length?`<section class="wrap jb-cases"><h3 class="d"><span class="o on-dark">Проекты,</span> в которых вы могли участвовать, если бы пришли к нам раньше</h3><div class="rows"></div></section>`:'');
+    (ks.length?`<section class="wrap jb-cases"><h3 class="d"><span class="o on-dark">Проекты,</span> в которых вы могли принимать участие, если бы пришли к нам раньше</h3><div class="rows"></div></section>`:'');
   const kr=$('#jBody .jb-cases .rows');ks.forEach((k,i)=>kr.appendChild(caseRow(k,i)));
   // руководитель: свой у вакансии, иначе — из настроек
   const m={...(JB.manager||{}),...(v.manager||{})},B=$('#jBoss');B.hidden=!m.name;
