@@ -1,12 +1,21 @@
 {
   "order": 10,
   "id": "community-sales",
-  "draft": false,
+  "on": true,
   "name": "Community & Sales менеджер",
   "ttl": [
-    { "text": "Community", "outline": true },
-    { "text": "& Sales", "outline": false },
-    { "text": "менеджер", "outline": false }
+    {
+      "text": "Community",
+      "outline": true
+    },
+    {
+      "text": "& Sales",
+      "outline": false
+    },
+    {
+      "text": "менеджер",
+      "outline": false
+    }
   ],
   "hh": "https://hh.ru/vacancy/138794075",
   "dept": "South HUB",
@@ -74,7 +83,11 @@
     }
   ],
   "cases": [
-    { "id": "southhub" },
-    { "id": "shclub" }
+    {
+      "id": "southhub"
+    },
+    {
+      "id": "shclub"
+    }
   ]
 }

@@ -308,14 +308,14 @@ collections:
     extension: json
     identifier_field: id
     slug: "{{id}}"
-    summary: "{{order}} · {{name}}{{draft | ternary(' (черновик)', '')}}"
+    summary: "{{order}} · {{name}}{{on | ternary('', ' (скрыта)')}}"
     sortable_fields: [order, name]
     create: true
     delete: true
     fields:
       - { name: order, label: Порядок, widget: number, value_type: int, default: 100, hint: "Место в списке: меньше — выше. Шаг 10" }
       - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/vacancy-<id>, например event-manager" }
-      - { name: draft, label: Черновик (не показывать на сайте), widget: boolean, required: false, default: false, hint: "Закрытую вакансию можно не удалять, а снова сделать черновиком" }
+      - { name: on, label: Показывать на сайте, widget: boolean, default: true, hint: "Выключите, когда вакансия закрыта: со страницы она уйдёт, файл останется — потом можно включить снова" }
       - { name: name, label: Название, widget: string }
       - name: ttl
         label: Строки заголовка
@@ -345,6 +345,7 @@ collections:
           - { name: items, label: Пункты, widget: list, field: { name: p, label: Пункт, widget: text } }
       - name: cases
         label: Проекты, в которых предстоит участвовать
+        hint: "Добавьте кейсы из списка кейсов — на странице вакансии они идут строками и открываются как обычные кейсы"
         label_singular: кейс
         widget: list
         required: false

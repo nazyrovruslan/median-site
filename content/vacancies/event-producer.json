@@ -1,7 +1,7 @@
 {
   "order": 40,
   "id": "event-producer",
-  "draft": false,
+  "on": true,
   "name": "Продюсер мероприятий",
   "ttl": [
     {

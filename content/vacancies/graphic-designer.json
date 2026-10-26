@@ -1,7 +1,7 @@
 {
   "order": 30,
   "id": "graphic-designer",
-  "draft": false,
+  "on": true,
   "name": "Графический дизайнер",
   "ttl": [
     {

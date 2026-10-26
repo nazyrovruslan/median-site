@@ -1,5 +1,5 @@
 // Собирает js/vacancies.js из content/vacancies/*.json и content/settings/jobs.json (их правит CMS в /admin).
-// Порядок — по полю order; черновики (draft) на сайт не попадают. Для локального просмотра черновиков: JOBS_DRAFTS=1 node tools/build-vacancies.mjs
+// Порядок — по полю order; выключенные («Показывать на сайте» = нет, on:false; старое поле draft:true) на сайт не попадают. Посмотреть их локально: JOBS_DRAFTS=1 node tools/build-vacancies.mjs
 // Запуск: node tools/build-vacancies.mjs   (в деплое — автоматически, см. .github/workflows)
 import fs from 'fs';
 const dir = 'content/vacancies';
@@ -17,7 +17,10 @@ const clean = o => {
 const set = clean(JSON.parse(fs.readFileSync('content/settings/jobs.json', 'utf8')));
 const caseIds = new Set(fs.readdirSync('content/cases').filter(f => f.endsWith('.json')).map(f => JSON.parse(fs.readFileSync(`content/cases/${f}`, 'utf8')).id || f.replace(/\.json$/, '')));
 const all = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => {
-  const v = clean(JSON.parse(fs.readFileSync(`${dir}/${f}`, 'utf8')));
+  const raw = JSON.parse(fs.readFileSync(`${dir}/${f}`, 'utf8'));
+  const v = clean(raw);
+  v.draft = raw.on === false || raw.draft === true; // false clean() выкидывает — смотрим в сырых данных
+  delete v.on;
   v.id = v.id || f.replace(/\.json$/, '');
   if (!v.name) throw new Error(`${f}: нет названия (name)`);
   // заголовок по строкам: в CMS — [{text, outline}], на сайте — [[текст, 1 — контур / 0 — заливка]]
@@ -35,4 +38,4 @@ const out = '/* СГЕНЕРИРОВАНО tools/build-vacancies.mjs из conten
   '   list — открытые вакансии (без черновиков): sections — разделы [{h, items}], cases — id кейсов, manager — руководитель (если пусто — из настроек) */\n' +
   'const JOBS=' + JSON.stringify({ ...set, list }, null, 1) + ';\n';
 fs.writeFileSync('js/vacancies.js', out);
-console.log(`js/vacancies.js: ${list.length} вакансий на сайте, черновиков: ${nDraft}${drafts ? ' (черновики включены)' : ''}`);
+console.log(`js/vacancies.js: ${list.length} вакансий на сайте, скрытых: ${nDraft}${drafts ? ' (скрытые включены)' : ''}`);
