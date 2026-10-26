@@ -300,6 +300,70 @@ collections:
               - { name: email, label: Почта, widget: string, required: false }
               - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/kp, public_folder: media/kp }
 
+  - name: vacancies
+    label: Вакансии
+    label_singular: вакансию
+    folder: content/vacancies
+    format: json
+    extension: json
+    identifier_field: id
+    slug: "{{id}}"
+    summary: "{{order}} · {{name}}{{draft | ternary(' (черновик)', '')}}"
+    sortable_fields: [order, name]
+    create: true
+    delete: true
+    fields:
+      - { name: order, label: Порядок, widget: number, value_type: int, default: 100, hint: "Место в списке: меньше — выше. Шаг 10" }
+      - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/vacancy-<id>, например event-manager" }
+      - { name: draft, label: Черновик (не показывать на сайте), widget: boolean, required: false, default: false, hint: "Закрытую вакансию можно не удалять, а снова сделать черновиком" }
+      - { name: name, label: Название, widget: string }
+      - name: ttl
+        label: Строки заголовка
+        label_singular: строка
+        widget: list
+        required: false
+        hint: "Необязательно: по умолчанию первое слово контуром, остальное залитым"
+        fields:
+          - { name: text, label: Текст, widget: string }
+          - { name: outline, label: Контуром, widget: boolean, default: false }
+      - { name: hh, label: Ссылка на hh.ru, widget: string, required: false, hint: "Кнопка «Откликнуться на hh.ru»" }
+      - { name: dept, label: Команда / направление, widget: string, required: false, hint: "Например, «Проектный отдел»" }
+      - { name: city, label: Город, widget: string, required: false }
+      - { name: format, label: Формат работы, widget: string, required: false, hint: "Офис, гибрид, удалённо" }
+      - { name: employment, label: Занятость, widget: string, required: false, hint: "Полная, проектная…" }
+      - { name: experience, label: Опыт, widget: string, required: false, hint: "Например, «1–3 года»" }
+      - { name: salary, label: Зарплата, widget: string, required: false, hint: "Например, «от 80 000 ₽ на руки». Пусто — строки не будет" }
+      - { name: lead, label: Коротко о роли, widget: text, required: false, hint: "Крупный текст под заголовком" }
+      - name: sections
+        label: Разделы вакансии
+        label_singular: раздел
+        widget: list
+        required: false
+        hint: "Классика: Чем предстоит заниматься · Что для нас важно · Будет плюсом · Что предлагаем"
+        fields:
+          - { name: h, label: Заголовок, widget: string }
+          - { name: items, label: Пункты, widget: list, field: { name: p, label: Пункт, widget: text } }
+      - name: cases
+        label: Проекты, в которых предстоит участвовать
+        label_singular: кейс
+        widget: list
+        required: false
+        fields:
+          - { name: id, label: Кейс, widget: relation, collection: cases, value_field: id, search_fields: [name, id], display_fields: [name] }
+      - name: manager
+        label: Руководитель (если пусто — из настроек вакансий)
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+              - { name: name, label: Имя, widget: string, required: false }
+              - { name: role, label: Должность, widget: string, required: false }
+              - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/team, public_folder: media/team, hint: "Портрет, лучше вырезанный по контуру (png/webp с прозрачным фоном)" }
+              - { name: text, label: Пара слов от руководителя, widget: text, required: false }
+              - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+              - { name: email, label: Почта, widget: string, required: false }
+              - { name: phone, label: Телефон, widget: string, required: false }
+
   - name: settings
     label: Настройки
     files:
@@ -371,3 +435,22 @@ collections:
             fields:
               - { name: title, label: Заголовок, widget: string }
               - { name: text, label: Текст, widget: text }
+      - name: jobs
+        label: Вакансии — общее
+        file: content/settings/jobs.json
+        fields:
+          - { name: email, label: Почта для откликов, widget: string, default: hr@median.agency }
+          - { name: intro, label: Текст над списком вакансий («О нас»), widget: text, required: false }
+          - { name: empty, label: Текст, когда открытых вакансий нет, widget: text, required: false }
+          - name: manager
+            label: Руководитель по умолчанию
+            widget: object
+            collapsed: true
+            fields:
+              - { name: name, label: Имя, widget: string, required: false }
+              - { name: role, label: Должность, widget: string, required: false }
+              - { name: photo, label: Фото, widget: image, required: false, media_folder: /media/team, public_folder: media/team, hint: "Портрет, лучше вырезанный по контуру (png/webp с прозрачным фоном)" }
+              - { name: text, label: Пара слов от руководителя, widget: text, required: false }
+              - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+              - { name: email, label: Почта, widget: string, required: false }
+              - { name: phone, label: Телефон, widget: string, required: false }

@@ -8,7 +8,7 @@
 <title>Страница не найдена — Median</title>
 <script>
 /* Одна страница на все ошибки. GitHub Pages отдаёт её на любой несуществующий адрес (404).
-   Адреса кейсов (/median-site/southhub) и /about — не ошибка: запоминаем путь и открываем главную, она покажет кейс.
+   Адреса кейсов (/median-site/southhub), /about и вакансий (/jobs, /vacancy-<id>) — не ошибка: запоминаем путь и открываем главную, она покажет кейс.
    Код другой ошибки можно передать параметром: 404.html?code=500 (пригодится при переезде на свой сервер). */
 var ROOT=/\.github\.io$/.test(location.hostname)?location.pathname.split('/').slice(0,2).join('/')+'/':'/';
 document.write('<base href="'+ROOT+'">');
@@ -90,7 +90,7 @@ footer a:hover{color:var(--paper)}
 (function(){
   var p=location.pathname, id='';
   try{id=decodeURIComponent(p.slice(ROOT.length).replace(/\/$/,''))}catch(e){}
-  var isRoute=id==='about'||(typeof CASES!=='undefined'&&CASES.some(function(c){return c.id===id}));
+  var isRoute=id==='about'||/^(jobs|vacancy-[a-z0-9-]+)$/.test(id)||(typeof CASES!=='undefined'&&CASES.some(function(c){return c.id===id}));
   if(isRoute&&!/[?&]code=/.test(location.search)){try{sessionStorage.setItem('route',p)}catch(e){}location.replace(ROOT);return;}
   var E={
     400:['Что-то не так с запросом','Браузер отправил запрос, который сервер не понял. Попробуйте открыть страницу ещё раз.'],

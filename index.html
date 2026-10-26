@@ -21,7 +21,7 @@
 <link rel="preload" href="fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/basis-grotesque-pro-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css?v=11">
-<link rel="stylesheet" href="css/style.css?v=115">
+<link rel="stylesheet" href="css/style.css?v=116">
 </head>
 <body>
 <div id="loader" aria-hidden="true"><div class="ld-mark"><svg class="ld-o" viewBox="802 818 314 283"><path fill-rule="nonzero" fill="currentColor" d="M 1099.386719 875.800781 C 1105.628906 875.800781 1110.707031 880.878906 1110.707031 887.121094 C 1110.707031 893.363281 1105.628906 898.441406 1099.386719 898.441406 C 1093.144531 898.441406 1088.066406 893.363281 1088.066406 887.121094 C 1088.066406 880.878906 1093.144531 875.800781 1099.386719 875.800781 M 1099.386719 901.269531 C 1107.1875 901.269531 1113.539062 894.921875 1113.539062 887.121094 C 1113.539062 879.320312 1107.1875 872.96875 1099.386719 872.96875 C 1091.585938 872.96875 1085.234375 879.320312 1085.234375 887.121094 C 1085.234375 894.921875 1091.585938 901.269531 1099.386719 901.269531 "/>
@@ -58,6 +58,7 @@
   <nav>
     <a href="#directions" data-c="link">Проекты</a>
     <a href="#own" data-c="link">Свои проекты</a>
+    <a href="jobs" data-c="link" data-jobs>Вакансии</a>
     <a href="#contact" data-c="link">Контакты</a>
   </nav>
   <div class="meta small"><span>Сочи · Москва</span><a href="mailto:info@median.agency" data-c="link" data-stick data-stick-size="text" data-magnet>info@median.agency</a><a href="tel:+78622912552" data-c="link" data-stick data-stick-size="text" data-magnet>+7 (862) 291-25-52</a><a href="https://t.me/medianagency" target="_blank" rel="noopener" data-c="link" data-stick data-stick-size="text" data-magnet>Telegram ↗</a><a href="https://www.instagram.com/median.agency/" target="_blank" rel="noopener" data-c="link" data-stick data-stick-size="text" data-magnet>Instagram ↗</a></div>
@@ -310,6 +311,15 @@
       <div class="cf-logo d">Награды</div>
       <div class="aw-list"><div class="aw-g"><h4><span class="lg" role="img" aria-label="Effie Awards Russia" style="-webkit-mask-image:url(media/awards/effie-mask.webp);mask-image:url(media/awards/effie-mask.webp);--c:#D4A93B;--ar:2.62;--s:1.3"></span></h4><ul><li><b>Серебро, 2025</b><span>Корпоративная репутация</span></li></ul></div><div class="aw-g"><h4><span class="lg" role="img" aria-label="Silver Mercury" style="-webkit-mask-image:url(media/awards/silver-mercury.svg);mask-image:url(media/awards/silver-mercury.svg);--c:#A9BCCB;--ar:1.73;--s:1.12"></span></h4><ul><li><b>Серебро, 2025</b><span>Лучшее массовое мероприятие</span></li><li><b>Бронза, 2025</b><span>Лучшее использование инструментов PR для построения бренда работодателя</span></li></ul></div><div class="aw-g"><h4><span class="lg" role="img" aria-label="Eventex Awards" style="-webkit-mask-image:url(media/awards/eventex-mask.webp);mask-image:url(media/awards/eventex-mask.webp);--c:#7B61FF;--ar:3.00;--s:1.1"></span></h4><ul><li><b>Short-list, 2021</b><span>Online Conference</span></li><li><b>Short-list, 2021</b><span>Virtual Employer Branding Event</span></li></ul></div><div class="aw-g"><h4><span class="lg" role="img" aria-label="Событие года" style="-webkit-mask-image:url(media/awards/event-of-year.svg);mask-image:url(media/awards/event-of-year.svg);--c:#E2B93B;--ar:4.30;--s:1.35"></span></h4><ul><li><b>2 место, 2025</b><span>Лучшее roadshow</span></li></ul></div><div class="aw-g"><h4><span class="lg" role="img" aria-label="Bema!" style="-webkit-mask-image:url(media/awards/bema.svg);mask-image:url(media/awards/bema.svg);--c:#FF5A1F;--ar:4.10;--s:0.56"></span></h4><ul><li><b>1 место, 2025</b><span>Лучший интерактивный стенд</span></li><li><b>1 место, 2021</b><span>Лучшее деловое корпоративное мероприятие</span></li><li><b>2 место, 2021</b><span>Лучший мотивационный / командообразующий online-проект</span></li><li><b>Short-list, 2025</b><span>Лучший фестиваль</span></li><li><b>Short-list, 2025</b><span>Лучшая активация для бренда</span></li></ul></div><div class="aw-g"><h4><span class="lg" role="img" aria-label="IT HR Awards" style="-webkit-mask-image:url(media/awards/it-hr.svg);mask-image:url(media/awards/it-hr.svg);--c:#2F80ED;--ar:1.55;--s:0.92"></span></h4><ul><li><b>2 место, 2023</b><span>DevRel и техно-PR</span></li></ul></div></div>
     </section>
+    <!-- вакансии: список из js/vacancies.js (content/vacancies, CMS → «Вакансии»), строка открывает страницу вакансии /vacancy-<id> -->
+    <section class="wrap ab-jobs" id="jobs">
+      <h3 class="d"><span class="o on-dark">Открытые</span> вакансии</h3>
+      <div class="jb-side">
+        <p class="jb-intro" id="jobsIntro"></p>
+        <a class="jb-mail" id="jobsMail" href="mailto:hr@median.agency" data-c="link" data-stick data-stick-to="svg" data-stick-size="text" data-magnet><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>hr@median.agency</span></a>
+      </div>
+      <div class="rows jb-rows" id="jobsRows"></div>
+    </section>
     <footer class="grey wrap foot ab-end">
       <button class="start ab-start" type="button" id="aBrief" data-c="link">
         <span class="plus" aria-hidden="true" data-c="plus" data-stick data-magnet=".55"><svg viewBox="0 0 58 92" preserveAspectRatio="none"><line x1="29" y1="18" x2="29" y2="74"/><line x1="1" y1="46" x2="57" y2="46"/></svg></span>
@@ -325,6 +335,50 @@
         <a class="pol" href="privacy.html" data-c="link" data-stick data-stick-size="text" data-magnet>Политика конфиденциальности</a><span class="copy"><span class="cp-l">Copyright</span><span class="cp-t"><span class="cp-a">2026 © median agency.</span> <span class="cp-b">Design by <a href="./" data-c="link">median</a>.</span></span></span>
       </div>
     </footer>
+  </article>
+</div>
+
+<!-- страница вакансии /vacancy-<id>: открывается поверх «О нас»; данные — js/vacancies.js. Кнопки и контакты — в разметке (магнит вешается при загрузке), остальное заполняет main.js -->
+<div class="panel" id="jobPanel" aria-hidden="true">
+  <div class="scrim" data-close></div>
+  <article class="sheet case job" role="dialog" aria-modal="true" aria-labelledby="jTitle">
+    <button class="x" data-close data-c="link" data-stick data-stick-shape="circle" data-magnet aria-label="Закрыть">✕</button>
+    <header class="jb-hero wrap">
+      <span class="label jb-tag" id="jTag">Вакансия</span>
+      <h2 class="d jb-ttl" id="jTitle"></h2>
+      <dl class="jb-facts" id="jFacts"></dl>
+      <div class="jb-acts">
+        <a class="send jb-hh" id="jHh" href="#" target="_blank" rel="noopener" data-c="mag" data-magnet>Откликнуться на hh.ru <span aria-hidden="true">↗</span></a>
+        <a class="jb-mail" id="jMail" href="mailto:hr@median.agency" data-c="link" data-stick data-stick-to="svg" data-stick-size="text" data-magnet><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>hr@median.agency</span></a>
+      </div>
+    </header>
+    <div id="jBody"></div>
+    <section class="wrap jb-boss" id="jBoss">
+      <h3 class="d"><span class="o on-dark">Ваш</span> руководитель</h3>
+      <div class="fd jb-fd"><figure class="fd-ph"><i></i><img id="jBossPh" alt="" loading="lazy"></figure></div>
+      <div class="jb-bi">
+        <span class="label" id="jBossRole"></span>
+        <h4 class="d" id="jBossName"></h4>
+        <p id="jBossTxt"></p>
+        <div class="jb-links">
+          <a id="jBossTg" href="#" target="_blank" rel="noopener" data-c="link" data-stick data-stick-size="text" data-magnet></a>
+          <a id="jBossMail" href="#" data-c="link" data-stick data-stick-size="text" data-magnet></a>
+          <a id="jBossTel" href="#" data-c="link" data-stick data-stick-size="text" data-magnet></a>
+        </div>
+      </div>
+    </section>
+    <section class="grey wrap jb-apply" id="jApply">
+      <h3 class="d"><span class="o">Откликнуться</span></h3>
+      <div class="jb-side">
+        <p class="cb-txt">Пришлите резюме и пару слов о том, почему вам интересно у нас. В теме письма укажите вакансию.</p>
+        <a class="jb-mail jb-mail-big" id="jMail2" href="mailto:hr@median.agency" data-c="link" data-stick data-stick-to="svg" data-stick-size="text" data-magnet><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>hr@median.agency</span></a>
+        <a class="send jb-hh" id="jHh2" href="#" target="_blank" rel="noopener" data-c="mag" data-magnet>Откликнуться на hh.ru <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+    <section class="wrap jb-more" id="jMore">
+      <h3 class="d"><span class="o on-dark">Другие</span> вакансии</h3>
+      <div class="rows jb-rows" id="jMoreRows"></div>
+    </section>
   </article>
 </div>
 
@@ -363,6 +417,7 @@
 <div class="toast" id="toast" role="status"></div>
 <div class="cookie" id="cookie" role="region" aria-label="Уведомление о cookie" hidden><p>Мы используем cookie, чтобы сайт работал правильно. Подробнее — в <a href="privacy.html#cookies">политике cookie</a>.</p><button type="button" id="cookieOk" data-c="link">Понятно</button></div>
 <script src="js/cases.js?v=20" defer></script>
-<script src="js/main.js?v=91" defer></script>
+<script src="js/vacancies.js?v=1" defer></script>
+<script src="js/main.js?v=92" defer></script>
 </body>
 </html>
