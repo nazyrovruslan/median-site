@@ -292,9 +292,12 @@ body.has-cursor.c-stick #cur,body.has-cursor.c-mag #cur,body.has-cursor.c-hint #
   .start{font-size:clamp(28px,9vw,72px)}
   .foot-bar{gap:12px 16px}
   .mail svg{width:28px}
-  .follow{position:relative}
-  .follow .links{position:absolute;right:-8px;bottom:calc(100% + 6px);max-width:none;background:var(--black)}
-  .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{opacity:0;visibility:hidden;pointer-events:none}
+  /* как на сайте: по тапу ссылки раскрываются отдельной строкой под «Follow us», а не всплывают за левый край поверх почты */
+  .follow{flex-wrap:wrap;row-gap:0}
+  .follow .links{flex-wrap:wrap;max-width:0;max-height:0;margin-left:-8px;transition:max-height .5s var(--ease),opacity .3s,visibility 0s .5s}
+  .follow.open{flex-basis:100%}
+  .follow.open .links{flex-basis:100%;max-width:none;max-height:120px;padding-top:6px;opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s}
+  .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{max-width:0;max-height:0;opacity:0;visibility:hidden;pointer-events:none}
   .kp-down{display:none}
   .kp-hero-cover .kp-title,.kp-hero-cover .kp-hc{padding-right:0}
   .kp-team{grid-template-columns:1fr}

@@ -733,11 +733,12 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .down{display:none}
   .foot-bar{gap:12px 16px;font-size:var(--sm)}
   .mail svg{width:28px}
-  .follow{position:relative}
-  .follow .links{position:absolute;right:-8px;bottom:calc(100% + 6px);max-width:none;transform:translateY(6px);transition:opacity .3s,transform .4s var(--ease)}
-  .follow .links{visibility:hidden;pointer-events:none;transition:opacity .3s,transform .4s var(--ease),visibility 0s .4s}
-  .follow.open .links{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
-  .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px)}
+  /* мобайл: по тапу ссылки раскрываются отдельной строкой под «Follow us» (политика переносится ниже) — всплывающая над кнопкой строка уезжала за левый край и ложилась на почту */
+  .follow{flex-wrap:wrap;row-gap:0}
+  .follow .links{flex-wrap:wrap;max-width:0;max-height:0;margin-left:-8px;transform:translateY(-4px);transition:max-height .5s var(--ease),opacity .3s,transform .4s var(--ease),visibility 0s .5s}
+  .follow.open{flex-basis:100%}
+  .follow.open .links{flex-basis:100%;max-width:none;max-height:120px;padding-top:6px;opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
+  .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{max-width:0;max-height:0;opacity:0;visibility:hidden;pointer-events:none}
   .panel{grid-template-columns:minmax(0,1fr)}
   .panel .scrim{display:none}
   .panel .sheet{width:100%}
