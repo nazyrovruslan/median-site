@@ -569,12 +569,14 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   $('#jFacts').innerHTML=[['Зарплата',v.salary],['Город',v.city],['Формат',v.format],['Занятость',v.employment],['Опыт',v.experience]].filter(f=>f[1]).map(([a,b])=>`<div><dt class="label">${a}</dt><dd>${a==='Зарплата'?nw(b):esc(b)}</dd></div>`).join('');
   $('#jHh').hidden=!v.hh;if(v.hh)$('#jHh').href=v.hh;
   $$('#jMail,#jFootMail,#jCv').forEach(a=>a.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+v.name)); // тема письма — название вакансии
-  const sec=(v.sections||[]).map(s=>{return `<section class="grey cb jb-sec"><h3 class="d">${esc(s.h)}</h3><ol class="jb-list">${(s.items||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol></section>`;}).join('');
+  // раздел: заголовок (необязателен), абзацы text, пункты items; пункт «## …» — подзаголовок внутри списка (нумерация с него начинается заново)
+  const list=a=>{let n=0;return a.map(t=>/^##\s*/.test(t)?(n=0,`<li class="jb-sub">${esc(t.replace(/^##\s*/,''))}</li>`):`<li data-n="${String(++n).padStart(2,'0')}">${esc(t)}</li>`).join('');};
+  const sec=(v.sections||[]).map(s=>`<section class="grey cb jb-sec${s.h?'':' jb-noh'}">${s.h?`<h3 class="d">${esc(s.h)}</h3>`:''}<div class="jb-sb">${s.text?`<div class="jb-txt">${P(s.text)}</div>`:''}${s.items?`<ol class="jb-list">${list(s.items)}</ol>`:''}</div></section>`).join('');
   const ks=(v.cases||[]).map(caseById).filter(Boolean);
   // обложка: своё фото/видео вакансии, иначе — обложка первого из её проектов; без них шапка чёрная с направляющими
   const ck=v.img||v.vid?{img:v.img,vid:v.vid,c:['#222','#333','#111']}:ks[0],jv=$('#jVis');
   $('#jHero').classList.toggle('has-vis',!!ck);jv.style.background=ck?cover(ck,0):'';jv.innerHTML=ck?vid(ck):'';if(ck)playIn(jv,true);
-  $('#jBody').innerHTML=(v.lead?`<section class="cb wrap jb-lead"><div class="cf-logo d">О роли</div><p class="cf-lead">${esc(v.lead)}</p></section>`:'')+sec+
+  $('#jBody').innerHTML=(v.lead?`<section class="cb wrap jb-lead"><div class="cf-logo d">О вакансии</div><div class="cf-lead">${P(v.lead.split(/\n\s*\n/))}</div></section>`:'')+sec+
     (ks.length?`<section class="wrap jb-cases"><h3 class="d"><span class="o on-dark">Проекты,</span> в которых предстоит участвовать</h3><div class="rows"></div></section>`:'');
   const kr=$('#jBody .jb-cases .rows');ks.forEach((k,i)=>kr.appendChild(caseRow(k,i)));
   // руководитель: свой у вакансии, иначе — из настроек

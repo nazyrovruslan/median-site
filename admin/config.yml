@@ -336,7 +336,7 @@ collections:
       - { name: employment, label: Занятость, widget: string, required: false, hint: "Полная, проектная…" }
       - { name: experience, label: Опыт, widget: string, required: false, hint: "Например, «1–3 года»" }
       - { name: salary, label: Зарплата, widget: string, required: false, hint: "Например, «от 80 000 ₽ на руки». Пусто — строки не будет" }
-      - { name: lead, label: Коротко о роли, widget: text, required: false, hint: "Крупный текст под заголовком" }
+      - { name: lead, label: О вакансии (вступление), widget: text, required: false, hint: "Крупный текст после шапки. Абзацы разделяйте пустой строкой" }
       - name: sections
         label: Разделы вакансии
         label_singular: раздел
@@ -344,8 +344,9 @@ collections:
         required: false
         hint: "Классика: Чем предстоит заниматься · Что для нас важно · Будет плюсом · Что предлагаем"
         fields:
-          - { name: h, label: Заголовок, widget: string }
-          - { name: items, label: Пункты, widget: list, field: { name: p, label: Пункт, widget: text } }
+          - { name: h, label: Заголовок, widget: string, required: false, hint: "Можно оставить пустым — тогда только текст (например, финальный абзац)" }
+          - { name: text, label: Абзацы перед списком, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+          - { name: items, label: Пункты, widget: list, required: false, field: { name: p, label: Пункт, widget: text }, hint: "Пункт, начинающийся с ##, — подзаголовок внутри раздела (например, «## 1. Продажи»)" }
       - name: cases
         label: Проекты, в которых предстоит участвовать
         hint: "Добавьте кейсы из списка кейсов — на странице вакансии они идут строками и открываются как обычные кейсы"
