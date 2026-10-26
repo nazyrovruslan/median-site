@@ -884,7 +884,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .jb-sec{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;row-gap:20px;padding-block:clamp(32px,3.2vw,60px);background-image:linear-gradient(var(--ink),var(--ink));background-size:calc(100% - 2*var(--gutter)) 1px;background-position:var(--gutter) 0;background-repeat:no-repeat} /* разделы одним серым экраном: линия между разделами, заголовок --h4 слева, текст на колонках 3–5 */
 #jBody>.jb-sec:first-child,.jb-lead+.jb-sec{background-image:none;padding-top:clamp(56px,7vw,135px)}
 .jb-sec:not(:has(+.jb-sec)){padding-bottom:clamp(56px,7vw,135px)}
-.jb-noh{background-image:none;padding-top:0} /* абзац без заголовка продолжает предыдущий раздел */
+.jb-noh{background-image:none;padding-top:0}
+.jb-sec+.jb-sec{margin-top:-1px} /* секции встык с нахлёстом 1px: иначе на дробных высотах (padding в vw) между серыми секциями просвечивает чёрный фон панели тонкой линией на всю ширину */ /* абзац без заголовка продолжает предыдущий раздел */
 .jb-sec h3{grid-column:1/3;font-size:var(--h4);line-height:1.05;letter-spacing:0;margin:0;padding-right:1em}
 .jb-sb{grid-column:3/6;display:grid;gap:.8em;font:400 var(--t2)/1.45 var(--body)}
 .jb-txt p+p{margin-top:.6em}
