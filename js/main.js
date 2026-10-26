@@ -530,7 +530,7 @@ $('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollI
 // видео о команде: плеер YouTube подгружаем только по клику
 $('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return;playFull($('#aReel'),'media/video/team.mp4','media/video/team.webp?v=2','Team median.agency');});
 const aReelHtml=$('#aReel').innerHTML;
-new IntersectionObserver(([e])=>$('.ab-end').classList.toggle('in',e.isIntersecting),{threshold:.25}).observe($('.ab-end'));
+$$('.ab-end').forEach(f=>new IntersectionObserver(([e])=>f.classList.toggle('in',e.isIntersecting),{threshold:.25}).observe(f)); // подвал «О нас» и страницы вакансии
 /* ---------- вакансии: список в «О нас» (/jobs) и страница вакансии /vacancy-<id> (данные — js/vacancies.js из content/vacancies) ---------- */
 const JB=typeof JOBS!=='undefined'?JOBS:{list:[]}, jobP=$('#jobPanel'); let jobPushed=false, jobId=null;
 const jobById=id=>JB.list.find(v=>v.id===id);
@@ -544,7 +544,7 @@ function jobRows(box,list){box.innerHTML='';list.forEach((v,i)=>{
   r.onclick=e=>{e.preventDefault();openJob(v.id,true);};box.appendChild(r);});}
 // почта для откликов — одна на все вакансии (настройки → «Вакансии — общее»)
 const HR=JB.email||'hr@median.agency';
-$$('#jobsMail,#jMail,#jMail2').forEach(a=>{a.href='mailto:'+HR;a.querySelector('span').textContent=HR;});
+$$('#jobsMail,#jMail,#jFootMail').forEach(a=>{a.href='mailto:'+HR;a.querySelector('span').textContent=HR;});
 $('#jobsIntro').textContent=JB.list.length?(JB.intro||''):(JB.empty||JB.intro||'');
 jobRows($('#jobsRows'),JB.list);$('#jobsRows').hidden=!JB.list.length;
 const caseRow=(k,i)=>{const j=CASES.indexOf(k),r=document.createElement('button');r.type='button';r.className='row';r.dataset.c='row';r.dataset.label='Смотреть проект';r.dataset.rp=1;
@@ -557,10 +557,13 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   $('#jTag').textContent=['Вакансия',v.dept].filter(Boolean).join(' · ');
   $('#jTitle').innerHTML=ttlHtml(jobTtl(v),true);
   $('#jFacts').innerHTML=[['Зарплата',v.salary],['Город',v.city],['Формат',v.format],['Занятость',v.employment],['Опыт',v.experience]].filter(f=>f[1]).map(([a,b])=>`<div><dt class="label">${a}</dt><dd>${a==='Зарплата'?nw(b):esc(b)}</dd></div>`).join('');
-  $$('#jHh,#jHh2').forEach(a=>{a.hidden=!v.hh;if(v.hh)a.href=v.hh;});
-  $('#jMail2').href=$('#jMail').href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+v.name);
-  const sec=(v.sections||[]).map((s,j)=>{const w=s.h.split(' ');return `<section class="grey cb jb-sec"><h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:esc(s.h)}</h3><ol class="jb-list">${(s.items||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol></section>`;}).join('');
+  $('#jHh').hidden=!v.hh;if(v.hh)$('#jHh').href=v.hh;
+  $$('#jMail,#jFootMail,#jCv').forEach(a=>a.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+v.name)); // тема письма — название вакансии
+  const sec=(v.sections||[]).map(s=>{return `<section class="grey cb jb-sec"><h3 class="d">${esc(s.h)}</h3><ol class="jb-list">${(s.items||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol></section>`;}).join('');
   const ks=(v.cases||[]).map(caseById).filter(Boolean);
+  // обложка: своё фото/видео вакансии, иначе — обложка первого из её проектов; без них шапка чёрная с направляющими
+  const ck=v.img||v.vid?{img:v.img,vid:v.vid,c:['#222','#333','#111']}:ks[0],jv=$('#jVis');
+  $('#jHero').classList.toggle('has-vis',!!ck);jv.style.background=ck?cover(ck,0):'';jv.innerHTML=ck?vid(ck):'';if(ck)playIn(jv,true);
   $('#jBody').innerHTML=(v.lead?`<section class="cb wrap jb-lead"><div class="cf-logo d">О роли</div><p class="cf-lead">${esc(v.lead)}</p></section>`:'')+sec+
     (ks.length?`<section class="wrap jb-cases"><h3 class="d"><span class="o on-dark">Проекты,</span> в которых предстоит участвовать</h3><div class="rows"></div></section>`:'');
   const kr=$('#jBody .jb-cases .rows');ks.forEach((k,i)=>kr.appendChild(caseRow(k,i)));

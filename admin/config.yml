@@ -326,6 +326,8 @@ collections:
         fields:
           - { name: text, label: Текст, widget: string }
           - { name: outline, label: Контуром, widget: boolean, default: false }
+      - { name: img, label: Обложка (фото), widget: image, required: false, media_folder: /media/vacancies, public_folder: media/vacancies, hint: "Горизонтальное фото от 1920 px — фон шапки вакансии. Если пусто — обложка первого проекта из списка ниже" }
+      - { name: vid, label: Обложка (видео), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 без звука, 6–10 с, до 1280 px — играет поверх фото" }
       - { name: hh, label: Ссылка на hh.ru, widget: string, required: false, hint: "Кнопка «Откликнуться на hh.ru»" }
       - { name: dept, label: Команда / направление, widget: string, required: false, hint: "Например, «Проектный отдел»" }
       - { name: city, label: Город, widget: string, required: false }
