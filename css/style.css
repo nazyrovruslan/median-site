@@ -843,6 +843,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 #jobPanel{grid-template-columns:minmax(0,1fr);z-index:82} /* поверх «О нас» */
 #jobPanel .scrim{display:none}
 #casePanel{z-index:84} /* кейс из вакансии открывается поверх неё */
+#cvPanel{z-index:86} /* форма отклика поверх вакансии */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0} /* ловушка для ботов в форме отклика */
 #peek.top{z-index:85} /* превью кейса над панелью вакансии */
 .ab-jobs,.jb-more,.jb-cases{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));row-gap:clamp(28px,3vw,56px);padding-block:clamp(56px,7vw,135px);border-top:1px solid var(--line-dark)}
 .ab-jobs h3,.jb-more h3,.jb-cases h3,.jb-boss h3{grid-column:1/-1;font-size:var(--h2);line-height:1;letter-spacing:0;margin:0}

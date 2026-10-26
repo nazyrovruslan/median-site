@@ -445,6 +445,7 @@ collections:
         file: content/settings/jobs.json
         fields:
           - { name: email, label: Почта для откликов, widget: string, default: hr@median.agency }
+          - { name: crm, label: Адрес приёма откликов (прослойка Битрикс24), widget: string, required: false, hint: "POST-адрес прослойки, которая создаёт отклик в воронке Битрикс24. Пока пусто — форма «Send your CV» собирает письмо на почту для откликов" }
           - { name: intro, label: Текст над списком вакансий («О нас»), widget: text, required: false }
           - { name: empty, label: Текст, когда открытых вакансий нет, widget: text, required: false }
           - name: manager
