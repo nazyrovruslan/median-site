@@ -623,6 +623,7 @@ body.has-cursor .ab-play::before,body.has-cursor .ab-play::after{display:none}
 .fld label{font:500 var(--sm) var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .fld input,.fld textarea{background:transparent;border:0;border-bottom:1px solid var(--line-dark);color:var(--paper);font:500 var(--ui) var(--body);padding:8px 0;border-radius:0;width:100%}
 .fld input:focus,.fld textarea:focus{outline:none;border-color:var(--paper)}
+@media (pointer:coarse){.fld input,.fld textarea{font-size:max(16px,var(--ui))}} /* iOS не увеличивает страницу при фокусе, если кегль поля ≥16px */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips input{position:absolute;opacity:0;pointer-events:none}
 .chips label{border:1px solid var(--line-dark);border-radius:99px;padding:8px 14px;font:500 var(--sm) var(--body);letter-spacing:0;text-transform:none;color:var(--paper);cursor:pointer;transition:background .25s,color .25s}
