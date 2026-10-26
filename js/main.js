@@ -569,8 +569,8 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   $('#jFacts').innerHTML=[['Зарплата',v.salary],['Город',v.city],['Формат',v.format],['Занятость',v.employment],['Опыт',v.experience]].filter(f=>f[1]).map(([a,b])=>`<div><dt class="label">${a}</dt><dd>${a==='Зарплата'?nw(b):esc(b)}</dd></div>`).join('');
   $('#jHh').hidden=!v.hh;if(v.hh)$('#jHh').href=v.hh;
   $$('#jMail,#jFootMail,#jCv').forEach(a=>a.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+v.name)); // тема письма — название вакансии
-  // раздел: заголовок (необязателен), абзацы text, пункты items; пункт «## …» — подзаголовок внутри списка (нумерация с него начинается заново)
-  const list=a=>{let n=0;return a.map(t=>/^##\s*/.test(t)?(n=0,`<li class="jb-sub">${esc(t.replace(/^##\s*/,''))}</li>`):`<li data-n="${String(++n).padStart(2,'0')}">${esc(t)}</li>`).join('');};
+  // раздел: заголовок (необязателен), абзацы text, пункты items (с тире, как на hh); пункт «## …» — подзаголовок внутри списка
+  const list=a=>a.map(t=>/^##\s*/.test(t)?(`<li class="jb-sub">${esc(t.replace(/^##\s*/,''))}</li>`):`<li>${esc(t)}</li>`).join('');
   const sec=(v.sections||[]).map(s=>`<section class="grey cb jb-sec${s.h?'':' jb-noh'}">${s.h?`<h3 class="d">${esc(s.h)}</h3>`:''}<div class="jb-sb">${s.text?`<div class="jb-txt">${P(s.text)}</div>`:''}${s.items?`<ol class="jb-list">${list(s.items)}</ol>`:''}</div></section>`).join('');
   const ks=(v.cases||[]).map(caseById).filter(Boolean);
   // обложка: своё фото/видео вакансии, иначе — обложка первого из её проектов; без них шапка чёрная с направляющими
