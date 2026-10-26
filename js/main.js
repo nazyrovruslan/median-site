@@ -483,19 +483,20 @@ $('#brief').addEventListener('submit',e=>{
  cv.addEventListener('touchend',e=>{if(!c0)return;const t=e.changedTouches[0],moved=Math.hypot(t.clientX-c0[0],t.clientY-c0[1])>10;c0=null;if(moved||!e.cancelable)return;e.preventDefault();openCv();});
  const link=u=>(u=u.trim())&&!/^https?:\/\//i.test(u)?'https://'+u:u;
  cvF.addEventListener('submit',async e=>{e.preventDefault();const f=cvF,val=n=>f[n].value.trim();
-   if(!val('name')||!val('contact')){toast('Заполните имя и контакт');(val('name')?f.contact:f.name).focus();return;}
+   if(!val('name')){toast('Заполните имя');f.name.focus();return;}
+   if(!val('tg')&&!val('phone')){toast('Укажите Telegram или телефон');f.tg.focus();return;}
    if(!URLRE.test(val('cv'))){toast('Добавьте ссылку на резюме');f.cv.focus();return;}
    if(val('portfolio')&&!URLRE.test(val('portfolio'))){toast('Проверьте ссылку на портфолио');f.portfolio.focus();return;}
    if(!f.agree.checked){toast('Нужно согласие на обработку данных');f.agree.focus();return;}
    if(val('website'))return; // ловушка для ботов
    const v=jobById(f.dataset.job),q=new URLSearchParams(location.search),utm={};['source','medium','campaign','content','term'].forEach(k=>{const x=q.get('utm_'+k);if(x)utm[k]=x;});
-   const data={type:'vacancy',vacancy:v?{id:v.id,name:v.name,hh:v.hh||''}:null,name:val('name'),contact:val('contact'),email:val('email'),cv:link(val('cv')),portfolio:link(val('portfolio')),msg:val('msg'),agree:new Date().toISOString(),page:location.href,utm};
+   const data={type:'vacancy',vacancy:v?{id:v.id,name:v.name,hh:v.hh||''}:null,name:val('name'),tg:val('tg')&&'@'+val('tg').replace(/^@|^https?:\/\/t\.me\//i,''),phone:val('phone'),email:val('email'),cv:link(val('cv')),portfolio:link(val('portfolio')),msg:val('msg'),agree:new Date().toISOString(),page:location.href,utm};
    const btn=f.querySelector('.send');btn.disabled=true;let sent=false;
    if(JB.crm)try{const r=await fetch(JB.crm,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});sent=r.ok;}catch(err){}
    btn.disabled=false;cvOk.hidden=false;
    if(sent){cvOk.textContent=`Спасибо, ${data.name}. Отклик получили, ответим в течение нескольких рабочих дней.`;f.reset();return;}
    // прослойки ещё нет или она не ответила — собираем письмо на почту для откликов, чтобы отклик не потерялся
-   const body=[v?'Вакансия: '+v.name:'',`Имя: ${data.name}`,`Контакт: ${data.contact}`,data.email&&`Почта: ${data.email}`,`Резюме: ${data.cv}`,data.portfolio&&`Портфолио: ${data.portfolio}`,data.msg&&'\n'+data.msg].filter(Boolean).join('\n');
+   const body=[v?'Вакансия: '+v.name:'',`Имя: ${data.name}`,data.tg&&`Telegram: ${data.tg}`,data.phone&&`Телефон: ${data.phone}`,data.email&&`Почта: ${data.email}`,`Резюме: ${data.cv}`,data.portfolio&&`Портфолио: ${data.portfolio}`,data.msg&&'\n'+data.msg].filter(Boolean).join('\n');
    location.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+(v?v.name:'без вакансии'))+'&body='+encodeURIComponent(body);
    cvOk.textContent=`Открыли письмо на ${HR} с вашими данными — осталось нажать «Отправить» в почте.`;});}
 
