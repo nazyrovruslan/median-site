@@ -84,6 +84,15 @@ collections:
         widget: list
         required: false
         field: { name: url, label: Ссылка, widget: string }
+      - name: facts
+        label: Доп. строки фактов
+        label_singular: строку
+        widget: list
+        required: false
+        hint: "Строки в таблице фактов под обложкой, например «Партнёры» или «Концепции»"
+        fields:
+          - { name: l, label: Подпись, widget: string }
+          - { name: v, label: Значение, widget: string }
       - name: blocks
         label: Секции страницы
         label_singular: секцию
@@ -166,6 +175,122 @@ collections:
                   - { name: id, label: ID видео, widget: string }
                   - { name: title, label: Тема, widget: string }
                   - { name: guest, label: Гость, widget: string, required: false }
+          # ── «новый формат» кейса (макет 2026): см. DESIGN-SYSTEM.md §7 «Кейс нового формата»
+          - name: sec
+            label: Раздел с номером (Контекст, Задача, Реализация…)
+            fields:
+              - { name: h, label: Заголовок, widget: string }
+              - { name: q, label: Вопрос под заголовком, widget: string, required: false }
+              - { name: cap, label: Подпись вместо номера, widget: string, required: false, hint: "Раздел без номера, например «Data Science»" }
+              - { name: lead, label: Лид, widget: text, required: false }
+              - { name: text, label: Абзацы, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+              - { name: label, label: Подпись над пунктами, widget: string, required: false }
+              - name: rows
+                label: Пункты
+                label_singular: пункт
+                widget: list
+                required: false
+                fields:
+                  - { name: n, label: Номер (если не 01, 02…), widget: string, required: false }
+                  - { name: name, label: Название, widget: string }
+                  - { name: text, label: Текст, widget: text }
+                  - { name: img, label: Фото пункта, widget: image, required: false, hint: "Если у пунктов есть фото — слева показывается фото выбранного пункта" }
+              - name: groups
+                label: Группы цифр
+                label_singular: группу
+                widget: list
+                required: false
+                fields:
+                  - { name: l, label: Подпись группы, widget: string }
+                  - name: items
+                    label: Цифры
+                    label_singular: цифру
+                    widget: list
+                    fields:
+                      - { name: pre, label: Подпись над цифрой, widget: string, required: false }
+                      - { name: v, label: Значение, widget: string }
+                      - { name: l, label: Подпись под цифрой, widget: string, required: false }
+          - name: key
+            label: Ключевая фраза
+            fields:
+              - { name: label, label: Ярлык, widget: string, required: false, default: Key message }
+              - { name: out, label: Контурная строка, widget: string }
+              - { name: solid, label: Залитая строка, widget: string }
+          - name: photo
+            label: Фото во всю ширину
+            fields:
+              - { name: img, label: Фото, widget: image }
+          - name: banner
+            label: Баннер во всю ширину с карточкой
+            fields:
+              - { name: img, label: Фото (или постер видео), widget: image }
+              - { name: vid, label: Видео без звука, widget: file, required: false, media_folder: /media/video, public_folder: media/video }
+              - { name: out, label: Контурная часть заголовка, widget: string }
+              - { name: solid, label: Залитая часть заголовка, widget: string, required: false }
+              - { name: text, label: Текст карточки, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+              - { name: side, label: Карточка, widget: select, options: [{ label: Справа, value: right }, { label: Слева, value: left }], default: right }
+          - name: carousel
+            label: Карусель фото
+            fields:
+              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: split
+            label: Текст слева + сетка фото
+            fields:
+              - { name: label, label: Ярлык, widget: string, required: false }
+              - { name: h, label: Заголовок, widget: text, hint: "Перенос строки — с новой строки" }
+              - { name: text, label: Абзацы, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: marquee
+            label: Две бегущие ленты фото
+            fields:
+              - { name: a, label: Верхняя лента, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+              - { name: b, label: Нижняя лента, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: accordion
+            label: Фото-гармошка
+            fields:
+              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: bento
+            label: Мозаика из 8 фото
+            fields:
+              - { name: items, label: Фото, hint: "8 шт.: 1-е большое, 2-е высокое, 3-е широкое", label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: gallery
+            label: Галерея с миниатюрами
+            fields:
+              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: years
+            label: Итоги по годам / городам
+            fields:
+              - { name: out, label: Контурная часть заголовка, widget: string, default: Итоги }
+              - { name: solid, label: Залитая часть заголовка, widget: string }
+              - name: sum
+                label: Общие цифры сверху
+                widget: object
+                required: false
+                collapsed: true
+                fields:
+                  - { name: l, label: Подпись, widget: string }
+                  - name: items
+                    label: Цифры
+                    label_singular: цифру
+                    widget: list
+                    fields:
+                      - { name: pre, label: Подпись над цифрой, widget: string, required: false }
+                      - { name: v, label: Значение, widget: string }
+                      - { name: l, label: Подпись под цифрой, widget: string, required: false }
+              - name: rows
+                label: Строки
+                label_singular: строку
+                widget: list
+                fields:
+                  - { name: y, label: Год или город, widget: string }
+                  - { name: sub, label: Даты и место, widget: string, required: false }
+                  - name: items
+                    label: Цифры
+                    label_singular: цифру
+                    widget: list
+                    fields:
+                      - { name: v, label: Значение, widget: string }
+                      - { name: l, label: Подпись, widget: string, required: false }
 
   # Скрытый раздел: коммерческие предложения по уникальной ссылке /clients/<адрес>/ (собирает tools/build-kp.mjs)
   - name: kp

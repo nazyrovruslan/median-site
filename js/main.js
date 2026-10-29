@@ -332,8 +332,38 @@ const BLOCK={
   // буквы South HUB берём их же векторами с southhub.ru; другие буквы — текстом
   hub:b=>{const gl=t=>HUBSVG[t]?`<img class="hub-svg" src="media/southhub/${HUBSVG[t]}.svg" alt="">`:esc(t);
     return `<section class="cb cb-hub" aria-label="${esc((b.start||'')+(b.end||''))}: ${esc(b.tag||'')}"><div class="hub-g" aria-hidden="true"><b class="hub-s">${gl(b.start)}</b>${`<i><span>${gl(b.letter||'U')}</span></i>`.repeat(54)}<p class="hub-t">${esc(b.tag)}</p><b class="hub-e"><span>${gl(b.end)}</span></b></div></section>`},
-  stats:b=>`<section class="cb cb-stats wrap" data-fit-g>${(b.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`
+  stats:b=>`<section class="cb cb-stats wrap" data-fit-g>${(b.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`  ,
+  // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): тёмные разделы с номером и фото-блоки на сером ──
+  // раздел: номер, заголовок Druk, вопрос; справа лид, абзацы, подпись списка, пункты; ниже — группы цифр. У пунктов с img слева фото активного пункта
+  sec:b=>{const n=b.cap?'':b.n||String(++secN).padStart(2,'0'),ph=(b.rows||[]).some(r=>r.img),fig=r=>`<figure class="sc-ph"><img src="${r.img}" alt="${esc(r.name||'')}" loading="lazy"></figure>`;
+    return `<section class="cb cb-sec wrap${ph?' has-ph':''}"><header class="sc-h">${b.cap?`<span class="label">${esc(b.cap)}</span>${b.h?`<h3 class="d">${esc(b.h)}</h3>`:''}`:`<span class="sc-n">${esc(n)}</span><h3 class="d">${esc(b.h)}</h3>${b.q?`<p class="sc-q">${esc(b.q)}</p>`:''}`}${ph?`<div class="sc-aside">${fig(b.rows.find(r=>r.img))}</div>`:''}</header>`+
+    `<div class="sc-body">${b.lead?`<p class="sc-lead">${nw(b.lead)}</p>`:''}${b.text?`<div class="sc-txt">${P(b.text)}</div>`:''}${b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<ol class="sc-rows">${b.rows.map((r,j)=>{const it=`<span class="sr-n">${esc(r.n||String(j+1).padStart(2,'0'))}</span><b class="d">${esc(r.name)}</b><span class="sr-t">${esc(r.text||'')}</span>`;
+      return `<li>${ph&&r.img?`<button type="button" class="sr${j?'':' on'}" data-img="${r.img}" aria-pressed="${!j}" data-c="mag">${it}</button>${fig(r)}`:`<div class="sr">${it}</div>`}</li>`;}).join('')}</ol>`:''}</div>`+
+    (b.groups||[]).map(kpiGroup).join('')+`</section>`;},
+  // Key message: подпись и две строки (контурная + сплошная)
+  key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3></section>`,
+  // фото на весь экран
+  photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="" loading="lazy"></section>`,
+  // фото во всю ширину с заголовком и белой карточкой (или видео без звука, если vid)
+  banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${b.img}" alt="" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
+  // карусель: видно три фото, листается свайпом, стрелками и точками
+  carousel:b=>`<section class="grey cb cb-car"><div class="car-track" tabindex="0" aria-label="Фото">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy" data-lb></figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
+  // сплит: слева текст стоит на месте, справа проезжают фото
+  split:b=>`<section class="grey cb cb-split"><div class="sp-txt">${b.label?`<span class="label">${esc(b.label)}</span>`:''}<h3 class="d">${(b.h||'').split('\n').map(esc).join('<br>')}</h3>${P(b.text)}</div><div class="sp-ph">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy"></figure>`).join('')}</div></section>`,
+  // бегущие ленты: две ленты в разные стороны, клик открывает фото
+  marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${[...r,...r].map((u,i)=>`<img src="${u}" alt="" loading="lazy" data-lb${i>=r.length?' aria-hidden="true"':''} data-c="view" data-label="Открыть">`).join('')}</div></div>`).join('')}</section>`,
+  // фото-аккордеон: полосы раскрываются при наведении или нажатии
+  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}" data-c="mag"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`,
+  // бенто: 8 плиток разного размера, клик открывает фото
+  bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="" loading="lazy" data-lb data-c="view" data-label="Открыть">`).join('')}</div></section>`,
+  // галерея: большое фото, стрелки, счётчик и полоса превью
+  gallery:b=>{const it=b.items||[];return `<section class="cb cb-gal wrap"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}" data-c="mag"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`;},
+  // итоги по годам / городам: заголовок, сводка, строки с цифрами
+  years:b=>`<section class="cb cb-years wrap"><span class="sc-n">${esc(b.n||String(++secN).padStart(2,'0'))}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<ol>${(b.rows||[]).map(r=>`<li><div class="yr-h"><b class="d">${esc(r.y)}</b>${r.sub?`<span class="label">${esc(r.sub)}</span>`:''}</div><div class="yr-k" data-fit-g>${(r.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></li>`).join('')}</ol></section>`
 };
+// группа цифр раздела: подпись, числа (над числом — мелкая подпись pre, например «План 4 000»)
+let secN=0;
+function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
 // буквенная сетка: буквы рядом с курсором растут (на таче — медленно «гуляющая» волна, пока блок на экране)
 const HUBSVG={SOUTHU:'southu',U:'u',B:'b'};
 let hubIO=null;function hubInit(){hubIO&&hubIO.disconnect();const g=$('#cBody .hub-g');if(!g||reduce)return;
@@ -344,6 +374,34 @@ let hubIO=null;function hubInit(){hubIO&&hubIO.disconnect();const g=$('#cBody .h
   g.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')at(-1e4,-1e4);});
   if(matchMedia('(hover:none)').matches&&'IntersectionObserver' in window){const loop=t=>{if(!auto)return;if(!t0)t0=t;const s=(t-t0)/1000,b=g.getBoundingClientRect();at(b.left+b.width*(.5+.42*Math.sin(s*.7)),b.top+b.height*(.5+.38*Math.sin(s*1.13)));auto=requestAnimationFrame(loop);};
     hubIO=new IntersectionObserver(([e])=>{if(e.isIntersecting){if(!auto)auto=requestAnimationFrame(loop);}else{cancelAnimationFrame(auto);auto=0;}});hubIO.observe(g);}}
+// оживление блоков «нового формата»: карусель, аккордеон, галерея, фото по пункту, ленты, просмотр фото
+function blocksInit(root){
+  root.querySelectorAll('.cb-car').forEach(c=>{const t=c.querySelector('.car-track'),f=[...t.children],d=c.querySelector('.car-dots');
+    const per=()=>Math.max(1,Math.round(t.clientWidth/(f[0].getBoundingClientRect().width||1))),pages=()=>Math.max(1,f.length-per()+1);
+    const draw=()=>{const n=pages(),i=Math.round(t.scrollLeft/((f[1]?f[1].offsetLeft-f[0].offsetLeft:1)||1));d.innerHTML=Array.from({length:n},(_,j)=>`<button type="button" aria-label="Фото ${j+1}" class="${j===Math.min(i,n-1)?'on':''}" data-c="mag"></button>`).join('');};
+    const go=i=>{const n=pages();i=(i+n)%n;t.scrollTo({left:f[i].offsetLeft-f[0].offsetLeft,behavior:reduce?'auto':'smooth'});};
+    const cur=()=>[...d.children].findIndex(b=>b.classList.contains('on'));
+    c.querySelector('.car-p').onclick=()=>go(cur()-1);c.querySelector('.car-n').onclick=()=>go(cur()+1);
+    d.onclick=e=>{const b=e.target.closest('button');if(b)go([...d.children].indexOf(b));};
+    let raf=0;t.addEventListener('scroll',()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(draw);},{passive:true});draw();addEventListener('resize',draw);});
+  root.querySelectorAll('.acc').forEach(a=>{const it=[...a.children],open=x=>it.forEach(i=>{const on=i===x;i.classList.toggle('on',on);i.setAttribute('aria-expanded',on);});
+    it.forEach(i=>{i.addEventListener('click',()=>open(i));i.addEventListener('focus',()=>open(i));i.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')open(i);});});});
+  root.querySelectorAll('.cb-gal').forEach(g=>{const im=[...g.querySelectorAll('.gl-main img')],th=[...g.querySelectorAll('.gl-th button')],c=g.querySelector('.gl-c');let i=0;
+    const go=j=>{i=(j+im.length)%im.length;im.forEach((x,k)=>x.classList.toggle('on',k===i));th.forEach((x,k)=>x.classList.toggle('on',k===i));c.textContent=`${i+1} / ${im.length}`;th[i].scrollIntoView({block:'nearest',inline:'nearest'});};
+    g.querySelector('.gl-p').onclick=()=>go(i-1);g.querySelector('.gl-n').onclick=()=>go(i+1);th.forEach((x,k)=>x.onclick=()=>go(k));
+    let x0=null;const m=g.querySelector('.gl-main');m.addEventListener('pointerdown',e=>{x0=e.clientX;});m.addEventListener('pointerup',e=>{if(x0!==null&&Math.abs(e.clientX-x0)>40)go(i+(e.clientX<x0?1:-1));x0=null;});});
+  root.querySelectorAll('.cb-sec.has-ph').forEach(s=>{const img=s.querySelector('.sc-aside img'),bs=[...s.querySelectorAll('.sr[data-img]')];
+    bs.forEach(b=>b.addEventListener('click',()=>{bs.forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',x===b);});img.style.opacity=0;setTimeout(()=>{img.src=b.dataset.img;img.alt=b.querySelector('b').textContent;img.style.opacity=1;},reduce?0:250);}));
+    bs.forEach(b=>{new Image().src=b.dataset.img;});});
+  root.querySelectorAll('.mq-t').forEach(t=>{const go=()=>t.style.setProperty('--d',(t.scrollWidth/2/40)+'s');t.querySelectorAll('img').forEach(i=>i.complete||i.addEventListener('load',go,{once:true}));go();});
+}
+// просмотр фото на весь экран: клик по фото с data-lb; стрелки, свайп, Esc
+const LB=document.createElement('div');LB.id='lb';LB.setAttribute('aria-hidden','true');LB.innerHTML='<img alt=""><button type="button" class="lb-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="lb-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><button type="button" class="lb-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';document.body.appendChild(LB);
+let lbSet=[],lbI=0;const lbShow=i=>{lbI=(i+lbSet.length)%lbSet.length;LB.querySelector('img').src=lbSet[lbI];};
+const lbClose=()=>{LB.classList.remove('on');LB.setAttribute('aria-hidden','true');};
+$('#cBody').addEventListener('click',e=>{const im=e.target.closest('img[data-lb]');if(!im||matchMedia('(max-width:820px)').matches&&im.closest('.cb-car'))return;const sec=im.closest('section');lbSet=[...new Set([...sec.querySelectorAll('img[data-lb]')].map(x=>x.getAttribute('src')))];lbShow(lbSet.indexOf(im.getAttribute('src')));LB.classList.add('on');LB.setAttribute('aria-hidden','false');});
+LB.addEventListener('click',e=>{if(e.target.closest('.lb-p'))lbShow(lbI-1);else if(e.target.closest('.lb-n'))lbShow(lbI+1);else if(e.target===LB||e.target.closest('.lb-x'))lbClose();});
+addEventListener('keydown',e=>{if(!LB.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();lbClose();}else if(e.key==='ArrowLeft')lbShow(lbI-1);else if(e.key==='ArrowRight')lbShow(lbI+1);},true);
 // шоурил кейса: беззвучное превью играет, пока блок виден; по клику — полное видео со звуком
 let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const v=$('#cBody .reel-play .ab-tz');if(!v||reduce||!('IntersectionObserver' in window))return;
   v.addEventListener('playing',()=>v.classList.add('on'),{once:true});
@@ -370,17 +428,19 @@ function fillCase(id,split){
   const facts=[['Категория',k.cat||(k.tags||[]).map(t=>TAGS[t]).filter(Boolean).join(', ')||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
   const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗</a>`).join('<br>');
   if(links)facts.push(['Сайт',links]);
+  (k.facts||[]).forEach(f=>f.l&&f.v&&facts.splice(f.at??facts.length,0,[f.l,f.v]));
+  secN=0;
   let tc=0;
   $('#cBody').innerHTML=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
     (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
-  reelTeaser();hubInit();
+  reelTeaser();hubInit();blocksInit($('#cBody'));
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;
-  requestAnimationFrame(()=>{fitTitle($('#cTitle'));fitTitle($('#cNextName'));fitAll($('#cBody'));});
+  requestAnimationFrame(()=>{fitTitle($('#cTitle'));fitTitle($('#cNextName'));fitAll($('#cBody'));$$('#cBody .cb-key h3,#cBody .cb-ban h3,#cBody .cb-years h3').forEach(fitTitle);});
 }
-addEventListener('resize',()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});
+addEventListener('resize',()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));$$('#cBody .cb-key h3,#cBody .cb-ban h3,#cBody .cb-years h3').forEach(fitTitle);}});
 document.fonts&&document.fonts.ready.then(()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});fitAll();
 // после перехода обложка раскрывается из макетной раскладки на весь экран, заголовок уезжает вниз влево
 let expT=0;function expandHero(d){clearTimeout(expT);expT=setTimeout(()=>$('#cHero').classList.remove('split'),reduce?0:d);}

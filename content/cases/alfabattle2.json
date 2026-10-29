@@ -89,5 +89,6 @@
     "https://alfabattle.ru/2"
   ],
   "lead": "«Шестинедельный хакатон – потому что математические модели просчитываются небыстро»",
-  "img": "media/cases/alfabattle2-cover.webp"
+  "img": "media/cases/alfabattle2-cover.webp",
+  "hide": true
 }
