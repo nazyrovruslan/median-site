@@ -7,7 +7,7 @@
   --body:"Basis Grotesque Pro","Helvetica Neue",Arial,sans-serif;
   --pad:clamp(16px,4vw,56px);--gutter:clamp(16px,4vw,56px);
   --h1:clamp(40px,6.3vw,121px);--h2:clamp(30px,4.95vw,95px);--h3:clamp(26px,3.125vw,60px);--h4:clamp(17px,1.5625vw,30px);
-  --lead:clamp(17px,1.98vw,38px);--t2:clamp(15px,1.25vw,24px);--ui:clamp(14px,.94vw,18px);--sm:clamp(12px,.73vw,14px);
+  --lead:clamp(16px,1.5625vw,30px);--t2:clamp(15px,1.25vw,24px);--ui:clamp(14px,.94vw,18px);--sm:clamp(12px,.73vw,14px);
   --ease:cubic-bezier(.2,.7,.1,1);
   color-scheme:light;
 }

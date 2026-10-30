@@ -16,7 +16,7 @@
   --h3:clamp(26px,3.125vw,60px);
   --h4:clamp(17px,1.5625vw,30px);
   --h5:clamp(12px,.94vw,18px);
-  --lead:clamp(17px,1.98vw,38px); /* крупный текст: 38/50 на 1920 */
+  --lead:clamp(16px,1.5625vw,30px); /* крупный текст: 30/40 на 1920 (было 38 — 30.10 Руслан: слишком крупно) */
   --t2:clamp(15px,1.25vw,24px);
   --ui:clamp(14px,.94vw,18px); /* основной текст и подписи интерфейса: 18px на 1920 */
   --txt:var(--ui); /* текст карточек = ui */
@@ -1012,7 +1012,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .gl-c{position:absolute;top:24px;right:24px;z-index:1;padding:8px 16px;border-radius:100px;background:rgba(11,11,12,.7);font:500 var(--ui)/1.2 var(--body)}
 .gl-th{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 8*16px)/9);gap:16px;margin-top:24px;overflow-x:auto;scrollbar-width:none}
 .gl-th button{padding:0;border:0;background:none;cursor:pointer;opacity:.5;transition:opacity .2s;outline-offset:-2px}
-.gl-th button.on{opacity:1;outline:2px solid var(--paper)}
+.gl-th button.on{opacity:1;outline:2px solid var(--ink)}
 .gl-th img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
 /* итоги по годам / городам */
 .cb-years{padding-block:clamp(56px,8.6vw,166px) clamp(56px,7vw,135px)}
