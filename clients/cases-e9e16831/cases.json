@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T17:26:03.590Z",
+  "updated": "2026-10-30T14:35:15.753Z",
   "default_count": 4,
   "categories": [
     {
@@ -76,7 +76,7 @@
       "id": "alfa-dvizh",
       "name": "Альфа Движ",
       "client": "Альфа-Банк",
-      "year": "2023–2024",
+      "year": "4 феста, 2023–2024",
       "sub": "Серия фестов для умных и свободных: Москва, Новосибирск, Екатеринбург, Санкт-Петербург",
       "categories": [
         "fest"
@@ -89,8 +89,8 @@
       "id": "southhub",
       "name": "South HUB",
       "client": "",
-      "year": "2022–2026",
-      "sub": "Кэмп-конференция для C-level в IT",
+      "year": "5 кэмпов, 2022–2026",
+      "sub": "Ежегодная кэмп-конференция для C-level в IT",
       "categories": [
         "camp",
         "conf"
@@ -102,9 +102,9 @@
     {
       "id": "alfa-battle",
       "name": "Alfa Battle",
-      "client": "Альфа-банк",
-      "year": "",
-      "sub": "5 часов остросюжетного кодинга",
+      "client": "Альфа-Банк",
+      "year": "2 сезона: июнь и декабрь 2020",
+      "sub": "Онлайн-чемпионат по программированию и стрим-конференция: два сезона",
       "categories": [
         "hack"
       ],
@@ -457,15 +457,15 @@
     {
       "id": "x5techbar",
       "name": "X5 Tech Bar",
-      "client": "X5 Tech – IT-команда Х5 Group",
-      "year": "",
-      "sub": "X5 Tech – IT-команда Х5 Group, разрабатывающая цифровые решения, которые помогают десяткам",
+      "client": "X5 Tech — IT-команда X5 Group",
+      "year": "2 реализации, 2022 и 2026",
+      "sub": "Бар инженерных разговоров на IT-конференциях: Ереван 2022 и Москва 2026",
       "categories": [
         "stands"
       ],
       "on_site": true,
       "url": "https://nazyrovruslan.github.io/median-site/x5techbar",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5techbar-cover.webp"
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5techbar-cover2.webp"
     },
     {
       "id": "prirodacoda",
@@ -489,7 +489,7 @@
       "categories": [
         "hack"
       ],
-      "on_site": true,
+      "on_site": false,
       "url": "https://nazyrovruslan.github.io/median-site/alfabattle2",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfabattle2-cover.webp"
     },

@@ -194,6 +194,14 @@
       ]
     },
     {
+      "t": "pics",
+      "mode": "chess",
+      "items": [
+        "media/cases/x5techbar-0-1.webp",
+        "media/cases/x5techbar-0-2.webp"
+      ]
+    },
+    {
       "t": "sec",
       "h": "Задача",
       "lead": "Повысить узнаваемость и привлекательность X5 Tech как технологичного бренда среди IT-аудитории.",
@@ -214,6 +222,13 @@
           "name": "Найм",
           "text": "Сформировать образ работодателя и завести новых кандидатов в HR-воронку."
         }
+      ]
+    },
+    {
+      "t": "pics",
+      "mode": "wide",
+      "items": [
+        "media/cases/x5techbar-feature.webp"
       ]
     },
     {

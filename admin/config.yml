@@ -205,11 +205,11 @@ collections:
           - name: carousel
             label: "Фото: карусель"
             fields:
-              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+              - { name: items, label: Фото или короткое видео, label_singular: фото или видео, hint: "Видео — .mp4 без звука, 2–5 секунд, играет по кругу", widget: list, field: { name: img, label: Фото или видео (.mp4), widget: file } }
           - name: gallery
             label: "Фото: галерея с миниатюрами"
             fields:
-              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+              - { name: items, label: Фото или короткое видео, label_singular: фото или видео, hint: "Видео — .mp4 без звука, 2–5 секунд, играет по кругу", widget: list, field: { name: img, label: Фото или видео (.mp4), widget: file } }
           - name: marquee
             label: "Фото: две бегущие ленты"
             fields:
@@ -218,7 +218,7 @@ collections:
           - name: accordion
             label: "Фото: гармошка"
             fields:
-              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+              - { name: items, label: Фото или короткое видео, label_singular: фото или видео, hint: "Видео — .mp4 без звука, 2–5 секунд, играет по кругу", widget: list, field: { name: img, label: Фото или видео (.mp4), widget: file } }
           - name: bento
             label: "Фото: мозаика из 8"
             fields:
@@ -229,7 +229,12 @@ collections:
               - { name: label, label: Ярлык, widget: string, required: false }
               - { name: h, label: Заголовок, widget: text, hint: "Перенос строки — с новой строки" }
               - { name: text, label: Абзацы, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
-              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+              - { name: items, label: Фото или короткое видео, label_singular: фото или видео, hint: "Видео — .mp4 без звука, 2–5 секунд, играет по кругу", widget: list, field: { name: img, label: Фото или видео (.mp4), widget: file } }
+          - name: pics
+            label: "Фото между разделами: шахматкой или во всю ширину"
+            fields:
+              - { name: mode, label: Раскладка, widget: select, options: [{ label: Шахматкой, value: chess }, { label: Во всю ширину, value: wide }], default: chess }
+              - { name: items, label: Фото или короткое видео, label_singular: фото или видео, hint: "Видео — .mp4 без звука, 2–5 секунд, играет по кругу", widget: list, field: { name: img, label: Фото или видео (.mp4), widget: file } }
           - name: photo
             label: "Фото во всю ширину"
             fields:

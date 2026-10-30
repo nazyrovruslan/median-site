@@ -7,7 +7,7 @@ const DIRS={external:'Внешние',internal:'Внутренние',outlist:'O
 const TAGS={employer:'Бренд работодателя',internal:'Внутренние коммуникации',community:'Сообщества',own:'Собственные проекты'}; // категории проектов (поле tags, в CMS — «Категории проекта»): фильтры над «Все проекты», у кейса их может быть несколько
 const HERO=CASES.slice(0,5);
 const art=(c,seed=0)=>`radial-gradient(120% 90% at ${30+seed*13%50}% ${70-seed*7%40}%, ${c[0]} 0%, transparent 55%), radial-gradient(90% 80% at ${80-seed*11%40}% ${20+seed*9%40}%, ${c[1]} 0%, transparent 60%), ${c[2]}`;
-const VV='?v=4'; // сброс кэша постеров и видео-обложек
+const VV='?v=5'; // сброс кэша постеров и видео-обложек
 const thumb=u=>'media/thumb/'+u.split('/').pop().replace(/\.\w+$/,'.webp'); // уменьшенная копия (520 px) для превью
 const poster=k=>k.vid.replace('.mp4','.webp')+VV;
 const cover=(k,seed=0,small)=>{const u=k.vid?poster(k):k.img;return u?`url(${small?thumb(u.replace(VV,'')):u}) center/cover no-repeat, ${k.c[2]}`:art(k.c,seed);}; // фото кейса, пока его нет — градиент
@@ -344,6 +344,9 @@ const BLOCK={
       (b.groups?`<section class="cb cb-kpi wrap">${b.groups.map(kpiGroup).join('')}</section>`:'');},
   // Key message: подпись и две строки (контурная + сплошная)
   key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="cb-txt">${P(b.text)}</div>`:''}</section>`,
+  // фото между разделами по сетке исходных кейсов: шахматкой (колонки 1–2 / 4–5, каждое следующее ниже на полфото) или во всю ширину; параллакс, клик открывает фото
+  // вместо фото можно короткий зацикленный кусок моушена (.mp4, без звука)
+  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' autoplay'} preload="metadata" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="" loading="lazy" data-lb data-c="view" data-label="Открыть"></span>`}</figure>`).join('')}</section>`,
   // фото на весь экран
   photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="" loading="lazy"></section>`,
   // фото во всю ширину с заголовком и белой карточкой (или видео без звука, если vid)
