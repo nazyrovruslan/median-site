@@ -845,6 +845,12 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 #jobPanel{grid-template-columns:minmax(0,1fr);z-index:82} /* поверх «О нас» */
 #jobPanel .scrim{display:none}
 #casePanel{z-index:84} /* кейс из вакансии открывается поверх неё */
+/* «О нас» → вакансия — один лист: вакансия плавно сменяет «О нас» (без второго выезда справа), слева вверху «← О нас» напротив крестика */
+.panel.fade .sheet{transform:none;opacity:0;transition:opacity .45s var(--ease)}
+.panel.fade.on .sheet{opacity:1}
+.back{position:fixed;z-index:10;mix-blend-mode:difference;color:#fff;left:clamp(16px,3vw,32px);top:calc(env(safe-area-inset-top,0px) + 20px);height:44px;display:inline-flex;align-items:center;font:500 var(--ui)/1.2 var(--body);transition:transform .4s var(--ease)}
+.back:hover{transform:translateX(-10px)}
+.back[hidden]{display:none}
 #cvPanel{z-index:86} /* форма отклика поверх вакансии */
 .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0} /* ловушка для ботов в форме отклика */
 #peek.top{z-index:85} /* превью кейса над панелью вакансии */
