@@ -390,6 +390,13 @@ function blocksInit(root){
     const per=()=>Math.max(1,Math.round(t.clientWidth/(f[0].getBoundingClientRect().width||1))),pages=()=>Math.max(1,f.length-per()+1);
     const draw=()=>{const n=pages(),i=Math.round(t.scrollLeft/((f[1]?f[1].offsetLeft-f[0].offsetLeft:1)||1));d.innerHTML=Array.from({length:n},(_,j)=>`<button type="button" aria-label="Фото ${j+1}" class="${j===Math.min(i,n-1)?'on':''}" data-c="mag"></button>`).join('');};
     const go=i=>{const n=pages();i=(i+n)%n;t.scrollTo({left:f[i].offsetLeft-f[0].offsetLeft,behavior:reduce?'auto':'smooth'});};
+    // свайп мышью: тянем ленту, на отпускании доводим до ближайшего кадра по направлению; клик после протяжки фото не открывает
+    {let x0=0,s0=0,drag=0;const step=()=>(f[1]?f[1].offsetLeft-f[0].offsetLeft:t.clientWidth)||1;
+     t.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button)return;x0=e.clientX;s0=t.scrollLeft;drag=1;});
+     addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-x0;if(drag===1&&Math.abs(dx)>6){drag=2;t.style.scrollSnapType='none';t.classList.add('drag');}if(drag===2){t.scrollLeft=s0-dx;e.preventDefault();}});
+     addEventListener('pointerup',e=>{if(drag===2){const dx=e.clientX-x0,base=Math.round(s0/step()),i=Math.abs(dx)>step()*.15?base-Math.sign(dx):base;t.style.scrollSnapType='';t.classList.remove('drag');go(Math.max(0,Math.min(pages()-1,i)));t.dataset.dragged=1;setTimeout(()=>delete t.dataset.dragged,0);}drag=0;});
+     t.addEventListener('click',e=>{if(t.dataset.dragged){e.stopPropagation();e.preventDefault();}},true);
+     t.addEventListener('dragstart',e=>e.preventDefault());}
     const cur=()=>[...d.children].findIndex(b=>b.classList.contains('on'));
     c.querySelector('.car-p').onclick=()=>go(cur()-1);c.querySelector('.car-n').onclick=()=>go(cur()+1);
     d.onclick=e=>{const b=e.target.closest('button');if(b)go([...d.children].indexOf(b));};

@@ -965,6 +965,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .cb-car{padding:clamp(56px,7vw,135px) var(--gutter) clamp(40px,4vw,80px)}
 .car-track{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 2*clamp(20px,2.9vw,56px))/3);gap:clamp(20px,2.9vw,56px);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;outline:0}
 .car-track::-webkit-scrollbar{display:none}
+.car-track.drag{user-select:none}.car-track.drag img{pointer-events:none}
 .car-track figure{margin:0;scroll-snap-align:start}
 .car-track img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;cursor:zoom-in}
 .car-nav{display:flex;justify-content:center;align-items:center;gap:clamp(16px,2vw,40px);margin-top:clamp(24px,2.5vw,48px)}
