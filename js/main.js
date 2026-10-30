@@ -438,7 +438,7 @@ function playFull(box,src,poster,title){const v=document.createElement('video');
   v.addEventListener('pause',()=>{if(v.readyState>2)user=true;});v.addEventListener('canplay',()=>{if(v.paused&&!user&&!v.ended)go();});go();}
 /* логотип клиента вместо названия в шапке кейса: SVG-маска, при наведении заливается фирменным цветом слева направо; k.logo из CMS важнее */
 const CLOGO=[[/альфа/i,'alfa','#EF3124'],[/x5|х5/i,'x5','#5FAF2D'],[/втб/i,'vtb','#009FDF'],[/м\.видео/i,'mvideo','#E31235'],[/мегафон/i,'megafon','#00B956'],[/црт/i,'crt','#00A0E3'],[/сбер/i,'sber','#21A038'],[/мтс/i,'mts','#E30611'],[/okko/i,'okko','#7B3FF2'],[/самолет/i,'samolet','#0D6EFD'],[/avito|авито/i,'avito','#00AAFF'],[/магнит/i,'magnit','#E30613']];
-function cfLogo(k){const t=k.client||k.name,m=!k.logo&&CLOGO.find(([r])=>r.test(k.client||'')),src=k.logo||(m&&`media/clients/${m[1]}.svg`);
+function cfLogo(k){const t=k.client||k.name,m=!k.logo&&CLOGO.find(([r])=>r.test(k.client||'')),src=k.logo||(m&&`media/clients/${m[1]}.svg?v=2`);
   return src?`<div class="cf-logo cf-svg" role="img" aria-label="${esc(t)}" style="-webkit-mask-image:url(${src});mask-image:url(${src});--c:${k.logoColor||(m&&m[2])||'#f3f3f1'}"></div>`:`<div class="cf-logo d">${esc(t)}</div>`;}
 function fillCase(id,split){
   const k=caseById(id), i=CASES.indexOf(k), n=CASES[(i+1)%CASES.length]; openId=id; // у скрытого кейса i=-1: «Следующий проект» — первый в списке
