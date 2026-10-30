@@ -982,6 +982,17 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .car-dots{display:flex;gap:12px}
 .car-dots button{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(11,11,12,.25);cursor:pointer}
 .car-dots button.on{background:var(--ink)}
+/* история как у Apple (story): чёрный экран, кадр во всю ширину, под ним карточка с жирным лидом */
+.cb-story{background:var(--ink);color:var(--paper)}
+.cb-story .car-track{grid-auto-columns:100%}
+.cb-story figure{display:flex;flex-direction:column;align-items:center;gap:clamp(16px,1.6vw,28px)}
+.st-m{width:100%;aspect-ratio:16/9;overflow:hidden;background:#000}
+.st-m img,.st-m video{display:block;width:100%;height:100%;object-fit:cover}
+.st-cap{max-width:46em;padding:clamp(20px,1.9vw,36px) clamp(24px,2.3vw,44px);border-radius:28px;background:rgba(243,243,241,.08);font:400 var(--ui)/1.45 var(--body);color:rgba(243,243,241,.85)}
+.st-cap b{font-weight:700;color:var(--paper)}
+.cb-story .car-nav>button{border-color:rgba(243,243,241,.4);color:var(--paper)}
+.cb-story .car-dots button{background:rgba(243,243,241,.3)}
+.cb-story .car-dots button.on{background:var(--paper)}
 /* сплит */
 .cb-split{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;padding:clamp(56px,7vw,135px) var(--gutter)}
 .sp-txt{grid-column:1/3;position:sticky;top:120px;padding-right:clamp(16px,4vw,80px);font:400 var(--t2)/1.42 var(--body)}
@@ -1052,6 +1063,10 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .bn-card{width:auto;align-self:stretch}
   .cb-photo img{aspect-ratio:4/5}
   .car-track{grid-auto-columns:86%;gap:16px}
+  .cb-story .car-track{grid-auto-columns:88%;gap:12px}
+  .st-m{aspect-ratio:4/5}
+  .cb-story figure{align-items:stretch}
+  .st-cap{border-radius:22px}
   .cb-split{grid-template-columns:1fr;row-gap:32px}
   .sp-txt{grid-column:1;position:static;padding-right:0}
   .sp-ph{grid-column:1}

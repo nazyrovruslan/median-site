@@ -206,6 +206,17 @@ collections:
             label: "Фото: карусель"
             fields:
               - { name: items, label: Фото или короткое видео, label_singular: фото или видео, hint: "Видео — .mp4 без звука, 2–5 секунд, играет по кругу", widget: list, field: { name: img, label: Фото или видео (.mp4), widget: file } }
+          - name: story
+            label: "Фото: карусель с подписями (как у Apple)"
+            fields:
+              - name: items
+                label: Кадры
+                label_singular: кадр
+                widget: list
+                fields:
+                  - { name: img, label: Фото или короткое видео (.mp4), widget: file, hint: "Видео — .mp4 без звука, играет по кругу" }
+                  - { name: b, label: Жирное начало подписи, widget: string, required: false, hint: "Например: «Размеры и вес.»" }
+                  - { name: text, label: Подпись, widget: text, required: false }
           - name: gallery
             label: "Фото: галерея с миниатюрами"
             fields:
