@@ -118,10 +118,9 @@
         },
         {
           "t": "pics",
-          "mode": "chess",
+          "mode": "wide",
           "items": [
-            "media/cases/alfabattle2-0-1.webp",
-            "media/cases/alfabattle2-0-3.webp"
+            "media/cases/alfabattle2-feature.webp"
           ]
         },
         {
@@ -163,14 +162,9 @@
           "t": "gallery",
           "items": [
             "media/cases/ab2-1.webp",
-            "media/cases/ab2-2.webp",
-            "media/cases/ab2-3.webp",
-            "media/cases/ab2-4.webp",
-            "media/cases/ab2-5.webp",
-            "media/cases/ab2-6.webp",
-            "media/cases/ab2-7.webp",
-            "media/cases/ab2-8.webp",
-            "media/cases/ab2-9.webp"
+            "media/cases/alfabattle2-0-2.webp",
+            "media/cases/alfabattle2-0-1.webp",
+            "media/cases/alfabattle2-0-3.webp"
           ]
         }
       ],
@@ -244,9 +238,10 @@
     },
     {
       "t": "pics",
-      "mode": "wide",
+      "mode": "chess",
       "items": [
-        "media/cases/alfabattle2-feature.webp"
+        "media/cases/ab1-real-02.webp",
+        "media/cases/ab1-real-03.webp"
       ]
     },
     {
