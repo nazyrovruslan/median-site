@@ -362,15 +362,15 @@ const BLOCK={
   // бегущие ленты: две ленты в разные стороны, клик открывает фото
   marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${r.map(u=>`<img src="${u}" alt="" loading="lazy">`).join('')}</div></div>`).join('')}</section>`,
   // фото-аккордеон: полосы раскрываются при наведении или нажатии
-  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}" data-c="mag"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`,
+  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}" data-c="mag" data-magnet=".1"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`,
   // бенто: 8 плиток разного размера, клик открывает фото
   bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="" loading="lazy">`).join('')}</div></section>`,
   // галерея: большое фото, стрелки, счётчик и полоса превью
-  gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}" data-c="mag"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`;},
+  gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}" data-c="mag" data-magnet=".1"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`;},
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
   // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки;
   // все вкладки лежат друг на друге (скрытые — невидимы, но измеряются), цифры ужимаются одной группой — размер одинаковый на всех вкладках
-  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag">${esc(r.y)}</button>`).join('')}</div><div class="yr-ps" data-fit-g>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${String(m.v||'').length>6?' class="w2"':''}><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
+  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps" data-fit-g>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${String(m.v||'').length>6?' class="w2"':''}><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
 };
 // группа цифр раздела: подпись, числа (над числом — мелкая подпись pre, например «План 4 000»)
 function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
@@ -791,13 +791,17 @@ if(fine&&!reduce){
     if(st!==stick){stick=st;document.body.classList.toggle('c-stick',!!st);document.body.classList.toggle('c-txt',!!st&&isTxt(st));if(!st){r.style.width=r.style.height=r.style.borderRadius='';}}
   });
   // магнит: цель задаётся курсором, элемент догоняет её плавно в общем цикле
-  const mags=$$('[data-magnet]').map(el=>({el,tx:0,ty:0,x:0,y:0,on:false,fol:el.classList.contains('vis')?el.closest('.dir').querySelector('.vlink'):null}));
-  mags.forEach(m=>{
-    const k=parseFloat(m.el.dataset.magnet)||.2; // большим блокам (обложки направлений) — слабее
-    m.el.addEventListener('pointermove',e=>{const b=m.el.getBoundingClientRect();m.on=true;m.tx=(e.clientX-b.left-b.width/2)*k;m.ty=(e.clientY-b.top-b.height/2)*k;});
-    m.el.addEventListener('pointerleave',()=>{m.on=false;m.tx=m.ty=0;});
-  });
+  let mags=[];const magSeen=new WeakSet();
+  const addMag=el=>{if(magSeen.has(el))return;magSeen.add(el);
+    const m={el,tx:0,ty:0,x:0,y:0,on:false,fol:el.classList.contains('vis')?el.closest('.dir').querySelector('.vlink'):null};mags.push(m);
+    const k=parseFloat(el.dataset.magnet)||.2; // большим блокам (обложки направлений) — слабее
+    el.addEventListener('pointermove',e=>{const b=el.getBoundingClientRect();m.on=true;m.tx=(e.clientX-b.left-b.width/2)*k;m.ty=(e.clientY-b.top-b.height/2)*k;});
+    el.addEventListener('pointerleave',()=>{m.on=false;m.tx=m.ty=0;});};
+  $$('[data-magnet]').forEach(addMag);
+  // кнопки, которые появились позже (тело кейса: табы годов, миниатюры галереи), подключаются при первом наведении
+  document.addEventListener('pointerover',e=>{const el=e.target.closest&&e.target.closest('[data-magnet]');if(el)addMag(el);});
   (function magLoop(){
+    if(mags.some(m=>!m.el.isConnected))mags=mags.filter(m=>m.el.isConnected); // тело кейса перерисовали — старые кнопки выкидываем
     mags.forEach(m=>{m.x+=(m.tx-m.x)*.12;m.y+=(m.ty-m.y)*.12;
       // обложка направления тянет за собой вертикальную подпись, чтобы не наезжать на неё; заголовок стоит, его белая часть внутри обложки сдвигается обратно
       const f=m.fol,c=f&&m.el.querySelector('.ttl-clone');
