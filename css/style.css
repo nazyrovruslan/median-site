@@ -947,6 +947,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .kpi-i .label{color:var(--muted)}
 /* Key message */
 .cb-key{padding-block:clamp(40px,3.8vw,72px) clamp(56px,7vw,135px)}
+.cb-key .cb-txt{margin:clamp(24px,3vw,56px) 0 0 40%;color:var(--paper)}
 .cb-key .label{display:block;color:var(--muted);margin-bottom:clamp(12px,1.2vw,22px)}
 .cb-key h3,.cb-ban h3,.cb-years h3{font-size:var(--h2);line-height:1.1}
 .cb-key .ln,.cb-ban .ln{display:block;white-space:nowrap}
@@ -986,11 +987,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 /* бегущие ленты */
 .cb-mq{padding-block:clamp(56px,7vw,135px);overflow:hidden}
 .mq+.mq{margin-top:24px}
-.mq-t{display:flex;gap:24px;width:max-content;animation:mq var(--d,95s) linear infinite}
-.mq.rev .mq-t{animation-direction:reverse}
-.mq:hover .mq-t{animation-play-state:paused}
+.mq-t{display:flex;gap:24px;width:max-content;will-change:transform} /* сдвиг задаёт js от прокрутки */
 .mq-t img{flex:none;width:clamp(280px,27vw,520px);aspect-ratio:3/2;object-fit:cover;cursor:zoom-in}
-@keyframes mq{to{transform:translateX(calc(-50% - 12px))}}
 /* фото-аккордеон */
 .cb-acc{padding:clamp(56px,7vw,135px) var(--gutter)}
 .acc{display:flex;gap:16px;height:clamp(420px,42vw,810px)}
@@ -1012,7 +1010,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .gl-p,.gl-n{position:absolute;top:50%;translate:0 -50%;width:56px;height:56px;border-radius:50%;border:1px solid rgba(243,243,241,.5);background:rgba(11,11,12,.35);color:var(--paper);font-size:20px;cursor:pointer;z-index:1}
 .gl-p{left:24px}.gl-n{right:24px}
 .gl-c{position:absolute;top:24px;right:24px;z-index:1;padding:8px 16px;border-radius:100px;background:rgba(11,11,12,.7);font:500 var(--ui)/1.2 var(--body)}
-.gl-th{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:16px;margin-top:24px}
+.gl-th{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 8*16px)/9);gap:16px;margin-top:24px;overflow-x:auto;scrollbar-width:none}
 .gl-th button{padding:0;border:0;background:none;cursor:pointer;opacity:.5;transition:opacity .2s;outline-offset:-2px}
 .gl-th button.on{opacity:1;outline:2px solid var(--paper)}
 .gl-th img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
@@ -1021,14 +1019,12 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .cb-years>h3 .ln{display:inline}
 .cb-years>h3{display:flex;flex-wrap:wrap;column-gap:.3em}
 .cb-years .kpi{margin-top:clamp(28px,2.9vw,56px)}
-.cb-years ol{list-style:none;margin:clamp(28px,2.9vw,56px) 0 0;padding:0;border-bottom:1px solid var(--line-dark)}
-.cb-years li{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));row-gap:clamp(10px,1.2vw,24px);padding:clamp(24px,2.5vw,48px) 0;border-top:1px solid var(--line-dark)}
-.yr-h{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:24px;row-gap:6px}
-.yr-h b{font-size:var(--h4);line-height:1.05}
-.yr-h .label{color:var(--muted)}
-.yr-k{grid-column:2/6;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));row-gap:clamp(16px,1.7vw,32px)}
+.yr-tabs{margin-top:clamp(40px,4vw,72px);padding-bottom:clamp(24px,2.5vw,48px);border-bottom:1px solid var(--line-dark)}
+.yr-p{padding-top:clamp(24px,2.5vw,48px)}
+.yr-p .yr-sub{margin:0 0 clamp(20px,2vw,40px);color:var(--muted)}
+.yr-k{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));row-gap:clamp(16px,1.7vw,32px)}
 .yr-k>div{display:grid;gap:6px;align-content:start;padding-right:clamp(12px,1.2vw,24px);min-width:0}
-.yr-k b{font-size:var(--h4);line-height:1.1;min-width:0}
+.yr-k b{font-size:var(--h3);line-height:1.1;min-width:0}
 .yr-k>div>span{font:400 var(--ui)/1.4 var(--body);color:rgba(243,243,241,.7)}
 /* просмотр фото */
 #lb{position:fixed;inset:0;z-index:90;background:rgba(11,11,12,.96);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
@@ -1056,6 +1052,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .bento img{grid-area:auto!important;aspect-ratio:3/2;height:auto}
   .bento .bt0{grid-column:1/-1!important}
   .bento .bt1{aspect-ratio:3/4;grid-row:span 2!important;height:100%}
+  .cb-key .cb-txt{margin-left:0}
   .gl-th{display:flex;overflow-x:auto;gap:8px}
   .gl-th button{flex:none;width:22%}
   .gl-p,.gl-n{width:44px;height:44px}

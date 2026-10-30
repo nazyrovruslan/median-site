@@ -153,6 +153,7 @@ collections:
               - { name: label, label: Ярлык, widget: string, required: false, default: Key message }
               - { name: out, label: Контурная строка, widget: string }
               - { name: solid, label: Залитая строка, widget: string }
+              - { name: text, label: Абзацы под фразой, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
           - name: stats
             label: "Цифры проекта"
             fields:

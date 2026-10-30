@@ -343,7 +343,7 @@ const BLOCK={
     return `<section class="grey cb cb-text cb-sec">${lb}${ttl}${txt.length?`<div class="cb-txt">${P(txt)}</div>`:''}${rows}</section>`+
       (b.groups?`<section class="cb cb-kpi wrap">${b.groups.map(kpiGroup).join('')}</section>`:'');},
   // Key message: подпись и две строки (контурная + сплошная)
-  key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3></section>`,
+  key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="cb-txt">${P(b.text)}</div>`:''}</section>`,
   // фото на весь экран
   photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="" loading="lazy"></section>`,
   // фото во всю ширину с заголовком и белой карточкой (или видео без звука, если vid)
@@ -353,7 +353,7 @@ const BLOCK={
   // сплит: слева текст стоит на месте, справа проезжают фото
   split:b=>`<section class="grey cb cb-split"><div class="sp-txt">${b.label?`<span class="label">${esc(b.label)}</span>`:''}<h3 class="d">${(b.h||'').split('\n').map(esc).join('<br>')}</h3>${P(b.text)}</div><div class="sp-ph">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy"></figure>`).join('')}</div></section>`,
   // бегущие ленты: две ленты в разные стороны, клик открывает фото
-  marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${[...r,...r].map((u,i)=>`<img src="${u}" alt="" loading="lazy" data-lb${i>=r.length?' aria-hidden="true"':''} data-c="view" data-label="Открыть">`).join('')}</div></div>`).join('')}</section>`,
+  marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${r.map(u=>`<img src="${u}" alt="" loading="lazy" data-lb data-c="view" data-label="Открыть">`).join('')}</div></div>`).join('')}</section>`,
   // фото-аккордеон: полосы раскрываются при наведении или нажатии
   accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}" data-c="mag"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`,
   // бенто: 8 плиток разного размера, клик открывает фото
@@ -361,7 +361,8 @@ const BLOCK={
   // галерея: большое фото, стрелки, счётчик и полоса превью
   gallery:b=>{const it=b.items||[];return `<section class="cb cb-gal wrap"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}" data-c="mag"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`;},
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
-  years:b=>`<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<ol>${(b.rows||[]).map(r=>`<li><div class="yr-h"><b class="d">${esc(r.y)}</b>${r.sub?`<span class="label">${esc(r.sub)}</span>`:''}</div><div class="yr-k" data-fit-g>${(r.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></li>`).join('')}</ol></section>`
+  // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки
+  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag">${esc(r.y)}</button>`).join('')}</div>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k" data-fit-g>${(r.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</section>`;},
 };
 // группа цифр раздела: подпись, числа (над числом — мелкая подпись pre, например «План 4 000»)
 function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
@@ -376,6 +377,11 @@ let hubIO=null;function hubInit(){hubIO&&hubIO.disconnect();const g=$('#cBody .h
   if(matchMedia('(hover:none)').matches&&'IntersectionObserver' in window){const loop=t=>{if(!auto)return;if(!t0)t0=t;const s=(t-t0)/1000,b=g.getBoundingClientRect();at(b.left+b.width*(.5+.42*Math.sin(s*.7)),b.top+b.height*(.5+.38*Math.sin(s*1.13)));auto=requestAnimationFrame(loop);};
     hubIO=new IntersectionObserver(([e])=>{if(e.isIntersecting){if(!auto)auto=requestAnimationFrame(loop);}else{cancelAnimationFrame(auto);auto=0;}});hubIO.observe(g);}}
 // оживление блоков «нового формата»: карусель, аккордеон, галерея, фото по пункту, ленты, просмотр фото
+// бегущие ленты едут от прокрутки панели кейса: верхняя влево, нижняя вправо (сдвиг = доля пути блока через экран)
+let mqEls=[],mqRaf=0;
+function mqUpd(){mqRaf=0;const vh=innerHeight;mqEls.forEach(m=>{const r=m.getBoundingClientRect();if(r.bottom<0||r.top>vh)return;const p=Math.min(1,Math.max(0,(vh-r.top)/(vh+r.height)));
+  m.querySelectorAll('.mq-t').forEach((t,j)=>{const d=Math.min(Math.max(0,t.scrollWidth-m.clientWidth),m.clientWidth*.45);t.style.transform=`translate3d(${-(j%2?1-p:p)*d}px,0,0)`;});});}
+$('#casePanel .sheet').addEventListener('scroll',()=>{if(mqEls.length&&!mqRaf)mqRaf=requestAnimationFrame(mqUpd);},{passive:true});
 function blocksInit(root){
   root.querySelectorAll('.cb-car').forEach(c=>{const t=c.querySelector('.car-track'),f=[...t.children],d=c.querySelector('.car-dots');
     const per=()=>Math.max(1,Math.round(t.clientWidth/(f[0].getBoundingClientRect().width||1))),pages=()=>Math.max(1,f.length-per()+1);
@@ -391,7 +397,9 @@ function blocksInit(root){
     const go=j=>{i=(j+im.length)%im.length;im.forEach((x,k)=>x.classList.toggle('on',k===i));th.forEach((x,k)=>x.classList.toggle('on',k===i));c.textContent=`${i+1} / ${im.length}`;th[i].scrollIntoView({block:'nearest',inline:'nearest'});};
     g.querySelector('.gl-p').onclick=()=>go(i-1);g.querySelector('.gl-n').onclick=()=>go(i+1);th.forEach((x,k)=>x.onclick=()=>go(k));
     let x0=null;const m=g.querySelector('.gl-main');m.addEventListener('pointerdown',e=>{x0=e.clientX;});m.addEventListener('pointerup',e=>{if(x0!==null&&Math.abs(e.clientX-x0)>40)go(i+(e.clientX<x0?1:-1));x0=null;});});
-  root.querySelectorAll('.mq-t').forEach(t=>{const go=()=>t.style.setProperty('--d',(t.scrollWidth/2/40)+'s');t.querySelectorAll('img').forEach(i=>i.complete||i.addEventListener('load',go,{once:true}));go();});
+  root.querySelectorAll('.cb-years').forEach(y=>{const bs=[...y.querySelectorAll('.yr-tabs button')],ps=[...y.querySelectorAll('.yr-p')];
+    bs.forEach((b,k)=>b.onclick=()=>{bs.forEach((x,n)=>x.setAttribute('aria-pressed',n===k));ps.forEach((p,n)=>p.hidden=n!==k);fitAll(ps[k]);});});
+  mqEls=[...root.querySelectorAll('.cb-mq')];mqEls.forEach(m=>m.querySelectorAll('img').forEach(i=>i.complete||i.addEventListener('load',mqUpd,{once:true})));mqUpd();
 }
 // просмотр фото на весь экран: клик по фото с data-lb; стрелки, свайп, Esc
 const LB=document.createElement('div');LB.id='lb';LB.setAttribute('aria-hidden','true');LB.innerHTML='<img alt=""><button type="button" class="lb-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="lb-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><button type="button" class="lb-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';document.body.appendChild(LB);
