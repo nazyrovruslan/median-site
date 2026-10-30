@@ -678,8 +678,15 @@ const jobMeta=v=>[v.dept,v.city,v.format,v.salary].filter(Boolean).join(' · ');
 const jobTtl=v=>v.ttl||(w=>w.length>1?[[w[0],1],[w.slice(1).join(' '),0]]:[[v.name,0]])(v.name.split(' ')); // по умолчанию первое слово контуром
 function jobRows(box,list){box.innerHTML='';list.forEach((v,i)=>{
   const r=document.createElement('a');r.className='row jrow';r.href=jobUrl(v.id);r.dataset.c='row';r.dataset.label='Открыть вакансию';r.dataset.rp=1; // data-rp: строку не трогает превью кейсов (centerHit)
-  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${esc(v.name)}</span><span class="sb">${esc(jobMeta(v))}</span>`;
-  r.onclick=e=>{e.preventDefault();openJob(v.id,true);};box.appendChild(r);});}
+  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${esc(v.name)}</span><span class="sb">${esc(jobMeta(v))}</span><span class="rp"></span>`;
+  r.onclick=e=>{e.preventDefault();peek.classList.remove('on','top');openJob(v.id,true);};box.appendChild(r);
+  // обложка вакансии, как у строк проектов: на десктопе всплывает у курсора, на таче — справа в строке у середины экрана
+  const ck=jobCover(v);if(!ck)return;let pv=null;
+  r.addEventListener('mouseenter',()=>{if(pv===null){const t=document.createElement('div');t.innerHTML=vid(ck);pv=t.firstElementChild;}peek.replaceChildren(...(pv?[pv]:[]));peek.style.background=cover(ck,i,1);peek.classList.add('top');peekAt(r);peek.classList.add('on');if(pv){pv.preload='auto';pv.play().catch(()=>{});}});
+  r.addEventListener('mouseleave',()=>{peek.classList.remove('on','top');pv&&pv.pause();});
+  r._fill=()=>{if(r._ok)return;r._ok=1;const rp=r.querySelector('.rp');rp.style.background=cover(ck,i,1);rp.innerHTML=vid(ck);};});}
+// обложка вакансии: своё фото/видео, иначе — обложка первого из её проектов
+const jobCover=v=>v.img||v.vid?{img:v.img,vid:v.vid,c:['#222','#333','#111']}:caseById((v.cases||[])[0]);
 // почта для откликов — одна на все вакансии (настройки → «Вакансии — общее»)
 const HR=JB.email||'hr@median.agency';
 $$('#jobsMail,#jMail,#jFootMail').forEach(a=>{a.href='mailto:'+HR;a.querySelector('span').textContent=HR;});
@@ -702,7 +709,7 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   const sec=(v.sections||[]).map(s=>`<section class="grey cb jb-sec${s.h?'':' jb-noh'}">${s.h?`<h3 class="d">${esc(s.h)}</h3>`:''}<div class="jb-sb">${s.text?`<div class="jb-txt">${P(s.text)}</div>`:''}${s.items?`<ol class="jb-list">${list(s.items)}</ol>`:''}</div></section>`).join('');
   const ks=(v.cases||[]).map(caseById).filter(Boolean);
   // обложка: своё фото/видео вакансии, иначе — обложка первого из её проектов; без них шапка чёрная с направляющими
-  const ck=v.img||v.vid?{img:v.img,vid:v.vid,c:['#222','#333','#111']}:ks[0],jv=$('#jVis');
+  const ck=jobCover(v),jv=$('#jVis');
   $('#jHero').classList.toggle('has-vis',!!ck);jv.style.background=ck?cover(ck,0):'';jv.innerHTML=ck?vid(ck):'';if(ck)playIn(jv,true);
   $('#jBody').innerHTML=(v.lead?`<section class="cb wrap jb-lead"><div class="cf-logo d">О вакансии</div><div class="cf-lead">${P(v.lead.split(/\n\s*\n/))}</div></section>`:'')+sec+
     (ks.length?`<section class="wrap jb-cases"><h3 class="d"><span class="o on-dark">Проекты,</span> в которых вы могли принимать участие, если бы пришли к нам раньше</h3><div class="rows"></div></section>`:'');
@@ -731,8 +738,8 @@ $$('[data-jobs]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();s
 $('#jBack').addEventListener('click',e=>{e.preventDefault();closeJob();});
 $('#cBack').addEventListener('click',e=>{e.preventDefault();closeCase();});
 // тач: превью кейса внутри строки у центра экрана, как в списке проектов
-if(!fine){const sh=jobP.querySelector('.sheet');sh.addEventListener('scroll',()=>{const cy=innerHeight/2,rs=[...sh.querySelectorAll('.jb-cases .row')];const h=rs.find(x=>(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect()));if(h&&h._fill)h._fill();
-  rs.forEach(x=>{x.classList.toggle('hover',x===h);const v=x.querySelector('.rp video');if(v){if(x===h){v.preload='auto';v.play().catch(()=>{});}else v.pause();}});},{passive:true});}
+if(!fine)[[jobP,'.jb-cases .row,.jb-rows .row'],[aboutP,'.jb-rows .row']].forEach(([P,sel])=>{const sh=P.querySelector('.sheet');sh.addEventListener('scroll',()=>{const cy=innerHeight/2,rs=[...sh.querySelectorAll(sel)];const h=rs.find(x=>(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect()));if(h&&h._fill)h._fill();
+  rs.forEach(x=>{x.classList.toggle('hover',x===h);const v=x.querySelector('.rp video');if(v){if(x===h){v.preload='auto';v.play().catch(()=>{});}else v.pause();}});},{passive:true});});
 /* короткая версия видео при наведении (десктоп): у шоурила — в превью рядом с курсором, у блоков с видео — прямо в блоке */
 if(fine&&!reduce)$$('[data-teaser]').forEach(el=>{const inPeek=el.dataset.teaserIn==='peek';let v=null;
   const mk=()=>{if(!v){v=document.createElement('video');v.className='tz';v.src=vurl(el.dataset.teaser);v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';v.setAttribute('aria-hidden','true');}return v;};
