@@ -495,7 +495,6 @@ $('#casePanel .sheet').addEventListener('wheel',e=>{if(!holdUntil)return;const d
 $('#casePanel .sheet').addEventListener('touchmove',e=>{if(holdUntil&&e.cancelable)e.preventDefault();},{passive:false});
 // картинку следующего кейса декодируем заранее, пока блок «Следующий проект» подъезжает, — чтобы обложка нового кейса нарисовалась сразу
 let preDec='';function predecodeNext(){const i=CASES.findIndex(c=>c.id===openId),n=CASES[(i+1)%CASES.length],u=n.vid?poster(n):n.img;if(!u||preDec===u)return;preDec=u;const im=new Image();im.src=u;im.decode&&im.decode().catch(()=>{});}
-$('#cNextCover').onclick=handoffNext;
 $('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('#casePanel .sheet');sh.scrollTo({top:$('#cHero').offsetHeight,behavior:'smooth'});});
 // «Следующий проект» приклеен к экрану, линия под фото заполняется, на полном заполнении — переход
 // touch: обложка выпуска в строке у центра экрана, как в списке кейсов
@@ -519,7 +518,7 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
   const k=atEnd?1:Math.min(1,Math.max(0,-r.top/(r.height-vh)));
   $('#cNextLine').style.transform=`scaleY(${k.toFixed(3)})`;
   st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото и заголовок следующего кейса переезжают на места обложки кейса
-  if(k>=.98&&!handing)handoffNext();
+  // к следующему кейсу — только по действию: удержание на обложке (кольцо курсора заполняется) или тап; сама прокрутка не переключает
 },{passive:true});
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
 $('[data-case="es"]').addEventListener('click',e=>{e.preventDefault();openCase('es',e.currentTarget.querySelector('.vis'))});
@@ -587,6 +586,13 @@ hit.addEventListener('pointerleave',()=>{if(holdStart){endHold();restartTimer();
 // тач и клавиатура: обычный тап/Enter открывает кейс (на мыши — удержание с кольцом)
 hit.addEventListener('click',()=>{if(lastPointer==='mouse')return;openCase(HERO[cur].id,$('.hero-panel'));});
 hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCase(HERO[cur].id,$('.hero-panel'));}});
+// «Следующий проект» в кейсе: то же удержание с кольцом курсора (c-hold), на полном круге — переход; тач и клавиатура — обычным нажатием
+{const nc=$('#cNextCover');let st=0,raf=0,ptr='mouse';
+ const end=()=>{cancelAnimationFrame(raf);st=0;ringC.style.strokeDashoffset=302;};
+ const tick=()=>{const p=Math.min(1,(performance.now()-st)/HOLD);ringC.style.strokeDashoffset=302*(1-p);if(p>=1){end();handoffNext();return;}raf=requestAnimationFrame(tick);};
+ nc.addEventListener('pointerdown',e=>{ptr=e.pointerType;if(ptr!=='mouse'||e.button)return;st=performance.now();tick();});
+ nc.addEventListener('pointerup',()=>{if(st)end();});nc.addEventListener('pointerleave',()=>{if(st)end();});nc.addEventListener('pointercancel',end);
+ nc.addEventListener('click',e=>{if(ptr==='mouse'&&e.detail)return;handoffNext();});}
 
 
 /* ---------- кольцо «Все проекты»: трекинг подгоняется под длину окружности ---------- */
