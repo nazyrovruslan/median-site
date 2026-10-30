@@ -412,10 +412,11 @@ $('#cBody').addEventListener('click',e=>{const im=e.target.closest('img[data-lb]
 LB.addEventListener('click',e=>{if(e.target.closest('.lb-p'))lbShow(lbI-1);else if(e.target.closest('.lb-n'))lbShow(lbI+1);else if(e.target===LB||e.target.closest('.lb-x'))lbClose();});
 addEventListener('keydown',e=>{if(!LB.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();lbClose();}else if(e.key==='ArrowLeft')lbShow(lbI-1);else if(e.key==='ArrowRight')lbShow(lbI+1);},true);
 // шоурил кейса: беззвучное превью играет, пока блок виден; по клику — полное видео со звуком
-let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const v=$('#cBody .reel-play .ab-tz');if(!v||reduce||!('IntersectionObserver' in window))return;
-  v.addEventListener('playing',()=>v.classList.add('on'),{once:true});
-  reelIO=new IntersectionObserver(([e])=>{if(e.isIntersecting){v.preload='auto';v.play().catch(()=>{});}else v.pause();},{rootMargin:'100px 0px'});reelIO.observe(v.parentElement);}
-$('#cBody').addEventListener('click',e=>{const b=e.target.closest('.reel-play');if(!b)return;const id=b.dataset.reel,box=b.parentElement;reelIO&&reelIO.disconnect();
+// тизеры всех роликов кейса крутятся по кругу, пока ролик на экране
+let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const vs=[...document.querySelectorAll('#cBody .reel-play .ab-tz')];if(!vs.length||reduce||!('IntersectionObserver' in window))return;
+  vs.forEach(v=>v.addEventListener('playing',()=>v.classList.add('on'),{once:true}));
+  reelIO=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target.querySelector('.ab-tz');if(!v)return;if(e.isIntersecting){v.preload='auto';v.play().catch(()=>{});}else v.pause();}),{rootMargin:'100px 0px'});vs.forEach(v=>reelIO.observe(v.parentElement));}
+$('#cBody').addEventListener('click',e=>{const b=e.target.closest('.reel-play');if(!b)return;const id=b.dataset.reel,box=b.parentElement;reelIO&&reelIO.unobserve(box);
   playFull(box,`${id}.mp4`,`${id}.webp${VV}`,b.getAttribute('aria-label'));});
 // полное видео по клику: элемент создаём сразу в обработчике клика и запускаем play() синхронно (иначе Safari теряет жест);
 // если браузер всё же не даёт звук — играем без звука (включить можно в контролах); если встало на буфере — пинаем ещё раз
