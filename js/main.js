@@ -381,10 +381,38 @@ const BLOCK={
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
   // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки;
   // все вкладки лежат друг на друге (скрытые — невидимы, но измеряются), цифры ужимаются одной группой — размер одинаковый на всех вкладках
-  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps" data-fit-g>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${String(m.v||'').length>6?' class="w2"':''}><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
+  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps" data-fit-g>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${String(m.v||'').length>6?' class="w2"':''}>${icoOf(m)}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
 };
 // группа цифр раздела: подпись, числа (над числом — мелкая подпись pre, например «План 4 000»)
-function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
+// пиктограммы к цифрам в стиле Apple: линия 1.5 на сетке 24, скруглённые концы. Своя у цифры (поле icon) или подбирается по подписи
+const ICO={
+  people:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="9" r="2.6"/><path d="M15.6 14.1c2.5-.1 4.4 1.5 4.9 4.4"/>',
+  uni:'<path d="M2.5 9.5 12 5l9.5 4.5L12 14z"/><path d="M6.5 11.6V16c1.5 1.4 3.3 2.1 5.5 2.1s4-.7 5.5-2.1v-4.4M21.5 9.5V14"/>',
+  form:'<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/>',
+  reach:'<circle cx="12" cy="12" r="1.8"/><path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.4 18.6a9.3 9.3 0 0 1 0-13.2M18.6 5.4a9.3 9.3 0 0 1 0 13.2"/>',
+  funnel:'<path d="M3.5 5h17l-6.5 7.6v5.6l-4 2v-7.6z"/>',
+  card:'<rect x="3" y="6" width="18" height="12.5" rx="2.5"/><path d="M3 10h18M6.5 15h3.5"/>',
+  doc:'<path d="M7 3.5h7l4.5 4.5v11a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4.5"/><circle cx="12" cy="12" r="1.9"/><path d="M8.8 17.2c.5-1.6 1.7-2.5 3.2-2.5s2.7.9 3.2 2.5"/>',
+  heart:'<path d="M12 19.5s-7.5-4.4-7.5-9.7A4.1 4.1 0 0 1 12 7.5a4.1 4.1 0 0 1 7.5 2.3c0 5.3-7.5 9.7-7.5 9.7z"/>',
+  mic:'<rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/>',
+  cal:'<rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4M8 13.5h2M14 13.5h2M8 17h2"/>',
+  pin:'<path d="M12 21s-6.5-5.9-6.5-11a6.5 6.5 0 0 1 13 0c0 5.1-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  cup:'<path d="M8 4h8v5.5a4 4 0 0 1-8 0z"/><path d="M8 6H5.5a2.6 2.6 0 0 0 2.8 3.4M16 6h2.5a2.6 2.6 0 0 1-2.8 3.4M12 13.5V17M8.5 20.5h7M10 17h4v3.5h-4z"/>',
+  play:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.3 9.2v5.6l4.7-2.8z"/>',
+  chat:'<path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-8.5l-4.5 3.4v-3.4H5a1.5 1.5 0 0 1-1.5-1.5V6.5A1.5 1.5 0 0 1 5 5z"/><path d="M8 9.5h8M8 12.5h5"/>',
+  money:'<circle cx="12" cy="12" r="8.5"/><path d="M10 7.5h3a2.4 2.4 0 0 1 0 4.8h-3zM10 7.5v9M8.5 14.5h5"/>',
+  growth:'<path d="M3.5 17.5 9.5 11.5l3.5 3.5 7.5-7.5"/><path d="M15 7.5h5.5V13"/>',
+  org:'<path d="M5 20.5v-15A1.5 1.5 0 0 1 6.5 4h7A1.5 1.5 0 0 1 15 5.5v15M15 9.5h3.5a1.5 1.5 0 0 1 1.5 1.5v9.5M3.5 20.5h17M8.5 8h3M8.5 11.5h3M8.5 15h3"/>',
+  spark:'<path d="M12 3.5c.6 4.4 2.9 7 8 8.5-5.1 1.5-7.4 4.1-8 8.5-.6-4.4-2.9-7-8-8.5 5.1-1.5 7.4-4.1 8-8.5z"/>'};
+// подбор по смыслу подписи (порядок важен: NPS раньше процентов, воронка раньше найма)
+const ICO_BY=[[/nps|доволь|оцен|рекоменд|лояль/,'heart'],[/лид|воронк/,'funnel'],[/резюме|ваканс|стаж|кандидат|найм|оффер/,'doc'],[/охват|outreach|media|показ|аудитор/,'reach'],
+  [/просмотр|видео|сери[яий]|эфир|минут|трансляц|подкаст|выпуск/,'play'],[/регистрац|заявк|анкет/,'form'],[/вуз|ссуз|школ|универс|колледж/,'uni'],[/клиент|банк|карт|счёт|счет/,'card'],
+  [/хедлайнер|спикер|артист|эксперт|выступ|доклад/,'mic'],[/город|локац|регион|стран|площадк/,'pin'],[/побед|приз|наград|кубк|финал|чемпион/,'cup'],
+  [/публикац|упомин|пост|сми|отзыв|сообщен|коммент/,'chat'],[/компани|партн[её]р|бренд|организац/,'org'],[/₽|руб|бюджет|выручк|грант/,'money'],
+  [/(^|\s)(дн|дня|дней|недел|месяц|час|сезон)/,'cal'],[/%|рост|конверс|прирост/,'growth'],[/участник|человек|гост|посетит|студент|сотрудник|команд|подписчик|чел\b|зрител/,'people']];
+const icoOf=m=>{let k=m.icon;if(!k||!ICO[k]){const t=`${m.l||''} ${m.pre||''} ${m.v||''}`.toLowerCase();k=(ICO_BY.find(([r])=>r.test(t))||[,'spark'])[1];}
+  return `<svg class="kv-ic" viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>`;};
+function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${icoOf(m)}${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
 // буквенная сетка: буквы рядом с курсором растут (на таче — медленно «гуляющая» волна, пока блок на экране)
 const HUBSVG={SOUTHU:'southu',U:'u',B:'b'};
 let hubIO=null;function hubInit(){hubIO&&hubIO.disconnect();const g=$('#cBody .hub-g');if(!g||reduce)return;

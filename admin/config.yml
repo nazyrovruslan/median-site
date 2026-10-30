@@ -145,6 +145,7 @@ collections:
                     widget: list
                     fields:
                       - { name: pre, label: Подпись над цифрой, widget: string, required: false }
+                      - { name: icon, label: Пиктограмма, widget: select, required: false, options: [{ label: Подобрать по подписи, value: '' }, { label: Люди, value: people }, { label: Вузы и школы, value: uni }, { label: Регистрации, value: form }, { label: Охват, value: reach }, { label: Лиды и воронка, value: funnel }, { label: Клиенты и карты, value: card }, { label: Резюме и найм, value: doc }, { label: NPS и оценки, value: heart }, { label: Спикеры и артисты, value: mic }, { label: Дни и сроки, value: cal }, { label: Города и площадки, value: pin }, { label: Победы и призы, value: cup }, { label: Видео и просмотры, value: play }, { label: Публикации и отзывы, value: chat }, { label: Деньги, value: money }, { label: Рост и конверсия, value: growth }, { label: Компании и партнёры, value: org }, { label: Звёздочка, value: spark }] }
                       - { name: v, label: Значение, widget: string }
                       - { name: l, label: Подпись под цифрой, widget: string, required: false }
           - name: key
@@ -182,6 +183,7 @@ collections:
                     widget: list
                     fields:
                       - { name: pre, label: Подпись над цифрой, widget: string, required: false }
+                      - { name: icon, label: Пиктограмма, widget: select, required: false, options: [{ label: Подобрать по подписи, value: '' }, { label: Люди, value: people }, { label: Вузы и школы, value: uni }, { label: Регистрации, value: form }, { label: Охват, value: reach }, { label: Лиды и воронка, value: funnel }, { label: Клиенты и карты, value: card }, { label: Резюме и найм, value: doc }, { label: NPS и оценки, value: heart }, { label: Спикеры и артисты, value: mic }, { label: Дни и сроки, value: cal }, { label: Города и площадки, value: pin }, { label: Победы и призы, value: cup }, { label: Видео и просмотры, value: play }, { label: Публикации и отзывы, value: chat }, { label: Деньги, value: money }, { label: Рост и конверсия, value: growth }, { label: Компании и партнёры, value: org }, { label: Звёздочка, value: spark }] }
                       - { name: v, label: Значение, widget: string }
                       - { name: l, label: Подпись под цифрой, widget: string, required: false }
               - name: rows
@@ -198,6 +200,7 @@ collections:
                     fields:
                       - { name: v, label: Значение, widget: string }
                       - { name: l, label: Подпись, widget: string, required: false }
+                      - { name: icon, label: Пиктограмма, widget: select, required: false, options: [{ label: Подобрать по подписи, value: '' }, { label: Люди, value: people }, { label: Вузы и школы, value: uni }, { label: Регистрации, value: form }, { label: Охват, value: reach }, { label: Лиды и воронка, value: funnel }, { label: Клиенты и карты, value: card }, { label: Резюме и найм, value: doc }, { label: NPS и оценки, value: heart }, { label: Спикеры и артисты, value: mic }, { label: Дни и сроки, value: cal }, { label: Города и площадки, value: pin }, { label: Победы и призы, value: cup }, { label: Видео и просмотры, value: play }, { label: Публикации и отзывы, value: chat }, { label: Деньги, value: money }, { label: Рост и конверсия, value: growth }, { label: Компании и партнёры, value: org }, { label: Звёздочка, value: spark }] }
           - name: reel
             label: "Видео проекта"
             fields:
@@ -428,6 +431,7 @@ collections:
             widget: list
             fields:
               - { name: pre, label: Подпись над цифрой, widget: string, required: false }
+              - { name: icon, label: Пиктограмма, widget: select, required: false, options: [{ label: Подобрать по подписи, value: '' }, { label: Люди, value: people }, { label: Вузы и школы, value: uni }, { label: Регистрации, value: form }, { label: Охват, value: reach }, { label: Лиды и воронка, value: funnel }, { label: Клиенты и карты, value: card }, { label: Резюме и найм, value: doc }, { label: NPS и оценки, value: heart }, { label: Спикеры и артисты, value: mic }, { label: Дни и сроки, value: cal }, { label: Города и площадки, value: pin }, { label: Победы и призы, value: cup }, { label: Видео и просмотры, value: play }, { label: Публикации и отзывы, value: chat }, { label: Деньги, value: money }, { label: Рост и конверсия, value: growth }, { label: Компании и партнёры, value: org }, { label: Звёздочка, value: spark }] }
               - { name: v, label: Значение, widget: string }
               - { name: l, label: Подпись под цифрой, widget: string, required: false }
 
