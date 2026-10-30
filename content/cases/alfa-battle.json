@@ -117,11 +117,8 @@
           ]
         },
         {
-          "t": "pics",
-          "mode": "wide",
-          "items": [
-            "media/cases/alfabattle2-feature.webp"
-          ]
+          "t": "reel",
+          "reel": "media/video/reel-ab2-show.mp4"
         },
         {
           "t": "sec",
