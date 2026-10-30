@@ -1,6 +1,7 @@
 {
   "order": 220,
   "id": "abcamp",
+  "kind": "project",
   "name": "Alfa Battle Camp",
   "out": "Alfa",
   "solid": "Battle Camp",

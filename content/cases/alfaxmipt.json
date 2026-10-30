@@ -1,6 +1,7 @@
 {
   "order": 200,
   "id": "alfaxmipt",
+  "kind": "project",
   "name": "Альфа-Банк × МФТИ",
   "out": "Альфа-Банк",
   "solid": "× МФТИ",

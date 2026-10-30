@@ -1,6 +1,7 @@
 {
   "order": 170,
   "id": "wg",
+  "kind": "project",
   "vid": "media/video/wg.mp4",
   "img": "media/video/wg.webp",
   "name": "WG Awards",

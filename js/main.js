@@ -333,13 +333,15 @@ const BLOCK={
   hub:b=>{const gl=t=>HUBSVG[t]?`<img class="hub-svg" src="media/southhub/${HUBSVG[t]}.svg" alt="">`:esc(t);
     return `<section class="cb cb-hub" aria-label="${esc((b.start||'')+(b.end||''))}: ${esc(b.tag||'')}"><div class="hub-g" aria-hidden="true"><b class="hub-s">${gl(b.start)}</b>${`<i><span>${gl(b.letter||'U')}</span></i>`.repeat(54)}<p class="hub-t">${esc(b.tag)}</p><b class="hub-e"><span>${gl(b.end)}</span></b></div></section>`},
   stats:b=>`<section class="cb cb-stats wrap" data-fit-g>${(b.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`  ,
-  // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): тёмные разделы с номером и фото-блоки на сером ──
-  // раздел: номер, заголовок Druk, вопрос; справа лид, абзацы, подпись списка, пункты; ниже — группы цифр. У пунктов с img слева фото активного пункта
-  sec:b=>{const n=b.cap?'':b.n||String(++secN).padStart(2,'0'),ph=(b.rows||[]).some(r=>r.img),fig=r=>`<figure class="sc-ph"><img src="${r.img}" alt="${esc(r.name||'')}" loading="lazy"></figure>`;
-    return `<section class="cb cb-sec wrap${ph?' has-ph':''}"><header class="sc-h">${b.cap?`<span class="label">${esc(b.cap)}</span>${b.h?`<h3 class="d">${esc(b.h)}</h3>`:''}`:`<span class="sc-n">${esc(n)}</span><h3 class="d">${esc(b.h)}</h3>${b.q?`<p class="sc-q">${esc(b.q)}</p>`:''}`}${ph?`<div class="sc-aside">${fig(b.rows.find(r=>r.img))}</div>`:''}</header>`+
-    `<div class="sc-body">${b.lead?`<p class="sc-lead">${nw(b.lead)}</p>`:''}${b.text?`<div class="sc-txt">${P(b.text)}</div>`:''}${b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<ol class="sc-rows">${b.rows.map((r,j)=>{const it=`<span class="sr-n">${esc(r.n||String(j+1).padStart(2,'0'))}</span><b class="d">${esc(r.name)}</b><span class="sr-t">${esc(r.text||'')}</span>`;
-      return `<li>${ph&&r.img?`<button type="button" class="sr${j?'':' on'}" data-img="${r.img}" aria-pressed="${!j}" data-c="mag">${it}</button>${fig(r)}`:`<div class="sr">${it}</div>`}</li>`;}).join('')}</ol>`:''}</div>`+
-    (b.groups||[]).map(kpiGroup).join('')+`</section>`;},
+  // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): текст — как «Текст» на сером, пункты — строками как список проектов на главной, цифры — на чёрном
+  // раздел: ярлык (вопрос или cap), заголовок Druk --h2 (первое слово контуром), абзацы --lead на колонках 3–5, подпись и пункты-строки во всю ширину; группы цифр — отдельным чёрным экраном
+  sec:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean),lab=b.cap||b.q,
+    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows">${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm">${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?`<img src="${r.img}" alt="${esc(r.name||'')}" loading="lazy" data-lb>`:''}</div>`).join('')}</div>`:'',
+    txt=[b.lead,...(b.text||[])].filter(Boolean);
+    const ttl=b.h?`<h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3>`:'',lb=lab?`<p class="label sc-q">${esc(lab)}</p>`:'';
+    if(b.groups&&!txt.length&&!rows)return `<section class="cb cb-kpi wrap">${lb}${ttl}${b.groups.map(kpiGroup).join('')}</section>`; // только цифры — весь раздел на чёрном
+    return `<section class="grey cb cb-text cb-sec">${lb}${ttl}${txt.length?`<div class="cb-txt">${P(txt)}</div>`:''}${rows}</section>`+
+      (b.groups?`<section class="cb cb-kpi wrap">${b.groups.map(kpiGroup).join('')}</section>`:'');},
   // Key message: подпись и две строки (контурная + сплошная)
   key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3></section>`,
   // фото на весь экран
@@ -359,10 +361,9 @@ const BLOCK={
   // галерея: большое фото, стрелки, счётчик и полоса превью
   gallery:b=>{const it=b.items||[];return `<section class="cb cb-gal wrap"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}" data-c="mag"><img src="${u}" alt="" loading="lazy"></button>`).join('')}</div></section>`;},
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
-  years:b=>`<section class="cb cb-years wrap"><span class="sc-n">${esc(b.n||String(++secN).padStart(2,'0'))}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<ol>${(b.rows||[]).map(r=>`<li><div class="yr-h"><b class="d">${esc(r.y)}</b>${r.sub?`<span class="label">${esc(r.sub)}</span>`:''}</div><div class="yr-k" data-fit-g>${(r.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></li>`).join('')}</ol></section>`
+  years:b=>`<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<ol>${(b.rows||[]).map(r=>`<li><div class="yr-h"><b class="d">${esc(r.y)}</b>${r.sub?`<span class="label">${esc(r.sub)}</span>`:''}</div><div class="yr-k" data-fit-g>${(r.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></li>`).join('')}</ol></section>`
 };
 // группа цифр раздела: подпись, числа (над числом — мелкая подпись pre, например «План 4 000»)
-let secN=0;
 function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
 // буквенная сетка: буквы рядом с курсором растут (на таче — медленно «гуляющая» волна, пока блок на экране)
 const HUBSVG={SOUTHU:'southu',U:'u',B:'b'};
@@ -390,9 +391,6 @@ function blocksInit(root){
     const go=j=>{i=(j+im.length)%im.length;im.forEach((x,k)=>x.classList.toggle('on',k===i));th.forEach((x,k)=>x.classList.toggle('on',k===i));c.textContent=`${i+1} / ${im.length}`;th[i].scrollIntoView({block:'nearest',inline:'nearest'});};
     g.querySelector('.gl-p').onclick=()=>go(i-1);g.querySelector('.gl-n').onclick=()=>go(i+1);th.forEach((x,k)=>x.onclick=()=>go(k));
     let x0=null;const m=g.querySelector('.gl-main');m.addEventListener('pointerdown',e=>{x0=e.clientX;});m.addEventListener('pointerup',e=>{if(x0!==null&&Math.abs(e.clientX-x0)>40)go(i+(e.clientX<x0?1:-1));x0=null;});});
-  root.querySelectorAll('.cb-sec.has-ph').forEach(s=>{const img=s.querySelector('.sc-aside img'),bs=[...s.querySelectorAll('.sr[data-img]')];
-    bs.forEach(b=>b.addEventListener('click',()=>{bs.forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',x===b);});img.style.opacity=0;setTimeout(()=>{img.src=b.dataset.img;img.alt=b.querySelector('b').textContent;img.style.opacity=1;},reduce?0:250);}));
-    bs.forEach(b=>{new Image().src=b.dataset.img;});});
   root.querySelectorAll('.mq-t').forEach(t=>{const go=()=>t.style.setProperty('--d',(t.scrollWidth/2/40)+'s');t.querySelectorAll('img').forEach(i=>i.complete||i.addEventListener('load',go,{once:true}));go();});
 }
 // просмотр фото на весь экран: клик по фото с data-lb; стрелки, свайп, Esc
@@ -429,10 +427,11 @@ function fillCase(id,split){
   const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗</a>`).join('<br>');
   if(links)facts.push(['Сайт',links]);
   (k.facts||[]).forEach(f=>f.l&&f.v&&facts.splice(f.at??facts.length,0,[f.l,f.v]));
-  secN=0;
   let tc=0;
-  $('#cBody').innerHTML=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`+
-    (k.reel?BLOCK.reel(k):'')+(k.blocks||[]).map(b=>BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
+  // анкета и видео — тоже блоки (facts, reel): где стоят в списке, там и выводятся; если их в списке нет — как раньше, в начале страницы
+  const bl=k.blocks||[],fHtml=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`;
+  $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
+    bl.map(b=>b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   reelTeaser();hubInit();blocksInit($('#cBody'));
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);

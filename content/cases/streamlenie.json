@@ -1,6 +1,7 @@
 {
   "order": 70,
   "id": "streamlenie",
+  "kind": "project",
   "name": "STREAMление",
   "out": "STREAM",
   "solid": "ление",

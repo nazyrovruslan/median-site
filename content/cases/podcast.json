@@ -1,6 +1,7 @@
 {
   "order": 240,
   "id": "podcast",
+  "kind": "project",
   "name": "Переговорка бренда работодателя",
   "ttl": [
     {

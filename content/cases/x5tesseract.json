@@ -1,6 +1,7 @@
 {
   "order": 120,
   "id": "x5tesseract",
+  "kind": "project",
   "name": "X5 Tech Tesseract",
   "out": "X5 Tech",
   "solid": "Tesseract",

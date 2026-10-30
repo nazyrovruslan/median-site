@@ -1,6 +1,7 @@
 {
   "order": 40,
   "id": "megafon",
+  "kind": "project",
   "reel": "media/video/reel-megafon.mp4",
   "vid": "media/video/megafon.mp4",
   "img": "media/video/megafon.webp",

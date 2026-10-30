@@ -1,6 +1,7 @@
 {
   "order": 310,
   "id": "prirodacoda",
+  "kind": "project",
   "name": "Природа кода",
   "out": "Природа",
   "solid": "кода",

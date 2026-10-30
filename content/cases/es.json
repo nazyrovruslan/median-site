@@ -1,6 +1,7 @@
 {
   "order": 230,
   "id": "es",
+  "kind": "project",
   "reel": "media/video/reel-es.mp4",
   "vid": "media/video/es.mp4",
   "name": "Event Surfing",

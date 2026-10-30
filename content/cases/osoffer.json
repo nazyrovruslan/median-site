@@ -1,6 +1,7 @@
 {
   "order": 210,
   "id": "osoffer",
+  "kind": "project",
   "name": "One Swipe Offer",
   "out": "One",
   "solid": "Swipe Offer",

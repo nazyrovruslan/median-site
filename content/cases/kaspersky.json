@@ -1,6 +1,7 @@
 {
   "order": 160,
   "id": "kaspersky",
+  "kind": "project",
   "reel": "media/video/reel-kaspersky.mp4",
   "vid": "media/video/kaspersky.mp4",
   "name": "Kaspersky Lab",

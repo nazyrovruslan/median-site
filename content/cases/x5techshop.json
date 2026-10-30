@@ -1,6 +1,7 @@
 {
   "order": 150,
   "id": "x5techshop",
+  "kind": "project",
   "name": "X5 Tech Shop",
   "out": "X5 Tech",
   "solid": "Shop",

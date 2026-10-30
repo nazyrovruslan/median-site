@@ -25,10 +25,12 @@ for (const f of fs.readdirSync('content/cases').filter(f => f.endsWith('.json'))
       if (fs.statSync(`${b}.hevc.mp4`).size >= fs.statSync(c.vid).size) fs.copyFileSync(c.vid, `${b}.hevc.mp4`); // HEVC не легче — отдаём тот же h.264
     });
   }
-  if (c.reel && has(c.reel)) {
-    const r = c.reel.replace(/\.mp4$/, '');
-    make(`${r}.webp`, () => ff('-ss', '3', '-i', c.reel, '-frames:v', '1', '-vf', "scale='min(1920,iw)':-2", '-c:v', 'libwebp', '-quality', '75', `${r}.webp`));
-    make(`${r}-teaser.mp4`, () => ff('-ss', '2', '-t', '6', '-i', c.reel, '-an', '-vf', "scale='min(854,iw)':-2", '-c:v', 'libx264', '-preset', 'slow', '-crf', '30', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${r}-teaser.mp4`));
+  // ролики: поле reel кейса и блоки «Видео» (t: reel), в том числе внутри проектов серии
+  const reels = [c.reel, ...[...(c.blocks || []), ...(c.after || []), ...(c.parts || []).flatMap(p => p.blocks || [])].filter(b => b.t === 'reel').map(b => b.reel)];
+  for (const reel of new Set(reels.filter(f => f && has(f)))) {
+    const r = reel.replace(/\.mp4$/, '');
+    make(`${r}.webp`, () => ff('-ss', '3', '-i', reel, '-frames:v', '1', '-vf', "scale='min(1920,iw)':-2", '-c:v', 'libwebp', '-quality', '75', `${r}.webp`));
+    make(`${r}-teaser.mp4`, () => ff('-ss', '2', '-t', '6', '-i', reel, '-an', '-vf', "scale='min(854,iw)':-2", '-c:v', 'libx264', '-preset', 'slow', '-crf', '30', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${r}-teaser.mp4`));
   }
 }
 console.log(made.length ? `создано:\n  ${made.join('\n  ')}` : 'медиа: всё на месте');

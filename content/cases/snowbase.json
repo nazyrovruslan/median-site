@@ -1,6 +1,7 @@
 {
   "order": 60,
   "id": "snowbase",
+  "kind": "project",
   "vid": "media/video/snowbase.mp4",
   "name": "Snow Base",
   "out": "Snow",

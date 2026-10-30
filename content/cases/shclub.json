@@ -1,6 +1,7 @@
 {
   "order": 250,
   "id": "shclub",
+  "kind": "project",
   "name": "South HUB Club",
   "out": "South",
   "solid": "HUB Club",

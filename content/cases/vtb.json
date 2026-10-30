@@ -1,6 +1,7 @@
 {
   "order": 50,
   "id": "vtb",
+  "kind": "project",
   "reel": "media/video/reel-vtb.mp4",
   "vid": "media/video/vtb.mp4",
   "name": "VTB F1",

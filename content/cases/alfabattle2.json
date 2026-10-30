@@ -1,6 +1,7 @@
 {
   "order": 320,
   "id": "alfabattle2",
+  "kind": "project",
   "reel": "media/video/reel-alfabattle2.mp4",
   "name": "Alfa Battle 2.0",
   "out": "Alfa",

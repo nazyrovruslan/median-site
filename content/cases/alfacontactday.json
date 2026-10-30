@@ -1,6 +1,7 @@
 {
   "order": 190,
   "id": "alfacontactday",
+  "kind": "project",
   "name": "Alfa Contact Day",
   "out": "Alfa",
   "solid": "Contact Day",

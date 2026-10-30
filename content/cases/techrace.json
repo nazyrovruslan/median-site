@@ -1,6 +1,7 @@
 {
   "order": 290,
   "id": "techrace",
+  "kind": "project",
   "name": "Tech Race",
   "out": "Tech",
   "solid": "Race",

@@ -1,6 +1,7 @@
 {
   "order": 90,
   "id": "x5mobius",
+  "kind": "project",
   "name": "X5 Tech на Mobius",
   "out": "X5 Tech",
   "solid": "на Mobius",

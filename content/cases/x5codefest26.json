@@ -1,6 +1,7 @@
 {
   "order": 100,
   "id": "x5codefest26",
+  "kind": "project",
   "name": "X5 Tech Control Room",
   "out": "X5 Tech",
   "solid": "Control Room",

@@ -1,6 +1,7 @@
 {
   "order": 270,
   "id": "tmn",
+  "kind": "project",
   "name": "Tech Monsters Night",
   "out": "Tech",
   "solid": "Monsters Night",

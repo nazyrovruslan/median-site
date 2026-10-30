@@ -1,6 +1,7 @@
 {
   "order": 325,
   "id": "ptc",
+  "kind": "project",
   "vid": "media/video/ptc.mp4",
   "img": "media/home/ptc.webp",
   "name": "People Tech Camp",

@@ -1,6 +1,7 @@
 {
   "order": 140,
   "id": "x5codefest25",
+  "kind": "project",
   "name": "X5 Tech на CodeFest",
   "out": "X5 Tech",
   "solid": "на CodeFest",

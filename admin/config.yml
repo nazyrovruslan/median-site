@@ -32,8 +32,9 @@ media_libraries:
 
 collections:
   - name: cases
-    label: Кейсы
+    label: Кейсы — проект
     label_singular: кейс
+    description: "Кейс одного проекта. Ежегодные проекты, роуд-шоу, сезоны и серии — в «Кейсы — серия проектов»"
     folder: content/cases
     format: json
     extension: json
@@ -43,18 +44,21 @@ collections:
     sortable_fields: [order, name]
     create: true
     delete: true
+    filter: { field: kind, value: project }
     fields:
-      - { name: order, label: Порядок, widget: number, value_type: int, hint: "Место в списке: меньше — выше. Первые 5 — в баннере на главной. Шаг 10, чтобы вставлять между." }
-      - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/<id>. После публикации лучше не менять." }
-      - { name: name, label: Название, widget: string }
-      - { name: sub, label: Подзаголовок, widget: string, hint: "Строка в списке кейсов и под заголовком в баннере" }
-      - { name: tags, label: Категории проекта, widget: select, multiple: true, required: false, options: [{ label: "Бренд работодателя", value: employer }, { label: "Внутренние коммуникации", value: internal }, { label: "Сообщества", value: community }, { label: "Собственные проекты", value: own }], hint: "Фильтры над «Все проекты» на главной; можно выбрать несколько. Названия — в TAGS в js/main.js, держать одинаковыми" }
-      - { name: hide, label: Скрыть с сайта (только для КП), widget: boolean, required: false, default: false, hint: "Кейса не будет на главной и в списке проектов, но он есть в закрытом каталоге кейсов и его можно добавить в КП; страница кейса открывается по прямой ссылке" }
-      - { name: kp, label: Категории для КП, widget: select, multiple: true, required: false, options: [{ label: "Стенды и зоны", value: stands }, { label: "Конференции и форумы", value: conf }, { label: "Выездные мероприятия и кэмпы", value: camp }, { label: "Фестивали и road show", value: fest }, { label: "Хакатоны и IT-соревнования", value: hack }, { label: "Корпоративы и церемонии", value: corp }, { label: "Спецпроекты и digital", value: special }], hint: "По ним КП подбирает релевантный опыт: кейсы категории КП прикрепляются по умолчанию (в порядке списка)" }
-      - { name: dir, label: Направление, widget: select, options: [{ label: Внешние, value: external }, { label: Внутренние, value: internal }, { label: Out of the list, value: outlist }, { label: Свой проект, value: own }] }
-      - { name: out, label: "Заголовок: контурное слово", widget: string, required: false, hint: "Первая строка заголовка (контуром). Если ниже заданы «Строки заголовка» — используются они." }
-      - { name: solid, label: "Заголовок: залитое слово", widget: string, required: false }
-      - name: ttl
+      - { name: kind, widget: hidden, default: project }
+      - &cf_order { name: order, label: Порядок, widget: number, value_type: int, hint: "Место в списке: меньше — выше. Первые 5 — в баннере на главной. Шаг 10, чтобы вставлять между." }
+      - &cf_id { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/<id>. После публикации лучше не менять." }
+      - &cf_name { name: name, label: Название, widget: string }
+      - &cf_sub { name: sub, label: Подзаголовок, widget: string, hint: "Строка в списке кейсов и под заголовком в баннере" }
+      - &cf_tags { name: tags, label: Категории проекта, widget: select, multiple: true, required: false, options: [{ label: "Бренд работодателя", value: employer }, { label: "Внутренние коммуникации", value: internal }, { label: "Сообщества", value: community }, { label: "Собственные проекты", value: own }], hint: "Фильтры над «Все проекты» на главной; можно выбрать несколько. Названия — в TAGS в js/main.js, держать одинаковыми" }
+      - &cf_hide { name: hide, label: Скрыть с сайта (только для КП), widget: boolean, required: false, default: false, hint: "Кейса не будет на главной и в списке проектов, но он есть в закрытом каталоге кейсов и его можно добавить в КП; страница кейса открывается по прямой ссылке" }
+      - &cf_kp { name: kp, label: Категории для КП, widget: select, multiple: true, required: false, options: [{ label: "Стенды и зоны", value: stands }, { label: "Конференции и форумы", value: conf }, { label: "Выездные мероприятия и кэмпы", value: camp }, { label: "Фестивали и road show", value: fest }, { label: "Хакатоны и IT-соревнования", value: hack }, { label: "Корпоративы и церемонии", value: corp }, { label: "Спецпроекты и digital", value: special }], hint: "По ним КП подбирает релевантный опыт: кейсы категории КП прикрепляются по умолчанию (в порядке списка)" }
+      - &cf_dir { name: dir, label: Направление, widget: select, options: [{ label: Внешние, value: external }, { label: Внутренние, value: internal }, { label: Out of the list, value: outlist }, { label: Свой проект, value: own }] }
+      - &cf_out { name: out, label: "Заголовок: контурное слово", widget: string, required: false, hint: "Первая строка заголовка (контуром). Если ниже заданы «Строки заголовка» — используются они." }
+      - &cf_solid { name: solid, label: "Заголовок: залитое слово", widget: string, required: false }
+      - &cf_ttl
+        name: ttl
         label: Строки заголовка
         label_singular: строка
         widget: list
@@ -63,28 +67,31 @@ collections:
         fields:
           - { name: text, label: Текст, widget: string }
           - { name: outline, label: Контуром, widget: boolean, default: false }
-      - { name: img, label: Фото обложки, widget: image, required: false, hint: "Горизонтальное, от 1920 px" }
-      - { name: vid, label: Видео-обложка, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 без звука, 6–10 с, до 1280 px, до ~1 МБ. Постер и HEVC-версия сделаются сами при деплое" }
-      - { name: reel, label: Видео проекта (ролик), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 со звуком, блок с видео после фактов. Превью и постер сделаются сами" }
-      - { name: light, label: Светлое фото, widget: boolean, required: false, default: false, hint: "Тёмный заголовок в «Следующем проекте»" }
-      - name: c
+      - &cf_img { name: img, label: Фото обложки, widget: image, required: false, hint: "Горизонтальное, от 1920 px" }
+      - &cf_vid { name: vid, label: Видео-обложка, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 без звука, 6–10 с, до 1280 px, до ~1 МБ. Постер и HEVC-версия сделаются сами при деплое" }
+      - &cf_reel { name: reel, label: Видео проекта (ролик), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 со звуком, блок с видео после фактов. Превью и постер сделаются сами" }
+      - &cf_light { name: light, label: Светлое фото, widget: boolean, required: false, default: false, hint: "Тёмный заголовок в «Следующем проекте»" }
+      - &cf_c
+        name: c
         label: Цвета-заглушки (пока фото грузится)
         widget: list
         required: false
         field: { name: color, label: Цвет, widget: color }
-      - { name: client, label: Клиент, widget: string, required: false }
-      - { name: cat, label: Категория, widget: string, required: false, hint: "Если пусто — по направлению" }
-      - { name: city, label: Локация, widget: string, required: false }
-      - { name: year, label: Год, widget: string, required: false }
-      - { name: format, label: Формат, widget: string, required: false }
-      - { name: services, label: Услуги, widget: string, required: false }
-      - { name: lead, label: Лид (цитата под фактами), widget: text, required: false }
-      - name: links
+      - &cf_client { name: client, label: Клиент, widget: string, required: false }
+      - &cf_cat { name: cat, label: Категория, widget: string, required: false, hint: "Если пусто — по направлению" }
+      - &cf_city { name: city, label: Локация, widget: string, required: false }
+      - &cf_year { name: year, label: Год, widget: string, required: false }
+      - &cf_format { name: format, label: Формат, widget: string, required: false }
+      - &cf_services { name: services, label: Услуги, widget: string, required: false }
+      - &cf_lead { name: lead, label: Лид (цитата под фактами), widget: text, required: false }
+      - &cf_links
+        name: links
         label: Сайты проекта
         widget: list
         required: false
         field: { name: url, label: Ссылка, widget: string }
-      - name: facts
+      - &cf_facts
+        name: facts
         label: Доп. строки фактов
         label_singular: строку
         widget: list
@@ -94,90 +101,20 @@ collections:
           - { name: l, label: Подпись, widget: string }
           - { name: v, label: Значение, widget: string }
       - name: blocks
-        label: Секции страницы
-        label_singular: секцию
+        label: Блоки страницы
+        label_singular: блок
+        hint: "Страница собирается из блоков сверху вниз: «Добавить блок» → тип (анкета, текст, key message, цифры, видео, фото-карусель и т. д.) → содержимое. Порядок меняется перетаскиванием"
         widget: list
         required: false
         typeKey: t
-        types:
-          - name: text
-            label: Текст
+        types: &blocktypes
+          # порядок = порядок в меню «добавить блок»: анкета, текст, key message, цифры, видео, фото-плагины; ниже — блоки старых кейсов
+          - name: facts
+            label: "Анкета проекта"
             fields:
-              - { name: h, label: Заголовок, widget: string }
-              - { name: text, label: Абзацы, widget: list, field: { name: p, label: Абзац, widget: text } }
-          - name: pairs
-            label: Три фото со словами
-            fields:
-              - name: items
-                label: Фото
-                label_singular: фото
-                widget: list
-                fields:
-                  - { name: img, label: Фото, widget: image }
-                  - { name: word, label: Слово поверх (контуром), widget: string, required: false }
-                  - { name: text, label: Текст рядом, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
-          - name: feature
-            label: Заголовок + фото + карточка
-            fields:
-              - { name: out, label: Контурная часть заголовка, widget: string }
-              - { name: solid, label: Залитая часть заголовка, widget: string, required: false }
-              - { name: img, label: Фото, widget: image, required: false }
-              - { name: fit, label: Фото целиком без обрезки, widget: boolean, required: false }
-              - { name: text, label: Текст карточки, widget: list, field: { name: p, label: Абзац, widget: text } }
-          - name: cut
-            label: Вырезанное фото + текст
-            fields:
-              - { name: img, label: Фото (png/webp с прозрачным фоном), widget: image }
-              - { name: text, label: Абзацы, widget: list, field: { name: p, label: Абзац, widget: text } }
-          - name: hub
-            label: Перебивка — буквенная сетка
-            fields:
-              - { name: start, label: Начало слова (первая клетка), widget: string, hint: "Например, SOUTHU" }
-              - { name: letter, label: Повторяющаяся буква, widget: string, default: U }
-              - { name: end, label: Последняя буква (в правом нижнем углу), widget: string, hint: "Например, B" }
-              - { name: tag, label: Слоган, widget: string }
-          - name: stats
-            label: Цифры
-            fields:
-              - name: items
-                label: Цифры
-                label_singular: цифру
-                widget: list
-                fields:
-                  - { name: v, label: Значение, widget: string }
-                  - { name: l, label: Подпись, widget: string }
-          - name: links
-            label: Список ссылок
-            fields:
-              - { name: h, label: Заголовок, widget: string }
-              - name: items
-                label: Ссылки
-                label_singular: ссылку
-                widget: list
-                fields:
-                  - { name: title, label: Название, widget: string }
-                  - { name: sub, label: Подпись, widget: string, required: false }
-                  - { name: url, label: Ссылка, widget: string }
-          - name: yt
-            label: Плейлист YouTube
-            fields:
-              - { name: list, label: ID плейлиста, widget: string, hint: "Часть ссылки после list=" }
-          - name: eps
-            label: Выпуски YouTube
-            fields:
-              - { name: h, label: Заголовок, widget: string }
-              - { name: list, label: ID плейлиста, widget: string }
-              - name: items
-                label: Выпуски
-                label_singular: выпуск
-                widget: list
-                fields:
-                  - { name: id, label: ID видео, widget: string }
-                  - { name: title, label: Тема, widget: string }
-                  - { name: guest, label: Гость, widget: string, required: false }
-          # ── «новый формат» кейса (макет 2026): см. DESIGN-SYSTEM.md §7 «Кейс нового формата»
+              - { name: note, label: Заметка для себя, widget: string, required: false, hint: "Таблица фактов, логотип и подзаголовок — из полей кейса выше (клиент, локация, год, формат, сайты, доп. строки фактов). Блок задаёт, где на странице стоит анкета; без него она в самом начале" }
           - name: sec
-            label: Раздел с номером (Контекст, Задача, Реализация…)
+            label: "Текст с заголовком (Контекст, Задача, Реализация…)"
             fields:
               - { name: h, label: Заголовок, widget: string }
               - { name: q, label: Вопрос под заголовком, widget: string, required: false }
@@ -211,54 +148,23 @@ collections:
                       - { name: v, label: Значение, widget: string }
                       - { name: l, label: Подпись под цифрой, widget: string, required: false }
           - name: key
-            label: Ключевая фраза
+            label: "Key message — ключевая фраза"
             fields:
               - { name: label, label: Ярлык, widget: string, required: false, default: Key message }
               - { name: out, label: Контурная строка, widget: string }
               - { name: solid, label: Залитая строка, widget: string }
-          - name: photo
-            label: Фото во всю ширину
+          - name: stats
+            label: "Цифры проекта"
             fields:
-              - { name: img, label: Фото, widget: image }
-          - name: banner
-            label: Баннер во всю ширину с карточкой
-            fields:
-              - { name: img, label: Фото (или постер видео), widget: image }
-              - { name: vid, label: Видео без звука, widget: file, required: false, media_folder: /media/video, public_folder: media/video }
-              - { name: out, label: Контурная часть заголовка, widget: string }
-              - { name: solid, label: Залитая часть заголовка, widget: string, required: false }
-              - { name: text, label: Текст карточки, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
-              - { name: side, label: Карточка, widget: select, options: [{ label: Справа, value: right }, { label: Слева, value: left }], default: right }
-          - name: carousel
-            label: Карусель фото
-            fields:
-              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
-          - name: split
-            label: Текст слева + сетка фото
-            fields:
-              - { name: label, label: Ярлык, widget: string, required: false }
-              - { name: h, label: Заголовок, widget: text, hint: "Перенос строки — с новой строки" }
-              - { name: text, label: Абзацы, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
-              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
-          - name: marquee
-            label: Две бегущие ленты фото
-            fields:
-              - { name: a, label: Верхняя лента, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
-              - { name: b, label: Нижняя лента, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
-          - name: accordion
-            label: Фото-гармошка
-            fields:
-              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
-          - name: bento
-            label: Мозаика из 8 фото
-            fields:
-              - { name: items, label: Фото, hint: "8 шт.: 1-е большое, 2-е высокое, 3-е широкое", label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
-          - name: gallery
-            label: Галерея с миниатюрами
-            fields:
-              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+              - name: items
+                label: Цифры
+                label_singular: цифру
+                widget: list
+                fields:
+                  - { name: v, label: Значение, widget: string }
+                  - { name: l, label: Подпись, widget: string }
           - name: years
-            label: Итоги по годам / городам
+            label: "Цифры: итоги по годам / городам"
             fields:
               - { name: out, label: Контурная часть заголовка, widget: string, default: Итоги }
               - { name: solid, label: Залитая часть заголовка, widget: string }
@@ -291,6 +197,222 @@ collections:
                     fields:
                       - { name: v, label: Значение, widget: string }
                       - { name: l, label: Подпись, widget: string, required: false }
+          - name: reel
+            label: "Видео проекта"
+            fields:
+              - { name: reel, label: Видео (mp4 со звуком), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Если пусто — «Видео проекта» из полей кейса. Без этого блока ролик стоит сразу после анкеты" }
+          - name: carousel
+            label: "Фото: карусель"
+            fields:
+              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: gallery
+            label: "Фото: галерея с миниатюрами"
+            fields:
+              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: marquee
+            label: "Фото: две бегущие ленты"
+            fields:
+              - { name: a, label: Верхняя лента, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+              - { name: b, label: Нижняя лента, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: accordion
+            label: "Фото: гармошка"
+            fields:
+              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: bento
+            label: "Фото: мозаика из 8"
+            fields:
+              - { name: items, label: Фото, hint: "8 шт.: 1-е большое, 2-е высокое, 3-е широкое", label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: split
+            label: "Текст + сетка фото"
+            fields:
+              - { name: label, label: Ярлык, widget: string, required: false }
+              - { name: h, label: Заголовок, widget: text, hint: "Перенос строки — с новой строки" }
+              - { name: text, label: Абзацы, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+              - { name: items, label: Фото, label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: photo
+            label: "Фото во всю ширину"
+            fields:
+              - { name: img, label: Фото, widget: image }
+          - name: banner
+            label: "Фото-баннер с заголовком и карточкой"
+            fields:
+              - { name: img, label: Фото (или постер видео), widget: image }
+              - { name: vid, label: Видео без звука, widget: file, required: false, media_folder: /media/video, public_folder: media/video }
+              - { name: out, label: Контурная часть заголовка, widget: string }
+              - { name: solid, label: Залитая часть заголовка, widget: string, required: false }
+              - { name: text, label: Текст карточки, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+              - { name: side, label: Карточка, widget: select, options: [{ label: Справа, value: right }, { label: Слева, value: left }], default: right }
+          - name: text
+            label: "Текст: только заголовок и абзацы (старый)"
+            fields:
+              - { name: h, label: Заголовок, widget: string }
+              - { name: text, label: Абзацы, widget: list, field: { name: p, label: Абзац, widget: text } }
+          - name: pairs
+            label: "Фото: три фото со словами"
+            fields:
+              - name: items
+                label: Фото
+                label_singular: фото
+                widget: list
+                fields:
+                  - { name: img, label: Фото, widget: image }
+                  - { name: word, label: Слово поверх (контуром), widget: string, required: false }
+                  - { name: text, label: Текст рядом, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+          - name: feature
+            label: "Фото: заголовок + фото + карточка"
+            fields:
+              - { name: out, label: Контурная часть заголовка, widget: string }
+              - { name: solid, label: Залитая часть заголовка, widget: string, required: false }
+              - { name: img, label: Фото, widget: image, required: false }
+              - { name: fit, label: Фото целиком без обрезки, widget: boolean, required: false }
+              - { name: text, label: Текст карточки, widget: list, field: { name: p, label: Абзац, widget: text } }
+          - name: cut
+            label: "Фото: вырезанное фото + текст"
+            fields:
+              - { name: img, label: Фото (png/webp с прозрачным фоном), widget: image }
+              - { name: text, label: Абзацы, widget: list, field: { name: p, label: Абзац, widget: text } }
+          - name: hub
+            label: "Перебивка: буквенная сетка"
+            fields:
+              - { name: start, label: Начало слова (первая клетка), widget: string, hint: "Например, SOUTHU" }
+              - { name: letter, label: Повторяющаяся буква, widget: string, default: U }
+              - { name: end, label: Последняя буква (в правом нижнем углу), widget: string, hint: "Например, B" }
+              - { name: tag, label: Слоган, widget: string }
+          - name: links
+            label: "Список ссылок"
+            fields:
+              - { name: h, label: Заголовок, widget: string }
+              - name: items
+                label: Ссылки
+                label_singular: ссылку
+                widget: list
+                fields:
+                  - { name: title, label: Название, widget: string }
+                  - { name: sub, label: Подпись, widget: string, required: false }
+                  - { name: url, label: Ссылка, widget: string }
+          - name: yt
+            label: "Видео: плейлист YouTube"
+            fields:
+              - { name: list, label: ID плейлиста, widget: string, hint: "Часть ссылки после list=" }
+          - name: eps
+            label: "Видео: выпуски YouTube"
+            fields:
+              - { name: h, label: Заголовок, widget: string }
+              - { name: list, label: ID плейлиста, widget: string }
+              - name: items
+                label: Выпуски
+                label_singular: выпуск
+                widget: list
+                fields:
+                  - { name: id, label: ID видео, widget: string }
+                  - { name: title, label: Тема, widget: string }
+                  - { name: guest, label: Гость, widget: string, required: false }
+
+  # Кейс-серия: несколько проектов на одной странице (ежегодный проект, роуд-шоу, сезоны). Тот же файл в content/cases, отличается полем kind: series.
+  # Страница: общая часть → проекты серии (баннер + свои блоки) → блоки «после» → итоги по проектам (собирает tools/build-cases.mjs)
+  - name: series
+    label: Кейсы — серия проектов
+    label_singular: серию
+    description: "Ежегодный проект, роуд-шоу, сезоны: общая история и несколько проектов на одной странице, в конце — итоги по каждому"
+    folder: content/cases
+    format: json
+    extension: json
+    identifier_field: id
+    slug: "{{id}}"
+    summary: "{{order}} · {{name}}"
+    sortable_fields: [order, name]
+    create: true
+    delete: true
+    filter: { field: kind, value: series }
+    fields:
+      - { name: kind, widget: hidden, default: series }
+      - *cf_order
+      - *cf_id
+      - *cf_name
+      - *cf_sub
+      - *cf_tags
+      - *cf_hide
+      - *cf_kp
+      - *cf_dir
+      - *cf_out
+      - *cf_solid
+      - *cf_ttl
+      - *cf_img
+      - *cf_vid
+      - *cf_reel
+      - *cf_light
+      - *cf_c
+      - *cf_client
+      - *cf_cat
+      - *cf_city
+      - *cf_year
+      - *cf_format
+      - *cf_services
+      - *cf_lead
+      - *cf_links
+      - *cf_facts
+      - name: blocks
+        label: Общая часть
+        label_singular: секцию
+        widget: list
+        required: false
+        hint: "Контекст, задача, решение, ключевая фраза — то, что общее для всех проектов серии"
+        typeKey: t
+        types: *blocktypes
+      - name: parts
+        label: Проекты серии
+        label_singular: проект
+        widget: list
+        hint: "Годы, города или сезоны по порядку. У каждого — строка итогов и, если нужно, баннер и свои блоки"
+        summary: "{{y}} · {{sub}}"
+        fields:
+          - { name: y, label: Год / город / сезон, widget: string, hint: "Крупно в итогах: 2022, Москва, 1.0" }
+          - { name: sub, label: Даты и место, widget: string, required: false }
+          - name: stats
+            label: Цифры для итогов
+            label_singular: цифру
+            widget: list
+            required: false
+            fields:
+              - { name: v, label: Значение, widget: string }
+              - { name: l, label: Подпись, widget: string, required: false }
+          - { name: out, label: "Баннер: контурная часть заголовка", widget: string, required: false, hint: "Если есть фото или видео — перед блоками проекта встаёт баннер во всю ширину" }
+          - { name: solid, label: "Баннер: залитая часть", widget: string, required: false }
+          - { name: img, label: "Баннер: фото (или постер видео)", widget: image, required: false }
+          - { name: vid, label: "Баннер: видео без звука", widget: file, required: false, media_folder: /media/video, public_folder: media/video }
+          - { name: text, label: "Баннер: текст карточки", widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+          - { name: side, label: "Баннер: карточка", widget: select, required: false, options: [{ label: Справа, value: right }, { label: Слева, value: left }], default: right }
+          - name: blocks
+            label: Блоки проекта
+            label_singular: секцию
+            widget: list
+            required: false
+            typeKey: t
+            types: *blocktypes
+      - name: after
+        label: После проектов
+        label_singular: секцию
+        widget: list
+        required: false
+        hint: "Например, общие результаты — встают перед итогами"
+        typeKey: t
+        types: *blocktypes
+      - { name: total, label: "Итоги: залитая часть заголовка", widget: string, required: false, hint: "«Итоги» + это: по годам, по городам, двух сезонов" }
+      - name: sum
+        label: "Итоги: общие цифры сверху"
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { name: l, label: Подпись, widget: string }
+          - name: items
+            label: Цифры
+            label_singular: цифру
+            widget: list
+            fields:
+              - { name: pre, label: Подпись над цифрой, widget: string, required: false }
+              - { name: v, label: Значение, widget: string }
+              - { name: l, label: Подпись под цифрой, widget: string, required: false }
 
   # Скрытый раздел: коммерческие предложения по уникальной ссылке /clients/<адрес>/ (собирает tools/build-kp.mjs)
   - name: kp

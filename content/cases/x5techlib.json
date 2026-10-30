@@ -1,6 +1,7 @@
 {
   "order": 280,
   "id": "x5techlib",
+  "kind": "project",
   "name": "X5 Tech LIB",
   "out": "X5",
   "solid": "Tech LIB",

@@ -1,6 +1,7 @@
 {
   "order": 110,
   "id": "x5picnic",
+  "kind": "project",
   "name": "X5 Tech на ИТ-Пикнике",
   "out": "X5 Tech",
   "solid": "на ИТ-Пикнике",
