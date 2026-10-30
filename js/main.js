@@ -477,28 +477,30 @@ addEventListener('resize',()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTit
 document.fonts&&document.fonts.ready.then(()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});fitAll();
 // после перехода обложка раскрывается из макетной раскладки на весь экран, заголовок уезжает вниз влево
 let expT=0;function expandHero(d){clearTimeout(expT);expT=setTimeout(()=>$('#cHero').classList.remove('split'),reduce?0:d);}
-// бесшовный переход: обложка (баннер или строка списка) превращается в фото на обложке кейса
-function flyTo(fly,from,to,T,ease,done){const t0=performance.now();
-  const step=now=>{const k=ease(Math.min(1,(now-t0)/T));
-    fly.style.left=(from.left+(to.left-from.left)*k)+'px';fly.style.top=(from.top+(to.top-from.top)*k)+'px';
-    fly.style.width=(from.width+(to.width-from.width)*k)+'px';fly.style.height=(from.height+(to.height-from.height)*k)+'px';
-    if(k<1)requestAnimationFrame(step);else done();};
-  requestAnimationFrame(step);}
-const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 function openCase(id,fromEl,noPush){
   fillCase(id);
   if(!noPush)setCaseUrl(id,true);
   const panel=$('#casePanel');
   if(panel.classList.contains('on')||!fromEl||reduce){ if(!panel.classList.contains('on')) openPanel(panel); expandHero(500); return; }
   const i=CASES.findIndex(c=>c.id===id), from=fromEl.getBoundingClientRect(), fly=$('#flyCover');
-  fly.style.background=cover(caseById(id),Math.max(i,0));
+  // летит обложка кейса (та же, что станет его фоном); пока она грузится, под ней видна картинка блока с главной
+  const k=caseById(id),u=k.vid?poster(k):k.img,art=fromEl.querySelector&&fromEl.querySelector('.art'),bg=art&&getComputedStyle(art).backgroundImage;
+  const L=[u&&`url(${u}) center/cover no-repeat`,bg&&bg!=='none'&&`${bg} center/cover no-repeat`].filter(Boolean);
+  fly.style.transition='none';fly.classList.remove('out');
+  fly.style.background=L.length?L.join(', ')+', #000':cover(k,Math.max(i,0));
   fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
   fly.classList.add('on');
   // панель открываем сразу, без своей анимации, и прячем её фото — его роль играет летящая обложка
   panel.classList.add('instant'); openPanel(panel); $('#cHero').classList.add('ghost');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    flyTo(fly,from,$('#cVis').getBoundingClientRect(),900,easeIO,()=>{$('#cHero').classList.remove('ghost');fly.classList.remove('on');panel.classList.remove('instant');expandHero(700);});
-  }));
+  // обложка растёт CSS-переходом до размера обложки кейса (на iPhone покадровая анимация через rAF срывалась)
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{const to=$('#cHero').getBoundingClientRect();
+    fly.style.transition='';fly.offsetWidth;
+    fly.style.left='0px';fly.style.top=Math.max(0,to.top)+'px';fly.style.width=innerWidth+'px';fly.style.height=to.height+'px';
+    let ok=0;const land=()=>{if(ok++)return;const H=$('#cHero'),v=$('#cVis video.cv');H.classList.remove('ghost');panel.classList.remove('instant');
+      // обложку кейса показываем под летящей и убираем летящую плавно, когда видео пошло (или через 0,6 с) — без чёрной вспышки
+      let gone=0;const off=()=>{if(gone++)return;fly.classList.add('out');setTimeout(()=>{fly.classList.remove('on','out');},400);};
+      if(v&&!reduce){v.addEventListener('playing',()=>setTimeout(off,120),{once:true});setTimeout(off,600);}else requestAnimationFrame(()=>requestAnimationFrame(off));};
+    fly.addEventListener('transitionend',land,{once:true});setTimeout(land,1000);}));
 }
 // бесшовный переход к следующему кейсу: фото из блока «Следующий проект» встаёт на место фото обложки
 let handing=false;

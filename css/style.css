@@ -343,6 +343,8 @@ html.loading #cur,html.loading #ring{opacity:0}
 .panel.instant .scrim,.panel.instant .sheet{transition:none}
 #flyCover{position:fixed;z-index:90;pointer-events:none;background-size:cover;background-position:center;display:none}
 #flyCover.on{display:block}
+#flyCover{transition:left .9s var(--ease),top .9s var(--ease),width .9s var(--ease),height .9s var(--ease),opacity .35s}
+#flyCover.out{opacity:0}
 .panel.on .scrim{opacity:1}
 .panel.on .sheet{transform:none}
 .x{position:fixed;z-index:10;mix-blend-mode:difference;color:#fff;border-color:rgba(255,255,255,.5)!important;right:clamp(16px,3vw,32px);top:calc(env(safe-area-inset-top,0px) + 20px);width:44px;height:44px;border:1px solid var(--line-dark);border-radius:50%;font-size:18px}
