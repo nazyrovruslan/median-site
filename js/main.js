@@ -282,7 +282,7 @@ function openPanel(p){clearTimeout(tmr);if(busy)go(cur,true); // баннер п
 function closePanel(p){if(p.id==='casePanel'&&typeof nxRing==='function')nxRing(0);p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length){if(busy)go(cur,true);restartTimer();$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));coverVis.forEach(a=>playIn(a,true));}});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
 // «О нас» → вакансия → кейс — один лист: крестик (и Esc) с любой глубины сразу на главную, шаг назад — ссылка «←» слева вверху
 const inStack=()=>jobP.classList.contains('on');
-const closeAny=p=>p.id==='casePanel'?(inStack()?closeAll():closeCase()):p.id==='aboutPanel'?closeAbout():p.id==='jobPanel'?closeAll():closePanel(p);
+const closeAny=p=>p.id==='casePanel'?closeAll():p.id==='aboutPanel'?closeAbout():p.id==='jobPanel'?closeAll():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){const on=$$('.panel.on');if(on.length)closeAny(['reelPanel','briefPanel','cvPanel','casePanel','jobPanel','aboutPanel'].map(id=>on.find(p=>p.id===id)).find(Boolean)||on[0]);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
 let openId=null;
@@ -296,7 +296,8 @@ const caseFromPath=p=>decodeURIComponent(p.slice(ROOT.length).replace(/\/$/,''))
 const depth=()=>(history.state&&history.state.d)||0;
 function setCaseUrl(id,push){const st={case:id};if(push){if(inStack())st.d=depth()+1;history.pushState(st,'',caseUrl(id));caseDepth++;}else history.replaceState({...st,d:depth()},'',caseUrl(id));}
 let closingAll=false;
-function closeAll(){const n=depth();if(n){closingAll=true;history.go(-n);}else endAll();}
+// у кейса без «О нас» шагов столько, сколько кейсов пролистали «Следующим проектом»; по прямой ссылке первая запись — сам кейс, endAll подменяет её главной
+function closeAll(){const n=inStack()?depth():caseDepth;if(n){closingAll=true;history.go(-n);}else endAll();}
 function endAll(){history.replaceState(null,'',ROOT);document.title=baseTitle;caseDepth=0;aboutPushed=false;jobP.classList.remove('fade');[$('#casePanel'),jobP,aboutP].forEach(p=>p.classList.contains('on')&&closePanel(p));}
 function closeCase(){if(caseDepth>0){history.go(-caseDepth);return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel($('#casePanel'));}
 addEventListener('popstate',()=>{if(closingAll){closingAll=false;endAll();return;}
