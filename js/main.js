@@ -279,7 +279,7 @@ function lockScroll(){lockY=scrollY;document.documentElement.style.overflow='hid
 function unlockScroll(){const h=document.documentElement;h.style.overflow='';document.body.style.position='';document.body.style.top='';document.body.style.left='';document.body.style.right='';document.body.style.width='';h.style.scrollBehavior='auto';scrollTo({top:lockY,left:0,behavior:'instant'});requestAnimationFrame(()=>{h.style.scrollBehavior='';});}
 function openPanel(p){clearTimeout(tmr);if(busy)go(cur,true); // баннер под панелью не листаем: если плашка была в пути — сразу ставим её на место
   playIn(p.querySelector('#cVis'),true);$$('.slide-bg video,.vis .art video').forEach(v=>v.pause());lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
-function closePanel(p){p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length){if(busy)go(cur,true);restartTimer();$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));coverVis.forEach(a=>playIn(a,true));}});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
+function closePanel(p){if(p.id==='casePanel'&&typeof nxRing==='function')nxRing(0);p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length){if(busy)go(cur,true);restartTimer();$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));coverVis.forEach(a=>playIn(a,true));}});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
 const closeAny=p=>p.id==='casePanel'?closeCase():p.id==='aboutPanel'?closeAbout():p.id==='jobPanel'?closeJob():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){const on=$$('.panel.on');if(on.length)closeAny(['reelPanel','briefPanel','cvPanel','casePanel','jobPanel','aboutPanel'].map(id=>on.find(p=>p.id===id)).find(Boolean)||on[0]);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
@@ -484,7 +484,7 @@ function handoffNext(){
   if(handing)return; handing=true;
   const sheet=$('#casePanel .sheet'), nc=$('#cNext'), i=CASES.findIndex(c=>c.id===openId), n=CASES[(i+1)%CASES.length];
   // к концу прокрутки обложка «Следующего проекта» уже на весь экран, как обложка кейса: подменяем контент в том же кадре, без летящей копии (она мигала тёмным фоном, пока Safari декодировал картинку)
-  fillCase(n.id); setCaseUrl(n.id,true); scrollHold(sheet); sheet.scrollTop=0; nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0); $('#cNextLine').style.transform='';
+  fillCase(n.id); setCaseUrl(n.id,true); scrollHold(sheet); sheet.scrollTop=0; nc.querySelector('.nc-sticky').style.transform='';nc.querySelector('.nc-sticky').style.setProperty('--k',0);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{handing=false;}));
 }
 // после перехода гасим инерцию прокрутки (трекпад, тач): иначе она докручивает новый кейс мимо обложки.
@@ -520,10 +520,14 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
   // считаем от высоты самой панели (в Safari innerHeight меняется с панелями); у самого низа — ровно 1
   const atEnd=sh.scrollTop>=sh.scrollHeight-vh-2;
   const k=atEnd?1:Math.min(1,Math.max(0,-r.top/(r.height-vh)));
-  $('#cNextLine').style.transform=`scaleY(${k.toFixed(3)})`;
   st.style.setProperty('--k',(k*k*(3-2*k)).toFixed(4)); // фото и заголовок следующего кейса переезжают на места обложки кейса
-  // к следующему кейсу — только по действию: удержание на обложке (кольцо курсора заполняется) или тап; сама прокрутка не переключает
+  // загрузка следующего кейса — кольцо курсора (как удержание на баннере главной): заполняется от прокрутки, на полном круге — бесшовный переход без клика
+  nxRing(k);
+  if(atEnd&&!handing){nxRing(0);handoffNext();}
 },{passive:true});
+function nxRing(k){const b=document.body,on=k>.01;b.classList.toggle('c-nx',on);
+  if(on)$('#ring .t').textContent='Следующий проект';
+  $('#ring circle').style.strokeDashoffset=on?302*(1-k):302;}
 $('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
 $('[data-case="es"]').addEventListener('click',e=>{e.preventDefault();openCase('es',e.currentTarget.querySelector('.vis'))});
 $$('.dir [data-case]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openCase(a.dataset.case,a.closest('.dir').querySelector('.vis'))}));
@@ -590,13 +594,8 @@ hit.addEventListener('pointerleave',()=>{if(holdStart){endHold();restartTimer();
 // тач и клавиатура: обычный тап/Enter открывает кейс (на мыши — удержание с кольцом)
 hit.addEventListener('click',()=>{if(lastPointer==='mouse')return;openCase(HERO[cur].id,$('.hero-panel'));});
 hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCase(HERO[cur].id,$('.hero-panel'));}});
-// «Следующий проект» в кейсе: то же удержание с кольцом курсора (c-hold), на полном круге — переход; тач и клавиатура — обычным нажатием
-{const nc=$('#cNextCover');let st=0,raf=0,ptr='mouse';
- const end=()=>{cancelAnimationFrame(raf);st=0;ringC.style.strokeDashoffset=302;};
- const tick=()=>{const p=Math.min(1,(performance.now()-st)/HOLD);ringC.style.strokeDashoffset=302*(1-p);if(p>=1){end();handoffNext();return;}raf=requestAnimationFrame(tick);};
- nc.addEventListener('pointerdown',e=>{ptr=e.pointerType;if(ptr!=='mouse'||e.button)return;st=performance.now();tick();});
- nc.addEventListener('pointerup',()=>{if(st)end();});nc.addEventListener('pointerleave',()=>{if(st)end();});nc.addEventListener('pointercancel',end);
- nc.addEventListener('click',e=>{if(ptr==='mouse'&&e.detail)return;handoffNext();});}
+// «Следующий проект»: переход — прокруткой до конца (кольцо курсора заполняется); тап или Enter по обложке — сразу
+$('#cNextCover').addEventListener('click',()=>handoffNext());
 
 
 /* ---------- кольцо «Все проекты»: трекинг подгоняется под длину окружности ---------- */
@@ -771,7 +770,7 @@ if(fine&&!reduce){
   document.addEventListener('pointerover',e=>{
     const t=e.target.closest('[data-c]'); const s=t?t.dataset.c:'';
     if(s!==state){document.body.classList.remove('c-'+state);state=s;if(s)document.body.classList.add('c-'+s);}
-    lab.textContent=t&&t.dataset.label?t.dataset.label:'';
+    lab.textContent=document.body.classList.contains('c-nx')?'Следующий проект':t&&t.dataset.label?t.dataset.label:'';
     const st=e.target.closest('[data-stick]');
     if(st!==stick){stick=st;document.body.classList.toggle('c-stick',!!st);document.body.classList.toggle('c-txt',!!st&&isTxt(st));if(!st){r.style.width=r.style.height=r.style.borderRadius='';}}
   });
