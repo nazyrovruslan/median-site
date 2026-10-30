@@ -145,7 +145,7 @@ collections:
                     widget: list
                     fields:
                       - { name: pre, label: Подпись над цифрой, widget: string, required: false }
-                      - { name: icon, label: Пиктограмма, widget: select, required: false, options: [{ label: Подобрать по подписи, value: '' }, { label: Люди, value: people }, { label: Вузы и школы, value: uni }, { label: Регистрации, value: form }, { label: Охват, value: reach }, { label: Лиды и воронка, value: funnel }, { label: Клиенты и карты, value: card }, { label: Резюме и найм, value: doc }, { label: NPS и оценки, value: heart }, { label: Спикеры и артисты, value: mic }, { label: Дни и сроки, value: cal }, { label: Города и площадки, value: pin }, { label: Победы и призы, value: cup }, { label: Видео и просмотры, value: play }, { label: Публикации и отзывы, value: chat }, { label: Деньги, value: money }, { label: Рост и конверсия, value: growth }, { label: Компании и партнёры, value: org }, { label: Звёздочка, value: spark }] }
+                      - { name: icon, label: Пиктограмма, widget: relation, collection: settings, file: icons, value_field: "items.*.id", search_fields: ["items.*.name"], display_fields: ["items.*.name"], required: false, hint: "Пусто — подберётся по подписи. Новые пиктограммы: Настройки → Пиктограммы к цифрам" }
                       - { name: v, label: Значение, widget: string }
                       - { name: l, label: Подпись под цифрой, widget: string, required: false }
           - name: key
@@ -165,6 +165,7 @@ collections:
                 fields:
                   - { name: v, label: Значение, widget: string }
                   - { name: l, label: Подпись, widget: string }
+                  - { name: icon, label: Пиктограмма, widget: relation, collection: settings, file: icons, value_field: "items.*.id", search_fields: ["items.*.name"], display_fields: ["items.*.name"], required: false, hint: "Пусто — подберётся по подписи. Новые пиктограммы: Настройки → Пиктограммы к цифрам" }
           - name: years
             label: "Цифры: итоги по годам / городам"
             fields:
@@ -183,7 +184,7 @@ collections:
                     widget: list
                     fields:
                       - { name: pre, label: Подпись над цифрой, widget: string, required: false }
-                      - { name: icon, label: Пиктограмма, widget: select, required: false, options: [{ label: Подобрать по подписи, value: '' }, { label: Люди, value: people }, { label: Вузы и школы, value: uni }, { label: Регистрации, value: form }, { label: Охват, value: reach }, { label: Лиды и воронка, value: funnel }, { label: Клиенты и карты, value: card }, { label: Резюме и найм, value: doc }, { label: NPS и оценки, value: heart }, { label: Спикеры и артисты, value: mic }, { label: Дни и сроки, value: cal }, { label: Города и площадки, value: pin }, { label: Победы и призы, value: cup }, { label: Видео и просмотры, value: play }, { label: Публикации и отзывы, value: chat }, { label: Деньги, value: money }, { label: Рост и конверсия, value: growth }, { label: Компании и партнёры, value: org }, { label: Звёздочка, value: spark }] }
+                      - { name: icon, label: Пиктограмма, widget: relation, collection: settings, file: icons, value_field: "items.*.id", search_fields: ["items.*.name"], display_fields: ["items.*.name"], required: false, hint: "Пусто — подберётся по подписи. Новые пиктограммы: Настройки → Пиктограммы к цифрам" }
                       - { name: v, label: Значение, widget: string }
                       - { name: l, label: Подпись под цифрой, widget: string, required: false }
               - name: rows
@@ -200,7 +201,7 @@ collections:
                     fields:
                       - { name: v, label: Значение, widget: string }
                       - { name: l, label: Подпись, widget: string, required: false }
-                      - { name: icon, label: Пиктограмма, widget: select, required: false, options: [{ label: Подобрать по подписи, value: '' }, { label: Люди, value: people }, { label: Вузы и школы, value: uni }, { label: Регистрации, value: form }, { label: Охват, value: reach }, { label: Лиды и воронка, value: funnel }, { label: Клиенты и карты, value: card }, { label: Резюме и найм, value: doc }, { label: NPS и оценки, value: heart }, { label: Спикеры и артисты, value: mic }, { label: Дни и сроки, value: cal }, { label: Города и площадки, value: pin }, { label: Победы и призы, value: cup }, { label: Видео и просмотры, value: play }, { label: Публикации и отзывы, value: chat }, { label: Деньги, value: money }, { label: Рост и конверсия, value: growth }, { label: Компании и партнёры, value: org }, { label: Звёздочка, value: spark }] }
+                      - { name: icon, label: Пиктограмма, widget: relation, collection: settings, file: icons, value_field: "items.*.id", search_fields: ["items.*.name"], display_fields: ["items.*.name"], required: false, hint: "Пусто — подберётся по подписи. Новые пиктограммы: Настройки → Пиктограммы к цифрам" }
           - name: reel
             label: "Видео проекта"
             fields:
@@ -396,6 +397,7 @@ collections:
             fields:
               - { name: v, label: Значение, widget: string }
               - { name: l, label: Подпись, widget: string, required: false }
+              - { name: icon, label: Пиктограмма, widget: relation, collection: settings, file: icons, value_field: "items.*.id", search_fields: ["items.*.name"], display_fields: ["items.*.name"], required: false, hint: "Пусто — подберётся по подписи. Новые пиктограммы: Настройки → Пиктограммы к цифрам" }
           - { name: out, label: "Баннер: контурная часть заголовка", widget: string, required: false, hint: "Если есть фото или видео — перед блоками проекта встаёт баннер во всю ширину" }
           - { name: solid, label: "Баннер: залитая часть", widget: string, required: false }
           - { name: img, label: "Баннер: фото (или постер видео)", widget: image, required: false }
@@ -431,7 +433,7 @@ collections:
             widget: list
             fields:
               - { name: pre, label: Подпись над цифрой, widget: string, required: false }
-              - { name: icon, label: Пиктограмма, widget: select, required: false, options: [{ label: Подобрать по подписи, value: '' }, { label: Люди, value: people }, { label: Вузы и школы, value: uni }, { label: Регистрации, value: form }, { label: Охват, value: reach }, { label: Лиды и воронка, value: funnel }, { label: Клиенты и карты, value: card }, { label: Резюме и найм, value: doc }, { label: NPS и оценки, value: heart }, { label: Спикеры и артисты, value: mic }, { label: Дни и сроки, value: cal }, { label: Города и площадки, value: pin }, { label: Победы и призы, value: cup }, { label: Видео и просмотры, value: play }, { label: Публикации и отзывы, value: chat }, { label: Деньги, value: money }, { label: Рост и конверсия, value: growth }, { label: Компании и партнёры, value: org }, { label: Звёздочка, value: spark }] }
+              - { name: icon, label: Пиктограмма, widget: relation, collection: settings, file: icons, value_field: "items.*.id", search_fields: ["items.*.name"], display_fields: ["items.*.name"], required: false, hint: "Пусто — подберётся по подписи. Новые пиктограммы: Настройки → Пиктограммы к цифрам" }
               - { name: v, label: Значение, widget: string }
               - { name: l, label: Подпись под цифрой, widget: string, required: false }
 
@@ -640,6 +642,21 @@ collections:
   - name: settings
     label: Настройки
     files:
+      - name: icons
+        label: Пиктограммы к цифрам
+        file: content/settings/icons.json
+        fields:
+          - name: items
+            label: Пиктограммы
+            label_singular: пиктограмму
+            widget: list
+            summary: "{{fields.name}}"
+            hint: "Порядок важен: цифре без своей пиктограммы достаётся первая, у которой слово для подбора начинает слово её подписи. Последняя без слов — запасная"
+            fields:
+              - { name: name, label: Название, widget: string }
+              - { name: id, label: Код (латиница), widget: string, pattern: ['^[a-z0-9-]+$', 'латиница, цифры и дефис'], hint: "Не меняйте у существующих — по нему цифры помнят свою пиктограмму" }
+              - { name: img, label: Файл SVG, widget: file, media_folder: /media/icons, public_folder: media/icons, hint: "Линии на сетке 24×24, толщина ~1.2, цвет любой — на сайте перекрашивается в цвет текста. Без заливки фона" }
+              - { name: words, label: Слова для подбора, widget: string, required: false, hint: "Через запятую, начала слов: «охват, просмотр, аудитор». Знаки вроде % ищутся где угодно" }
       - name: kp
         label: Настройки КП и счётчики
         file: content/settings/kp.json

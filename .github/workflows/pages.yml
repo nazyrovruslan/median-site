@@ -31,17 +31,18 @@ jobs:
         run: |
           node tools/build-cases.mjs
           node tools/build-vacancies.mjs
+          node tools/build-icons.mjs
           node tools/build-kp.mjs
           node tools/media.mjs
           # обложки превью ссылок КП (og.png) — через Chrome, который есть на раннере
           node tools/og-kp.mjs || echo "обложки превью КП не нарисованы"
           # сброс кэша данных кейсов: номер версии = короткий хэш коммита
-          sed -i -E "s#js/(cases|vacancies)\.js\?v=[^\"]+#js/\1.js?v=${GITHUB_SHA::7}#g" index.html
+          sed -i -E "s#js/(cases|vacancies|icons)\.js\?v=[^\"]+#js/\1.js?v=${GITHUB_SHA::7}#g" index.html
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898599+github-actions[bot]@users.noreply.github.com"
-          git add -A js/cases.js js/vacancies.js media clients 2>/dev/null || git add -A js/cases.js js/vacancies.js media
+          git add -A js/cases.js js/vacancies.js js/icons.js media clients 2>/dev/null || git add -A js/cases.js js/vacancies.js js/icons.js media
           if ! git diff --cached --quiet; then
             git commit -m "Сборка: js/cases.js, КП и превью из content/ [skip ci]"
             git pull --rebase --autostash -q origin main && git push -q origin HEAD:main || echo "не удалось сохранить в репозиторий — на сайт всё равно уйдёт"

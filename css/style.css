@@ -953,7 +953,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .kpi-i>div>span:last-child{font:400 var(--ui)/1.4 var(--body);color:rgba(243,243,241,.7)}
 .kpi-i .label{color:var(--muted)}
 /* цифры как у Apple: пиктограмма → подпись над цифрой → цифра → подпись; просторные строки */
-.kv-ic{display:block;width:clamp(72px,6vw,116px);height:auto;margin:0 0 clamp(14px,1.4vw,28px) -2px;fill:none;stroke:var(--paper);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.kv-ic{display:block;width:clamp(72px,6vw,116px);aspect-ratio:1;margin:0 0 clamp(14px,1.4vw,28px) -2px;background:var(--paper);-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat} /* картинку маски ставит main.js в style: url() из переменной считался бы от css/ */
 .kpi-i,.yr-k{row-gap:clamp(36px,3.6vw,72px)}
 /* Key message */
 .cb-key{padding-block:clamp(40px,3.8vw,72px) clamp(56px,7vw,135px)}
