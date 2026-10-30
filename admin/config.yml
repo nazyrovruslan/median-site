@@ -131,7 +131,7 @@ collections:
                   - { name: n, label: Номер (если не 01, 02…), widget: string, required: false }
                   - { name: name, label: Название, widget: string }
                   - { name: text, label: Текст, widget: text }
-                  - { name: img, label: Фото пункта, widget: image, required: false, hint: "Если у пунктов есть фото — слева показывается фото выбранного пункта" }
+                  - { name: img, label: Фото пункта (или .mp4), widget: file, required: false, hint: "Как в списке проектов на главной: на десктопе фото всплывает по наведению на строку, на телефоне — у середины экрана. Можно короткое видео .mp4 без звука" }
               - name: groups
                 label: Группы цифр
                 label_singular: группу

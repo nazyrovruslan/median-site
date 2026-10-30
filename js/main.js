@@ -315,6 +315,10 @@ function fitAll(root){const g=new Map();(root||document).querySelectorAll('[data
 // числа не рвём: «4 000+», «44,2 млн», «3 дня» — одним куском (пробелы между разрядами и короткая единица после числа)
 const nw=t=>esc(t).replace(/[^\s\d]*\d(?:[ \u00a0\u202f]\d[^\s]*|[^\s])*(?:[ \u00a0\u202f][^\s\d]{1,4}(?=\s|$))?/g,m=>`<span class="nw">${m}</span>`);
 function fitTitle(el){el.style.fontSize='';const w=el.clientWidth;if(!w)return;let m=0;el.querySelectorAll('.ln').forEach(l=>m=Math.max(m,l.scrollWidth));if(m>w)el.style.fontSize=(parseFloat(getComputedStyle(el).fontSize)*w/m*.98)+'px';}
+// фото пункта списка — как в «Всех проектах» на главной: на десктопе всплывает у строки по наведению (#peek), на таче — внутри строки у середины экрана; .mp4 — зацикленное видео
+const rowPh=u=>/\.mp4$/.test(u)?`<span class="rp"><video src="${u}${VV}" muted loop playsinline preload="none" aria-hidden="true"></video></span>`:`<span class="rp" style="background-image:url(${u})"></span>`;
+function rowPeek(r){const u=r.dataset.ph;if(/\.mp4$/.test(u)){const v=document.createElement('video');Object.assign(v,{src:u+VV,muted:true,loop:true,playsInline:true,autoplay:true});peek.replaceChildren(v);peek.style.background='#000';v.play().catch(()=>{});}else{peek.replaceChildren();peek.style.background=`url(${u}) center/cover no-repeat,#000`;}
+  peek.classList.add('top');peekAt(r);peek.classList.add('on');}
 const BLOCK={
   cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
   pairs:b=>`<section class="grey cb cb-pairs">${(b.items||[]).map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
@@ -336,7 +340,7 @@ const BLOCK={
   // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): текст — как «Текст» на сером, пункты — строками как список проектов на главной, цифры — на чёрном
   // раздел: ярлык (вопрос или cap), заголовок Druk --h2 (первое слово контуром), абзацы --lead на колонках 3–5, подпись и пункты-строки во всю ширину; группы цифр — отдельным чёрным экраном
   sec:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean),lab=b.cap||b.q,
-    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows">${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm">${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?`<img src="${r.img}" alt="${esc(r.name||'')}" loading="lazy">`:''}</div>`).join('')}</div>`:'',
+    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows">${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm">${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img):''}</div>`).join('')}</div>`:'',
     txt=[b.lead,...(b.text||[])].filter(Boolean);
     const ttl=b.h?`<h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3>`:'',lb=lab?`<p class="label sc-q">${esc(lab)}</p>`:'';
     if(b.groups&&!txt.length&&!rows)return `<section class="cb cb-kpi wrap">${lb}${ttl}${b.groups.map(kpiGroup).join('')}</section>`; // только цифры — весь раздел на чёрном
@@ -533,6 +537,8 @@ $('#casePanel .sheet').addEventListener('scroll',()=>{
   nxRing(k);
   if(atEnd&&!handing){nxRing(0);handoffNext();}
 },{passive:true});
+// тач: строка списка с фото у середины экрана показывает своё фото (как список проектов на главной)
+if(!fine)$('#casePanel .sheet').addEventListener('scroll',()=>{const cy=innerHeight/2;$$('#cBody .sc-rows .row[data-ph]').forEach(r=>{const b=r.getBoundingClientRect(),on=b.top<=cy&&b.bottom>=cy;r.classList.toggle('hover',on);const v=r.querySelector('.rp video');if(v){if(on){v.preload='auto';v.play().catch(()=>{});}else v.pause();}});},{passive:true});
 function nxRing(k){const b=document.body,on=k>.01;b.classList.toggle('c-nx',on);
   if(on)$('#ring .t').textContent='Следующий проект';
   $('#ring circle').style.strokeDashoffset=on?302*(1-k):302;}
@@ -717,6 +723,8 @@ if(fine&&!reduce)$$('[data-teaser]').forEach(el=>{const inPeek=el.dataset.teaser
   el.addEventListener('mouseenter',()=>{const t=mk();if(inPeek){peek.style.background='#000';peek.replaceChildren(t);peek.classList.add('wide');peekAt(el);peek.classList.add('on');}else if(!t.parentNode)el.prepend(t);t.play().catch(()=>{});el.classList.add('tz-on');});
   el.addEventListener('mouseleave',()=>{if(inPeek)peek.classList.remove('on','wide');if(v)v.pause();el.classList.remove('tz-on');});});
 // выпуски подкаста: при наведении рядом с курсором всплывает обложка выпуска (как у строк кейсов)
+if(fine){$('#cBody').addEventListener('mouseover',e=>{const r=e.target.closest('.sc-rows .row[data-ph]');if(!r||r.contains(e.relatedTarget))return;r.classList.add('hover');rowPeek(r);});
+  $('#cBody').addEventListener('mouseout',e=>{const r=e.target.closest('.sc-rows .row[data-ph]');if(!r||r.contains(e.relatedTarget))return;r.classList.remove('hover');peek.classList.remove('on','top');const v=peek.querySelector('video');v&&v.pause();});}
 if(fine)$('#cBody').addEventListener('mouseover',e=>{const a=e.target.closest('.cb-eps li a[data-yt]');if(!a||a.contains(e.relatedTarget))return;peek.replaceChildren();peek.style.background=`url(https://i.ytimg.com/vi/${a.dataset.yt}/mqdefault.jpg) center/cover no-repeat, #000`;peek.classList.add('wide');peekAt(a);peek.classList.add('on');});
 if(fine)$('#cBody').addEventListener('mouseout',e=>{const a=e.target.closest('.cb-eps li a[data-yt]');if(!a||a.contains(e.relatedTarget))return;peek.classList.remove('on','wide');});
 // «Start a project» внизу страницы: сначала закрываем «О нас», потом открываем бриф, чтобы не сбить блокировку прокрутки
