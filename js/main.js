@@ -413,7 +413,7 @@ function blocksInit(root){
     g.querySelector('.gl-p').onclick=()=>go(i-1);g.querySelector('.gl-n').onclick=()=>go(i+1);th.forEach((x,k)=>x.onclick=()=>go(k));
     let x0=null;const m=g.querySelector('.gl-main');m.addEventListener('pointerdown',e=>{x0=e.clientX;});m.addEventListener('pointerup',e=>{if(x0!==null&&Math.abs(e.clientX-x0)>40)go(i+(e.clientX<x0?1:-1));x0=null;});});
   root.querySelectorAll('.cb-years').forEach(y=>{const bs=[...y.querySelectorAll('.yr-tabs button')],ps=[...y.querySelectorAll('.yr-p')];
-    bs.forEach((b,k)=>b.onclick=()=>{bs.forEach((x,n)=>x.setAttribute('aria-pressed',n===k));ps.forEach((p,n)=>p.hidden=n!==k);fitAll(ps[k]);});});
+    bs.forEach((b,k)=>b.onclick=()=>{bs.forEach((x,n)=>x.setAttribute('aria-pressed',n===k));ps.forEach((p,n)=>p.hidden=n!==k);fitAll(y);});});
   mqEls=[...root.querySelectorAll('.cb-mq')];mqEls.forEach(m=>m.querySelectorAll('img').forEach(i=>i.complete||i.addEventListener('load',mqUpd,{once:true})));mqUpd();
 }
 // просмотр фото на весь экран: клик по фото с data-lb; стрелки, свайп, Esc
