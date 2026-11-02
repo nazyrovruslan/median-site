@@ -450,7 +450,10 @@ $('#cBody').addEventListener('click',e=>{const b=e.target.closest('.reel-play');
   playFull(box,`${id}.mp4`,`${id}.webp${VV}`,b.getAttribute('aria-label'));});
 // полное видео по клику: элемент создаём сразу в обработчике клика и запускаем play() синхронно (иначе Safari теряет жест);
 // если браузер всё же не даёт звук — играем без звука (включить можно в контролах); если встало на буфере — пинаем ещё раз
-function playFull(box,src,poster,title){const v=document.createElement('video');v.src=src+VV;v.poster=poster;v.controls=true;v.playsInline=true;v.preload='auto';if(title)v.title=title;
+// все плееры стартуют без звука; первый клик по видео включает звук и показывает контролы (курсор над видео — «Звук»)
+function soundOnClick(v){v.muted=true;v.controls=false;v.dataset.c='reel';v.dataset.label='Звук';
+  v.addEventListener('click',function on(e){e.preventDefault();v.muted=false;v.controls=true;delete v.dataset.c;delete v.dataset.label;document.body.className=document.body.className.replace(/\bc-\S+/g,'');v.removeEventListener('click',on);if(v.paused)v.play().catch(()=>{});});}
+function playFull(box,src,poster,title){const v=document.createElement('video');v.src=src+VV;v.poster=poster;v.playsInline=true;v.preload='auto';if(title)v.title=title;soundOnClick(v);
   box.replaceChildren(v);document.body.className=document.body.className.replace(/\bc-\S+/g,'');let user=false;
   const go=()=>v.play().catch(err=>{if(err&&err.name==='NotAllowedError'&&!v.muted){v.muted=true;go();}});
   v.addEventListener('pause',()=>{if(v.readyState>2)user=true;});v.addEventListener('canplay',()=>{if(v.paused&&!user&&!v.ended)go();});go();}
@@ -617,7 +620,7 @@ $('#brief').addEventListener('submit',e=>{
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
 const REEL='media/video/showreel.mp4'; // Showreel 2022 со старого median.agency (MEDIAN-REEL-LANDING), свой файл вместо YouTube
-const showreel=()=>{const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<video src="${vurl(REEL)}" poster="media/video/showreel.webp" controls autoplay playsinline preload="auto"></video>`;openPanel(p);const v=$('#reelPanel video');v.play().catch(()=>{});};
+const showreel=()=>{const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<video src="${vurl(REEL)}" poster="media/video/showreel.webp" muted autoplay playsinline preload="auto"></video>`;openPanel(p);const v=$('#reelPanel video');soundOnClick(v);v.play().catch(()=>{});};
 const ringC=$('#ring circle');
 function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/HOLD);ringC.style.strokeDashoffset=302*(1-p);if(p>=1){endHold();openCase(HERO[cur].id,$('.hero-panel'));return;}holdRaf=requestAnimationFrame(holdTick);}
 function endHold(){cancelAnimationFrame(holdRaf);holdStart=0;ringC.style.strokeDashoffset=302;}
