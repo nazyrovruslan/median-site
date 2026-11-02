@@ -280,7 +280,9 @@ function unlockScroll(){const h=document.documentElement;h.style.overflow='';doc
 function openPanel(p){clearTimeout(tmr);if(busy)go(cur,true); // баннер под панелью не листаем: если плашка была в пути — сразу ставим её на место
   playIn(p.querySelector('#cVis'),true);$$('.slide-bg video,.vis .art video').forEach(v=>v.pause());lastFocus=document.activeElement;lockScroll();p.classList.add('on');p.setAttribute('aria-hidden','false');setTimeout(()=>p.querySelector('.x').focus({preventScroll:true}),50);}
 function closePanel(p){if(p.id==='casePanel'&&typeof nxRing==='function')nxRing(0);p.querySelectorAll('video').forEach(v=>v.pause());setTimeout(()=>{if(!$$('.panel.on').length){if(busy)go(cur,true);restartTimer();$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur));coverVis.forEach(a=>playIn(a,true));}});if(p.id==='aboutPanel')setTimeout(()=>{if(!p.classList.contains('on'))$('#aReel').innerHTML=aReelHtml;},500);if(p.id==='reelPanel')setTimeout(()=>{if(!p.classList.contains('on'))p.querySelector('.reel-frame').innerHTML='';},500);p.classList.remove('on');p.setAttribute('aria-hidden','true');if(!$$('.panel.on').length)unlockScroll();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true});}
-const closeAny=p=>p.id==='casePanel'?closeCase():p.id==='aboutPanel'?closeAbout():p.id==='jobPanel'?closeJob():closePanel(p);
+// «О нас» → вакансия → кейс — один лист: крестик (и Esc) с любой глубины сразу на главную, шаг назад — ссылка «←» слева вверху
+const inStack=()=>jobP.classList.contains('on');
+const closeAny=p=>p.id==='casePanel'?closeAll():p.id==='aboutPanel'?closeAbout():p.id==='jobPanel'?closeAll():closePanel(p);
 $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
 addEventListener('keydown',e=>{if(e.key==='Escape'){const on=$$('.panel.on');if(on.length)closeAny(['reelPanel','briefPanel','cvPanel','casePanel','jobPanel','aboutPanel'].map(id=>on.find(p=>p.id===id)).find(Boolean)||on[0]);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
 let openId=null;
@@ -290,12 +292,19 @@ const ROOT=location.pathname.replace(/[^/]*$/,'');
 const caseUrl=id=>ROOT+encodeURIComponent(id);
 const caseById=id=>(typeof CASES_ALL!=='undefined'?CASES_ALL:CASES).find(c=>c.id===id); // и скрытые с сайта (только для КП) — по прямой ссылке
 const caseFromPath=p=>decodeURIComponent(p.slice(ROOT.length).replace(/\/$/,''));
-function setCaseUrl(id,push){const st={case:id};if(push){history.pushState(st,'',caseUrl(id));caseDepth++;}else history.replaceState(st,'',caseUrl(id));}
+// d — глубина записи внутри «О нас» (о нас 1, вакансия 2, кейс из вакансии 3…): по ней крестик возвращается на главную одним шагом истории
+const depth=()=>(history.state&&history.state.d)||0;
+function setCaseUrl(id,push){const st={case:id};if(push){if(inStack())st.d=depth()+1;history.pushState(st,'',caseUrl(id));caseDepth++;}else history.replaceState({...st,d:depth()},'',caseUrl(id));}
+let closingAll=false;
+// у кейса без «О нас» шагов столько, сколько кейсов пролистали «Следующим проектом»; по прямой ссылке первая запись — сам кейс, endAll подменяет её главной
+function closeAll(){const n=inStack()?depth():caseDepth;if(n){closingAll=true;history.go(-n);}else endAll();}
+function endAll(){history.replaceState(null,'',ROOT);document.title=baseTitle;caseDepth=0;aboutPushed=false;jobP.classList.remove('fade');[$('#casePanel'),jobP,aboutP].forEach(p=>p.classList.contains('on')&&closePanel(p));}
 function closeCase(){if(caseDepth>0){history.go(-caseDepth);return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel($('#casePanel'));}
-addEventListener('popstate',()=>{const id=caseFromPath(location.pathname),k=caseById(id),panel=$('#casePanel');
-  const jb=jobFromPath(location.pathname); // вакансия лежит поверх «О нас», кейс из вакансии — поверх неё
+addEventListener('popstate',()=>{if(closingAll){closingAll=false;endAll();return;}
+  const id=caseFromPath(location.pathname),k=caseById(id),panel=$('#casePanel');
+  const jb=jobFromPath(location.pathname); // вакансия сменяет «О нас» в том же листе, кейс из вакансии — поверх неё
   if(jb){if(panel.classList.contains('on')){caseDepth=0;closePanel(panel);}openJob(jb,false);return;}
-  if(jobP.classList.contains('on')){jobPushed=false;closePanel(jobP);}
+  if(jobP.classList.contains('on')){jobP.classList.add('fade');closePanel(jobP);}
   if(jb===''){showJobs(false);return;}
   if(id==='about'){openAbout(false);return;}
   if(aboutP.classList.contains('on')){aboutPushed=false;document.title=baseTitle;closePanel(aboutP);}
@@ -326,9 +335,9 @@ const BLOCK={
   text:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean);return `<section class="grey cb cb-text"><h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
   yt:b=>`<section class="cb cb-yt"><div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${b.list}&rel=0" title="Плейлист" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></section>`,
   // список выпусков подкаста: номер, тема, гость; ссылка открывает выпуск на YouTube
-  eps:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(j+1).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
+  eps:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(j+1).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗︎</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
   // список выпусков со ссылками на их страницы (Event Surfing)
-  links:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗</span></a></li>`).join('')}</ol></section>`,
+  links:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗︎</span></a></li>`).join('')}</ol></section>`,
   // шоурил кейса со старого median.agency: свой mp4 со звуком, грузится только по нажатию
   // reel — путь к mp4; рядом лежат <имя>.webp (постер) и <имя>-teaser.mp4 (превью), их делает tools/media.sh при деплое
   reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`;},
@@ -336,7 +345,7 @@ const BLOCK={
   // буквы South HUB берём их же векторами с southhub.ru; другие буквы — текстом
   hub:b=>{const gl=t=>HUBSVG[t]?`<img class="hub-svg" src="media/southhub/${HUBSVG[t]}.svg" alt="">`:esc(t);
     return `<section class="cb cb-hub" aria-label="${esc((b.start||'')+(b.end||''))}: ${esc(b.tag||'')}"><div class="hub-g" aria-hidden="true"><b class="hub-s">${gl(b.start)}</b>${`<i><span>${gl(b.letter||'U')}</span></i>`.repeat(54)}<p class="hub-t">${esc(b.tag)}</p><b class="hub-e"><span>${gl(b.end)}</span></b></div></section>`},
-  stats:b=>`<section class="cb cb-stats wrap" data-fit-g>${(b.items||[]).map(m=>`<div><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`  ,
+  stats:b=>`<section class="cb cb-stats wrap" data-fit-g>${(b.items||[]).map(m=>`<div>${icoOf(m)}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`  ,
   // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): текст — как «Текст» на сером, пункты — строками как список проектов на главной, цифры — на чёрном
   // раздел: ярлык (вопрос или cap), заголовок Druk --h2 (первое слово контуром), абзацы --lead на колонках 3–5, подпись и пункты-строки во всю ширину; группы цифр — отдельным чёрным экраном
   sec:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean),lab=b.cap||b.q,
@@ -357,6 +366,8 @@ const BLOCK={
   banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${b.img}" alt="" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
   // карусель: видно три фото, листается свайпом, стрелками и точками
   carousel:b=>`<section class="grey cb cb-car"><div class="car-track" tabindex="0" aria-label="Фото">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy"></figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
+  // история как у Apple: один кадр во всю ширину (на телефоне виден край следующего), под ним карточка — жирный лид и текст; листается как карусель (та же логика .cb-car)
+  story:b=>`<section class="cb cb-car cb-story"><div class="car-track" tabindex="0" aria-label="Фото с подписями">${(b.items||[]).map(it=>`<figure><div class="st-m">${/\.mp4$/.test(it.img||'')?`<video src="${it.img}${VV}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${it.img}" alt="" loading="lazy">`}</div>${it.b||it.text?`<figcaption class="st-cap">${it.b?`<b>${esc(it.b)}</b> `:''}${esc(it.text||'')}</figcaption>`:''}</figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
   // сплит: слева текст стоит на месте, справа проезжают фото
   split:b=>`<section class="grey cb cb-split"><div class="sp-txt">${b.label?`<span class="label">${esc(b.label)}</span>`:''}<h3 class="d">${(b.h||'').split('\n').map(esc).join('<br>')}</h3>${P(b.text)}</div><div class="sp-ph">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy"></figure>`).join('')}</div></section>`,
   // бегущие ленты: две ленты в разные стороны, клик открывает фото
@@ -370,10 +381,17 @@ const BLOCK={
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
   // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки;
   // все вкладки лежат друг на друге (скрытые — невидимы, но измеряются), цифры ужимаются одной группой — размер одинаковый на всех вкладках
-  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps" data-fit-g>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${String(m.v||'').length>6?' class="w2"':''}><b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
+  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps" data-fit-g>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${String(m.v||'').length>6?' class="w2"':''}>${icoOf(m)}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
 };
 // группа цифр раздела: подпись, числа (над числом — мелкая подпись pre, например «План 4 000»)
-function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
+// пиктограммы к цифрам в стиле Apple: набор — js/icons.js (из CMS → Настройки → Пиктограммы к цифрам), svg рисуется маской цветом текста (mask-image — прямо в style, путь от страницы).
+// Своя у цифры (поле icon) или первая из набора, у которой слово для подбора начинает какое-то слово подписи («%» и другие знаки — где угодно)
+const IC=typeof ICONS!=='undefined'?ICONS:[];
+const icoOf=m=>{let ic=m.icon&&IC.find(i=>i.id===m.icon);
+  if(!ic){const t=' '+`${m.l||''} ${m.pre||''} ${m.v||''}`.toLowerCase().replace(/[«»"“”(),.:;—–-]/g,' ').replace(/\s+/g,' ');
+    ic=IC.find(i=>i.w.some(w=>/[a-zа-яё]/.test(w)?t.includes(' '+w):t.includes(w)))||IC.find(i=>!i.w.length);}
+  return ic?`<span class="kv-ic" style="-webkit-mask-image:url(${ic.img});mask-image:url(${ic.img})" aria-hidden="true"></span>`:'';};
+function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${icoOf(m)}${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
 // буквенная сетка: буквы рядом с курсором растут (на таче — медленно «гуляющая» волна, пока блок на экране)
 const HUBSVG={SOUTHU:'southu',U:'u',B:'b'};
 let hubIO=null;function hubInit(){hubIO&&hubIO.disconnect();const g=$('#cBody .hub-g');if(!g||reduce)return;
@@ -442,13 +460,14 @@ function cfLogo(k){const t=k.client||k.name,m=!k.logo&&CLOGO.find(([r])=>r.test(
   return src?`<div class="cf-logo cf-svg" role="img" aria-label="${esc(t)}" style="-webkit-mask-image:url(${src});mask-image:url(${src});--c:${k.logoColor||(m&&m[2])||'#f3f3f1'}"></div>`:`<div class="cf-logo d">${esc(t)}</div>`;}
 function fillCase(id,split){
   const k=caseById(id), i=CASES.indexOf(k), n=CASES[(i+1)%CASES.length]; openId=id; // у скрытого кейса i=-1: «Следующий проект» — первый в списке
+  const cb=$('#cBack');cb.hidden=!inStack();if(jobId)cb.href=jobUrl(jobId); // кейс из вакансии: «← К вакансии»
   document.title=k.name+' — Median';
   $('#cVis').style.background=cover(k,Math.max(i,0));$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap');H.classList.toggle('split',!!split);H.offsetWidth;H.classList.remove('snap'); // раскладка «обложка слева» — только при переходе со «Следующего проекта»
   $('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
   const host=(u)=>u.replace(/^https?:\/\//,'').replace(/\/$/,'');
   const facts=[['Категория',k.cat||(k.tags||[]).map(t=>TAGS[t]).filter(Boolean).join(', ')||({external:'Внешние коммуникации',internal:'Внутренние коммуникации'})[k.dir]||DIRS[k.dir]],['Клиент',k.client],['Локация',k.city],['Год',k.year],['Формат',k.format],['Услуги',k.services]].filter(f=>f[1]);
-  const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗</a>`).join('<br>');
+  const links=(k.links||[]).map(u=>`<a href="${u}" target="_blank" rel="noopener" data-c="link">${esc(host(u))} ↗︎</a>`).join('<br>');
   if(links)facts.push(['Сайт',links]);
   (k.facts||[]).forEach(f=>f.l&&f.v&&facts.splice(f.at??facts.length,0,[f.l,f.v]));
   let tc=0;
@@ -467,28 +486,30 @@ addEventListener('resize',()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTit
 document.fonts&&document.fonts.ready.then(()=>{fitAll();if(openId){fitTitle($('#cTitle'));fitTitle($('#cNextName'));}});fitAll();
 // после перехода обложка раскрывается из макетной раскладки на весь экран, заголовок уезжает вниз влево
 let expT=0;function expandHero(d){clearTimeout(expT);expT=setTimeout(()=>$('#cHero').classList.remove('split'),reduce?0:d);}
-// бесшовный переход: обложка (баннер или строка списка) превращается в фото на обложке кейса
-function flyTo(fly,from,to,T,ease,done){const t0=performance.now();
-  const step=now=>{const k=ease(Math.min(1,(now-t0)/T));
-    fly.style.left=(from.left+(to.left-from.left)*k)+'px';fly.style.top=(from.top+(to.top-from.top)*k)+'px';
-    fly.style.width=(from.width+(to.width-from.width)*k)+'px';fly.style.height=(from.height+(to.height-from.height)*k)+'px';
-    if(k<1)requestAnimationFrame(step);else done();};
-  requestAnimationFrame(step);}
-const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 function openCase(id,fromEl,noPush){
   fillCase(id);
   if(!noPush)setCaseUrl(id,true);
   const panel=$('#casePanel');
   if(panel.classList.contains('on')||!fromEl||reduce){ if(!panel.classList.contains('on')) openPanel(panel); expandHero(500); return; }
   const i=CASES.findIndex(c=>c.id===id), from=fromEl.getBoundingClientRect(), fly=$('#flyCover');
-  fly.style.background=cover(caseById(id),Math.max(i,0));
+  // летит обложка кейса (та же, что станет его фоном); пока она грузится, под ней видна картинка блока с главной
+  const k=caseById(id),u=k.vid?poster(k):k.img,art=fromEl.querySelector&&fromEl.querySelector('.art'),bg=art&&getComputedStyle(art).backgroundImage;
+  const L=[u&&`url(${u}) center/cover no-repeat`,bg&&bg!=='none'&&`${bg} center/cover no-repeat`].filter(Boolean);
+  fly.style.transition='none';fly.classList.remove('out');
+  fly.style.background=L.length?L.join(', ')+', #000':cover(k,Math.max(i,0));
   fly.style.left=from.left+'px';fly.style.top=from.top+'px';fly.style.width=from.width+'px';fly.style.height=from.height+'px';
   fly.classList.add('on');
   // панель открываем сразу, без своей анимации, и прячем её фото — его роль играет летящая обложка
   panel.classList.add('instant'); openPanel(panel); $('#cHero').classList.add('ghost');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    flyTo(fly,from,$('#cVis').getBoundingClientRect(),900,easeIO,()=>{$('#cHero').classList.remove('ghost');fly.classList.remove('on');panel.classList.remove('instant');expandHero(700);});
-  }));
+  // обложка растёт CSS-переходом до размера обложки кейса (на iPhone покадровая анимация через rAF срывалась)
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{const to=$('#cHero').getBoundingClientRect();
+    fly.style.transition='';fly.offsetWidth;
+    fly.style.left='0px';fly.style.top=Math.max(0,to.top)+'px';fly.style.width=innerWidth+'px';fly.style.height=to.height+'px';
+    let ok=0;const land=()=>{if(ok++)return;const H=$('#cHero'),v=$('#cVis video.cv');H.classList.remove('ghost');panel.classList.remove('instant');
+      // обложку кейса показываем под летящей и убираем летящую плавно, когда видео пошло (или через 0,6 с) — без чёрной вспышки
+      let gone=0;const off=()=>{if(gone++)return;fly.classList.add('out');setTimeout(()=>{fly.classList.remove('on','out');},400);};
+      if(v&&!reduce){v.addEventListener('playing',()=>setTimeout(off,120),{once:true});setTimeout(off,600);}else requestAnimationFrame(()=>requestAnimationFrame(off));};
+    fly.addEventListener('transitionend',land,{once:true});setTimeout(land,1000);}));
 }
 // бесшовный переход к следующему кейсу: фото из блока «Следующий проект» встаёт на место фото обложки
 let handing=false;
@@ -640,11 +661,11 @@ addEventListener('scroll',()=>{if(Math.abs(scrollY-rpY)>innerHeight*.4)closePrev
 addEventListener('keydown',e=>{if(e.key==='Escape')closePrev();});
 
 /* ---------- «О нас»: своя страница /about, открывается как кейс ---------- */
-const aboutP=$('#aboutPanel'); let aboutPushed=false;
+const aboutP=$('#aboutPanel'); let aboutPushed=false, aboutD=0; // aboutD — глубина записи «О нас» в истории (см. depth)
 // видео о команде: свой файл (с YouTube из облака не скачать); на обложке — короткое превью без звука, по клику — полное видео
 function openAbout(push){if(aboutP.classList.contains('on'))return;aboutP.querySelectorAll('img[data-src]').forEach(i=>{i.src=i.dataset.src;i.removeAttribute('data-src');}); // фото «О нас» грузим только при открытии
 
-  if(push){history.pushState({about:1},'',ROOT+'about');aboutPushed=true;}
+  if(push){history.pushState({about:1,d:1},'',ROOT+'about');aboutPushed=true;}aboutD=depth();
   document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce){tz.addEventListener('playing',()=>tz.classList.add('on'),{once:true});tz.play().catch(()=>{});}}
 // «О нас»: знак-контур из прелоадера; смена фона по скроллу (артборды 29→30)
 {const m=$('#aiMark');if(m)$$('#loader .ld-o,#loader .ld-k').forEach(sv=>m.appendChild(sv.cloneNode(true)));
@@ -660,7 +681,7 @@ $('#aReel').addEventListener('click',e=>{if(!e.target.closest('.ab-play'))return
 const aReelHtml=$('#aReel').innerHTML;
 $$('.ab-end').forEach(f=>new IntersectionObserver(([e])=>f.classList.toggle('in',e.isIntersecting),{threshold:.25}).observe(f)); // подвал «О нас» и страницы вакансии
 /* ---------- вакансии: список в «О нас» (/jobs) и страница вакансии /vacancy-<id> (данные — js/vacancies.js из content/vacancies) ---------- */
-const JB=typeof JOBS!=='undefined'?JOBS:{list:[]}, jobP=$('#jobPanel'); let jobPushed=false, jobId=null;
+const JB=typeof JOBS!=='undefined'?JOBS:{list:[]}, jobP=$('#jobPanel'); let jobId=null;
 const jobById=id=>JB.list.find(v=>v.id===id);
 const jobUrl=id=>ROOT+'vacancy-'+encodeURIComponent(id); // адрес в один уровень, как у кейсов: относительные пути к картинкам не ломаются
 const jobFromPath=p=>{const id=caseFromPath(p),m=id.match(/^vacancy-(.+)$/);return m?m[1]:id==='jobs'?'':null;}; // null — не вакансия, '' — /jobs (список)
@@ -668,8 +689,15 @@ const jobMeta=v=>[v.dept,v.city,v.format,v.salary].filter(Boolean).join(' · ');
 const jobTtl=v=>v.ttl||(w=>w.length>1?[[w[0],1],[w.slice(1).join(' '),0]]:[[v.name,0]])(v.name.split(' ')); // по умолчанию первое слово контуром
 function jobRows(box,list){box.innerHTML='';list.forEach((v,i)=>{
   const r=document.createElement('a');r.className='row jrow';r.href=jobUrl(v.id);r.dataset.c='row';r.dataset.label='Открыть вакансию';r.dataset.rp=1; // data-rp: строку не трогает превью кейсов (centerHit)
-  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${esc(v.name)}</span><span class="sb">${esc(jobMeta(v))}</span>`;
-  r.onclick=e=>{e.preventDefault();openJob(v.id,true);};box.appendChild(r);});}
+  r.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm">${esc(v.name)}</span><span class="sb">${esc(jobMeta(v))}</span><span class="rp"></span>`;
+  r.onclick=e=>{e.preventDefault();peek.classList.remove('on','top');openJob(v.id,true);};box.appendChild(r);
+  // обложка вакансии, как у строк проектов: на десктопе всплывает у курсора, на таче — справа в строке у середины экрана
+  const ck=jobCover(v);if(!ck)return;let pv=null;
+  r.addEventListener('mouseenter',()=>{if(pv===null){const t=document.createElement('div');t.innerHTML=vid(ck);pv=t.firstElementChild;}peek.replaceChildren(...(pv?[pv]:[]));peek.style.background=cover(ck,i,1);peek.classList.add('top');peekAt(r);peek.classList.add('on');if(pv){pv.preload='auto';pv.play().catch(()=>{});}});
+  r.addEventListener('mouseleave',()=>{peek.classList.remove('on','top');pv&&pv.pause();});
+  r._fill=()=>{if(r._ok)return;r._ok=1;const rp=r.querySelector('.rp');rp.style.background=cover(ck,i,1);rp.innerHTML=vid(ck);};});}
+// обложка вакансии: своё фото/видео, иначе — обложка первого из её проектов
+const jobCover=v=>v.img||v.vid?{img:v.img,vid:v.vid,c:['#222','#333','#111']}:caseById((v.cases||[])[0]);
 // почта для откликов — одна на все вакансии (настройки → «Вакансии — общее»)
 const HR=JB.email||'hr@median.agency';
 $$('#jobsMail,#jMail,#jFootMail').forEach(a=>{a.href='mailto:'+HR;a.querySelector('span').textContent=HR;});
@@ -692,7 +720,7 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   const sec=(v.sections||[]).map(s=>`<section class="grey cb jb-sec${s.h?'':' jb-noh'}">${s.h?`<h3 class="d">${esc(s.h)}</h3>`:''}<div class="jb-sb">${s.text?`<div class="jb-txt">${P(s.text)}</div>`:''}${s.items?`<ol class="jb-list">${list(s.items)}</ol>`:''}</div></section>`).join('');
   const ks=(v.cases||[]).map(caseById).filter(Boolean);
   // обложка: своё фото/видео вакансии, иначе — обложка первого из её проектов; без них шапка чёрная с направляющими
-  const ck=v.img||v.vid?{img:v.img,vid:v.vid,c:['#222','#333','#111']}:ks[0],jv=$('#jVis');
+  const ck=jobCover(v),jv=$('#jVis');
   $('#jHero').classList.toggle('has-vis',!!ck);jv.style.background=ck?cover(ck,0):'';jv.innerHTML=ck?vid(ck):'';if(ck)playIn(jv,true);
   $('#jBody').innerHTML=(v.lead?`<section class="cb wrap jb-lead"><div class="cf-logo d">О вакансии</div><div class="cf-lead">${P(v.lead.split(/\n\s*\n/))}</div></section>`:'')+sec+
     (ks.length?`<section class="wrap jb-cases"><h3 class="d"><span class="o on-dark">Проекты,</span> в которых вы могли принимать участие, если бы пришли к нам раньше</h3><div class="rows"></div></section>`:'');
@@ -707,16 +735,22 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   jobP.querySelector('.sheet').scrollTop=0;
   requestAnimationFrame(()=>{fitTitle($('#jTitle'));fitAll(jobP);});}
 function openJob(id,push){if(!jobById(id)){showJobs(push);return;} // вакансию закрыли или адрес с ошибкой — показываем список
-  if(!aboutP.classList.contains('on')){history.replaceState({about:1},'',ROOT+'about');openAbout(false);} // вакансия лежит поверх «О нас»: «назад» и крестик возвращают к списку
+  // вакансия сменяет «О нас» в том же листе (плавно, без второго выезда); «← О нас» возвращает к списку, крестик — на главную
+  if(!aboutP.classList.contains('on')){history.replaceState({about:1},'',ROOT+'about');openAbout(false);jobP.classList.remove('fade');}
+  else if(!jobP.classList.contains('on'))jobP.classList.add('fade');
   fillJob(id);
-  if(push){history.pushState({job:id},'',jobUrl(id));jobPushed=true;}else history.replaceState({job:id},'',jobUrl(id));
+  if(push)history.pushState({job:id,d:depth()+1},'',jobUrl(id));else history.replaceState({job:id,d:depth()},'',jobUrl(id));
   if(!jobP.classList.contains('on'))openPanel(jobP);}
-function closeJob(){if(jobPushed){jobPushed=false;history.back();return;}history.replaceState({about:1},'',ROOT+'about');document.title='О нас — Median';closePanel(jobP);}
+// «← О нас»: назад по истории до «О нас» (через все вакансии, открытые одна из другой); по прямой ссылке записи «О нас» нет — подменяем адрес
+function closeJob(){const n=depth()-aboutD;jobP.classList.add('fade');
+  if(n>0){history.go(-n);return;}history.replaceState({about:1},'',ROOT+'about');document.title='О нас — Median';closePanel(jobP);}
 function showJobs(push){openAbout(push);setTimeout(()=>$('#jobs').scrollIntoView({behavior:reduce?'auto':'smooth'}),reduce?0:700);}
 $$('[data-jobs]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showJobs(true);}));
+$('#jBack').addEventListener('click',e=>{e.preventDefault();closeJob();});
+$('#cBack').addEventListener('click',e=>{e.preventDefault();closeCase();});
 // тач: превью кейса внутри строки у центра экрана, как в списке проектов
-if(!fine){const sh=jobP.querySelector('.sheet');sh.addEventListener('scroll',()=>{const cy=innerHeight/2,rs=[...sh.querySelectorAll('.jb-cases .row')];const h=rs.find(x=>(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect()));if(h&&h._fill)h._fill();
-  rs.forEach(x=>{x.classList.toggle('hover',x===h);const v=x.querySelector('.rp video');if(v){if(x===h){v.preload='auto';v.play().catch(()=>{});}else v.pause();}});},{passive:true});}
+if(!fine)[[jobP,'.jb-cases .row,.jb-rows .row'],[aboutP,'.jb-rows .row']].forEach(([P,sel])=>{const sh=P.querySelector('.sheet');sh.addEventListener('scroll',()=>{const cy=innerHeight/2,rs=[...sh.querySelectorAll(sel)];const h=rs.find(x=>(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect()));if(h&&h._fill)h._fill();
+  rs.forEach(x=>{x.classList.toggle('hover',x===h);const v=x.querySelector('.rp video');if(v){if(x===h){v.preload='auto';v.play().catch(()=>{});}else v.pause();}});},{passive:true});});
 /* короткая версия видео при наведении (десктоп): у шоурила — в превью рядом с курсором, у блоков с видео — прямо в блоке */
 if(fine&&!reduce)$$('[data-teaser]').forEach(el=>{const inPeek=el.dataset.teaserIn==='peek';let v=null;
   const mk=()=>{if(!v){v=document.createElement('video');v.className='tz';v.src=vurl(el.dataset.teaser);v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';v.setAttribute('aria-hidden','true');}return v;};

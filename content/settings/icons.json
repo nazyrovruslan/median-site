@@ -1,0 +1,136 @@
+{
+  "items": [
+    {
+      "id": "heart",
+      "name": "NPS и оценки",
+      "img": "media/icons/heart.svg",
+      "words": "nps, доволь, оцен, рекоменд, лояль, отметил"
+    },
+    {
+      "id": "cup",
+      "name": "Победы и места",
+      "img": "media/icons/cup.svg",
+      "words": "лучш, стенд по, место, места, побед, приз, наград, кубк, финал, чемпион, топ"
+    },
+    {
+      "id": "funnel",
+      "name": "Лиды и воронка",
+      "img": "media/icons/funnel.svg",
+      "words": "лид, воронк"
+    },
+    {
+      "id": "doc",
+      "name": "Резюме и найм",
+      "img": "media/icons/doc.svg",
+      "words": "резюме, ваканс, стаж, кандидат, найм, оффер, собесед"
+    },
+    {
+      "id": "reach",
+      "name": "Охват",
+      "img": "media/icons/reach.svg",
+      "words": "охват, outreach, media, показ, аудитор"
+    },
+    {
+      "id": "play",
+      "name": "Видео и просмотры",
+      "img": "media/icons/play.svg",
+      "words": "просмотр, видео, серии, серия, серий, эфир, минут, трансляц, подкаст, выпуск"
+    },
+    {
+      "id": "form",
+      "name": "Регистрации",
+      "img": "media/icons/form.svg",
+      "words": "регистрац, заявк, анкет"
+    },
+    {
+      "id": "uni",
+      "name": "Вузы и школы",
+      "img": "media/icons/uni.svg",
+      "words": "вуз, ссуз, школ, универс, колледж"
+    },
+    {
+      "id": "hand",
+      "name": "Касания и контакты",
+      "img": "media/icons/hand.svg",
+      "words": "касан, контакт, взаимодейств"
+    },
+    {
+      "id": "org",
+      "name": "Компании и партнёры",
+      "img": "media/icons/org.svg",
+      "words": "компани, партнёр, партнер, бренд, организац"
+    },
+    {
+      "id": "card",
+      "name": "Клиенты и карты",
+      "img": "media/icons/card.svg",
+      "words": "клиент, банк, карт, счёт, счет"
+    },
+    {
+      "id": "mic",
+      "name": "Спикеры и артисты",
+      "img": "media/icons/mic.svg",
+      "words": "хедлайнер, спикер, артист, эксперт, выступ, доклад"
+    },
+    {
+      "id": "bulb",
+      "name": "Идеи и концепции",
+      "img": "media/icons/bulb.svg",
+      "words": "концепц, идея, идей, идеи"
+    },
+    {
+      "id": "code",
+      "name": "Код и open source",
+      "img": "media/icons/code.svg",
+      "words": "open source, код, коммит, репозитор"
+    },
+    {
+      "id": "book",
+      "name": "Книги",
+      "img": "media/icons/book.svg",
+      "words": "книг, библиотек"
+    },
+    {
+      "id": "chat",
+      "name": "Публикации и отзывы",
+      "img": "media/icons/chat.svg",
+      "words": "публикац, упомин, пост, сми, отзыв, сообщен, коммент, интервью, освещ"
+    },
+    {
+      "id": "money",
+      "name": "Деньги",
+      "img": "media/icons/money.svg",
+      "words": "₽, руб, бюджет, выручк, грант"
+    },
+    {
+      "id": "cal",
+      "name": "Дни и мероприятия",
+      "img": "media/icons/cal.svg",
+      "words": "дн, дня, дней, недел, месяц, час, сезон, продолжит, мероприят"
+    },
+    {
+      "id": "growth",
+      "name": "Рост и конверсия",
+      "img": "media/icons/growth.svg",
+      "words": "%, рост, конверс, прирост"
+    },
+    {
+      "id": "people",
+      "name": "Люди",
+      "img": "media/icons/people.svg",
+      "words": "участник, человек, гост, посетит, студент, сотрудник, команд, подписчик, зрител, дет, пар, покупател"
+    },
+    {
+      "id": "pin",
+      "name": "Города и площадки",
+      "img": "media/icons/pin.svg",
+      "words": "город, локац, регион, стран, площад"
+    },
+    {
+      "id": "spark",
+      "name": "Звёздочка (если ничего не подошло)",
+      "img": "media/icons/spark.svg",
+      "words": ""
+    }
+  ]
+}
