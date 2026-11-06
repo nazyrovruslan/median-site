@@ -360,7 +360,7 @@ const BLOCK={
   // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): текст — как «Текст» на сером, пункты — строками как список проектов на главной, цифры — на чёрном
   // раздел: ярлык (вопрос или cap), заголовок Druk --h2 (первое слово контуром), абзацы --lead на колонках 3–5, подпись и пункты-строки во всю ширину; группы цифр — отдельным чёрным экраном
   sec:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean),lab=b.cap||b.q,
-    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows">${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm">${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img):''}</div>`).join('')}</div>`:'',
+    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows" data-fit-g>${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm" data-fit>${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img):''}</div>`).join('')}</div>`:'',
     txt=[b.lead,...(b.text||[])].filter(Boolean);
     const ttl=b.h?`<h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3>`:'',lb=lab?`<p class="label sc-q">${esc(lab)}</p>`:'';
     if(b.groups&&!txt.length&&!rows)return `<section class="cb cb-kpi wrap">${lb}${ttl}${b.groups.map(kpiGroup).join('')}</section>`; // только цифры — весь раздел на чёрном
