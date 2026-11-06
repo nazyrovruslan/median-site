@@ -146,6 +146,8 @@ R.forEach((pts,i)=>{
     const q=pts[(k-1+M)%M],n=pts[(k+1)%M];let nx=n.Y-q.Y,ny=-(n.X-q.X);const l=Math.hypot(nx,ny)||1;p.nx=nx/l*sgn;p.ny=ny/l*sgn;});
 });
 R.forEach(()=>{const p=document.createElementNS('http://www.w3.org/2000/svg','path');W.appendChild(p);paths.push(p);});
+// те же контуры с визитки — второй слой плиток цифр по наведению (поверх фирменного градиента), см. .tw в style.css
+const TW='<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true">'+R.map((pts,i)=>`<path style="--i:${i}" d="M${pts.filter((q,k)=>k%2===0).map(q=>q.X.toFixed(1)+','+q.Y.toFixed(1)).join('L')}Z"/>`).join('')+'</svg>';
 let wt=0, wspeed=.004, wtarget=.004, morph=0, morphT=0, col=0;
 W.addEventListener('mouseenter',()=>{wtarget=.012;morphT=1});W.addEventListener('mouseleave',()=>{wtarget=.004;morphT=0});
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -479,7 +481,7 @@ function fillCase(id,split){
   $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
     bl.map(b=>b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
-  reelTeaser();hubInit();blocksInit($('#cBody'));
+  reelTeaser();hubInit();blocksInit($('#cBody'));$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(t=>t.insertAdjacentHTML('afterbegin',TW));
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;

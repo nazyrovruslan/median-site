@@ -1120,6 +1120,12 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 /* ховер плитки — фирменный градиент с визиток (06.11): слой ::before проявляется, плитка чуть приподнимается */
 .kpi-i>div,.yr-k>div{position:relative;isolation:isolate;overflow:hidden;transition:transform .5s var(--ease)}
 .kpi-i>div::before,.yr-k>div::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--brand-grad);opacity:0;transition:opacity .5s var(--ease)}
+.tw{position:absolute;z-index:-1;right:-30%;top:-35%;width:105%;aspect-ratio:1;opacity:0;pointer-events:none;transition:opacity .6s var(--ease);animation:twr 40s linear infinite paused}
+.tw path{fill:none;stroke:rgba(255,255,255,.4);stroke-width:1.2;vector-effect:non-scaling-stroke;animation:twb 3.6s ease-in-out infinite paused;animation-delay:calc(var(--i)*-.45s)}
+@keyframes twr{to{rotate:360deg}}
+@keyframes twb{50%{scale:1.07}}
+@media (hover:hover){.kpi-i>div:hover .tw,.yr-k>div:hover .tw{opacity:1}.kpi-i>div:hover .tw,.kpi-i>div:hover .tw path,.yr-k>div:hover .tw,.yr-k>div:hover .tw path{animation-play-state:running}}
+@media (prefers-reduced-motion:reduce){.tw,.tw path{animation:none}}
 @media (hover:hover){.kpi-i>div:hover::before,.yr-k>div:hover::before{opacity:1}.kpi-i>div:hover,.yr-k>div:hover{transform:translateY(-4px)}.kpi-i>div:hover>span,.yr-k>div:hover>span{color:rgba(255,255,255,.9)}}
 .yr-k{grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1vw,20px)}
 .yr-k>div,.yr-k>.w2{grid-column:auto;background:var(--tile);border-radius:clamp(18px,1.6vw,30px);padding:clamp(24px,2.2vw,44px);min-height:clamp(200px,15vw,290px);display:flex;flex-direction:column;gap:8px}
