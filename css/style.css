@@ -1115,7 +1115,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 /* ховер плитки — фирменный градиент с визиток (06.11): слой ::before проявляется, плитка чуть приподнимается */
 .kpi-i>div,.yr-k>div{position:relative;isolation:isolate;overflow:hidden;transition:transform .5s var(--ease)}
 .kpi-i>div::before,.yr-k>div::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--brand-grad);opacity:0;transition:opacity .5s var(--ease)}
-.tw{position:absolute;z-index:-1;left:50%;top:50%;translate:-50% -50%;width:150%;aspect-ratio:1;opacity:0;pointer-events:none;transition:opacity .6s var(--ease)}
+.tw{position:absolute;z-index:-1;overflow:visible;left:50%;top:50%;translate:-50% -50%;width:150%;aspect-ratio:1;opacity:0;pointer-events:none;transition:opacity .6s var(--ease)}
 .tw path{fill:none;stroke:rgba(255,255,255,.4);stroke-width:1.2;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 @media (hover:hover){.kpi-i>div:hover .tw,.yr-k>div:hover .tw{opacity:1}}
 @media (hover:hover){.kpi-i>div:hover::before,.yr-k>div:hover::before{opacity:1}.kpi-i>div:hover,.yr-k>div:hover{transform:translateY(-4px)}.kpi-i>div:hover>span,.yr-k>div:hover>span{color:rgba(255,255,255,.9)}.kpi-i>div:hover .label{color:rgba(255,255,255,.8)}}
