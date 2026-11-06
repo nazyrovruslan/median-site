@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-06T11:42:08.697Z",
+  "updated": "2026-11-06T11:45:00.945Z",
   "default_count": 4,
   "categories": [
     {
@@ -48,8 +48,7 @@
       "default": [
         "alfa-battle",
         "hackathon",
-        "techrace",
-        "alfabattle2"
+        "techrace"
       ]
     },
     {
@@ -492,19 +491,6 @@
       "on_site": true,
       "url": "https://nazyrovruslan.github.io/median-site/prirodacoda",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/prirodacoda-cover.webp"
-    },
-    {
-      "id": "alfabattle2",
-      "name": "Alfa Battle 2.0",
-      "client": "Альфа-Банк",
-      "year": "",
-      "sub": "«Шестинедельный хакатон – потому что математические модели просчитываются небыстро»",
-      "categories": [
-        "hack"
-      ],
-      "on_site": false,
-      "url": "https://nazyrovruslan.github.io/median-site/alfa-battle",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfabattle2-cover.webp"
     }
   ]
 }
