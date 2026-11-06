@@ -1,6 +1,7 @@
 {
   "order": 210,
   "id": "osoffer",
+  "reel": "media/video/reel-osoffer.mp4",
   "kind": "project",
   "name": "One Swipe Offer",
   "out": "One",

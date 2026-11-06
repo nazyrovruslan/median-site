@@ -1,6 +1,7 @@
 {
   "order": 190,
   "id": "alfacontactday",
+  "reel": "media/video/reel-alfacontactday.mp4",
   "kind": "project",
   "name": "Alfa Contact Day",
   "out": "Alfa",
