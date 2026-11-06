@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-06T11:16:55.886Z",
+  "updated": "2026-11-06T11:19:39.200Z",
   "default_count": 4,
   "categories": [
     {
@@ -28,8 +28,8 @@
       "default": [
         "southhub",
         "snowbase",
-        "abcamp",
-        "es"
+        "ptc",
+        "abcamp"
       ]
     },
     {
@@ -73,19 +73,6 @@
   ],
   "cases": [
     {
-      "id": "alfa-dvizh",
-      "name": "Альфа Движ",
-      "client": "Альфа-Банк",
-      "year": "4 феста, 2023–2024",
-      "sub": "Серия фестов для умных и свободных: Москва, Новосибирск, Екатеринбург, Санкт-Петербург",
-      "categories": [
-        "fest"
-      ],
-      "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/alfa-dvizh",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfa-dvizh-cover.webp"
-    },
-    {
       "id": "southhub",
       "name": "South HUB",
       "client": "",
@@ -98,6 +85,45 @@
       "on_site": true,
       "url": "https://nazyrovruslan.github.io/median-site/southhub",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/southhub-cover.webp"
+    },
+    {
+      "id": "snowbase",
+      "name": "Snow BASE",
+      "client": "",
+      "year": "2026",
+      "sub": "Зимний кэмп для руководителей Data, ML и AI",
+      "categories": [
+        "camp"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/snowbase",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/snowbase-cover.webp"
+    },
+    {
+      "id": "ptc",
+      "name": "People Tech Camp",
+      "client": "SENSE",
+      "year": "2026",
+      "sub": "Бизнес-ретрит для руководителей HR, продуктов и технологий",
+      "categories": [
+        "camp"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/ptc",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/ptc-cover.webp"
+    },
+    {
+      "id": "alfa-dvizh",
+      "name": "Альфа Движ",
+      "client": "Альфа-Банк",
+      "year": "4 феста, 2023–2024",
+      "sub": "Серия фестов для умных и свободных: Москва, Новосибирск, Екатеринбург, Санкт-Петербург",
+      "categories": [
+        "fest"
+      ],
+      "on_site": true,
+      "url": "https://nazyrovruslan.github.io/median-site/alfa-dvizh",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfa-dvizh-cover.webp"
     },
     {
       "id": "alfa-battle",
@@ -138,19 +164,6 @@
       "on_site": true,
       "url": "https://nazyrovruslan.github.io/median-site/vtb",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/vtb-hero.webp"
-    },
-    {
-      "id": "snowbase",
-      "name": "Snow Base",
-      "client": "",
-      "year": "2026",
-      "sub": "Зимний кэмп для руководителей Data, ML и AI",
-      "categories": [
-        "camp"
-      ],
-      "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/snowbase",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/snowbase-cover.webp"
     },
     {
       "id": "streamlenie",
@@ -492,19 +505,6 @@
       "on_site": false,
       "url": "https://nazyrovruslan.github.io/median-site/alfabattle2",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfabattle2-cover.webp"
-    },
-    {
-      "id": "ptc",
-      "name": "People Tech Camp",
-      "client": "SENSE",
-      "year": "2025",
-      "sub": "Бизнес-ретрит для 150 лидеров в сфере технологий и HR",
-      "categories": [
-        "camp"
-      ],
-      "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/ptc",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/ptc.webp"
     }
   ]
 }
