@@ -381,7 +381,7 @@ const BLOCK={
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
   // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки;
   // все вкладки лежат друг на друге (скрытые — невидимы, но измеряются), цифры ужимаются одной группой — размер одинаковый на всех вкладках
-  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps" data-fit-g>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${String(m.v||'').length>6?' class="w2"':''}>${icoOf(m)}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
+  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps" data-fit-g>${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${kvS(m.v)[0].length>6?' class="w2"':''}>${icoOf(m)}${kvB(m.v)}<span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
 };
 // группа цифр раздела: подпись, числа (над числом — мелкая подпись pre, например «План 4 000»)
 // пиктограммы к цифрам в стиле Apple: набор — js/icons.js (из CMS → Настройки → Пиктограммы к цифрам), svg рисуется маской цветом текста (mask-image — прямо в style, путь от страницы).
@@ -391,7 +391,10 @@ const icoOf=m=>{let ic=m.icon&&IC.find(i=>i.id===m.icon);
   if(!ic){const t=' '+`${m.l||''} ${m.pre||''} ${m.v||''}`.toLowerCase().replace(/[«»"“”(),.:;—–-]/g,' ').replace(/\s+/g,' ');
     ic=IC.find(i=>i.w.some(w=>/[a-zа-яё]/.test(w)?t.includes(' '+w):t.includes(w)))||IC.find(i=>!i.w.length);}
   return ic?`<span class="kv-ic" style="-webkit-mask-image:url(${ic.img});mask-image:url(${ic.img})" aria-hidden="true"></span>`:'';};
-function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${icoOf(m)}${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
+function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i" data-fit-g>${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${icoOf(m)}${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}${kvB(m.v)}<span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
+// цифра как у Apple: число крупно, единица после него («из 10», «млн», «команд») — мелко на той же линии; «182 → 709» и «+79%» целиком
+const kvS=v=>{v=String(v||'');const m=/→/.test(v)?null:/^(\S*\d[\d\u00a0\u202f ,.]*[%+]?)\s+(\D.*)$/.exec(v);return m?[m[1].trim(),m[2]]:[v,''];};
+const kvB=v=>{const[h,u]=kvS(v);return `<b class="d kv" data-fit>${nw(h)}${u?`<small class="kv-u">${esc(u).replace(/ /g,'\u00a0')}</small>`:''}</b>`;};
 // буквенная сетка: буквы рядом с курсором растут (на таче — медленно «гуляющая» волна, пока блок на экране)
 const HUBSVG={SOUTHU:'southu',U:'u',B:'b'};
 let hubIO=null;function hubInit(){hubIO&&hubIO.disconnect();const g=$('#cBody .hub-g');if(!g||reduce)return;
