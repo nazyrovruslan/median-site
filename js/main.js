@@ -147,21 +147,23 @@ R.forEach((pts,i)=>{
 });
 R.forEach(()=>{const p=document.createElementNS('http://www.w3.org/2000/svg','path');W.appendChild(p);paths.push(p);});
 // те же контуры с визитки — второй слой плиток цифр по наведению (поверх фирменного градиента), см. .tw в style.css
-// форма — ровно как «Волны» на главной (исходные контуры визитки, без искажений), анимация та же: контуры по очереди дышат снаружи внутрь;
+// форма — ровно как «Волны» на главной (исходные контуры визитки), анимация та же: в покое контуры по очереди дышат,
+// по наведению собираются в идеальные круги (как на главной при наведении), курсор ушёл — обратно в волны;
 // для объёма к четырём контурам добавлены ещё три: один внутри (×0,55 от внутреннего) и два снаружи (×1,22 и ×1,46 от внешнего)
-const TWR=[[0,.55],[0,1],[1,1],[2,1],[3,1],[3,1.22],[3,1.46]].map(([i,k])=>R[i].map(p=>[p.X*k,p.Y*k]));
-const twD=(i,t)=>{const n=TWR.length,w=.28,ss=(a,x)=>{x=Math.min(1,Math.max(0,(x-a)/w));return x*x*(3-2*x)};
-  const up=ss((n-1-i)*.07,t),down=ss(.5+i*.07,t),g=1+.06*up*(1-down);
-  const P=TWR[i],m=P.length,f=v=>(v*g).toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`; // сглаживание Catmull-Rom: в крупной плитке ломаная видна
-  for(let k=0;k<m;k++){const a=P[(k-1+m)%m],b=P[k],c=P[(k+1)%m],e=P[(k+2)%m];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}
+const TWR=[[0,.55],[0,1],[1,1],[2,1],[3,1],[3,1.22],[3,1.46]].map(([i,k])=>R[i].map(p=>[p.X*k,p.Y*k,p.tx*k,p.ty*k]));
+const twD=(i,t,m)=>{const n=TWR.length,w=.28,ss=(a,x)=>{x=Math.min(1,Math.max(0,(x-a)/w));return x*x*(3-2*x)};
+  const up=ss((n-1-i)*.07,t),down=ss(.5+i*.07,t),g=1+.06*up*(1-down)*(1-m);
+  const P=TWR[i].map(([x,y,tx,ty])=>[x*g+(tx-x*g)*m,y*g+(ty-y*g)*m]),L=P.length,f=v=>v.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`; // сглаживание Catmull-Rom
+  for(let k=0;k<L;k++){const a=P[(k-1+L)%L],b=P[k],c=P[(k+1)%L],e=P[(k+2)%L];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}
   return d+'Z';};
-function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл дыхания 10 с (на главной 7 с — в плитке медленнее); у плитки своя фаза
-  tile.insertAdjacentHTML('afterbegin',`<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true" style="left:${15+r()*70}%;top:${15+r()*70}%">${TWR.map((_,i)=>`<path d="${twD(i,ph)}"/>`).join('')}</svg>`);
-  const ps=[...tile.firstElementChild.children];let raf=0,on=false;
-  const step=now=>{const t=(now/1000/T+ph)%1;ps.forEach((p,i)=>p.setAttribute('d',twD(i,t)));raf=on?requestAnimationFrame(step):0;};
+function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл дыхания 10 с; у плитки своя фаза
+  tile.insertAdjacentHTML('afterbegin',`<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true" style="left:${15+r()*70}%;top:${15+r()*70}%">${TWR.map((_,i)=>`<path d="${twD(i,ph,0)}"/>`).join('')}</svg>`);
+  const ps=[...tile.firstElementChild.children];let raf=0,on=false,m=0;
+  const step=now=>{m+=((on?1:0)-m)*.035;if(Math.abs((on?1:0)-m)<.002)m=on?1:0;const t=(now/1000/T+ph)%1,me=ease(m);
+    ps.forEach((p,i)=>p.setAttribute('d',twD(i,t,me)));raf=(on||m>0)?requestAnimationFrame(step):0;};
   if(reduce||!matchMedia('(hover:hover)').matches)return;
   tile.addEventListener('mouseenter',()=>{on=true;if(!raf)raf=requestAnimationFrame(step);});
-  tile.addEventListener('mouseleave',()=>{on=false;});}
+  tile.addEventListener('mouseleave',()=>{on=false;if(!raf)raf=requestAnimationFrame(step);});}
 let wt=0, wspeed=.004, wtarget=.004, morph=0, morphT=0, col=0;
 W.addEventListener('mouseenter',()=>{wtarget=.012;morphT=1});W.addEventListener('mouseleave',()=>{wtarget=.004;morphT=0});
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
