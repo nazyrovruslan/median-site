@@ -2,7 +2,7 @@
   "order": 30,
   "id": "ptc",
   "kind": "project",
-  "vid": "media/video/ptc.mp4",
+  "vid": "media/video/ptc-2026.mp4",
   "img": "media/cases/ptc-cover.webp",
   "name": "People Tech Camp",
   "out": "People",
@@ -27,6 +27,9 @@
   "blocks": [
     {
       "t": "facts"
+    },
+    {
+      "t": "reel"
     },
     {
       "t": "sec",
@@ -248,5 +251,6 @@
       "l": "Когда",
       "v": "17–19 сентября 2026 · первый кэмп"
     }
-  ]
+  ],
+  "reel": "media/video/reel-ptc.mp4"
 }

@@ -2,7 +2,7 @@
   "order": 20,
   "id": "snowbase",
   "kind": "project",
-  "vid": "media/video/snowbase.mp4",
+  "vid": "media/video/snowbase-2026.mp4",
   "name": "Snow BASE",
   "out": "Snow",
   "solid": "BASE",
@@ -26,6 +26,9 @@
   "blocks": [
     {
       "t": "facts"
+    },
+    {
+      "t": "reel"
     },
     {
       "t": "sec",
@@ -298,5 +301,6 @@
       "l": "Когда",
       "v": "19–22 марта 2026 · первый кэмп"
     }
-  ]
+  ],
+  "reel": "media/video/reel-snowbase.mp4"
 }
