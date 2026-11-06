@@ -1,8 +1,8 @@
 {
-  "order": 20,
+  "order": 10,
   "id": "southhub",
   "reel": "media/video/reel-southhub.mp4",
-  "vid": "media/video/southhub.mp4",
+  "vid": "media/video/southhub-2026.mp4",
   "name": "South HUB",
   "out": "South",
   "solid": "HUB",
@@ -23,7 +23,7 @@
   ],
   "img": "media/cases/southhub-cover.webp",
   "sub": "Ежегодная кэмп-конференция для C-level в IT",
-  "format": "camp",
+  "format": "Кэмп-конференция",
   "city": "Сочи, Красная Поляна",
   "year": "5 кэмпов, 2022–2026",
   "links": [
@@ -45,8 +45,8 @@
         "v": "182 → 709"
       },
       {
-        "pre": "Media outreach · 2022–2025",
-        "v": "30+ млн",
+        "pre": "Media outreach · 2023–2026",
+        "v": "40+ млн",
         "l": "суммарный охват кэмпов за четыре года"
       }
     ]
@@ -57,10 +57,6 @@
       "sub": "6–8 октября · первый кэмп",
       "blocks": [],
       "stats": [
-        {
-          "v": "82,9%",
-          "l": "NPS"
-        },
         {
           "v": "182",
           "l": "участника"
@@ -80,10 +76,6 @@
       "sub": "12–16 июня",
       "blocks": [],
       "stats": [
-        {
-          "v": "80%",
-          "l": "NPS"
-        },
         {
           "v": "361",
           "l": "участник"
@@ -112,10 +104,6 @@
       "blocks": [],
       "stats": [
         {
-          "v": "65%",
-          "l": "NPS"
-        },
-        {
           "v": "466",
           "l": "участников C-level"
         },
@@ -143,10 +131,6 @@
       "blocks": [],
       "stats": [
         {
-          "v": "63%",
-          "l": "NPS"
-        },
-        {
           "v": "520",
           "l": "участников"
         },
@@ -173,10 +157,6 @@
       "sub": "10–14 июня · пятый, юбилейный",
       "blocks": [],
       "stats": [
-        {
-          "v": "63%",
-          "l": "NPS"
-        },
         {
           "v": "533",
           "l": "участников"
@@ -221,7 +201,7 @@
       "t": "pics",
       "mode": "chess",
       "items": [
-        "media/cases/southhub-1-1.webp",
+        "media/cases/sh-chess-1.webp",
         "media/video/sh-loop-raft.mp4"
       ]
     },
@@ -252,42 +232,38 @@
       "t": "key",
       "label": "Идея · Мечтать",
       "out": "Мечтаем…",
-      "solid": "и делаем",
-      "text": [
-        "Перед кэмпом мы спросили 96 IT-руководителей, о чём они мечтают и что им мешает воплощать мечты.",
-        "Инсайт: управляя будущим компаний, руководитель откладывает собственное."
-      ]
+      "solid": "и делаем"
     },
     {
       "t": "gallery",
       "items": [
-        "media/cases/sh26-dream-1.webp",
-        "media/cases/sh26-dream-2.webp",
-        "media/cases/sh26-dream-3.webp",
-        "media/cases/sh26-dream-4.webp",
-        "media/cases/sh26-dream-5.webp",
-        "media/cases/sh26-dream-6.webp",
-        "media/cases/sh26-dream-7.webp",
-        "media/cases/sh26-dream-8.webp",
-        "media/cases/sh26-dream-9.webp",
-        "media/cases/sh26-dream-10.webp",
-        "media/cases/sh26-dream-11.webp"
+        "media/cases/sh-dream-01.webp",
+        "media/cases/sh-dream-02.webp",
+        "media/cases/sh-dream-03.webp",
+        "media/cases/sh-dream-04.webp",
+        "media/cases/sh-dream-05.webp",
+        "media/cases/sh-dream-06.webp",
+        "media/cases/sh-dream-07.webp",
+        "media/cases/sh-dream-08.webp",
+        "media/cases/sh-dream-09.webp",
+        "media/cases/sh-dream-10.webp",
+        "media/cases/sh-dream-11.webp"
       ]
     },
     {
       "t": "photo",
-      "img": "media/cases/sh26-real-2.webp"
+      "img": "media/cases/sh-wide-1.webp"
     },
     {
       "t": "carousel",
       "items": [
-        "media/cases/sh26-real-1.webp",
-        "media/cases/sh26-real-3.webp",
-        "media/cases/sh26-real-4.webp",
-        "media/cases/sh26-real-5.webp",
-        "media/cases/sh26-real-6.webp",
-        "media/cases/sh26-real-7.webp",
-        "media/cases/sh26-real-8.webp"
+        "media/cases/sh-car-1.webp",
+        "media/cases/sh-car-2.webp",
+        "media/cases/sh-car-3.webp",
+        "media/cases/sh-car-4.webp",
+        "media/cases/sh-car-5.webp",
+        "media/cases/sh-car-6.webp",
+        "media/cases/sh-car-7.webp"
       ]
     },
     {
@@ -335,7 +311,7 @@
       "mode": "chess",
       "items": [
         "media/video/sh-loop-crowd.mp4",
-        "media/cases/sh26-2.webp"
+        "media/cases/sh-chess-2.webp"
       ]
     },
     {
@@ -377,26 +353,43 @@
               "l": "отметили прямую пользу кэмпа для карьеры и бизнеса"
             }
           ]
+        },
+        {
+          "l": "Сообщество и медиа · 2026",
+          "items": [
+            {
+              "v": "+79%",
+              "l": "заявок в сообщество South HUB за сезон: 1 552 против 869 годом раньше"
+            },
+            {
+              "v": "×8",
+              "l": "рост media outreach год к году: 30,14 млн против 3,63 млн"
+            },
+            {
+              "v": "102",
+              "l": "публикации в СМИ за сезон, в том числе Forbes, РБК и «Известия»"
+            }
+          ]
         }
       ]
     },
     {
       "t": "marquee",
       "a": [
-        "media/cases/sh26-g2.webp",
-        "media/cases/sh26-g9.webp",
-        "media/cases/sh26-g3.webp",
-        "media/cases/sh26-real-6.webp",
-        "media/cases/sh26-g4.webp",
-        "media/cases/sh26-g5.webp"
+        "media/cases/sh-tape-01.webp",
+        "media/cases/sh-tape-02.webp",
+        "media/cases/sh-tape-03.webp",
+        "media/cases/sh-tape-04.webp",
+        "media/cases/sh-tape-05.webp",
+        "media/cases/sh-tape-06.webp"
       ],
       "b": [
-        "media/cases/sh26-g6.webp",
-        "media/cases/sh26-g11.webp",
-        "media/cases/sh26-g7.webp",
-        "media/cases/sh26-g12.webp",
-        "media/cases/sh26-g8.webp",
-        "media/cases/sh26-g13.webp"
+        "media/cases/sh-tape-07.webp",
+        "media/cases/sh-tape-08.webp",
+        "media/cases/sh-tape-09.webp",
+        "media/cases/sh-tape-10.webp",
+        "media/cases/sh-tape-11.webp",
+        "media/cases/sh-tape-12.webp"
       ]
     }
   ]

@@ -950,6 +950,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .kpi-i>div{display:grid;gap:8px;align-content:start;padding-right:clamp(16px,1.6vw,32px);min-width:0}
 .kpi-i>.w2{grid-column:span 2}
 .kpi-i b{font-size:var(--h3);line-height:1.05;min-width:0}
+.kv{white-space:nowrap}
+.kv-u{font-size:.42em;font-weight:500;margin-left:.3em;letter-spacing:.01em} /* единица после цифры — мелко, по базовой линии (как у Apple) */
 .kpi-i>div>span:last-child{font:400 var(--ui)/1.4 var(--body);color:rgba(243,243,241,.7)}
 .kpi-i .label{color:var(--muted)}
 /* цифры как у Apple: пиктограмма → подпись над цифрой → цифра → подпись; просторные строки */
