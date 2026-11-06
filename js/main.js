@@ -149,7 +149,7 @@ R.forEach(()=>{const p=document.createElementNS('http://www.w3.org/2000/svg','pa
 // те же контуры с визитки — второй слой плиток цифр по наведению (поверх фирменного градиента), см. .tw в style.css
 // форма живёт: точки контура гуляют по нормали (сумма синусов), кривая — сглаженная (Catmull-Rom → кубические Безье)
 const twCR=P=>{const n=P.length,f=v=>v.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`;for(let k=0;k<n;k++){const a=P[(k-1+n)%n],b=P[k],c=P[(k+1)%n],e=P[(k+2)%n];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}return d+'Z';};
-const twD=(i,t,ph)=>{const pts=R[i],n=pts.length,P=[];for(let k=0;k<n;k+=3){const p=pts[k],a=k/n*Math.PI*2,o=10*Math.sin(a*3+t*.9+ph+i*.8)+6*Math.sin(a*5-t*.6+ph*1.7+i*1.3);P.push([p.X+p.nx*o,p.Y+p.ny*o]);}return twCR(P);};
+const twD=(i,t,ph)=>{const pts=R[i],n=pts.length,P=[];for(let k=0;k<n;k+=3){const p=pts[k],a=p.a,o=10*Math.sin(a*3+t*.35+ph)+6*Math.sin(a*5-t*.25+ph*1.7);P.push([p.X+p.nx*o,p.Y+p.ny*o]);}return twCR(P);};
 function twAdd(tile){const ph=Math.random()*6.28,r=Math.random;
   tile.insertAdjacentHTML('afterbegin',`<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true" style="left:${15+r()*70}%;top:${15+r()*70}%">${R.map((_,i)=>`<path d="${twD(i,0,ph)}"/>`).join('')}</svg>`);
   const ps=[...tile.firstElementChild.children];let raf=0,on=false,t0=0,t=0;
