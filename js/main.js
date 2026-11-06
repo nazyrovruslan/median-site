@@ -356,7 +356,7 @@ const BLOCK={
   // буквы South HUB берём их же векторами с southhub.ru; другие буквы — текстом
   hub:b=>{const gl=t=>HUBSVG[t]?`<img class="hub-svg" src="media/southhub/${HUBSVG[t]}.svg" alt="">`:esc(t);
     return `<section class="cb cb-hub" aria-label="${esc((b.start||'')+(b.end||''))}: ${esc(b.tag||'')}"><div class="hub-g" aria-hidden="true"><b class="hub-s">${gl(b.start)}</b>${`<i><span>${gl(b.letter||'U')}</span></i>`.repeat(54)}<p class="hub-t">${esc(b.tag)}</p><b class="hub-e"><span>${gl(b.end)}</span></b></div></section>`},
-  stats:b=>`<section class="cb cb-stats wrap" data-fit-g>${(b.items||[]).map(m=>`<div>${icoOf(m)}<b class="d" data-fit>${nw(m.v)}</b><span>${esc(m.l)}</span></div>`).join('')}</section>`  ,
+  stats:b=>`<section class="cb cb-kpi cb-stats wrap">${kpiGroup({items:b.items})}</section>`, // «Цифры проекта» — те же плитки, что в группах цифр (06.11)
   // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): текст — как «Текст» на сером, пункты — строками как список проектов на главной, цифры — на чёрном
   // раздел: ярлык (вопрос или cap), заголовок Druk --h2 (первое слово контуром), абзацы --lead на колонках 3–5, подпись и пункты-строки во всю ширину; группы цифр — отдельным чёрным экраном
   sec:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean),lab=b.cap||b.q,
@@ -402,7 +402,7 @@ const icoOf=m=>{let ic=m.icon&&IC.find(i=>i.id===m.icon);
   if(!ic){const t=' '+`${m.l||''} ${m.pre||''} ${m.v||''}`.toLowerCase().replace(/[«»"“”(),.:;—–-]/g,' ').replace(/\s+/g,' ');
     ic=IC.find(i=>i.w.some(w=>/[a-zа-яё]/.test(w)?t.includes(' '+w):t.includes(w)))||IC.find(i=>!i.w.length);}
   return ic?`<span class="kv-ic" style="-webkit-mask-image:url(${ic.img});mask-image:url(${ic.img})" aria-hidden="true"></span>`:'';};
-function kpiGroup(g){return `<div class="kpi"><p class="label">${esc(g.l||'')}</p><div class="kpi-i">${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${icoOf(m)}${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}${kvB(m.v)}<span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
+function kpiGroup(g){return `<div class="kpi">${g.l?`<p class="label">${esc(g.l)}</p>`:''}<div class="kpi-i">${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${icoOf(m)}${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}${kvB(m.v)}<span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
 // цифра как у Apple: число крупно, единица после него («из 10», «млн», «команд») — мелко на той же линии; «182 → 709» и «+79%» целиком
 const kvS=v=>{v=String(v||'');const m=/→/.test(v)?null:/^(\S*\d[\d\u00a0\u202f ,.]*[%+]?)\s+(\D.*)$/.exec(v);return m?[m[1].trim(),m[2]]:[v,''];};
 const kvB=v=>{const[h,u]=kvS(v);return `<b class="d kv">${nw(h)}${u?`<small class="kv-u">${esc(u).replace(/ /g,'\u00a0')}</small>`:''}</b>`;};
