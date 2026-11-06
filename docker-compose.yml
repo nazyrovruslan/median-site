@@ -1,0 +1,9 @@
+services:
+  site:
+    build: .
+    image: median-site:latest
+    container_name: median-site
+    restart: unless-stopped
+    ports:
+      # Только localhost: наружу сайт отдаёт nginx на хосте
+      - "127.0.0.1:${HOST_PORT:-8080}:80"

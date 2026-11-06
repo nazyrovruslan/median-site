@@ -1,0 +1,9 @@
+.git
+.github
+.env
+node_modules
+dist
+NOTES.md
+CLAUDE.md
+DESIGN-SYSTEM.md
+README.md

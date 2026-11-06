@@ -1,0 +1,27 @@
+# Внутри контейнера работает только HTTP: HTTPS и домен обслуживает внешний nginx на хосте.
+{
+	auto_https off
+	admin off
+}
+
+:80 {
+	root * /srv
+	encode zstd gzip
+
+	# Тяжёлая статика — кэш на месяц
+	@static path *.webp *.jpg *.png *.svg *.woff2 *.mp4
+	header @static Cache-Control "public, max-age=2592000"
+
+	# HTML/CSS/JS/JSON всегда перепроверяются (замена ручному подъёму ?v=)
+	@code path / *.html *.css *.js *.json
+	header @code Cache-Control "no-cache"
+
+	file_server
+
+	# Как на GitHub Pages: неизвестный адрес (/southhub, /about, /jobs...) отдаёт 404.html,
+	# а он сам открывает нужный кейс/страницу.
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}
