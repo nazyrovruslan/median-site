@@ -481,7 +481,7 @@ function fillCase(id,split){
   $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
     bl.map(b=>b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
-  reelTeaser();hubInit();blocksInit($('#cBody'));$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(t=>t.insertAdjacentHTML('afterbegin',TW));
+  reelTeaser();hubInit();blocksInit($('#cBody'));$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(t=>{t.insertAdjacentHTML('afterbegin',TW);const r=Math.random;t.firstElementChild.style.cssText=`left:${15+r()*70}%;top:${15+r()*70}%;animation-delay:${-r()*40}s`;});
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;
