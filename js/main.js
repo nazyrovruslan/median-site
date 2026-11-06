@@ -147,15 +147,20 @@ R.forEach((pts,i)=>{
 });
 R.forEach(()=>{const p=document.createElementNS('http://www.w3.org/2000/svg','path');W.appendChild(p);paths.push(p);});
 // те же контуры с визитки — второй слой плиток цифр по наведению (поверх фирменного градиента), см. .tw в style.css
-// форма живёт: точки контура гуляют по нормали (сумма синусов), кривая — сглаженная (Catmull-Rom → кубические Безье)
-const twCR=P=>{const n=P.length,f=v=>v.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`;for(let k=0;k<n;k++){const a=P[(k-1+n)%n],b=P[k],c=P[(k+1)%n],e=P[(k+2)%n];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}return d+'Z';};
-const twD=(i,t,ph)=>{const pts=R[i],n=pts.length,P=[];for(let k=0;k<n;k+=3){const p=pts[k],a=p.a,o=10*Math.sin(a*3+t*.35+ph)+6*Math.sin(a*5-t*.25+ph*1.7);P.push([p.X+p.nx*o,p.Y+p.ny*o]);}return twCR(P);};
-function twAdd(tile){const ph=Math.random()*6.28,r=Math.random;
-  tile.insertAdjacentHTML('afterbegin',`<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true" style="left:${15+r()*70}%;top:${15+r()*70}%">${R.map((_,i)=>`<path d="${twD(i,0,ph)}"/>`).join('')}</svg>`);
-  const ps=[...tile.firstElementChild.children];let raf=0,on=false,t0=0,t=0;
-  const step=now=>{t+=(now-t0)/1000;t0=now;ps.forEach((p,i)=>p.setAttribute('d',twD(i,t,ph)));raf=on?requestAnimationFrame(step):0;};
+// форма — ровно как «Волны» на главной (исходные контуры визитки, без искажений), анимация та же: контуры по очереди дышат снаружи внутрь;
+// для объёма к четырём контурам добавлены ещё три: один внутри (×0,55 от внутреннего) и два снаружи (×1,22 и ×1,46 от внешнего)
+const TWR=[[0,.55],[0,1],[1,1],[2,1],[3,1],[3,1.22],[3,1.46]].map(([i,k])=>R[i].map(p=>[p.X*k,p.Y*k]));
+const twD=(i,t)=>{const n=TWR.length,w=.28,ss=(a,x)=>{x=Math.min(1,Math.max(0,(x-a)/w));return x*x*(3-2*x)};
+  const up=ss((n-1-i)*.07,t),down=ss(.5+i*.07,t),g=1+.06*up*(1-down);
+  const P=TWR[i],m=P.length,f=v=>(v*g).toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`; // сглаживание Catmull-Rom: в крупной плитке ломаная видна
+  for(let k=0;k<m;k++){const a=P[(k-1+m)%m],b=P[k],c=P[(k+1)%m],e=P[(k+2)%m];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}
+  return d+'Z';};
+function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл дыхания 10 с (на главной 7 с — в плитке медленнее); у плитки своя фаза
+  tile.insertAdjacentHTML('afterbegin',`<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true" style="left:${15+r()*70}%;top:${15+r()*70}%">${TWR.map((_,i)=>`<path d="${twD(i,ph)}"/>`).join('')}</svg>`);
+  const ps=[...tile.firstElementChild.children];let raf=0,on=false;
+  const step=now=>{const t=(now/1000/T+ph)%1;ps.forEach((p,i)=>p.setAttribute('d',twD(i,t)));raf=on?requestAnimationFrame(step):0;};
   if(reduce||!matchMedia('(hover:hover)').matches)return;
-  tile.addEventListener('mouseenter',()=>{on=true;if(!raf){t0=performance.now();raf=requestAnimationFrame(step);}});
+  tile.addEventListener('mouseenter',()=>{on=true;if(!raf)raf=requestAnimationFrame(step);});
   tile.addEventListener('mouseleave',()=>{on=false;});}
 let wt=0, wspeed=.004, wtarget=.004, morph=0, morphT=0, col=0;
 W.addEventListener('mouseenter',()=>{wtarget=.012;morphT=1});W.addEventListener('mouseleave',()=>{wtarget=.004;morphT=0});
