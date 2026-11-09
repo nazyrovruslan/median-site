@@ -637,9 +637,12 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 /* ---------- marquee: превью шоурила внутри слова LIVE ---------- */
 .marquee{position:relative}
 .marquee .track>span.o{transition:color .5s}
-@media (hover:none){.marquee.reel .track>span.o{color:transparent;background:linear-gradient(115deg,#ef3124,#8a4dff 30%,#1db9a8 55%,#ff5a3c 80%,#ef3124);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:reelbg 6s linear infinite;-webkit-text-stroke:1px rgba(243,243,241,.6)}
+/* touch (09.11, Руслан): у центра экрана LIVE заливается градиентом плиток (--brand-grad) — заливка плавно проявляется и гаснет, как подсветка плитки, и медленно переливается */
+@property --lv{syntax:'<number>';inherits:false;initial-value:0}
+@media (hover:none){.marquee .track>span.o{--lv:0;background:linear-gradient(115deg,rgb(42 206 137/var(--lv)) 0%,rgb(30 177 154/var(--lv)) 15%,rgb(66 104 206/var(--lv)) 32%,rgb(120 47 233/var(--lv)) 50%,rgb(66 104 206/var(--lv)) 68%,rgb(30 177 154/var(--lv)) 85%,rgb(42 206 137/var(--lv)) 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;animation:reelbg 8s linear infinite;transition:--lv .9s var(--ease),-webkit-text-stroke-color .9s var(--ease),color .5s}
+  .marquee.reel .track>span.o{--lv:1;color:transparent;-webkit-text-stroke:1px rgba(243,243,241,0)}
 }
-@keyframes reelbg{to{background-position:300% 0}}
+@keyframes reelbg{to{background-position:-200% 0}}
 
 /* ---------- touch: превью кейса внутри строки у центра экрана ---------- */
 .row .rp,.cb-eps .rp{display:none}
