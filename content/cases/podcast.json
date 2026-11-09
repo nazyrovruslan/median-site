@@ -47,8 +47,50 @@
       ]
     },
     {
-      "t": "yt",
-      "list": "PLOSaAOfkYvwR9WzYSEFUy578sYiJ2dQRJ"
+      "t": "reels",
+      "h": "Шортсы",
+      "items": [
+        {
+          "vid": "media/reels/pod-yandex-community.mp4",
+          "title": "Внутреннее сообщество в Яндексе"
+        },
+        {
+          "vid": "media/reels/pod-doubt.mp4",
+          "title": "Если ты сомневаешься, значит это не твоё"
+        },
+        {
+          "vid": "media/reels/pod-budget.mp4",
+          "title": "Как защитить годовой бюджет"
+        },
+        {
+          "vid": "media/reels/pod-interview-hr.mp4",
+          "title": "Интервью"
+        },
+        {
+          "vid": "media/reels/pod-cu.mp4",
+          "title": "Я точно иду в ЦУ!"
+        },
+        {
+          "vid": "media/reels/pod-ozon.mp4",
+          "title": "Путь от ресепшена в HRD, Ozon"
+        },
+        {
+          "vid": "media/reels/pod-teachers.mp4",
+          "title": "Как собеседуют международных преподавателей"
+        },
+        {
+          "vid": "media/reels/pod-interview.mp4",
+          "title": "Интервью"
+        },
+        {
+          "vid": "media/reels/pod-x5.mp4",
+          "title": "Бренд работодателя в X5"
+        },
+        {
+          "vid": "media/reels/pod-devrel.mp4",
+          "title": "DevRel в Городских сервисах Яндекса"
+        }
+      ]
     },
     {
       "t": "eps",
