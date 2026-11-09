@@ -236,7 +236,7 @@ if(!fine){
   addEventListener('scroll',centerHit,{passive:true});addEventListener('resize',centerHit);setTimeout(centerHit,300);
   // направления: лёгкий зум у центра
   const arts=$$('.dir .vis .art');
-  addEventListener('scroll',()=>{arts.forEach(a=>{const rr=a.parentElement.getBoundingClientRect(),cc=rr.top+rr.height/2,d=Math.min(1,Math.abs(cc-innerHeight/2)/innerHeight);a.style.transform=`scale(${1.06-.06*d})`;});},{passive:true});
+  let azQ=0;addEventListener('scroll',()=>{if(azQ)return;azQ=requestAnimationFrame(()=>{azQ=0;arts.forEach(a=>{const rr=a.parentElement.getBoundingClientRect(),cc=rr.top+rr.height/2,d=Math.min(1,Math.abs(cc-innerHeight/2)/innerHeight);a.style.transform=`scale(${1.06-.06*d})`;});});},{passive:true});
 }
 /* ---------- directions ---------- */
 /* ---------- проекты (бывшие направления): у кейса с видео-обложкой — та же обложка, что в баннере ---------- */
@@ -247,7 +247,7 @@ syncClones();addEventListener('resize',syncClones);document.fonts&&document.font
 if(!reduce){
   const px=$$('.dir').map(d=>({d,els:['.vis','.vlink','.card'].map(q=>d.querySelector(q)),v:d.querySelector('.vis')}));let pxQ=0;
   const own=$('#own'),projs=$$('#own .proj');
-  const pxRun=()=>{pxQ=0;const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
+  const pxRun=()=>{pxQ=0;if(!fine)return; /* тач (09.11): на iOS при быстрой прокрутке события скролла запаздывают за инерцией, и сдвиг на 200 px дёргал фото и карточки — на телефоне блоки стоят на месте */const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
     const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2))),sh=(p*amp).toFixed(1);
     els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});
     // собственные проекты: заголовок стоит, карточки едут с разной скоростью (вторая быстрее)
