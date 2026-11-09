@@ -137,3 +137,12 @@ Kaspersky — полностью по макету, фото вытащены и
 - South HUB, Snow BASE, People Tech Camp обновлены целиком (PTC переписан: кэмп 17–19.09.2026, «Охта Парк»). Фото — `media/cases/{sh,sb,ptc}-<слот>.webp` (q72; ленты 800 px, карусели и сплиты 1400, широкие 2200).
 - Баннер (order): South HUB 10, Snow BASE 20, PTC 30, Альфа-Движ 40, Alfa Battle 50; MegaFon 55, VTB 56. Петли: `southhub-2026`, `snowbase-clean` (прежняя петля без кадров с надписью, до 3,56 с), `ptc-loop` (только город, туда-обратно), `alfa-dvizh-2026`. Шоурилы `reel-snowbase.mp4`, `reel-ptc.mp4` — 1280 px, crf 28, aac 96k.
 - Правки сначала смотрели на тестовой странице `/test/` (копия index.html с `<base href="../">`, свой cases.js/CSS/JS), после «заливай в прод» тест удалён. Так же делать в следующий раз, если Руслан просит «по тестовой ссылке».
+
+## Обновление кейсов по правкам маркетолога (09.11)
+
+- Новые серии `x5highload` (Tech Shop 2023, TeamLead Conf 2025, Tesseract 2025) и `x5codefest` (2025, 2026); удалены x5techshop, x5tesseract, x5codefest25/26, x5epic, x5mobius, x5techlib, wg, gridgirls (ссылки вакансий переведены).
+- Компактный формат (facts → reel → «Контекст и задача» → «Решение и реализация» с пунктами-фото → key → bento → «Результаты»): x5picnic, x5datafest, prirodacoda, alfacontactday, osoffer, abcamp.
+- X5 Tech Bar — три части (2022/2025/2026), Alfa Battle и Альфа Движ переписаны; у Snow BASE убран блок «Итоги в цифрах».
+- Пункт раздела может нести `sticker` (прозрачный webp поверх фото, покачивается) — Data Fest; описано в DESIGN-SYSTEM.md.
+- Моушен 04_Моушен — петлями по 4 с внутри шахматок `pics` (не во всю ширину — просьба Руслана): ad-loop-*, sb-loop-*, sh-loop-*.
+- Большие файлы с Диска: коннектор отдаёт только до ~6 МБ; Руслан кладёт папки в «Загрузки» на Mac или в общую папку проекта.
