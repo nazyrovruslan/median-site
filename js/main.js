@@ -467,6 +467,11 @@ function blocksInit(root){
     const cur=()=>[...d.children].findIndex(b=>b.classList.contains('on'));
     c.querySelector('.car-p').onclick=()=>go(cur()-1);c.querySelector('.car-n').onclick=()=>go(cur()+1);
     d.onclick=e=>{const b=e.target.closest('button');if(b)go([...d.children].indexOf(b));};
+    // скраббер по точкам (09.11), как полоски главного баннера: ведём пальцем по ряду точек — лента едет к точке под пальцем
+    {let on=false,last=-1;const at=x=>{let b=0,bd=1e9;[...d.children].forEach((k,i)=>{const r=k.getBoundingClientRect(),q=Math.abs(x-r.left-r.width/2);if(q<bd){bd=q;b=i;}});return b;};
+     const mv=e=>{if(!on)return;const i=at(e.touches[0].clientX);if(i!==last){last=i;go(i);}if(e.cancelable)e.preventDefault();};
+     d.addEventListener('touchstart',e=>{on=true;last=-1;mv(e);},{passive:false});d.addEventListener('touchmove',mv,{passive:false});
+     d.addEventListener('touchend',()=>on=false);d.addEventListener('touchcancel',()=>on=false);}
     let raf=0;t.addEventListener('scroll',()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(draw);},{passive:true});draw();addEventListener('resize',draw);});
   root.querySelectorAll('.acc').forEach(a=>{const it=[...a.children],open=x=>it.forEach(i=>{const on=i===x;i.classList.toggle('on',on);i.setAttribute('aria-expanded',on);});
     it.forEach(i=>{i.addEventListener('click',()=>open(i));i.addEventListener('focus',()=>open(i));i.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')open(i);});});});
