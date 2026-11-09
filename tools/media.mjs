@@ -29,6 +29,13 @@ for (const f of fs.readdirSync('content/cases').filter(f => f.endsWith('.json'))
   // галерея: миниатюры под главным фото — превью 520 px вместо полноразмерных фото (09.11)
   for (const b of [...(c.blocks || []), ...(c.after || []), ...(c.parts || []).flatMap(p => p.blocks || [])].filter(b => b.t === 'gallery'))
     for (const u of b.items || []) if (has(u) && !/\.mp4$/.test(u)) thumb(u);
+  // рилс: превью X-p.mp4 (4 с, 360 px, без звука) и обложка X.webp (09.11)
+  for (const b of [...(c.blocks || []), ...(c.after || []), ...(c.parts || []).flatMap(p => p.blocks || [])].filter(b => b.t === 'reels'))
+    for (const it of b.items || []) if (it && it.vid && has(it.vid)) {
+      const r = it.vid.replace(/\.mp4$/, '');
+      make(`${r}-p.mp4`, () => ff('-ss', '1', '-t', '4', '-i', it.vid, '-an', '-vf', "fps=25,scale=360:-2", '-c:v', 'libx264', '-preset', 'slow', '-crf', '30', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${r}-p.mp4`));
+      make(`${r}.webp`, () => ff('-ss', '1', '-i', it.vid, '-frames:v', '1', '-vf', "scale='min(540,iw)':-2", '-c:v', 'libwebp', '-quality', '72', `${r}.webp`));
+    }
   const reels = [c.reel, ...[...(c.blocks || []), ...(c.after || []), ...(c.parts || []).flatMap(p => p.blocks || [])].filter(b => b.t === 'reel').map(b => b.reel)];
   for (const reel of new Set(reels.filter(f => f && has(f)))) {
     const r = reel.replace(/\.mp4$/, '');

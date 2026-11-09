@@ -222,6 +222,17 @@ collections:
                   - { name: img, label: Фото или короткое видео (.mp4), widget: file, hint: "Видео — .mp4 без звука, играет по кругу" }
                   - { name: b, label: Жирное начало подписи, widget: string, required: false, hint: "Например: «Размеры и вес.»" }
                   - { name: text, label: Подпись, widget: text, required: false }
+          - name: reels
+            label: "Видео: рилс (вертикальные ролики, как в инстаграме)"
+            fields:
+              - { name: h, label: Подпись над лентой, widget: string, required: false, hint: "Например: «Контент партнёров»" }
+              - name: items
+                label: Ролики
+                label_singular: ролик
+                widget: list
+                fields:
+                  - { name: vid, label: "Ролик 9:16 (.mp4 со звуком)", widget: file, media_folder: /media/reels, public_folder: media/reels, hint: "Лучше заранее пережать: 540×960, h.264. Превью и обложку сборка сделает сама" }
+                  - { name: title, label: Подпись, widget: string, required: false, hint: "Например: «Альфа-Банк»" }
           - name: gallery
             label: "Фото: галерея с миниатюрами"
             fields:

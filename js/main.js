@@ -421,6 +421,8 @@ const BLOCK={
   // бенто: 8 плиток разного размера, клик открывает фото
   bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></section>`,
   // галерея: большое фото, стрелки, счётчик и полоса превью
+  // рилс (09.11): лента вертикальных роликов 9:16, как Reels в инстаграме; превью X-p.mp4 крутится без звука, по тапу — полноэкранный плеер со звуком (#rlv)
+  reels:b=>{const it=(b.items||[]).filter(x=>x&&x.vid);return `<section class="cb cb-car cb-reels">${b.h?`<p class="label rl-h">${esc(b.h)}</p>`:''}<div class="car-track" tabindex="0" aria-label="Рилс">${it.map((x,j)=>{const r=x.vid.replace(/\.mp4$/,'');return `<figure><button type="button" class="rl" data-rl="${j}" data-src="${x.vid}" data-t="${esc(x.title||'')}" aria-label="Смотреть${x.title?': '+esc(x.title):''}" data-c="link"><video src="${r}-p.mp4${VV}" poster="${r}.webp" muted loop playsinline${reduce?'':' data-ap'} preload="none" aria-hidden="true"></video><span class="rl-pl" aria-hidden="true"></span>${x.title?`<span class="rl-t">${esc(x.title)}</span>`:''}</button></figure>`;}).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`;},
   gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="${ALT}" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}"><img src="${thumb(u)}" onerror="this.onerror=null;this.src='${u}'" alt="${ALT}" loading="lazy"></button>`).join('')}</div></section>`;},
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
   // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки;
@@ -499,6 +501,26 @@ const lbClose=()=>{LB.classList.remove('on');LB.setAttribute('aria-hidden','true
 $('#cBody').addEventListener('click',e=>{const im=e.target.closest('img[data-lb]');if(!im||matchMedia('(max-width:820px)').matches&&im.closest('.cb-car'))return;const sec=im.closest('section');lbSet=[...new Set([...sec.querySelectorAll('img[data-lb]')].map(x=>x.getAttribute('src')))];lbShow(lbSet.indexOf(im.getAttribute('src')));LB.classList.add('on');LB.setAttribute('aria-hidden','false');});
 LB.addEventListener('click',e=>{if(e.target.closest('.lb-p'))lbShow(lbI-1);else if(e.target.closest('.lb-n'))lbShow(lbI+1);else if(e.target===LB||e.target.closest('.lb-x'))lbClose();});
 addEventListener('keydown',e=>{if(!LB.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();lbClose();}else if(e.key==='ArrowLeft')lbShow(lbI-1);else if(e.key==='ArrowRight')lbShow(lbI+1);},true);
+// плеер рилс (09.11): во весь экран, 9:16, со звуком; сверху полоски как в сторис; свайп вверх/вниз и стрелки — соседний ролик, тап — пауза, кончился — следующий
+const RV=document.createElement('div');RV.id='rlv';RV.setAttribute('aria-hidden','true');
+RV.innerHTML='<div class="rlv-f"><div class="rlv-bars"></div><video playsinline preload="auto"></video><span class="rlv-t"></span><button type="button" class="rlv-m" aria-label="Звук" data-c="link">Звук вкл</button></div><button type="button" class="rlv-p" aria-label="Предыдущий" data-c="link" data-stick data-stick-size="56">↑</button><button type="button" class="rlv-n" aria-label="Следующий" data-c="link" data-stick data-stick-size="56">↓</button><button type="button" class="rlv-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';
+document.body.appendChild(RV);
+{const v=RV.querySelector('video'),bars=RV.querySelector('.rlv-bars'),mt=RV.querySelector('.rlv-m');let set=[],ri=0;
+ const show=i=>{if(i<0||i>=set.length){if(i>=set.length)close();return;}ri=i;const x=set[i];v.src=x.src+VV;v.muted=false;v.play().catch(()=>{v.muted=true;v.play().catch(()=>{});mtx();});RV.querySelector('.rlv-t').textContent=x.t;
+   bars.innerHTML=set.map((_,j)=>`<i class="${j<i?'done':''}"><b></b></i>`).join('');mtx();};
+ const mtx=()=>{mt.textContent=v.muted?'Звук выкл':'Звук вкл';};
+ const close=()=>{v.pause();v.removeAttribute('src');v.load();RV.classList.remove('on');RV.setAttribute('aria-hidden','true');};
+ v.addEventListener('timeupdate',()=>{const b=bars.children[ri];if(b&&v.duration)b.firstChild.style.width=(v.currentTime/v.duration*100).toFixed(2)+'%';});
+ v.addEventListener('ended',()=>show(ri+1));
+ v.addEventListener('click',()=>v.paused?v.play():v.pause());
+ mt.addEventListener('click',()=>{v.muted=!v.muted;mtx();});
+ RV.addEventListener('click',e=>{if(e.target.closest('.rlv-p'))show(ri-1);else if(e.target.closest('.rlv-n'))show(ri+1);else if(e.target===RV||e.target.closest('.rlv-x'))close();});
+ let y0=null;RV.addEventListener('touchstart',e=>{y0=[e.touches[0].clientX,e.touches[0].clientY];},{passive:true});
+ RV.addEventListener('touchend',e=>{if(!y0)return;const q=e.changedTouches[0],dx=q.clientX-y0[0],dy=q.clientY-y0[1];y0=null;if(Math.abs(dy)>50&&Math.abs(dy)>Math.abs(dx)*1.2)show(ri+(dy<0?1:-1));},{passive:true});
+ RV.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
+ addEventListener('keydown',e=>{if(!RV.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();close();}else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();show(ri-1);}else if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();show(ri+1);}else if(e.key===' '){e.preventDefault();v.paused?v.play():v.pause();}},true);
+ $('#cBody').addEventListener('click',e=>{const b=e.target.closest('.rl');if(!b)return;const t=b.closest('.car-track');if(t&&t.dataset.dragged)return;
+   set=[...b.closest('section').querySelectorAll('.rl')].map(x=>({src:x.dataset.src,t:x.dataset.t}));RV.classList.add('on');RV.setAttribute('aria-hidden','false');show(+b.dataset.rl);});}
 // шоурил кейса: беззвучное превью играет, пока блок виден; по клику — полное видео со звуком
 // тизеры всех роликов кейса крутятся по кругу, пока ролик на экране
 let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const vs=[...document.querySelectorAll('#cBody .reel-play .ab-tz')];if(!vs.length||reduce||!('IntersectionObserver' in window))return;
