@@ -1174,3 +1174,12 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .cb-reels .car-track{grid-auto-columns:42%;gap:10px}
   .rlv-f{height:100dvh;width:100vw;aspect-ratio:auto;border-radius:0}
 }
+/* длинный список выпусков/ссылок в кейсе (09.11): раскрывается так же, как список кейсов; на сером — кнопка тёмная */
+.cb-eps .rm-in ol{border-top:0}
+.cb-eps .rows-more li{opacity:0;translate:0 24px;transition:opacity .5s,translate .7s var(--ease)}
+.cb-eps .rows-more.open li{opacity:1;translate:none}
+.cb-eps .rows-more.open li:nth-child(2){transition-delay:.04s}.cb-eps .rows-more.open li:nth-child(3){transition-delay:.08s}.cb-eps .rows-more.open li:nth-child(4){transition-delay:.12s}.cb-eps .rows-more.open li:nth-child(n+5){transition-delay:.16s}
+.cb-eps .rows-tog.ab-ring{color:var(--ink)}
+.cb-eps .rows-tog text{fill:var(--ink)}
+.cb-eps .rows-tog .arr-d *{stroke:var(--ink)}
+@media (prefers-reduced-motion:reduce){.cb-eps .rows-more li{transition:none}}
