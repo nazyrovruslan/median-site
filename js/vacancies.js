@@ -256,7 +256,7 @@ const JOBS={
    "cases": [
     "alfa-dvizh",
     "x5datafest",
-    "x5techshop",
+    "x5highload",
     "southhub"
    ]
   },
@@ -331,7 +331,7 @@ const JOBS={
    "cases": [
     "alfa-dvizh",
     "southhub",
-    "x5codefest26",
+    "x5codefest",
     "alfacontactday"
    ]
   }
