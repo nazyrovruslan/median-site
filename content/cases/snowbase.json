@@ -44,7 +44,7 @@
       "t": "pics",
       "mode": "chess",
       "items": [
-        "media/cases/snowbase-1.webp",
+        "media/video/sb-loop-ski.mp4",
         "media/video/sb-loop-logo.mp4"
       ]
     },
@@ -130,11 +130,8 @@
       ]
     },
     {
-      "t": "pics",
-      "mode": "wide",
-      "items": [
-        "media/video/sb-loop-ski.mp4"
-      ]
+      "t": "photo",
+      "img": "media/cases/sb-wide-1.webp"
     },
     {
       "t": "carousel",

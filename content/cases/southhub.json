@@ -201,7 +201,7 @@
       "t": "pics",
       "mode": "chess",
       "items": [
-        "media/cases/sh-chess-1.webp",
+        "media/video/sh-loop-logo.mp4",
         "media/video/sh-loop-raft.mp4"
       ]
     },
@@ -251,11 +251,8 @@
       ]
     },
     {
-      "t": "pics",
-      "mode": "wide",
-      "items": [
-        "media/video/sh-loop-logo.mp4"
-      ]
+      "t": "photo",
+      "img": "media/cases/sh-wide-1.webp"
     },
     {
       "t": "carousel",
@@ -313,7 +310,7 @@
       "t": "pics",
       "mode": "chess",
       "items": [
-        "media/video/sh-loop-crowd.mp4",
+        "media/video/sh-loop-speakers.mp4",
         "media/cases/sh-chess-2.webp"
       ]
     },
