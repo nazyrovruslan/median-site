@@ -109,7 +109,7 @@ $('#hero').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changed
 })();
 
 /* ---------- marquee ---------- */
-const unit='<span class="o on-dark">Live</span><span>Communications</span>';
+const unit='<span class="o on-dark" data-t="Live">Live</span><span>Communications</span>';
 $('#mq').innerHTML=(unit).repeat(6); // две одинаковые половины по 3 повтора
 // бегущая строка на JS: сдвиг в пикселях по модулю половины ленты — без швов и пустот в любом браузере
 (()=>{const tr=$('#mq'),mq=$('.marquee');let x=0,half=0,speed=60,target=60,last=performance.now();
@@ -226,7 +226,7 @@ if(!fine){
   // что сейчас «под курсором» в центре экрана
   const mq=$('#reelLink'), wl=$('#wavesLink');
   const centerHit=()=>{
-    const mb=mq.getBoundingClientRect(), mc=mb.top+mb.height/2; mq.classList.toggle('reel',Math.abs(mc-innerHeight/2)<innerHeight*.22);
+    const mb=mq.getBoundingClientRect(), mc=mb.top+mb.height/2; {const on=Math.abs(mc-innerHeight/2)<innerHeight*.22;if(on!==mq.classList.contains('reel')){mq.classList.toggle('reel',on);if(!reduce){mq.classList.remove('glitch');void mq.offsetWidth;mq.classList.add('glitch');clearTimeout(mq._gt);mq._gt=setTimeout(()=>mq.classList.remove('glitch'),700);}}} // LIVE: глич при проявлении и затухании градиента
     { const cy=innerHeight/2, rows=$$('.row'); const row=rows.find(x=>!x.hidden&&!x.closest('.rows-more:not(.open)')&&(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect())); if(row&&!row.dataset.rp){row.dataset.rp=1;const i=+row.dataset.i,k=CASES[i],rp=row.querySelector('.rp');rp.style.background=cover(k,i,1);rp.innerHTML=vid(k);} // превью строки грузим, только когда до неё дошли
     rows.forEach(x=>{x.classList.toggle('hover',x===row);const v=x.querySelector('.rp video');if(v){if(x===row){v.preload='auto';v.play().catch(()=>{});}else v.pause();}}); }
     const b=wl.getBoundingClientRect(), c=b.top+b.height/2, vh=innerHeight;
