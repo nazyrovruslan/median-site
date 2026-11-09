@@ -450,7 +450,10 @@ function blocksInit(root){
      addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-x0;if(drag===1&&Math.abs(dx)>6){drag=2;t.style.scrollSnapType='none';t.classList.add('drag');}if(drag===2){t.scrollLeft=s0-dx;e.preventDefault();}});
      addEventListener('pointerup',e=>{if(drag===2){const dx=e.clientX-x0,base=Math.round(s0/step()),i=Math.abs(dx)>step()*.15?base-Math.sign(dx):base;t.style.scrollSnapType='';t.classList.remove('drag');go(Math.max(0,Math.min(pages()-1,i)));t.dataset.dragged=1;setTimeout(()=>delete t.dataset.dragged,0);}drag=0;});
      t.addEventListener('click',e=>{if(t.dataset.dragged){e.stopPropagation();e.preventDefault();}},true);
-     t.addEventListener('dragstart',e=>e.preventDefault());}
+     t.addEventListener('dragstart',e=>e.preventDefault());
+     // свайп пальцем (09.11): лента не прокручивается нативно (touch-action:pan-y), жест листает на кадр, точки идут следом
+     let p0=null;t.addEventListener('touchstart',e=>{const q=e.touches[0];p0=[q.clientX,q.clientY];},{passive:true});
+     t.addEventListener('touchend',e=>{if(!p0)return;const q=e.changedTouches[0],dx=q.clientX-p0[0],dy=q.clientY-p0[1];p0=null;if(Math.abs(dx)>30&&Math.abs(dx)>Math.abs(dy)*1.2){const n=pages(),i=cur()-Math.sign(dx);go(Math.max(0,Math.min(n-1,i)));}},{passive:true});}
     const cur=()=>[...d.children].findIndex(b=>b.classList.contains('on'));
     c.querySelector('.car-p').onclick=()=>go(cur()-1);c.querySelector('.car-n').onclick=()=>go(cur()+1);
     d.onclick=e=>{const b=e.target.closest('button');if(b)go([...d.children].indexOf(b));};
