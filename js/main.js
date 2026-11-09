@@ -506,18 +506,23 @@ LB.addEventListener('click',e=>{if(e.target.closest('.lb-p'))lbShow(lbI-1);else 
 addEventListener('keydown',e=>{if(!LB.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();lbClose();}else if(e.key==='ArrowLeft')lbShow(lbI-1);else if(e.key==='ArrowRight')lbShow(lbI+1);},true);
 // плеер рилс (09.11): во весь экран, 9:16, со звуком; сверху полоски как в сторис; свайп вверх/вниз и стрелки — соседний ролик, тап — пауза, кончился — следующий
 const RV=document.createElement('div');RV.id='rlv';RV.setAttribute('aria-hidden','true');
-RV.innerHTML='<div class="rlv-f"><div class="rlv-bars"></div><video playsinline preload="auto"></video><span class="rlv-t"></span><button type="button" class="rlv-m" aria-label="Звук" data-c="link">Звук вкл</button></div><button type="button" class="rlv-p" aria-label="Предыдущий" data-c="link" data-stick data-stick-size="56">↑</button><button type="button" class="rlv-n" aria-label="Следующий" data-c="link" data-stick data-stick-size="56">↓</button><button type="button" class="rlv-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';
+RV.innerHTML='<div class="rlv-f"><div class="rlv-bars"></div><video playsinline preload="auto"></video><span class="rlv-t"></span><button type="button" class="rlv-m" aria-label="Звук" data-c="link">Звук вкл</button></div><button type="button" class="rlv-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';
 document.body.appendChild(RV);
 {const v=RV.querySelector('video'),bars=RV.querySelector('.rlv-bars'),mt=RV.querySelector('.rlv-m');let set=[],ri=0;
- const show=i=>{if(i<0||i>=set.length){if(i>=set.length)close();return;}ri=i;const x=set[i];v.src=x.src+VV;v.muted=false;v.play().catch(()=>{v.muted=true;v.play().catch(()=>{});mtx();});RV.querySelector('.rlv-t').textContent=x.t;
+ const show=i=>{if(!set.length)return;i=(i%set.length+set.length)%set.length;ri=i; // бесконечно: за последним — первый (09.11)
+   const x=set[i];v.src=x.src+VV;v.muted=false;v.play().catch(err=>{if(err&&err.name==='NotAllowedError'){v.muted=true;v.play().catch(()=>{});mtx();}});RV.querySelector('.rlv-t').textContent=x.t;
    bars.innerHTML=set.map((_,j)=>`<i class="${j<i?'done':''}"><b></b></i>`).join('');mtx();};
  const mtx=()=>{mt.textContent=v.muted?'Звук выкл':'Звук вкл';};
  const close=()=>{v.pause();v.removeAttribute('src');v.load();RV.classList.remove('on');RV.setAttribute('aria-hidden','true');};
  v.addEventListener('timeupdate',()=>{const b=bars.children[ri];if(b&&v.duration)b.firstChild.style.width=(v.currentTime/v.duration*100).toFixed(2)+'%';});
  v.addEventListener('ended',()=>show(ri+1));
- v.addEventListener('click',()=>v.paused?v.play():v.pause());
+ const fr=RV.querySelector('.rlv-f'),fine=matchMedia('(hover:hover)').matches;
+ // десктоп (09.11): кнопок нет — курсор над роликом становится стрелкой в круге: правее центра → (следующий), левее ← (предыдущий); клик листает по кругу
+ const side=e=>{const b=fr.getBoundingClientRect();return e.clientX>b.left+b.width/2?1:-1;};
+ if(fine)fr.addEventListener('pointermove',e=>{if(e.target.closest('.rlv-m'))return;const c=side(e)>0?'arrow':'arrowl';if(fr.dataset.c!==c){fr.dataset.c=c;e.target.dispatchEvent(new PointerEvent('pointerover',{bubbles:true,clientX:e.clientX,clientY:e.clientY}));}});
+ fr.addEventListener('click',e=>{if(e.target.closest('.rlv-m'))return;if(fine)show(ri+side(e));else v.paused?v.play():v.pause();});
  mt.addEventListener('click',()=>{v.muted=!v.muted;mtx();});
- RV.addEventListener('click',e=>{if(e.target.closest('.rlv-p'))show(ri-1);else if(e.target.closest('.rlv-n'))show(ri+1);else if(e.target===RV||e.target.closest('.rlv-x'))close();});
+ RV.addEventListener('click',e=>{if(e.target===RV||e.target.closest('.rlv-x'))close();});
  let y0=null;RV.addEventListener('touchstart',e=>{y0=[e.touches[0].clientX,e.touches[0].clientY];},{passive:true});
  RV.addEventListener('touchend',e=>{if(!y0)return;const q=e.changedTouches[0],dx=q.clientX-y0[0],dy=q.clientY-y0[1];y0=null;if(Math.abs(dy)>50&&Math.abs(dy)>Math.abs(dx)*1.2)show(ri+(dy<0?1:-1));},{passive:true});
  RV.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault();},{passive:false});

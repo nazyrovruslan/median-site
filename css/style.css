@@ -59,7 +59,7 @@ body.c-stick.c-txt #ring{width:var(--cur-text);height:var(--cur-text)}
 body.c-link #ring,body.c-down #ring,body.c-stick #ring{width:64px;height:64px;background:#fff;border-color:#fff}
 body.c-row #ring,body.c-reel #ring{width:108px;height:108px;background:#fff;border-color:#fff}
 body.c-row #ring .t,body.c-reel #ring .t{opacity:1;color:#000;font:700 11px/1.15 var(--body);letter-spacing:.06em;text-transform:uppercase;text-align:center;max-width:76%}
-body.c-view #ring,body.c-hold #ring,body.c-nx #ring,body.c-arrow #ring{width:var(--xl);height:var(--xl);background:transparent;border-color:#fff}
+body.c-view #ring,body.c-hold #ring,body.c-nx #ring,body.c-arrow #ring,body.c-arrowl #ring{width:var(--xl);height:var(--xl);background:transparent;border-color:#fff}
 body.c-view #ring .t,body.c-hold #ring .t,body.c-nx #ring .t,body.c-next #ring .t{opacity:1;color:#fff;font:500 var(--ui)/1.2 var(--body);letter-spacing:0;text-transform:none;text-align:center;max-width:72%}
 /* «Следующий проект» над маленькой карточкой — круг меньше, чтобы не сливался с ней */
 body.c-next #ring{width:clamp(96px,6.7vw,128px);height:clamp(96px,6.7vw,128px);background:transparent;border-color:#fff}
@@ -67,7 +67,7 @@ body.c-next #ring .t{font-size:var(--sm);max-width:80%}
 /* «О нас» над волнами: круг залит и через difference инвертирует волны под собой */
 body.c-about #ring{width:var(--xl);height:var(--xl);background:#fff;border-color:#fff}
 body.c-about #ring .t{opacity:1;color:#000;font:500 var(--ui)/1.2 var(--body);letter-spacing:0;text-transform:none;text-align:center;max-width:72%}
-body:is(.c-link,.c-down,.c-stick,.c-row,.c-reel,.c-view,.c-hold,.c-nx,.c-next,.c-arrow,.c-about) #cur{opacity:0}
+body:is(.c-link,.c-down,.c-stick,.c-row,.c-reel,.c-view,.c-hold,.c-nx,.c-next,.c-arrow,.c-arrowl,.c-about) #cur{opacity:0}
 body.c-plus #ring,body.c-stick.c-plus #ring{width:clamp(140px,13vw,250px);height:clamp(140px,13vw,250px);background:transparent;border-color:#fff} /* «Start a project»: большой контурный круг на плюсе */
 body.c-plus #cur{opacity:0}
 /* кнопки со своей формой (чипы брифа, «Отправить») — магнитные, кольцо и точка прячутся, наведение показывает сама кнопка (как c-mag в КП) */
@@ -78,7 +78,8 @@ body.c-mag #ring,body.c-mag #cur{opacity:0}
 .start .d.inv>.line{-webkit-mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),transparent calc(100% - .5px),#000 100%);mask:radial-gradient(circle var(--r) at var(--cx) var(--cy),transparent calc(100% - .5px),#000 100%)}
 #ring .ar{position:absolute;left:50%;top:50%;translate:-50% -50%;width:64px;height:12px;opacity:0;transition:opacity .2s}
 #ring .ar *{fill:none;stroke:#fff;stroke-width:1.2;vector-effect:non-scaling-stroke}
-body.c-arrow #ring .ar{opacity:1}
+body.c-arrow #ring .ar,body.c-arrowl #ring .ar{opacity:1}
+body.c-arrowl #ring .ar{scale:-1 1} /* стрелка влево: плеер рилс, левая половина ролика (09.11) */
 body.c-hold #ring .pg,body.c-nx #ring .pg{opacity:1}
 body.c-stick #cur{opacity:0}
 body:not(.has-cursor) #cur,body:not(.has-cursor) #ring{display:none}
@@ -1165,11 +1166,8 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rlv-bars i.done b{width:100%!important}
 .rlv-t{position:absolute;left:16px;bottom:18px;z-index:1;font:700 var(--ui)/1.25 var(--body);color:var(--paper);text-shadow:0 1px 8px rgba(0,0,0,.5);pointer-events:none}
 .rlv-m{position:absolute;right:12px;bottom:12px;z-index:1;padding:8px 14px;border:0;border-radius:999px;background:rgba(11,11,12,.45);backdrop-filter:blur(6px);color:var(--paper);font:500 var(--sm,12px)/1 var(--body);cursor:pointer}
-#rlv .rlv-p,#rlv .rlv-n{position:absolute;right:var(--gutter);width:56px;height:56px;border-radius:50%;border:1px solid var(--line-dark);background:none;color:var(--paper);font-size:20px;cursor:pointer}
-#rlv .rlv-p{top:calc(50% - 64px)}#rlv .rlv-n{top:calc(50% + 8px)}
 #rlv .rlv-x{position:absolute}
 @media (max-width:820px){
   .cb-reels .car-track{grid-auto-columns:42%;gap:10px}
   .rlv-f{height:100dvh;width:100vw;aspect-ratio:auto;border-radius:0}
-  #rlv .rlv-p,#rlv .rlv-n{display:none}
 }
