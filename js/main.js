@@ -163,8 +163,12 @@ function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл ды
   const step=now=>{m+=((on?1:0)-m)*.035;if(Math.abs((on?1:0)-m)<.002)m=on?1:0;const t=(now/1000/T+ph)%1,me=ease(m);
     if(!on){gx=bx;gy=by;}cx+=(gx-cx)*.08;cy+=(gy-cy)*.08;sv.style.left=cx.toFixed(2)+'%';sv.style.top=cy.toFixed(2)+'%';
     ps.forEach((p,i)=>p.setAttribute('d',twD(i,t,me)));raf=(on||m>0||Math.abs(cx-gx)+Math.abs(cy-gy)>.05)?requestAnimationFrame(step):0;};
-  if(reduce||!matchMedia('(hover:hover)').matches)return;
   const go=()=>{if(!raf)raf=requestAnimationFrame(step);};
+  if(!matchMedia('(hover:hover)').matches){ // тач: плитка заливается по тапу (09.11)
+    tile._tw=v=>{on=v;tile.classList.toggle('on',v);if(!reduce)go();};
+    tile.addEventListener('click',()=>{if(tile.classList.contains('on'))return;[...tile.parentElement.children].forEach(t=>t!==tile&&t._tw&&t._tw(false));tile._tw(true);});
+    if(tile===tile.parentElement.firstElementChild)tile._tw(true);return;} // в каждой группе одна плитка выделена всегда, при открытии — первая
+  if(reduce)return;
   tile.addEventListener('mousemove',ev=>{const b=tile.getBoundingClientRect();gx=bx+((ev.clientX-b.left)/b.width*100-50)*.25;gy=by+((ev.clientY-b.top)/b.height*100-50)*.25;});
   tile.addEventListener('mouseenter',()=>{on=true;go();});
   tile.addEventListener('mouseleave',()=>{on=false;go();});}

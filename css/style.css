@@ -1118,6 +1118,9 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .tw{position:absolute;z-index:-1;overflow:visible;left:50%;top:50%;translate:-50% -50%;width:150%;aspect-ratio:1;opacity:0;pointer-events:none;transition:opacity .6s var(--ease)}
 .tw path{fill:none;stroke:rgba(255,255,255,.4);stroke-width:1.2;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 @media (hover:hover){.kpi-i>div:hover .tw,.yr-k>div:hover .tw{opacity:1}}
+/* тач: то же состояние по тапу — класс .on (09.11) */
+.kpi-i>div.on .tw,.yr-k>div.on .tw{opacity:1}.kpi-i>div.on::before,.yr-k>div.on::before{opacity:1}.kpi-i>div.on,.yr-k>div.on{transform:translateY(-4px)}.kpi-i>div.on>span,.yr-k>div.on>span{color:rgba(255,255,255,.9)}.kpi-i>div.on .label{color:rgba(255,255,255,.8)}
+.kpi-i>div,.yr-k>div{-webkit-tap-highlight-color:transparent}
 @media (hover:hover){.kpi-i>div:hover::before,.yr-k>div:hover::before{opacity:1}.kpi-i>div:hover,.yr-k>div:hover{transform:translateY(-4px)}.kpi-i>div:hover>span,.yr-k>div:hover>span{color:rgba(255,255,255,.9)}.kpi-i>div:hover .label{color:rgba(255,255,255,.8)}}
 .yr-k{grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1vw,20px)}
 .yr-k>div,.yr-k>.w2{grid-column:auto;background:var(--tile);border-radius:clamp(18px,1.6vw,30px);padding:clamp(24px,2.2vw,44px);min-height:clamp(200px,15vw,290px);display:flex;flex-direction:column;gap:8px}
