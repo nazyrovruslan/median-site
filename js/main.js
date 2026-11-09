@@ -156,6 +156,7 @@ const twD=(i,t,m)=>{const n=TWR.length,w=.28,ss=(a,x)=>{x=Math.min(1,Math.max(0,
   const P=TWR[i].map(([x,y,tx,ty])=>[x*g+(tx-x*g)*m,y*g+(ty-y*g)*m]),L=P.length,f=v=>v.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`; // сглаживание Catmull-Rom
   for(let k=0;k<L;k++){const a=P[(k-1+L)%L],b=P[k],c=P[(k+1)%L],e=P[(k+2)%L];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}
   return d+'Z';};
+const TWS=new Set();addEventListener('scroll',()=>TWS.forEach(t=>t.isConnected?t._sc():TWS.delete(t)),{passive:true,capture:true}); // плитки на таче: круги за прокруткой
 function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл дыхания 10 с; у плитки своя фаза
   const bx=15+r()*70,by=15+r()*70;let cx=bx,cy=by,gx=bx,gy=by; // центр волн: случайный в покое; по наведению — магнит, как у кнопок (data-magnet): смещение = отклонение курсора от центра плитки × .25, догоняет плавно
   tile.insertAdjacentHTML('afterbegin',`<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true" style="left:${bx}%;top:${by}%">${TWR.map((_,i)=>`<path d="${twD(i,ph,0)}"/>`).join('')}</svg>`);
@@ -165,7 +166,10 @@ function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл ды
     ps.forEach((p,i)=>p.setAttribute('d',twD(i,t,me)));raf=(on||m>0||Math.abs(cx-gx)+Math.abs(cy-gy)>.05)?requestAnimationFrame(step):0;};
   const go=()=>{if(!raf)raf=requestAnimationFrame(step);};
   if(!matchMedia('(hover:hover)').matches){ // тач: плитка заливается по тапу (09.11)
-    tile._tw=v=>{on=v;tile.classList.toggle('on',v);if(!reduce)go();};
+    tile._tw=v=>{on=v;tile.classList.toggle('on',v);if(!reduce){go();if(v)tile._sc();}};
+    tile._sc=()=>{if(!on||reduce)return;const b=tile.getBoundingClientRect();if(b.bottom<0||b.top>innerHeight)return; // круги едут за прокруткой (09.11): центр тянется к середине экрана, как магнит за курсором
+      gy=by+Math.max(-40,Math.min(40,(innerHeight/2-(b.top+b.height/2))/b.height*100*.25));gx=bx;go();};
+    TWS.add(tile);
     tile.addEventListener('click',()=>{if(tile.classList.contains('on'))return;[...tile.parentElement.children].forEach(t=>t!==tile&&t._tw&&t._tw(false));tile._tw(true);});
     if(tile===tile.parentElement.firstElementChild)tile._tw(true);return;} // в каждой группе одна плитка выделена всегда, при открытии — первая
   if(reduce)return;
