@@ -347,8 +347,9 @@ function fitAll(root){const g=new Map();(root||document).querySelectorAll('[data
 const nw=t=>esc(t).replace(/[^\s\d]*\d(?:[ \u00a0\u202f]\d[^\s]*|[^\s])*(?:[ \u00a0\u202f][^\s\d]{1,4}(?=\s|$))?/g,m=>`<span class="nw">${m}</span>`);
 function fitTitle(el){el.style.fontSize='';const w=el.clientWidth;if(!w)return;let m=0;el.querySelectorAll('.ln').forEach(l=>m=Math.max(m,l.scrollWidth));if(m>w)el.style.fontSize=(parseFloat(getComputedStyle(el).fontSize)*w/m*.98)+'px';}
 // фото пункта списка — как в «Всех проектах» на главной: на десктопе всплывает у строки по наведению (#peek), на таче — внутри строки у середины экрана; .mp4 — зацикленное видео
-const rowPh=u=>/\.mp4$/.test(u)?`<span class="rp"><video src="${u}${VV}" muted loop playsinline preload="none" aria-hidden="true"></video></span>`:`<span class="rp" style="background-image:url(${u})"></span>`;
-function rowPeek(r){const u=r.dataset.ph;if(/\.mp4$/.test(u)){const v=document.createElement('video');Object.assign(v,{src:u+VV,muted:true,loop:true,playsInline:true,autoplay:true});peek.replaceChildren(v);peek.style.background='#000';v.play().catch(()=>{});}else{peek.replaceChildren();peek.style.background=`url(${u}) center/cover no-repeat,#000`;}
+const stk=u=>u?`<img class="stk" src="${u}" alt="" aria-hidden="true">`:''; // стикер поверх фото пункта (анимирован в CSS)
+const rowPh=(u,st)=>/\.mp4$/.test(u)?`<span class="rp"><video src="${u}${VV}" muted loop playsinline preload="none" aria-hidden="true"></video>${stk(st)}</span>`:`<span class="rp" style="background-image:url(${u})">${stk(st)}</span>`;
+function rowPeek(r){const u=r.dataset.ph;if(/\.mp4$/.test(u)){const v=document.createElement('video');Object.assign(v,{src:u+VV,muted:true,loop:true,playsInline:true,autoplay:true});peek.replaceChildren(v);peek.style.background='#000';v.play().catch(()=>{});}else{peek.replaceChildren();peek.style.background=`url(${u}) center/cover no-repeat,#000`;}if(r.dataset.st)peek.insertAdjacentHTML('beforeend',stk(r.dataset.st));
   peek.classList.add('top');peekAt(r);peek.classList.add('on');}
 const BLOCK={
   cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
@@ -371,7 +372,7 @@ const BLOCK={
   // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): текст — как «Текст» на сером, пункты — строками как список проектов на главной, цифры — на чёрном
   // раздел: ярлык (вопрос или cap), заголовок Druk --h2 (первое слово контуром), абзацы --lead на колонках 3–5, подпись и пункты-строки во всю ширину; группы цифр — отдельным чёрным экраном
   sec:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean),lab=b.cap||b.q,
-    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows" data-fit-g>${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm" data-fit>${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img):''}</div>`).join('')}</div>`:'',
+    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows" data-fit-g>${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}${r.img&&r.sticker?` data-st="${r.sticker}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm" data-fit>${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img,r.sticker):''}</div>`).join('')}</div>`:'',
     txt=[b.lead,...(b.text||[])].filter(Boolean);
     const ttl=b.h?`<h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3>`:'',lb=lab?`<p class="label sc-q">${esc(lab)}</p>`:'';
     if(b.groups&&!txt.length&&!rows)return `<section class="cb cb-kpi wrap">${lb}${ttl}${b.groups.map(kpiGroup).join('')}</section>`; // только цифры — весь раздел на чёрном
