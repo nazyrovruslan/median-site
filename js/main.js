@@ -403,7 +403,7 @@ const BLOCK={
   key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="cb-txt">${P(b.text)}</div>`:''}</section>`,
   // фото между разделами по сетке исходных кейсов: шахматкой (колонки 1–2 / 4–5, каждое следующее ниже на полфото) или во всю ширину; параллакс, клик открывает фото
   // вместо фото можно короткий зацикленный кусок моушена (.mp4, без звука)
-  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' data-ap'} preload="none" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="${ALT}" loading="lazy"></span>`}</figure>`).join('')}</section>`,
+  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' data-ap'} preload="metadata" onloadedmetadata="this.style.aspectRatio=this.videoWidth+'/'+this.videoHeight" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="${ALT}" loading="lazy"></span>`}</figure>`).join('')}</section>`,
   // фото на весь экран
   photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="${ALT}" loading="lazy"></section>`,
   // фото во всю ширину с заголовком и белой карточкой (или видео без звука, если vid)

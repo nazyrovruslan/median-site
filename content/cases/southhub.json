@@ -201,8 +201,8 @@
       "t": "pics",
       "mode": "chess",
       "items": [
-        "media/video/sh-loop-logo.mp4",
-        "media/video/sh-loop-raft.mp4"
+        "media/video/sh-logo-16x9.mp4",
+        "media/video/sh-loop-floor.mp4"
       ]
     },
     {
@@ -310,7 +310,7 @@
       "t": "pics",
       "mode": "chess",
       "items": [
-        "media/video/sh-loop-speakers.mp4",
+        "media/video/sh-loop-floor4.mp4",
         "media/cases/sh-chess-2.webp"
       ]
     },
