@@ -155,3 +155,8 @@ Kaspersky — полностью по макету, фото вытащены и
 - Пока сайт на `nazyrovruslan.github.io/median-site/`, robots.txt поисковики ищут в корне github.io, а не тут — sitemap (`…/median-site/sitemap.xml`) надо добавить вручную в Яндекс Вебмастере и Google Search Console.
 - Фото в кейсах получили alt «<кейс> — фото» (переменная `ALT` в `main.js`, ставится в `fillCase`).
 - Деплой: checkout с `fetch-depth: 0, filter: blob:none` — история коммитов без файлов, из неё даты правок для sitemap (`lastmod`) и `datePosted` вакансий.
+
+## Скорость загрузки (09.11)
+- Петли в теле кейса (`pics`, `banner`, `story`) не качаются при открытии: в шаблоне `data-ap preload="none"`, стартуют через IntersectionObserver за 400 px до экрана и встают на паузу вне его (`blocksInit`).
+- Миниатюры галереи (`gallery`) — превью 520 px из `media/thumb` (делает `tools/media.mjs`), а не полноразмерные фото; было ~3 МБ на открытие South HUB.
+- Заставка ждёт видео первого слайда не дольше 6 с (было 15); при прямой ссылке на кейс/«О нас» видео баннера не ждём и заранее не качаем.

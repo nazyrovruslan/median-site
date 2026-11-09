@@ -26,6 +26,9 @@ for (const f of fs.readdirSync('content/cases').filter(f => f.endsWith('.json'))
     });
   }
   // ролики: поле reel кейса и блоки «Видео» (t: reel), в том числе внутри проектов серии
+  // галерея: миниатюры под главным фото — превью 520 px вместо полноразмерных фото (09.11)
+  for (const b of [...(c.blocks || []), ...(c.after || []), ...(c.parts || []).flatMap(p => p.blocks || [])].filter(b => b.t === 'gallery'))
+    for (const u of b.items || []) if (has(u) && !/\.mp4$/.test(u)) thumb(u);
   const reels = [c.reel, ...[...(c.blocks || []), ...(c.after || []), ...(c.parts || []).flatMap(p => p.blocks || [])].filter(b => b.t === 'reel').map(b => b.reel)];
   for (const reel of new Set(reels.filter(f => f && has(f)))) {
     const r = reel.replace(/\.mp4$/, '');

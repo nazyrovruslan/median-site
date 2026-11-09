@@ -75,7 +75,7 @@ $('#next').onclick=()=>go(cur+1);$('#nxtLabel .narr-w').addEventListener('click'
 let heroSeen=true; // баннер ушёл с экрана — видео на паузе
 if('IntersectionObserver' in window)new IntersectionObserver(([e])=>{heroSeen=e.isIntersecting;$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur&&!$$('.panel.on').length));}).observe($('#hero'));
 go(0,true);
-/* ---------- загрузка: заставка держится, пока не скачается видео первого слайда (не дольше 15 с); остальные видео грузятся, когда подъезжают к экрану ---------- */
+/* ---------- загрузка: заставка держится, пока не скачается видео первого слайда (не дольше 6 с); остальные видео грузятся, когда подъезжают к экрану ---------- */
 (()=>{const ld=$('#loader'),urls=HERO.slice(0,1).filter(k=>k.vid).map(k=>k.vid);
   const got=urls.map(()=>0),tot=urls.map(()=>0);let shown=0;
   const swap=()=>$$('video.cv').forEach(v=>{const u=Object.keys(BLOB).find(u=>v.getAttribute('src')===vurl(u));if(u&&v.paused){v.src=BLOB[u];}});
@@ -84,10 +84,11 @@ go(0,true);
   const upd=()=>{const p=urls.reduce((a,u,i)=>a+(tot[i]?Math.min(1,got[i]/tot[i]):0),0)/urls.length;
     if(p>shown){shown=p;ld.style.setProperty('--p',p);}};
   if(reduce||!urls.length||!window.fetch||!window.ReadableStream){finish();return;}
-  setTimeout(finish,15000);
+  setTimeout(()=>{if($$('.panel.on').length){finish();return;} // открыли по прямой ссылке на кейс/«О нас» (09.11): баннер не виден — его видео не ждём и заранее не качаем
+  setTimeout(finish,6000); // не дольше 6 с (09.11, было 15)
   Promise.all(urls.map(async(u,i)=>{try{const r=await fetch(vurl(u));if(!r.ok)return;tot[i]=+r.headers.get('content-length')||0;
     const rd=r.body.getReader(),parts=[];for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);got[i]+=value.length;if(!tot[i])tot[i]=got[i];upd();}
-    BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});
+    BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});},0);
 })();
 // «Смотреть дальше»: на первом экране стрелка в видимой верхней половине кольца, при прокрутке съезжает в центр
 {const dn=$('.down');const f=()=>dn.style.setProperty('--dk',Math.min(1,scrollY/(dn.offsetHeight/2||1)).toFixed(3));addEventListener('scroll',f,{passive:true});f();}
@@ -402,25 +403,25 @@ const BLOCK={
   key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="cb-txt">${P(b.text)}</div>`:''}</section>`,
   // фото между разделами по сетке исходных кейсов: шахматкой (колонки 1–2 / 4–5, каждое следующее ниже на полфото) или во всю ширину; параллакс, клик открывает фото
   // вместо фото можно короткий зацикленный кусок моушена (.mp4, без звука)
-  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' autoplay'} preload="metadata" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="${ALT}" loading="lazy"></span>`}</figure>`).join('')}</section>`,
+  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' data-ap'} preload="none" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="${ALT}" loading="lazy"></span>`}</figure>`).join('')}</section>`,
   // фото на весь экран
   photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="${ALT}" loading="lazy"></section>`,
   // фото во всю ширину с заголовком и белой карточкой (или видео без звука, если vid)
-  banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${b.img}" alt="${ALT}" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
+  banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline data-ap preload="none" aria-hidden="true"></video>`:`<img src="${b.img}" alt="${ALT}" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
   // карусель: видно три фото, листается свайпом, стрелками и точками
   carousel:b=>`<section class="grey cb cb-car"><div class="car-track" tabindex="0" aria-label="Фото">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="${ALT}" loading="lazy"></figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
   // история как у Apple: один кадр во всю ширину (на телефоне виден край следующего), под ним карточка — жирный лид и текст; листается как карусель (та же логика .cb-car)
-  story:b=>`<section class="cb cb-car cb-story"><div class="car-track" tabindex="0" aria-label="Фото с подписями">${(b.items||[]).map(it=>`<figure><div class="st-m">${/\.mp4$/.test(it.img||'')?`<video src="${it.img}${VV}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${it.img}" alt="${ALT}" loading="lazy">`}</div>${it.b||it.text?`<figcaption class="st-cap">${it.b?`<b>${esc(it.b)}</b> `:''}${esc(it.text||'')}</figcaption>`:''}</figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
+  story:b=>`<section class="cb cb-car cb-story"><div class="car-track" tabindex="0" aria-label="Фото с подписями">${(b.items||[]).map(it=>`<figure><div class="st-m">${/\.mp4$/.test(it.img||'')?`<video src="${it.img}${VV}" muted loop playsinline data-ap preload="none" aria-hidden="true"></video>`:`<img src="${it.img}" alt="${ALT}" loading="lazy">`}</div>${it.b||it.text?`<figcaption class="st-cap">${it.b?`<b>${esc(it.b)}</b> `:''}${esc(it.text||'')}</figcaption>`:''}</figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
   // сплит: слева текст стоит на месте, справа проезжают фото
   split:b=>`<section class="grey cb cb-split"><div class="sp-txt">${b.label?`<span class="label">${esc(b.label)}</span>`:''}<h3 class="d" data-fit>${(b.h||'').split('\n').map(esc).join('<br>')}</h3>${P(b.text)}</div><div class="sp-ph">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="${ALT}" loading="lazy"></figure>`).join('')}</div></section>`,
   // бегущие ленты: две ленты в разные стороны, клик открывает фото
   marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${r.map(u=>`<img src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></div>`).join('')}</section>`,
   // фото-аккордеон: полосы раскрываются при наведении или нажатии
-  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}"><img src="${u}" alt="${ALT}"></button>`).join('')}</div></section>`,
+  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}"><img src="${u}" alt="${ALT}" loading="lazy"></button>`).join('')}</div></section>`,
   // бенто: 8 плиток разного размера, клик открывает фото
   bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></section>`,
   // галерея: большое фото, стрелки, счётчик и полоса превью
-  gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="${ALT}" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}"><img src="${u}" alt="${ALT}"></button>`).join('')}</div></section>`;},
+  gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="${ALT}" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}"><img src="${thumb(u)}" onerror="this.onerror=null;this.src='${u}'" alt="${ALT}" loading="lazy"></button>`).join('')}</div></section>`;},
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
   // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки;
   // все вкладки лежат друг на друге (скрытые — невидимы, но измеряются), цифры ужимаются одной группой — размер одинаковый на всех вкладках
@@ -455,6 +456,9 @@ function mqUpd(){mqRaf=0;const vh=innerHeight;mqEls.forEach(m=>{const r=m.getBou
   m.querySelectorAll('.mq-t').forEach((t,j)=>{const d=Math.min(Math.max(0,t.scrollWidth-m.clientWidth),m.clientWidth*.45);t.style.transform=`translate3d(${-(j%2?1-p:p)*d}px,0,0)`;});});}
 $('#casePanel .sheet').addEventListener('scroll',()=>{if(mqEls.length&&!mqRaf)mqRaf=requestAnimationFrame(mqUpd);},{passive:true});
 function blocksInit(root){
+  // петли в теле кейса (09.11): не качаются при открытии, а стартуют, когда подъезжают к экрану (за 400 px), и встают на паузу, уйдя с него
+  if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(e.isIntersecting){v.preload='auto';v.play().catch(()=>{});}else v.pause();}),{rootMargin:'400px 0px'});
+    root.querySelectorAll('video[data-ap]').forEach(v=>io.observe(v));}else root.querySelectorAll('video[data-ap]').forEach(v=>{v.preload='auto';v.play().catch(()=>{});});
   root.querySelectorAll('.cb-car').forEach(c=>{const t=c.querySelector('.car-track'),f=[...t.children],d=c.querySelector('.car-dots');
     const per=()=>Math.max(1,Math.round(t.clientWidth/(f[0].getBoundingClientRect().width||1))),pages=()=>Math.max(1,f.length-per()+1);
     const draw=()=>{const n=pages(),i=Math.round(t.scrollLeft/((f[1]?f[1].offsetLeft-f[0].offsetLeft:1)||1));d.innerHTML=Array.from({length:n},(_,j)=>`<button type="button" aria-label="Фото ${j+1}" class="${j===Math.min(i,n-1)?'on':''}" data-c="mag"></button>`).join('');};
