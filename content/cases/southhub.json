@@ -251,8 +251,11 @@
       ]
     },
     {
-      "t": "photo",
-      "img": "media/cases/sh-wide-1.webp"
+      "t": "pics",
+      "mode": "wide",
+      "items": [
+        "media/video/sh-loop-logo.mp4"
+      ]
     },
     {
       "t": "carousel",

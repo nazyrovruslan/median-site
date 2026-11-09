@@ -130,8 +130,11 @@
       ]
     },
     {
-      "t": "photo",
-      "img": "media/cases/sb-wide-1.webp"
+      "t": "pics",
+      "mode": "wide",
+      "items": [
+        "media/video/sb-loop-ski.mp4"
+      ]
     },
     {
       "t": "carousel",
