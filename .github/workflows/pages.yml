@@ -18,6 +18,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # история коммитов без файлов (быстро): tools/build-seo.mjs берёт из неё даты правок для sitemap и вакансий
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -38,6 +42,8 @@ jobs:
           node tools/og-kp.mjs || echo "обложки превью КП не нарисованы"
           # сброс кэша данных кейсов: номер версии = короткий хэш коммита
           sed -i -E "s#js/(cases|vacancies|icons)\.js\?v=[^\"]+#js/\1.js?v=${GITHUB_SHA::7}#g" index.html
+          # SEO: страницы кейсов/«О нас»/вакансий со своими title и OG (копии index.html), sitemap.xml, robots.txt — после ?v=, чтобы копии получили те же версии
+          node tools/build-seo.mjs
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"

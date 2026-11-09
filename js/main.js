@@ -309,7 +309,7 @@ $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[dat
 addEventListener('keydown',e=>{if(e.key==='Escape'){const on=$$('.panel.on');if(on.length)closeAny(['reelPanel','briefPanel','cvPanel','casePanel','jobPanel','aboutPanel'].map(id=>on.find(p=>p.id===id)).find(Boolean)||on[0]);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
 let openId=null;
 /* у каждого кейса свой адрес: /<id> (например /median-site/southhub). Открытие и переход к следующему кейсу добавляют запись в историю, «назад» возвращает к предыдущему кейсу или на главную */
-const baseTitle=document.title; let caseDepth=0;
+const baseTitle=document.documentElement.dataset.homeTitle||document.title; let caseDepth=0; // на SEO-страницах кейсов <title> свой, заголовок главной — в data-home-title
 const ROOT=location.pathname.replace(/[^/]*$/,'');
 const caseUrl=id=>ROOT+encodeURIComponent(id);
 const caseById=id=>(typeof CASES_ALL!=='undefined'?CASES_ALL:CASES).find(c=>c.id===id); // и скрытые с сайта (только для КП) — по прямой ссылке
@@ -351,10 +351,11 @@ const stk=u=>u?`<img class="stk" src="${u}" alt="" aria-hidden="true">`:''; // �
 const rowPh=(u,st)=>/\.mp4$/.test(u)?`<span class="rp"><video src="${u}${VV}" muted loop playsinline preload="none" aria-hidden="true"></video>${stk(st)}</span>`:`<span class="rp" style="background-image:url(${u})">${stk(st)}</span>`;
 function rowPeek(r){const u=r.dataset.ph;if(/\.mp4$/.test(u)){const v=document.createElement('video');Object.assign(v,{src:u+VV,muted:true,loop:true,playsInline:true,autoplay:true});peek.replaceChildren(v);peek.style.background='#000';v.play().catch(()=>{});}else{peek.replaceChildren();peek.style.background=`url(${u}) center/cover no-repeat,#000`;}if(r.dataset.st)peek.insertAdjacentHTML('beforeend',stk(r.dataset.st));
   peek.classList.add('top');peekAt(r);peek.classList.add('on');}
+let ALT=''; // alt у фото кейса: «<кейс> — фото», ставится в fillCase
 const BLOCK={
-  cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
-  pairs:b=>`<section class="grey cb cb-pairs">${(b.items||[]).map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
-  feature:b=>`<section class="grey cb cb-feat"><h3 class="d" data-fit><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure>${b.img?(b.fit?`<img class="fit" src="${b.img}" alt="" loading="lazy">`:`<span class="px"><img src="${b.img}" alt="" loading="lazy"></span>`):''}<figcaption>${P(b.text)}</figcaption></figure></section>`,
+  cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="${ALT}" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
+  pairs:b=>`<section class="grey cb cb-pairs">${(b.items||[]).map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="${ALT}" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
+  feature:b=>`<section class="grey cb cb-feat"><h3 class="d" data-fit><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure>${b.img?(b.fit?`<img class="fit" src="${b.img}" alt="${ALT}" loading="lazy">`:`<span class="px"><img src="${b.img}" alt="${ALT}" loading="lazy"></span>`):''}<figcaption>${P(b.text)}</figcaption></figure></section>`,
   text:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean);return `<section class="grey cb cb-text"><h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
   yt:b=>`<section class="cb cb-yt"><div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${b.list}&rel=0" title="Плейлист" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></section>`,
   // список выпусков подкаста: номер, тема, гость; ссылка открывает выпуск на YouTube
@@ -382,25 +383,25 @@ const BLOCK={
   key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="cb-txt">${P(b.text)}</div>`:''}</section>`,
   // фото между разделами по сетке исходных кейсов: шахматкой (колонки 1–2 / 4–5, каждое следующее ниже на полфото) или во всю ширину; параллакс, клик открывает фото
   // вместо фото можно короткий зацикленный кусок моушена (.mp4, без звука)
-  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' autoplay'} preload="metadata" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="" loading="lazy"></span>`}</figure>`).join('')}</section>`,
+  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' autoplay'} preload="metadata" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="${ALT}" loading="lazy"></span>`}</figure>`).join('')}</section>`,
   // фото на весь экран
-  photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="" loading="lazy"></section>`,
+  photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="${ALT}" loading="lazy"></section>`,
   // фото во всю ширину с заголовком и белой карточкой (или видео без звука, если vid)
-  banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${b.img}" alt="" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
+  banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${b.img}" alt="${ALT}" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
   // карусель: видно три фото, листается свайпом, стрелками и точками
-  carousel:b=>`<section class="grey cb cb-car"><div class="car-track" tabindex="0" aria-label="Фото">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy"></figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
+  carousel:b=>`<section class="grey cb cb-car"><div class="car-track" tabindex="0" aria-label="Фото">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="${ALT}" loading="lazy"></figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
   // история как у Apple: один кадр во всю ширину (на телефоне виден край следующего), под ним карточка — жирный лид и текст; листается как карусель (та же логика .cb-car)
-  story:b=>`<section class="cb cb-car cb-story"><div class="car-track" tabindex="0" aria-label="Фото с подписями">${(b.items||[]).map(it=>`<figure><div class="st-m">${/\.mp4$/.test(it.img||'')?`<video src="${it.img}${VV}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${it.img}" alt="" loading="lazy">`}</div>${it.b||it.text?`<figcaption class="st-cap">${it.b?`<b>${esc(it.b)}</b> `:''}${esc(it.text||'')}</figcaption>`:''}</figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
+  story:b=>`<section class="cb cb-car cb-story"><div class="car-track" tabindex="0" aria-label="Фото с подписями">${(b.items||[]).map(it=>`<figure><div class="st-m">${/\.mp4$/.test(it.img||'')?`<video src="${it.img}${VV}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${it.img}" alt="${ALT}" loading="lazy">`}</div>${it.b||it.text?`<figcaption class="st-cap">${it.b?`<b>${esc(it.b)}</b> `:''}${esc(it.text||'')}</figcaption>`:''}</figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
   // сплит: слева текст стоит на месте, справа проезжают фото
-  split:b=>`<section class="grey cb cb-split"><div class="sp-txt">${b.label?`<span class="label">${esc(b.label)}</span>`:''}<h3 class="d" data-fit>${(b.h||'').split('\n').map(esc).join('<br>')}</h3>${P(b.text)}</div><div class="sp-ph">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy"></figure>`).join('')}</div></section>`,
+  split:b=>`<section class="grey cb cb-split"><div class="sp-txt">${b.label?`<span class="label">${esc(b.label)}</span>`:''}<h3 class="d" data-fit>${(b.h||'').split('\n').map(esc).join('<br>')}</h3>${P(b.text)}</div><div class="sp-ph">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="${ALT}" loading="lazy"></figure>`).join('')}</div></section>`,
   // бегущие ленты: две ленты в разные стороны, клик открывает фото
-  marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${r.map(u=>`<img src="${u}" alt="" loading="lazy">`).join('')}</div></div>`).join('')}</section>`,
+  marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${r.map(u=>`<img src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></div>`).join('')}</section>`,
   // фото-аккордеон: полосы раскрываются при наведении или нажатии
-  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}"><img src="${u}" alt=""></button>`).join('')}</div></section>`,
+  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}"><img src="${u}" alt="${ALT}"></button>`).join('')}</div></section>`,
   // бенто: 8 плиток разного размера, клик открывает фото
-  bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="" loading="lazy">`).join('')}</div></section>`,
+  bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></section>`,
   // галерея: большое фото, стрелки, счётчик и полоса превью
-  gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}"><img src="${u}" alt=""></button>`).join('')}</div></section>`;},
+  gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="${ALT}" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}"><img src="${u}" alt="${ALT}"></button>`).join('')}</div></section>`;},
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
   // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки;
   // все вкладки лежат друг на друге (скрытые — невидимы, но измеряются), цифры ужимаются одной группой — размер одинаковый на всех вкладках
@@ -487,7 +488,7 @@ function cfLogo(k){const t=k.client||k.name,m=!k.logo&&CLOGO.find(([r])=>r.test(
 function fillCase(id,split){
   const k=caseById(id), i=CASES.indexOf(k), n=CASES[(i+1)%CASES.length]; openId=id; // у скрытого кейса i=-1: «Следующий проект» — первый в списке
   const cb=$('#cBack');cb.hidden=!inStack();if(jobId)cb.href=jobUrl(jobId); // кейс из вакансии: «← К вакансии»
-  document.title=k.name+' — Median';
+  document.title=k.name+' — Median';ALT=esc(k.name+' — фото').replace(/"/g,'&quot;');
   $('#cVis').style.background=cover(k,Math.max(i,0));$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap');H.classList.toggle('split',!!split);H.offsetWidth;H.classList.remove('snap'); // раскладка «обложка слева» — только при переходе со «Следующего проекта»
   $('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
@@ -880,7 +881,10 @@ if(fine&&!reduce){
 /* прямой заход по адресу кейса */
 /* прямая ссылка: 404.html кладёт путь в sessionStorage и отправляет на главную; старые ссылки ?case= тоже открываются */
 {let r=null;try{r=sessionStorage.getItem('route');sessionStorage.removeItem('route');}catch(e){}
+ /* SEO-страницы кейсов/«О нас»/вакансий (southhub.html и т.п., tools/build-seo.mjs) отдаются по своему адресу с кодом 200 — маршрут берём прямо из адреса, заголовок вкладки оставляем из <title> страницы */
+ const pg=caseFromPath(location.pathname).replace(/\.html$/,''),seoT=document.title;if(!r&&pg&&pg!=='index')r=ROOT+pg;
  const id=r?caseFromPath(r):new URLSearchParams(location.search).get('case'),jb=r?jobFromPath(r):null;if(r||location.search)history.replaceState(null,'',ROOT+location.hash);if(jb){openJob(jb,true);}else if(jb===''){history.replaceState({about:1},'',ROOT+'about');showJobs(false);}
  else if(id==='about'){history.replaceState({about:1},'',ROOT+'about');openAbout(false);}
- else if(id&&caseById(id)){openCase(id,null,true);setCaseUrl(id,false);}}
+ else if(id&&caseById(id)){openCase(id,null,true);setCaseUrl(id,false);}
+ if(pg&&pg!=='index')document.title=seoT;}
 })();

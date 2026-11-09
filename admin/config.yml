@@ -53,6 +53,7 @@ collections:
       - &cf_sub { name: sub, label: Подзаголовок, widget: string, hint: "Строка в списке кейсов и под заголовком в баннере" }
       - &cf_tags { name: tags, label: Категории проекта, widget: select, multiple: true, required: false, options: [{ label: "Бренд работодателя", value: employer }, { label: "Внутренние коммуникации", value: internal }, { label: "Сообщества", value: community }, { label: "Собственные проекты", value: own }], hint: "Фильтры над «Все проекты» на главной; можно выбрать несколько. Названия — в TAGS в js/main.js, держать одинаковыми" }
       - &cf_hide { name: hide, label: Скрыть с сайта (только для КП), widget: boolean, required: false, default: false, hint: "Кейса не будет на главной и в списке проектов, но он есть в закрытом каталоге кейсов и его можно добавить в КП; страница кейса открывается по прямой ссылке" }
+      - &cf_seo { name: seo, label: "SEO: поиск и превью ссылки", widget: object, required: false, collapsed: true, hint: "Можно не заполнять — соберётся из названия, подзаголовка, формата, города и года", fields: [{ name: title, label: "Заголовок страницы (title)", widget: string, required: false, hint: "До ~60 знаков; «| кейс Median» допишется сам" }, { name: description, label: "Описание (description)", widget: text, required: false, hint: "1–2 предложения, до ~160 знаков: что за проект, для кого, где и когда" }] }
       - &cf_kp { name: kp, label: Категории для КП, widget: select, multiple: true, required: false, options: [{ label: "Стенды и зоны", value: stands }, { label: "Конференции и форумы", value: conf }, { label: "Выездные мероприятия и кэмпы", value: camp }, { label: "Фестивали и road show", value: fest }, { label: "Хакатоны и IT-соревнования", value: hack }, { label: "Корпоративы и церемонии", value: corp }, { label: "Спецпроекты и digital", value: special }], hint: "По ним КП подбирает релевантный опыт: кейсы категории КП прикрепляются по умолчанию (в порядке списка)" }
       - &cf_dir { name: dir, label: Направление, widget: select, options: [{ label: Внешние, value: external }, { label: Внутренние, value: internal }, { label: Out of the list, value: outlist }, { label: Свой проект, value: own }] }
       - &cf_out { name: out, label: "Заголовок: контурное слово", widget: string, required: false, hint: "Первая строка заголовка (контуром). Если ниже заданы «Строки заголовка» — используются они." }
@@ -353,6 +354,7 @@ collections:
       - *cf_sub
       - *cf_tags
       - *cf_hide
+      - *cf_seo
       - *cf_kp
       - *cf_dir
       - *cf_out

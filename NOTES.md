@@ -146,3 +146,12 @@ Kaspersky — полностью по макету, фото вытащены и
 - Пункт раздела может нести `sticker` (прозрачный webp поверх фото, покачивается) — Data Fest; описано в DESIGN-SYSTEM.md.
 - Моушен 04_Моушен — петлями по 4 с внутри шахматок `pics` (не во всю ширину — просьба Руслана): ad-loop-*, sb-loop-*, sh-loop-*.
 - Большие файлы с Диска: коннектор отдаёт только до ~6 МБ; Руслан кладёт папки в «Загрузки» на Mac или в общую папку проекта.
+
+## SEO (09.11.2026)
+- Адреса кейсов, «О нас», `/jobs` и `/vacancy-<id>` раньше отдавались через `404.html` с кодом 404 — поисковики их не индексировали. Теперь в деплое `tools/build-seo.mjs` (после `build-cases`/`build-vacancies` и простановки `?v=`) кладёт рядом с `index.html` копии `<id>.html`, `about.html`, `jobs.html`, `vacancy-<id>.html` со своими title, description, canonical, Open Graph (обложка кейса) и schema.org (Organization, BreadcrumbList, CreativeWork у кейса, JobPosting у вакансии), плюс `sitemap.xml` и `robots.txt`. GitHub Pages отдаёт `/southhub` из `southhub.html` с кодом 200; `main.js` берёт маршрут из адреса и открывает кейс, заголовок вкладки остаётся из `<title>` страницы (заголовок главной — в `data-home-title`). В репозиторий эти файлы не коммитятся, локально посмотреть: `node tools/build-seo.mjs` (потом удалить).
+- Мета кейса собирается из названия, подзаголовка (или формата, если подзаголовок длинный/повторяет название), формата, города и года. Свои title/description — в CMS у кейса, блок «SEO: поиск и превью ссылки» (поле `seo`).
+- Скрытые кейсы (`hide`) получают `noindex` и не попадают в sitemap. `/clients/` (КП) — `noindex,nofollow,noarchive` в самих страницах, в robots.txt не закрыт специально (иначе поисковик не увидит noindex).
+- Адрес сайта для canonical/sitemap: файл `CNAME` (свой домен) → `https://<домен>/`, иначе GitHub Pages. При переезде на median.agency достаточно добавить CNAME — всё пересоберётся.
+- Пока сайт на `nazyrovruslan.github.io/median-site/`, robots.txt поисковики ищут в корне github.io, а не тут — sitemap (`…/median-site/sitemap.xml`) надо добавить вручную в Яндекс Вебмастере и Google Search Console.
+- Фото в кейсах получили alt «<кейс> — фото» (переменная `ALT` в `main.js`, ставится в `fillCase`).
+- Деплой: checkout с `fetch-depth: 0, filter: blob:none` — история коммитов без файлов, из неё даты правок для sitemap (`lastmod`) и `datePosted` вакансий.
