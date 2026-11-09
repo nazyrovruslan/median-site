@@ -57,18 +57,18 @@
         {
           "name": "Data Shop",
           "text": "Главная зона дня: участники «собирали» технологии вместо продуктов — «Корзина технологий», «Data-мифы», автомат Lucky Code. За активности получали коины и обменивали их на мерч через кассу самообслуживания.",
-          "img": "media/cases/x5datafest-1.webp",
+          "img": "media/cases/x5df-real-3.webp",
           "sticker": "media/cases/x5df-sticker-3.webp"
         },
         {
           "name": "Гонки роботов",
           "text": "Трасса с роботами-доставщиками X5 Digital — понятный способ показать ритейл-технологии в действии.",
-          "img": "media/cases/x5datafest-2.webp"
+          "img": "media/cases/x5df-real-4.webp"
         },
         {
           "name": "Карьера",
           "text": "Карьерная зона с консультациями, intern track и growth track — для тех, кто хочет прийти в команду.",
-          "img": "media/cases/x5datafest-4.webp",
+          "img": "media/cases/x5df-real-5.webp",
           "sticker": "media/cases/x5df-sticker-4.webp"
         }
       ]
@@ -80,13 +80,16 @@
       "solid": "данные и алгоритмы"
     },
     {
-      "t": "carousel",
+      "t": "bento",
       "items": [
-        "media/cases/x5datafest-4.webp",
-        "media/cases/x5datafest-3.webp",
-        "media/cases/x5datafest-5.webp",
-        "media/cases/x5datafest-1.webp",
-        "media/cases/x5datafest-2.webp"
+        "media/cases/x5df-bento-1.webp",
+        "media/cases/x5df-bento-2.webp",
+        "media/cases/x5df-bento-3.webp",
+        "media/cases/x5df-bento-4.webp",
+        "media/cases/x5df-bento-5.webp",
+        "media/cases/x5df-bento-6.webp",
+        "media/cases/x5df-bento-7.webp",
+        "media/cases/x5df-bento-8.webp"
       ]
     },
     {
