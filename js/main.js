@@ -156,12 +156,17 @@ const twD=(i,t,m)=>{const n=TWR.length,w=.28,ss=(a,x)=>{x=Math.min(1,Math.max(0,
   const P=TWR[i].map(([x,y,tx,ty])=>[x*g+(tx-x*g)*m,y*g+(ty-y*g)*m]),L=P.length,f=v=>v.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`; // сглаживание Catmull-Rom
   for(let k=0;k<L;k++){const a=P[(k-1+L)%L],b=P[k],c=P[(k+1)%L],e=P[(k+2)%L];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}
   return d+'Z';};
-const TWS=new Set();let twPin=null,twQ=0; // плитки на таче: на экране горит одна (09.11) — ближайшая к центру или тапнутая, пока видна
-const twPick=()=>{twQ=0;const vis=[...TWS].filter(t=>{if(!t.isConnected){TWS.delete(t);return false;}const b=t.getBoundingClientRect();return b.width&&b.bottom>0&&b.top<innerHeight;});
-  if(twPin&&!vis.includes(twPin))twPin=null;let best=twPin;
-  if(!best){let d=1e9;vis.forEach(t=>{const b=t.getBoundingClientRect(),k=Math.abs(b.top+b.height/2-innerHeight/2);if(k<d){d=k;best=t;}});}
-  TWS.forEach(t=>{const v=t===best;if(t.classList.contains('on')!==v)t._tw(v);});TWS.forEach(t=>t._sc());};
-const twReq=()=>{if(!twQ)twQ=requestAnimationFrame(twPick);};
+const TWS=new Set();let twPin=null,twQ=0,twT=0; // плитки на таче: на экране горит одна (09.11) — ближайшая к центру или тапнутая, пока видна
+// выбор только когда прокрутка остановилась (09.11): на быстром скролле подсветка не перескакивает по плиткам; ушла с экрана — гаснет, новая загорается на остановке
+const twVis=t=>{const b=t.getBoundingClientRect();return b.width&&b.bottom>0&&b.top<innerHeight;},twDc=t=>{const b=t.getBoundingClientRect();return Math.abs(b.top+b.height/2-innerHeight/2);};
+const twSet=best=>TWS.forEach(t=>{const v=t===best;if(t.classList.contains('on')!==v)t._tw(v);});
+const twPick=()=>{twT=0;const vis=[...TWS].filter(t=>t.isConnected?twVis(t):(TWS.delete(t),false));if(twPin&&!vis.includes(twPin))twPin=null;
+  let best=twPin;if(!best){const curOn=vis.find(t=>t.classList.contains('on'));let d=1e9;vis.forEach(t=>{const k=twDc(t);if(k<d){d=k;best=t;}});
+    if(curOn&&best&&twDc(curOn)-d<innerHeight*.15)best=curOn;} // небольшая разница — подсветку не переносим
+  twSet(best);};
+const twScroll=()=>{twQ=0;TWS.forEach(t=>{if(!t.isConnected)return TWS.delete(t);if(t.classList.contains('on')&&!twVis(t)){t._tw(false);if(t===twPin)twPin=null;}});TWS.forEach(t=>t._sc());
+  clearTimeout(twT);twT=setTimeout(twPick,220);};
+const twReq=()=>{if(!twQ)twQ=requestAnimationFrame(twScroll);};
 addEventListener('scroll',twReq,{passive:true,capture:true});addEventListener('resize',twReq); // плитки на таче: круги за прокруткой
 function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл дыхания 10 с; у плитки своя фаза
   const bx=15+r()*70,by=15+r()*70;let cx=bx,cy=by,gx=bx,gy=by; // центр волн: случайный в покое; по наведению — магнит, как у кнопок (data-magnet): смещение = отклонение курсора от центра плитки × .25, догоняет плавно
@@ -176,7 +181,7 @@ function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл ды
     tile._sc=()=>{if(!on||reduce)return;const b=tile.getBoundingClientRect();if(b.bottom<0||b.top>innerHeight)return; // круги едут за прокруткой (09.11): центр тянется к середине экрана, как магнит за курсором
       gy=by+Math.max(-40,Math.min(40,(innerHeight/2-(b.top+b.height/2))/b.height*100*.25));gx=bx;go();};
     TWS.add(tile);
-    tile.addEventListener('click',()=>{twPin=tile;twPick();});
+    tile.addEventListener('click',()=>{twPin=tile;clearTimeout(twT);twPick();});
     twReq();return;}
   if(reduce)return;
   tile.addEventListener('mousemove',ev=>{const b=tile.getBoundingClientRect();gx=bx+((ev.clientX-b.left)/b.width*100-50)*.25;gy=by+((ev.clientY-b.top)/b.height*100-50)*.25;});
