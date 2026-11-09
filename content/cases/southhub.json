@@ -251,8 +251,9 @@
       ]
     },
     {
-      "t": "photo",
-      "img": "media/video/sh-intro.mp4"
+      "t": "reel",
+      "reel": "media/video/sh-intro.mp4",
+      "label": "Интро"
     },
     {
       "t": "carousel",

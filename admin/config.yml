@@ -207,6 +207,7 @@ collections:
             label: "Видео проекта"
             fields:
               - { name: reel, label: Видео (mp4 со звуком), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Если пусто — «Видео проекта» из полей кейса. Без этого блока ролик стоит сразу после анкеты" }
+              - { name: label, label: Подпись на кнопке, widget: string, required: false, hint: "Пусто — «Видео проекта». Например: «Интро»" }
           - name: carousel
             label: "Фото: карусель"
             fields:

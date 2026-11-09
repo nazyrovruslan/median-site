@@ -384,7 +384,7 @@ const BLOCK={
   links:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗︎</span></a></li>`).join('')}</ol></section>`,
   // шоурил кейса со старого median.agency: свой mp4 со звуком, грузится только по нажатию
   // reel — путь к mp4; рядом лежат <имя>.webp (постер) и <имя>-teaser.mp4 (превью), их делает tools/media.sh при деплое
-  reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`;},
+  reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">${esc(k.rlabel||'Видео проекта')}</span></span></button></div></section>`;},
   // перебивка «буквенная сетка» (South HUB): слово, ряды одной буквы, слоган; буквы у курсора увеличиваются
   // буквы South HUB берём их же векторами с southhub.ru; другие буквы — текстом
   hub:b=>{const gl=t=>HUBSVG[t]?`<img class="hub-svg" src="media/southhub/${HUBSVG[t]}.svg" alt="">`:esc(t);
@@ -506,13 +506,13 @@ LB.addEventListener('click',e=>{if(e.target.closest('.lb-p'))lbShow(lbI-1);else 
 addEventListener('keydown',e=>{if(!LB.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();lbClose();}else if(e.key==='ArrowLeft')lbShow(lbI-1);else if(e.key==='ArrowRight')lbShow(lbI+1);},true);
 // плеер рилс (09.11): во весь экран, 9:16, со звуком; сверху полоски как в сторис; свайп вверх/вниз и стрелки — соседний ролик, тап — пауза, кончился — следующий
 const RV=document.createElement('div');RV.id='rlv';RV.setAttribute('aria-hidden','true');
-RV.innerHTML='<div class="rlv-f"><div class="rlv-bars"></div><video playsinline preload="auto"></video><span class="rlv-t"></span><button type="button" class="rlv-m" aria-label="Звук" data-c="link">Звук вкл</button></div><button type="button" class="rlv-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';
+RV.innerHTML='<div class="rlv-f"><div class="rlv-bars"></div><video playsinline preload="auto"></video><span class="rlv-t"></span><button type="button" class="rlv-m" aria-label="Выключить звук" data-c="link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="on" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/><path class="off" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button></div><button type="button" class="rlv-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';
 document.body.appendChild(RV);
 {const v=RV.querySelector('video'),bars=RV.querySelector('.rlv-bars'),mt=RV.querySelector('.rlv-m');let set=[],ri=0;
  const show=i=>{if(!set.length)return;i=(i%set.length+set.length)%set.length;ri=i; // бесконечно: за последним — первый (09.11)
    const x=set[i];v.src=x.src+VV;v.muted=false;v.play().catch(err=>{if(err&&err.name==='NotAllowedError'){v.muted=true;v.play().catch(()=>{});mtx();}});RV.querySelector('.rlv-t').textContent=x.t;
    bars.innerHTML=set.map((_,j)=>`<i class="${j<i?'done':''}"><b></b></i>`).join('');mtx();};
- const mtx=()=>{mt.textContent=v.muted?'Звук выкл':'Звук вкл';};
+ const mtx=()=>{mt.classList.toggle('muted',v.muted);mt.setAttribute('aria-label',v.muted?'Включить звук':'Выключить звук');}; // пиктограмма динамика (09.11), не текст
  const close=()=>{v.pause();v.removeAttribute('src');v.load();RV.classList.remove('on');RV.setAttribute('aria-hidden','true');};
  v.addEventListener('timeupdate',()=>{const b=bars.children[ri];if(b&&v.duration)b.firstChild.style.width=(v.currentTime/v.duration*100).toFixed(2)+'%';});
  v.addEventListener('ended',()=>show(ri+1));
@@ -562,7 +562,7 @@ function fillCase(id,split){
   // анкета и видео — тоже блоки (facts, reel): где стоят в списке, там и выводятся; если их в списке нет — как раньше, в начале страницы
   const bl=k.blocks||[],fHtml=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`;
   $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
-    bl.map(b=>b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
+    bl.map(b=>b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel,rlabel:b.label}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   reelTeaser();hubInit();blocksInit($('#cBody'));$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(twAdd);
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);

@@ -1165,7 +1165,9 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .rlv-bars b{display:block;height:100%;width:0;background:var(--paper)}
 .rlv-bars i.done b{width:100%!important}
 .rlv-t{position:absolute;left:16px;bottom:18px;z-index:1;font:700 var(--ui)/1.25 var(--body);color:var(--paper);text-shadow:0 1px 8px rgba(0,0,0,.5);pointer-events:none}
-.rlv-m{position:absolute;right:12px;bottom:12px;z-index:1;padding:8px 14px;border:0;border-radius:999px;background:rgba(11,11,12,.45);backdrop-filter:blur(6px);color:var(--paper);font:500 var(--sm,12px)/1 var(--body);cursor:pointer}
+.rlv-m{position:absolute;right:12px;bottom:12px;z-index:1;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(11,11,12,.45);backdrop-filter:blur(6px);color:var(--paper);cursor:pointer}
+.rlv-m svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.rlv-m .off,.rlv-m.muted .on{display:none}.rlv-m.muted .off{display:inline}
 #rlv .rlv-x{position:absolute}
 @media (max-width:820px){
   .cb-reels .car-track{grid-auto-columns:42%;gap:10px}
