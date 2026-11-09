@@ -201,8 +201,8 @@
       "t": "pics",
       "mode": "chess",
       "items": [
-        "media/video/sh-logo-16x9.mp4",
-        "media/video/sh-loop-floor.mp4"
+        "media/video/sh-logo4.mp4",
+        "media/video/sh-loop-floor4.mp4"
       ]
     },
     {
@@ -328,10 +328,6 @@
         },
         {
           "vid": "media/reels/sh-magnit.mp4",
-          "title": "Магнит"
-        },
-        {
-          "vid": "media/reels/sh-magnit2.mp4",
           "title": "Магнит"
         },
         {

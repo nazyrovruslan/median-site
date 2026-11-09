@@ -306,6 +306,7 @@ body.c-proj.c-stick #cur{opacity:1}
 .follow .links{display:inline-flex;gap:4px;max-width:0;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transition:max-width .6s var(--ease),opacity .3s,visibility 0s .6s}
 .follow .links a{padding:6px 8px;border-radius:99px;white-space:nowrap}
 .follow:hover .links,.follow:focus-within .links,.follow.open .links{max-width:320px;opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s}
+.follow.contact:hover .links,.follow.contact:focus-within .links,.follow.contact.open .links{max-width:520px} /* Contact us (09.11): телефон, почта, Telegram — длиннее, чем соцсети */
 .foot.in .start .plus svg,.ab-end.in .start .plus svg{transform:none;opacity:1}
 .foot.in .start .d .line>span,.ab-end.in .start .d .line>span{transform:none}
 .foot.in .foot-bar{opacity:1;transform:none}
