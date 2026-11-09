@@ -405,7 +405,7 @@ const BLOCK={
   // вместо фото можно короткий зацикленный кусок моушена (.mp4, без звука)
   pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' data-ap'} preload="metadata" onloadedmetadata="this.style.aspectRatio=this.videoWidth+'/'+this.videoHeight" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="${ALT}" loading="lazy"></span>`}</figure>`).join('')}</section>`,
   // фото на весь экран
-  photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="${ALT}" loading="lazy"></section>`,
+  photo:b=>`<section class="cb cb-photo">${/\.mp4$/.test(b.img||'')?`<video src="${b.img}${VV}" poster="${b.img.replace(/\.mp4$/,'.webp')}" muted loop playsinline${reduce?'':' data-ap'} preload="none" aria-hidden="true"></video>`:`<img src="${b.img}" alt="${ALT}" loading="lazy">`}</section>`, // вместо фото — видео .mp4 (09.11): петля без звука, грузится у экрана, постер — .webp рядом
   // фото во всю ширину с заголовком и белой карточкой (или видео без звука, если vid)
   banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline data-ap preload="none" aria-hidden="true"></video>`:`<img src="${b.img}" alt="${ALT}" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
   // карусель: видно три фото, листается свайпом, стрелками и точками

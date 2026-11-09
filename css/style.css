@@ -961,6 +961,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .cb-key .ln,.cb-ban .ln{display:block;white-space:nowrap}
 /* фото на весь экран */
 .cb-photo img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.cb-photo video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#000} /* видео во всю ширину — 16:9 и на мобильном, без обрезки (09.11) */
 /* фото с заголовком и карточкой */
 .cb-ban{position:relative;aspect-ratio:16/9;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(48px,7vw,135px) var(--gutter)}
 .cb-ban>img,.cb-ban>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1}
