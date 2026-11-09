@@ -688,7 +688,7 @@ collections:
             widget: object
             collapsed: true
             fields:
-              - { name: email, label: Почта, widget: string, default: info@median.agency }
+              - { name: email, label: Почта, widget: string, default: hello@median.agency }
               - { name: tg, label: Telegram (ник без @), widget: string, default: medianprojects }
           - name: contacts
             label: Контакты по умолчанию

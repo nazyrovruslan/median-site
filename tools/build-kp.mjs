@@ -173,7 +173,7 @@ function page(k) {
 
   const m = k.main, contact = k.contactUrl;
   // подвал — общие контакты агентства, как на главной (персональные — в команде и в кнопке «Связаться»)
-  const F = { email: 'info@median.agency', tg: 'medianprojects', phone: '+7 (862) 291-25-52', ...Object.fromEntries(Object.entries(S.footer || {}).filter(([, v]) => v)) };
+  const F = { email: 'hello@median.agency', tg: 'medianprojects', phone: '+7 (862) 291-25-52', ...Object.fromEntries(Object.entries(S.footer || {}).filter(([, v]) => v)) };
   F.tg = String(F.tg).replace(/^.*t\.me\//, '').replace(/^@/, '');
   const nick = p => '@' + String(p.tg).replace(/^@|^https?:\/\/t\.me\//, '');
   const links = p => [

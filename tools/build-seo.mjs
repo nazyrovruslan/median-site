@@ -41,7 +41,7 @@ const HOME_TITLE = (index.match(/<title>([^<]*)<\/title>/) || [])[1] || 'Median'
 
 const ORG = {
   '@type': 'Organization', '@id': SITE + '#org', name: 'Median Agency', alternateName: ['Median', 'median.agency', 'Медиан'],
-  url: SITE, logo: SITE + 'media/icon-512.png', email: 'info@median.agency', telephone: '+7 (862) 291-25-52',
+  url: SITE, logo: SITE + 'media/icon-512.png', email: 'hello@median.agency', telephone: '+7 (862) 291-25-52',
   address: { '@type': 'PostalAddress', addressLocality: 'Сочи', addressCountry: 'RU' },
   sameAs: ['https://t.me/medianagency', 'https://www.instagram.com/median.agency/', 'https://www.facebook.com/median.agency/', 'https://youtube.com/@median.agency']
 };
