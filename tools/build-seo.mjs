@@ -42,7 +42,7 @@ const HOME_TITLE = (index.match(/<title>([^<]*)<\/title>/) || [])[1] || 'Median'
 const ORG = {
   '@type': 'Organization', '@id': SITE + '#org', name: 'Median Agency', alternateName: ['Median', 'median.agency', 'Медиан'],
   url: SITE, logo: SITE + 'media/icon-512.png', email: 'hello@median.agency', telephone: '+7 (862) 291-25-52',
-  address: { '@type': 'PostalAddress', addressLocality: 'Сочи', addressCountry: 'RU' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Сочи', addressCountry: 'RU' }, areaServed: { '@type': 'Country', name: 'Россия' },
   sameAs: ['https://t.me/medianagency', 'https://www.instagram.com/median.agency/', 'https://www.facebook.com/median.agency/', 'https://youtube.com/@median.agency']
 };
 
@@ -103,8 +103,8 @@ for (const k of CASES_ALL) {
 
 // «О нас»
 page({
-  path: 'about', title: 'О нас — event-агентство Median, Сочи · Москва',
-  desc: 'Median — event-агентство полного цикла из Сочи: конференции, кэмпы, фестивали бренда работодателя и спецпроекты для IT и банков. Команда, ценности, клиенты и награды.',
+  path: 'about', title: 'О нас — коммуникационное event-агентство Median',
+  desc: 'Median — коммуникационное event-агентство полного цикла: конференции, кэмпы, фестивали бренда работодателя и спецпроекты для IT и банков по всей России. Команда, ценности, клиенты и награды.',
   ld: [{ '@type': 'AboutPage', name: 'О нас', url: SITE + 'about', about: { '@id': SITE + '#org' } }, crumbs(['О нас', SITE + 'about'])]
 });
 sitemap.push({ loc: SITE + 'about', lastmod: gitDate('index.html') });
