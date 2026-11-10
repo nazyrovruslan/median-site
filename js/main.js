@@ -732,6 +732,7 @@ hit.addEventListener('click',()=>{if(lastPointer==='mouse')return;openCase(HERO[
 hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCase(HERO[cur].id,$('.hero-panel'));}});
 // «Следующий проект»: переход — прокруткой до конца (кольцо курсора заполняется); тап или Enter по обложке — сразу
 $('#cNextCover').addEventListener('click',()=>handoffNext());
+$('#cNextGo').addEventListener('click',()=>handoffNext()); // подвал кейса: «Следующий проект ↓» — как клик по обложке
 
 
 /* ---------- кольцо «Все проекты»: трекинг подгоняется под длину окружности ---------- */

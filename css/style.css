@@ -440,7 +440,10 @@ html.loading #cur,html.loading #ring{opacity:0}
 .nc-frame{visibility:hidden;pointer-events:none}
 .nc-in{position:absolute;z-index:1;left:calc(var(--ht-l) * (1 - var(--k)) + var(--gutter) * var(--k));top:calc(var(--ht-t) * (1 - var(--k)) + (100% - var(--hb)) * var(--k));translate:0 calc(-100% * var(--k));scale:calc(1 + (var(--hs) - 1) * var(--k));transform-origin:0 100%;width:var(--ht-w);color:var(--paper);pointer-events:none}
 .nc-foot{opacity:calc(1 - var(--k) * 3);position:absolute;left:0;right:0;bottom:6.7%;display:flex;justify-content:space-between;align-items:center;gap:16px;font:400 var(--ui) var(--body)}
-.nc-foot span:nth-child(2){color:var(--muted)}
+.nc-foot a{color:inherit;text-decoration:none}
+.nc-go{display:inline-flex;align-items:center;gap:.5em;font:inherit;color:var(--muted);background:none;border:0;padding:0;cursor:pointer;transition:color .3s}
+.nc-go .arr-d{width:.6em;height:1.6em;fill:none;stroke:currentColor;stroke-width:1.2;vector-effect:non-scaling-stroke;transition:transform .35s var(--ease)}
+@media (hover:hover){.nc-go:hover{color:var(--paper)}.nc-go:hover .arr-d{transform:translateY(6px)}}
 .next-case.leaving .nc-foot{opacity:0;transition:opacity .3s}
 /* ---------- страница «О нас» (артборды 29–30 «Кто мы?»): слева фото, «Кто мы?» и текст, справа подпись, текст и кольцо «Наши ценности» ---------- */
 #aboutPanel{grid-template-columns:minmax(0,1fr)}
@@ -700,7 +703,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .hub-s{grid-column:span 2}
   .hub-t{grid-row:4;grid-column:1/-1;font-size:clamp(14px,4.2vw,20px);white-space:normal;text-align:center;padding-inline:var(--gutter)}
   .hub-e{grid-row:8;grid-column:6}
-  .nc-foot{flex-wrap:wrap;justify-content:flex-start}
+  .nc-foot{gap:12px}
 }
 @media (max-width:820px){
   :root{--h2:clamp(22px,6.2vw,100px);--hv-w:100%;--hv-h:58%;--ht-l:var(--gutter);--ht-t:calc(58% + 28px);--ht-w:calc(100% - 2*var(--gutter))}
