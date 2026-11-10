@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-10T16:23:46.327Z",
+  "updated": "2026-11-10T20:35:58.952Z",
   "default_count": 4,
   "categories": [
     {
@@ -7,9 +7,8 @@
       "name": "Стенды и зоны",
       "default": [
         "megafon",
-        "x5picnic",
-        "kaspersky",
-        "x5highload"
+        "x5stands",
+        "kaspersky"
       ]
     },
     {
@@ -19,7 +18,7 @@
         "southhub",
         "streamlenie",
         "x5datafest",
-        "es"
+        "x5stands"
       ]
     },
     {
@@ -38,7 +37,6 @@
       "default": [
         "alfa-dvizh",
         "x5datafest",
-        "x5picnic",
         "alfacontactday"
       ]
     },
@@ -191,18 +189,18 @@
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5datafest-cover.webp"
     },
     {
-      "id": "x5picnic",
-      "name": "X5 Tech на ИТ-Пикнике",
+      "id": "x5stands",
+      "name": "X5 Tech на IT-конференциях",
       "client": "X5 Tech",
-      "year": "16 августа 2025",
-      "sub": "«Магазин будущего»: стенд X5 Tech на семейном IT-фестивале",
+      "year": "2022–2026",
+      "sub": "От бара в Ереване до центра управления на CodeFest",
       "categories": [
         "stands",
-        "fest"
+        "conf"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/x5picnic",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5picnic-4.webp"
+      "url": "https://nazyrovruslan.github.io/median-site/x5stands",
+      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5cf-p2-cover.webp"
     },
     {
       "id": "kaspersky",
@@ -284,20 +282,6 @@
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/es-cover.webp"
     },
     {
-      "id": "x5highload",
-      "name": "X5 Tech на HighLoad++",
-      "client": "X5 Tech",
-      "year": "3 стенда: июнь 2023, июнь 2025, ноябрь 2025",
-      "sub": "Три стенда для разработчиков и тимлидов на HighLoad++ и TeamLead Conf: от ретрофутуристичного магазина технологий до тессеракта",
-      "categories": [
-        "stands",
-        "conf"
-      ],
-      "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/x5highload",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5hl-p3-cover.webp"
-    },
-    {
       "id": "podcast",
       "name": "Переговорка бренда работодателя",
       "client": "median.agency",
@@ -309,20 +293,6 @@
       "on_site": true,
       "url": "https://nazyrovruslan.github.io/median-site/podcast",
       "cover": ""
-    },
-    {
-      "id": "x5codefest",
-      "name": "X5 Tech на CodeFest",
-      "client": "X5 Tech",
-      "year": "2 стенда: 31 мая – 1 июня 2025, 30–31 мая 2026",
-      "sub": "Два стенда на конференции в Новосибирске: от «Задач со звёздочкой» до Control Room с экспертным хабом",
-      "categories": [
-        "stands",
-        "conf"
-      ],
-      "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/x5codefest",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5cf-p2-cover.webp"
     },
     {
       "id": "shclub",
@@ -375,19 +345,6 @@
       "on_site": true,
       "url": "https://nazyrovruslan.github.io/median-site/techrace",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/techrace-cover.webp"
-    },
-    {
-      "id": "x5techbar",
-      "name": "X5 Tech Bar",
-      "client": "X5 Tech — IT-команда X5 Group",
-      "year": "3 реализации: 2022, 2025 и 2026",
-      "sub": "Бар инженерных разговоров на IT-конференциях: Ереван, Москва — для разработчиков и продактов",
-      "categories": [
-        "stands"
-      ],
-      "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/x5techbar",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5techbar-cover2.webp"
     },
     {
       "id": "prirodacoda",
