@@ -29,7 +29,7 @@ const INSTRUCTIONS = `Контент сайта median.agency (${SITE}). Ист�
 Кейсы двух видов в одной папке: kind "project" — один проект, kind "series" — ежегодный проект, роуд-шоу, сезоны (несколько проектов на одной странице).
 Прежде чем создавать или менять запись: посмотри схему полей (get_schema) и похожий существующий кейс или вакансию (get_item) и повторяй их структуру и тон. Страница кейса собирается из blocks: [{t: тип, ...}] — типы и поля блоков в схеме.
 Порядок (order): меньше — выше, шаг 10; первые 5 кейсов — баннер на главной. Новый кейс без явной просьбы ставь в конец списка или с hide: true, если пользователь не сказал публиковать.
-Фото и видео сначала загрузи (upload_media), потом впиши возвращённый путь в поле. Фото сжимаются в webp при загрузке, upload_media сразу возвращает итоговый путь.
+Фото и видео сначала загрузи (upload_media), потом впиши возвращённый путь в поле. Фото сжимаются в webp, видео в mp4 h.264, upload_media сразу возвращает итоговый путь.
 Удаление необратимо для сайта — переспроси пользователя перед delete_item.`;
 
 const TOOLS = [
@@ -100,7 +100,7 @@ const TOOLS = [
   },
   {
     name: 'upload_media',
-    description: 'Загрузить файл в репозиторий и получить путь для JSON. Источник — url (прямая ссылка; публичные ссылки на файл в Яндекс Диске и Google Drive тоже подходят) или base64 до 1 МБ (svg пиктограмм). Фото для cases/vacancies/team сжимаются в webp до 2400 px — вернётся путь уже с .webp. Папки: cases — фото кейсов, video — видео (обложки mp4 без звука 6–10 с до ~1 МБ, ролики), vacancies — обложки вакансий, team — портреты, icons — svg пиктограмм. Постеры и превью видео сделаются при деплое.',
+    description: 'Загрузить файл в репозиторий и получить путь для JSON. Источник — url (прямая ссылка; публичные ссылки на файл в Яндекс Диске и Google Drive тоже подходят) или base64 до 1 МБ (svg пиктограмм). Фото для cases/vacancies/team сжимаются в webp до 2400 px — вернётся путь уже с .webp. Видео (папка video) пережимаются в mp4 h.264 до 1920 px — можно давать исходник mov/4K, вернётся путь с .mp4; беззвучные обложки сборка дожмёт до 1280 px и уберёт звук. Папки: cases — фото кейсов, video — видео (обложки без звука 6–10 с, ролики), vacancies — обложки вакансий, team — портреты, icons — svg пиктограмм. Постеры и превью видео сделаются при деплое.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -300,6 +300,9 @@ const HANDLERS = {
     // фото кейсов, обложки вакансий и портреты на сайте — webp до 2400 px (как в /admin)
     const toWebp = /\.(jpe?g|png|webp|heic|heif)$/i.test(name) && ['cases', 'vacancies', 'team'].includes(folder);
     if (toWebp) name = name.replace(/\.\w+$/, '.webp');
+    // видео (mov, hevc с iPhone, 4K…) пережимаются в mp4 h.264 в GitHub Actions — путь сразу с .mp4
+    const toMp4 = /\.(mov|m4v|webm|avi|mkv|mp4)$/i.test(name) && folder === 'video';
+    if (toMp4) name = name.replace(/\.\w+$/, '.mp4');
     const path = `${dir}/${name}`;
     const old = await gh.meta(path);
     if (old && !overwrite) throw new Error(`${path} уже есть — другое имя или overwrite: true`);
@@ -307,7 +310,7 @@ const HANDLERS = {
       // небольшие файлы (svg, маленькие картинки) — сразу коммитом
       const bytes = b64ToBytes(base64.replace(/^data:[^,]+,/, ''));
       if (bytes.length > 1024 * 1024) throw new Error('base64 больше 1 МБ — дайте ссылку (url)');
-      if (toWebp) throw new Error('Фото через base64 не сжимаются — дайте ссылку (url) или загрузите в /admin');
+      if (toWebp || toMp4) throw new Error('Фото и видео через base64 не сжимаются — дайте ссылку (url) или загрузите в /admin');
       await gh.putBytes(path, bytes, `MCP: загружен файл ${path}`, old?.sha);
       return { ok: true, path, size: bytes.length };
     }

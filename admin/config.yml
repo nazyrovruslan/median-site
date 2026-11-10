@@ -69,8 +69,8 @@ collections:
           - { name: text, label: Текст, widget: string }
           - { name: outline, label: Контуром, widget: boolean, default: false }
       - &cf_img { name: img, label: Фото обложки, widget: image, required: false, hint: "Горизонтальное, от 1920 px" }
-      - &cf_vid { name: vid, label: Видео-обложка, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 без звука, 6–10 с, до 1280 px, до ~1 МБ. Постер и HEVC-версия сделаются сами при деплое" }
-      - &cf_reel { name: reel, label: Видео проекта (ролик), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 со звуком, блок с видео после фактов. Превью и постер сделаются сами" }
+      - &cf_vid { name: vid, label: Видео-обложка, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Видео без звука, 6–10 с. Можно исходник mov/mp4 до 100 МБ — при деплое сожмётся до 1280 px, звук уберётся. Постер и HEVC-версия сделаются сами" }
+      - &cf_reel { name: reel, label: Видео проекта (ролик), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Видео со звуком, блок с видео после фактов. Можно исходник mov/mp4 до 100 МБ — при деплое сожмётся до 1920 px. Больше 100 МБ — загрузить через Claude по ссылке на Яндекс Диск. Превью и постер сделаются сами" }
       - &cf_light { name: light, label: Светлое фото, widget: boolean, required: false, default: false, hint: "Тёмный заголовок в «Следующем проекте»" }
       - &cf_c
         name: c
@@ -232,7 +232,7 @@ collections:
                 label_singular: ролик
                 widget: list
                 fields:
-                  - { name: vid, label: "Ролик 9:16 (.mp4 со звуком)", widget: file, media_folder: /media/reels, public_folder: media/reels, hint: "Лучше заранее пережать: 540×960, h.264. Превью и обложку сборка сделает сама" }
+                  - { name: vid, label: "Ролик 9:16 (.mp4 со звуком)", widget: file, media_folder: /media/reels, public_folder: media/reels, hint: "Можно исходник mov/mp4 до 100 МБ — при деплое сожмётся до 720×1280, h.264. Превью и обложку сборка сделает сама" }
                   - { name: title, label: Подпись, widget: string, required: false, hint: "Например: «Альфа-Банк»" }
           - name: gallery
             label: "Фото: галерея с миниатюрами"
