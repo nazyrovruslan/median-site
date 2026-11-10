@@ -30,9 +30,9 @@ const cases = fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => {
     c.blocks = [...(c.blocks || []),
       ...parts.flatMap(p => [...((p.img || p.vid) && p.out ? [{ t: 'banner', img: p.img, vid: p.vid, out: p.out, solid: p.solid, text: p.text, side: p.side }] : []), ...(p.blocks || [])]),
       ...(c.after || []),
-      ...(parts.some(p => p.stats) ? [{ t: 'years', out: c.total_out || 'Итоги', solid: c.total, sum: c.sum, rows: parts.map(p => ({ y: p.y, sub: p.sub, items: p.stats || [] })) }] : [])
+      ...(parts.some(p => p.stats) ? [{ t: 'years', out: c.total_out || 'Итоги', solid: c.total, text: c.total_text, desc: c.desc ? 1 : 0, sum: c.sum, rows: parts.map(p => ({ y: p.y, sub: p.sub, items: p.stats || [] })) }] : [])
     ].map(clean);
-    for (const k of ['parts', 'after', 'total', 'total_out', 'sum']) delete c[k];
+    for (const k of ['parts', 'after', 'total', 'total_out', 'total_text', 'desc', 'sum']) delete c[k];
   }
   delete c.kind;
   // в блоке «pairs» слово может быть пустым — сайт ждёт строку

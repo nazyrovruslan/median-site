@@ -433,7 +433,10 @@ collections:
         hint: "Например, общие результаты — встают перед итогами"
         typeKey: t
         types: *blocktypes
+      - { name: total_out, label: "Итоги: контурная часть заголовка", widget: string, required: false, hint: "По умолчанию «Итоги»" }
       - { name: total, label: "Итоги: залитая часть заголовка", widget: string, required: false, hint: "«Итоги» + это: по годам, по городам, двух сезонов" }
+      - { name: total_text, label: "Итоги: текст под заголовком", widget: list, field: { name: p, label: Абзац, widget: text }, required: false }
+      - { name: desc, label: "Проекты идут от новых к старым", widget: boolean, required: false, hint: "Включить, если в списке проектов выше сначала самый свежий: вкладки итогов тогда не переворачиваются" }
       - name: sum
         label: "Итоги: общие цифры сверху"
         widget: object

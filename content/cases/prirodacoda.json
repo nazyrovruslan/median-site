@@ -40,27 +40,27 @@
         {
           "name": "Площадка",
           "text": "Загородный отель среди полей и леса: шатёр с бинбегами вместо конференц-зала, обеды и ужины на свежем воздухе.",
-          "img": "media/cases/prirodacoda-real-1.webp"
+          "img": "media/cases/pc-real-1.webp"
         },
         {
           "name": "Стендапы",
           "text": "Два трека — Backend и Frontend: больше 15 выступлений в формате стендапа от восьми спикеров и двух модераторов.",
-          "img": "media/cases/prirodacoda-real-2.webp"
+          "img": "media/cases/pc-real-2.webp"
         },
         {
           "name": "Скрайбинг",
           "text": "Вместо слайдов — художник, который прямо во время выступлений зарисовывал каждый доклад на больших листах.",
-          "img": "media/cases/prirodacoda-real-3.webp"
+          "img": "media/cases/pc-real-3.webp"
         },
         {
           "name": "Спорт и отдых",
           "text": "Турнир по волейболу, лаунж на лужайке и смузи, которые гости взбивали на велоблендерах.",
-          "img": "media/cases/prirodacoda-real-4.webp"
+          "img": "media/cases/pc-real-4.webp"
         },
         {
           "name": "Вечер",
           "text": "Большой костёр, живой концерт и разговоры до ночи.",
-          "img": "media/cases/prirodacoda-real-5.webp"
+          "img": "media/cases/pc-real-5.webp"
         }
       ]
     },
@@ -73,14 +73,14 @@
     {
       "t": "bento",
       "items": [
-        "media/cases/prirodacoda-bento-1.webp",
-        "media/cases/prirodacoda-bento-2.webp",
-        "media/cases/prirodacoda-bento-3.webp",
-        "media/cases/prirodacoda-bento-4.webp",
-        "media/cases/prirodacoda-bento-5.webp",
-        "media/cases/prirodacoda-bento-6.webp",
-        "media/cases/prirodacoda-bento-7.webp",
-        "media/cases/prirodacoda-bento-8.webp"
+        "media/cases/pc-bento-1.webp",
+        "media/cases/pc-bento-2.webp",
+        "media/cases/pc-bento-3.webp",
+        "media/cases/pc-bento-4.webp",
+        "media/cases/pc-bento-5.webp",
+        "media/cases/pc-bento-6.webp",
+        "media/cases/pc-bento-7.webp",
+        "media/cases/pc-bento-8.webp"
       ]
     },
     {
