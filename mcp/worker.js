@@ -114,6 +114,19 @@ const TOOLS = [
     },
   },
   {
+    name: 'crop_media',
+    description: 'Кадрировать фото или видео сайта (и обрезать видео по времени). Файл перережется на месте при ближайшей сборке (2–4 мин), путь не меняется, превью и постеры сделаются заново. Рамка — в долях кадра: x, y — левый верхний угол, w, h — ширина и высота (0…1). Например, вертикальный кадр 9:16 по центру из горизонтального 16:9: x 0.3418, y 0, w 0.3164, h 1. Если не знаешь, где в кадре важное, спроси пользователя или предложи страницу /admin/crop.html.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'media/…  (.webp, .jpg, .png, .mp4)' },
+        x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' },
+        t0: { type: 'number', description: 'видео: начало, с' }, t1: { type: 'number', description: 'видео: конец, с' },
+      },
+      required: ['path'],
+    },
+  },
+  {
     name: 'list_media',
     description: 'Файлы в папке медиа (имя и размер), можно отфильтровать по началу имени.',
     inputSchema: { type: 'object', properties: { folder: { type: 'string', enum: Object.keys(MEDIA) }, prefix: { type: 'string' } }, required: ['folder'] },
@@ -323,6 +336,18 @@ const HANDLERS = {
       queued: true,
       note: 'Файл скачивается и сжимается в GitHub Actions, в репозитории появится через ~1 минуту, после чего сайт пересоберётся сам. Путь можно сразу вписывать в JSON. Если не появился — site_status покажет ошибку загрузки.',
     };
+  },
+
+  async crop_media({ path, x = 0, y = 0, w = 1, h = 1, t0, t1 }, { gh }) {
+    const src = String(path || '').replace(/^\//, '');
+    if (!/^media\/[\w\/.-]+\.(webp|jpe?g|png|mp4)$/i.test(src) || src.includes('..')) throw new Error('Путь вида media/cases/имя.webp или media/video/имя.mp4');
+    if (!(await gh.meta(src))) throw new Error(`${src} нет в репозитории`);
+    for (const v of [x, y, w, h]) if (typeof v !== 'number' || v < 0 || v > 1) throw new Error('x, y, w, h — доли кадра от 0 до 1');
+    if (x + w > 1.0001 || y + h > 1.0001) throw new Error('Рамка выходит за кадр: x + w и y + h не больше 1');
+    const job = { src, x, y, w, h, ...(t0 != null ? { t0 } : {}), ...(t1 != null ? { t1 } : {}), at: new Date().toISOString() };
+    const file = `content/crops/${Date.now()}-${src.split('/').pop().replace(/[^\w.-]+/g, '_')}.json`;
+    await gh.putText(file, JSON.stringify(job, null, 2) + '\n', `MCP: кадрирование ${src}`);
+    return { ok: true, path: src, queued: true, note: 'Файл перережется при сборке сайта через 2–4 минуты, путь прежний. Проверить — site_status.' };
   },
 
   async list_media({ folder, prefix = '' }, { gh }) {

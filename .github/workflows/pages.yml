@@ -33,7 +33,8 @@ jobs:
           # вебхук Битрикс24 (менеджер проекта из сделки КП); если секрета нет — КП собираются без него
           BITRIX_WEBHOOK: ${{ secrets.BITRIX_WEBHOOK }}
         run: |
-          # исходники из /admin и MCP: видео → mp4 h.264 нужного размера, фото → webp ≤2400 px (пути в content/ переписываются)
+          # кадрирование по заданиям content/crops/ (admin/crop.html, MCP crop_media); исходники из /admin и MCP: видео → mp4 h.264 нужного размера, фото → webp ≤2400 px (пути в content/ переписываются)
+          node tools/crop-media.mjs
           node tools/optimize-media.mjs
           node tools/build-cases.mjs
           node tools/build-vacancies.mjs
