@@ -393,12 +393,14 @@ const BLOCK={
   // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): текст — как «Текст» на сером, пункты — строками как список проектов на главной, цифры — на чёрном
   // раздел: ярлык (вопрос или cap), заголовок Druk --h2 (первое слово контуром), абзацы --lead на колонках 3–5, подпись и пункты-строки во всю ширину; группы цифр — отдельным чёрным экраном
   sec:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean),lab=b.cap||b.q,
-    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows" data-fit-g>${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}${r.img&&r.sticker?` data-st="${r.sticker}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm" data-fit>${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img,r.sticker):''}</div>`).join('')}</div>`:'',
+    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows" data-fit-g>${b.rows.map((r,k)=>`<${r.go?`a href="#${r.go}" data-go="${r.go}" data-c="row" data-label="${esc(b.go||'Перейти')}"`:'div'} class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}${r.img&&r.sticker?` data-st="${r.sticker}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm" data-fit>${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img,r.sticker):''}</${r.go?'a':'div'}>`).join('')}</div>`:'',
     txt=[b.lead,...(b.text||[])].filter(Boolean);
     const ttl=b.h?`<h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3>`:'',lb=lab?`<p class="label sc-q">${esc(lab)}</p>`:'';
     if(b.groups&&!txt.length&&!rows)return `<section class="cb cb-kpi wrap">${lb}${ttl}${b.groups.map(kpiGroup).join('')}</section>`; // только цифры — весь раздел на чёрном
     return `<section class="grey cb cb-text cb-sec">${lb}${ttl}${txt.length?`<div class="cb-txt">${P(txt)}</div>`:''}${rows}</section>`+
       (b.groups?`<section class="cb cb-kpi wrap">${b.groups.map(kpiGroup).join('')}</section>`:'');},
+  // Оглавление серии (toc): раздел-список, строки — ссылки на проекты серии (rows с go собирает tools/build-cases.mjs), по наведению — обложка проекта
+  toc:b=>BLOCK.sec({...b,go:b.go||'Перейти'}).replace('cb-sec"','cb-sec cb-toc"'),
   // Key message: подпись и две строки (контурная + сплошная)
   key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="cb-txt">${P(b.text)}</div>`:''}</section>`,
   // фото между разделами по сетке исходных кейсов: шахматкой (колонки 1–2 / 4–5, каждое следующее ниже на полфото) или во всю ширину; параллакс, клик открывает фото
@@ -572,7 +574,7 @@ function fillCase(id,split){
   // анкета и видео — тоже блоки (facts, reel): где стоят в списке, там и выводятся; если их в списке нет — как раньше, в начале страницы
   const bl=k.blocks||[],fHtml=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`;
   $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
-    bl.map(b=>b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel,rlabel:b.label}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
+    bl.map(b=>(b.a?`<i class="toc-at" id="${b.a}"></i>`:'')+(b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel,rlabel:b.label}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'')).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   reelTeaser();hubInit();blocksInit($('#cBody'));$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(twAdd);
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
@@ -630,6 +632,7 @@ $('#casePanel .sheet').addEventListener('wheel',e=>{if(!holdUntil)return;const d
 $('#casePanel .sheet').addEventListener('touchmove',e=>{if(holdUntil&&e.cancelable)e.preventDefault();},{passive:false});
 // картинку следующего кейса декодируем заранее, пока блок «Следующий проект» подъезжает, — чтобы обложка нового кейса нарисовалась сразу
 let preDec='';function predecodeNext(){const i=CASES.findIndex(c=>c.id===openId),n=CASES[(i+1)%CASES.length],u=n.vid?poster(n):n.img;if(!u||preDec===u)return;preDec=u;const im=new Image();im.src=u;im.decode&&im.decode().catch(()=>{});}
+$('#cBody').addEventListener('click',e=>{const a=e.target.closest('a[data-go]');if(!a)return;e.preventDefault();const t=document.getElementById(a.dataset.go);t&&t.scrollIntoView({behavior:reduce?'auto':'smooth'});}); // оглавление серии: плавно к проекту, адрес страницы не меняется
 $('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('#casePanel .sheet');sh.scrollTo({top:$('#cHero').offsetHeight,behavior:'smooth'});});
 // «Следующий проект» приклеен к экрану, линия под фото заполняется, на полном заполнении — переход
 // touch: обложка выпуска в строке у центра экрана, как в списке кейсов

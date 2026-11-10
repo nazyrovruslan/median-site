@@ -156,6 +156,12 @@ collections:
               - { name: out, label: Контурная строка, widget: string }
               - { name: solid, label: Залитая строка, widget: string }
               - { name: text, label: Абзацы под фразой, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+          - name: toc
+            label: "Оглавление серии"
+            fields:
+              - { name: q, label: Ярлык над заголовком, widget: string, required: false }
+              - { name: h, label: Заголовок, widget: string, default: "Проекты серии", hint: "Только для серий. Первое слово — контуром; строки собираются сами из «Проектов серии», клик ведёт к проекту" }
+              - { name: go, label: Подпись курсора, widget: string, required: false, default: "Перейти" }
           - name: stats
             label: "Цифры проекта"
             fields:
@@ -403,6 +409,7 @@ collections:
         fields:
           - { name: y, label: Год / город / сезон, widget: string, hint: "Крупно в итогах: 2022, Москва, 1.0" }
           - { name: sub, label: Даты и место, widget: string, required: false }
+          - { name: toc, label: Название в оглавлении, widget: string, required: false, hint: "Пусто — контурная строка баннера" }
           - name: stats
             label: Цифры для итогов
             label_singular: цифру
