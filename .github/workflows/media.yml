@@ -1,0 +1,41 @@
+# Загрузка файла по ссылке для MCP-сервера (mcp/worker.js → upload_media): скачать, сжать фото в webp, закоммитить, пересобрать сайт.
+name: MCP media upload
+run-name: "Загрузка ${{ inputs.path }}"
+on:
+  workflow_dispatch:
+    inputs:
+      url: { description: "Ссылка на файл", required: true }
+      path: { description: "Путь в репозитории, media/…", required: true }
+permissions:
+  contents: write
+  actions: write   # запуск сборки сайта после коммита
+# без concurrency: GitHub держит только один ожидающий запуск в группе, остальные отменил бы — а фото часто грузят пачкой
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: ffmpeg
+        run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+      - name: Download
+        env:
+          URL: ${{ inputs.url }}
+          DEST: ${{ inputs.path }}
+        run: node tools/fetch-media.mjs "$URL" "$DEST"
+      - name: Commit and rebuild site
+        env:
+          DEST: ${{ inputs.path }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898599+github-actions[bot]@users.noreply.github.com"
+          git add -- "$DEST"
+          git diff --cached --quiet && { echo "файл не изменился"; exit 0; }
+          git commit -q -m "MCP: загружен файл $DEST"
+          ok=; for i in 1 2 3 4 5; do git pull --rebase -q origin main && git push -q origin HEAD:main && { ok=1; break; }; sleep $((i * 3)); done
+          [ -n "$ok" ] || { echo "не удалось запушить"; exit 1; }
+          # коммит от github.token не запускает другие workflow — запускаем сборку сайта явно
+          gh workflow run pages.yml --ref main
