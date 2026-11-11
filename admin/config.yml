@@ -12,8 +12,8 @@ backend:
     deleteMedia: "CMS: удалён файл {{path}}"
 
 locale: ru
-site_url: https://nazyrovruslan.github.io/median-site/
-display_url: https://nazyrovruslan.github.io/median-site/
+site_url: https://median.agency/
+display_url: https://median.agency/
 
 # пути в данных — относительные (сайт живёт в подпапке /median-site/)
 media_folder: media/cases
@@ -48,7 +48,7 @@ collections:
     fields:
       - { name: kind, widget: hidden, default: project }
       - &cf_order { name: order, label: Порядок, widget: number, value_type: int, hint: "Место в списке: меньше — выше. Первые 5 — в баннере на главной. Шаг 10, чтобы вставлять между." }
-      - &cf_id { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/<id>. После публикации лучше не менять." }
+      - &cf_id { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: median.agency/<id>. После публикации лучше не менять." }
       - &cf_name { name: name, label: Название, widget: string }
       - &cf_sub { name: sub, label: Подзаголовок, widget: string, hint: "Строка в списке кейсов и под заголовком в баннере" }
       - &cf_tags { name: tags, label: Категории проекта, widget: select, multiple: true, required: false, options: [{ label: "Бренд работодателя", value: employer }, { label: "Внутренние коммуникации", value: internal }, { label: "Сообщества", value: community }, { label: "Собственные проекты", value: own }], hint: "Фильтры над «Все проекты» на главной; можно выбрать несколько. Названия — в TAGS в js/main.js, держать одинаковыми" }
@@ -477,7 +477,7 @@ collections:
     delete: true
     media_folder: /media/kp
     public_folder: media/kp
-    description: "Страница КП: https://nazyrovruslan.github.io/median-site/clients/<имя файла>/ — адрес случайный, на сайте раздел нигде не виден и закрыт от поисковиков. Ссылку видно кнопкой «Открыть на сайте» после деплоя (1–2 минуты)."
+    description: "Страница КП: https://median.agency/clients/<имя файла>/ — адрес случайный, на сайте раздел нигде не виден и закрыт от поисковиков. Ссылку видно кнопкой «Открыть на сайте» после деплоя (1–2 минуты)."
     fields:
       - { name: client, label: Клиент (компания), widget: string, hint: "Название в списке CMS и на странице" }
       - { name: client_logo, label: Логотип клиента, widget: image, required: false, hint: "SVG или PNG на прозрачном фоне, тёмный — фон страницы серый (на обложке шапки логотип станет белым). Если пусто — название текстом" }
@@ -609,7 +609,7 @@ collections:
     delete: true
     fields:
       - { name: order, label: Порядок, widget: number, value_type: int, default: 100, hint: "Место в списке: меньше — выше. Шаг 10" }
-      - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/vacancy-<id>, например event-manager" }
+      - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: median.agency/vacancy-<id>, например event-manager" }
       - { name: on, label: Показывать на сайте, widget: boolean, default: true, hint: "Выключите, когда вакансия закрыта: со страницы она уйдёт, файл останется — потом можно включить снова" }
       - { name: name, label: Название, widget: string }
       - name: ttl
@@ -689,7 +689,7 @@ collections:
           - { name: vk, label: ID пикселя VK, widget: string, required: false }
           - { name: head, label: Код в <head> всех КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Счётчик сквозной аналитики (Roistat, Calltouch, CoMagic и т.п.), пиксели" }
           - { name: body, label: Код в конце <body> всех КП, widget: code, default_language: html, output_code_only: true, required: false }
-          - { name: catalog, label: Адрес закрытого каталога кейсов, widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница, цифры и дефис'], hint: "Каталог всех кейсов (и скрытых) с категориями: https://nazyrovruslan.github.io/median-site/clients/<адрес>/, для Битрикс24 — …/clients/<адрес>/cases.json. Смените адрес, если ссылка утекла" }
+          - { name: catalog, label: Адрес закрытого каталога кейсов, widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница, цифры и дефис'], hint: "Каталог всех кейсов (и скрытых) с категориями: https://median.agency/clients/<адрес>/, для Битрикс24 — …/clients/<адрес>/cases.json. Смените адрес, если ссылка утекла" }
           - { name: cases_default, label: Сколько кейсов подставлять по категории, widget: number, value_type: int, default: 4 }
           - { name: valid_days, label: Срок актуальности КП по умолчанию (дней), widget: number, value_type: int, default: 30 }
           - { name: price_note, label: Примечание к стоимости по умолчанию, widget: string, required: false }

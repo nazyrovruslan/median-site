@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-11T16:35:26.198Z",
+  "updated": "2026-11-11T17:14:58.665Z",
   "default_count": 4,
   "categories": [
     {
@@ -79,8 +79,8 @@
         "conf"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/southhub",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/southhub-cover.webp"
+      "url": "https://median.agency/southhub",
+      "cover": "https://median.agency/media/thumb/southhub-cover.webp"
     },
     {
       "id": "snowbase",
@@ -92,8 +92,8 @@
         "camp"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/snowbase",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/snowbase-cover.webp"
+      "url": "https://median.agency/snowbase",
+      "cover": "https://median.agency/media/thumb/snowbase-cover.webp"
     },
     {
       "id": "ptc",
@@ -105,8 +105,8 @@
         "camp"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/ptc",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/ptc-cover.webp"
+      "url": "https://median.agency/ptc",
+      "cover": "https://median.agency/media/thumb/ptc-cover.webp"
     },
     {
       "id": "alfa-dvizh",
@@ -118,8 +118,8 @@
         "fest"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/alfa-dvizh",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfa-dvizh-cover.webp"
+      "url": "https://median.agency/alfa-dvizh",
+      "cover": "https://median.agency/media/thumb/alfa-dvizh-cover.webp"
     },
     {
       "id": "alfa-battle",
@@ -131,8 +131,8 @@
         "hack"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/alfa-battle",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfa-battle-cover.webp"
+      "url": "https://median.agency/alfa-battle",
+      "cover": "https://median.agency/media/thumb/alfa-battle-cover.webp"
     },
     {
       "id": "megafon",
@@ -145,8 +145,8 @@
         "special"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/megafon",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/megafon.webp"
+      "url": "https://median.agency/megafon",
+      "cover": "https://median.agency/media/thumb/megafon.webp"
     },
     {
       "id": "vtb",
@@ -158,8 +158,8 @@
         "special"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/vtb",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/vtb-hero.webp"
+      "url": "https://median.agency/vtb",
+      "cover": "https://median.agency/media/thumb/vtb-hero.webp"
     },
     {
       "id": "streamlenie",
@@ -171,8 +171,8 @@
         "conf"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/streamlenie",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/streamlenie-kv.webp"
+      "url": "https://median.agency/streamlenie",
+      "cover": "https://median.agency/media/thumb/streamlenie-kv.webp"
     },
     {
       "id": "x5datafest",
@@ -185,8 +185,8 @@
         "conf"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/x5datafest",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5datafest-cover.webp"
+      "url": "https://median.agency/x5datafest",
+      "cover": "https://median.agency/media/thumb/x5datafest-cover.webp"
     },
     {
       "id": "x5stands",
@@ -199,8 +199,8 @@
         "conf"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/x5stands",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/x5cf-p2-cover.webp"
+      "url": "https://median.agency/x5stands",
+      "cover": "https://median.agency/media/thumb/x5cf-p2-cover.webp"
     },
     {
       "id": "kaspersky",
@@ -212,8 +212,8 @@
         "stands"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/kaspersky",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/kaspersky-hero.webp"
+      "url": "https://median.agency/kaspersky",
+      "cover": "https://median.agency/media/thumb/kaspersky-hero.webp"
     },
     {
       "id": "alfacontactday",
@@ -225,8 +225,8 @@
         "fest"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/alfacontactday",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfacontactday-cover.webp"
+      "url": "https://median.agency/alfacontactday",
+      "cover": "https://median.agency/media/thumb/alfacontactday-cover.webp"
     },
     {
       "id": "alfaxmipt",
@@ -238,8 +238,8 @@
         "special"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/alfaxmipt",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/alfaxmipt-cover.webp"
+      "url": "https://median.agency/alfaxmipt",
+      "cover": "https://median.agency/media/thumb/alfaxmipt-cover.webp"
     },
     {
       "id": "osoffer",
@@ -251,8 +251,8 @@
         "special"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/osoffer",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/osoffer-cover-new.webp"
+      "url": "https://median.agency/osoffer",
+      "cover": "https://median.agency/media/thumb/osoffer-cover-new.webp"
     },
     {
       "id": "abcamp",
@@ -264,8 +264,8 @@
         "camp"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/abcamp",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/abcamp-cover.webp"
+      "url": "https://median.agency/abcamp",
+      "cover": "https://median.agency/media/thumb/abcamp-cover.webp"
     },
     {
       "id": "es",
@@ -278,8 +278,8 @@
         "conf"
       ],
       "on_site": false,
-      "url": "https://nazyrovruslan.github.io/median-site/es",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/es-cover.webp"
+      "url": "https://median.agency/es",
+      "cover": "https://median.agency/media/thumb/es-cover.webp"
     },
     {
       "id": "podcast",
@@ -291,7 +291,7 @@
         "special"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/podcast",
+      "url": "https://median.agency/podcast",
       "cover": ""
     },
     {
@@ -304,8 +304,8 @@
         "conf"
       ],
       "on_site": false,
-      "url": "https://nazyrovruslan.github.io/median-site/shclub",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/shclub-cover.webp"
+      "url": "https://median.agency/shclub",
+      "cover": "https://median.agency/media/thumb/shclub-cover.webp"
     },
     {
       "id": "hackathon",
@@ -317,8 +317,8 @@
         "hack"
       ],
       "on_site": false,
-      "url": "https://nazyrovruslan.github.io/median-site/hackathon",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/hackathon-cover.webp"
+      "url": "https://median.agency/hackathon",
+      "cover": "https://median.agency/media/thumb/hackathon-cover.webp"
     },
     {
       "id": "tmn",
@@ -330,8 +330,8 @@
         "corp"
       ],
       "on_site": false,
-      "url": "https://nazyrovruslan.github.io/median-site/tmn",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/tmn-cover.webp"
+      "url": "https://median.agency/tmn",
+      "cover": "https://median.agency/media/thumb/tmn-cover.webp"
     },
     {
       "id": "techrace",
@@ -343,8 +343,8 @@
         "hack"
       ],
       "on_site": false,
-      "url": "https://nazyrovruslan.github.io/median-site/techrace",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/techrace-cover.webp"
+      "url": "https://median.agency/techrace",
+      "cover": "https://median.agency/media/thumb/techrace-cover.webp"
     },
     {
       "id": "prirodacoda",
@@ -356,8 +356,8 @@
         "special"
       ],
       "on_site": true,
-      "url": "https://nazyrovruslan.github.io/median-site/prirodacoda",
-      "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/prirodacoda-cover.webp"
+      "url": "https://median.agency/prirodacoda",
+      "cover": "https://median.agency/media/thumb/prirodacoda-cover.webp"
     }
   ]
 }

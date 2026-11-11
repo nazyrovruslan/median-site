@@ -13,7 +13,9 @@ import { execFileSync } from 'child_process';
 
 const GH = 'https://nazyrovruslan.github.io/median-site/';
 const cname = fs.existsSync('CNAME') ? fs.readFileSync('CNAME', 'utf8').trim() : '';
-const SITE = (cname ? `https://${cname}/` : process.env.SITE_URL || GH).replace(/\/?$/, '/');
+// с 11.11.2026 сайт живёт на median.agency: canonical и sitemap всегда ведут туда, копия на GitHub Pages считается зеркалом
+const DOMAIN = 'https://median.agency/';
+const SITE = (cname ? `https://${cname}/` : process.env.SITE_URL || DOMAIN).replace(/\/?$/, '/');
 
 const load = (file, name) => { const ctx = {}; vm.createContext(ctx); vm.runInContext(fs.readFileSync(file, 'utf8') + `\n;globalThis.__=${name};`, ctx); return ctx.__; };
 const CASES_ALL = load('js/cases.js', 'CASES_ALL');
@@ -36,7 +38,7 @@ const gitDate = (path, first) => {
 };
 const caseFile = id => fs.readdirSync('content/cases').map(f => `content/cases/${f}`).find(f => { try { return (JSON.parse(fs.readFileSync(f, 'utf8')).id || f.replace(/^.*\/|\.json$/g, '')) === id; } catch { return false; } });
 
-const index = fs.readFileSync('index.html', 'utf8');
+const index = fs.readFileSync('index.html', 'utf8').split(GH).join(SITE); // старые адреса github.io в разметке → адрес сайта
 const HOME_TITLE = (index.match(/<title>([^<]*)<\/title>/) || [])[1] || 'Median';
 
 const ORG = {
@@ -140,7 +142,7 @@ for (const v of jobs) {
 }
 
 // главная: адрес сайта в canonical/og, если он не GitHub Pages
-if (SITE !== GH) fs.writeFileSync('index.html', index.split(GH).join(SITE));
+fs.writeFileSync('index.html', index);
 
 // sitemap.xml и robots.txt. На GitHub Pages без своего домена robots.txt поисковики ищут в корне nazyrovruslan.github.io, а не в /median-site/ —
 // поэтому sitemap там нужно добавить вручную в Яндекс Вебмастере и Google Search Console; со своим доменом всё подхватится само.

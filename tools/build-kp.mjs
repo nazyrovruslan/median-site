@@ -8,7 +8,7 @@ import crypto from 'crypto';
 import { execFileSync } from 'child_process';
 import { xlsx, zip } from './xlsx.mjs';
 
-const SRC = 'content/kp', OUT = 'clients', SITE = 'https://nazyrovruslan.github.io/median-site/';
+const SRC = 'content/kp', OUT = 'clients', SITE = 'https://median.agency/';
 const read = f => JSON.parse(fs.readFileSync(f, 'utf8'));
 const S = fs.existsSync('content/settings/kp.json') ? read('content/settings/kp.json') : {};
 const CASES = Object.fromEntries(fs.readdirSync('content/cases').filter(f => f.endsWith('.json')).map(f => { const c = read(`content/cases/${f}`); return [c.id || f.slice(0, -5), c]; }));
