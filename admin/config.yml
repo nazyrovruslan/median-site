@@ -53,6 +53,7 @@ collections:
       - &cf_sub { name: sub, label: Подзаголовок, widget: string, hint: "Строка в списке кейсов и под заголовком в баннере" }
       - &cf_tags { name: tags, label: Категории проекта, widget: select, multiple: true, required: false, options: [{ label: "Бренд работодателя", value: employer }, { label: "Внутренние коммуникации", value: internal }, { label: "Сообщества", value: community }, { label: "Собственные проекты", value: own }], hint: "Фильтры над «Все проекты» на главной; можно выбрать несколько. Названия — в TAGS в js/main.js, держать одинаковыми" }
       - &cf_hide { name: hide, label: Скрыть с сайта (только для КП), widget: boolean, required: false, default: false, hint: "Кейса не будет на главной и в списке проектов, но он есть в закрытом каталоге кейсов и его можно добавить в КП; страница кейса открывается по прямой ссылке" }
+      - &cf_seo { name: seo, label: "SEO: поиск и превью ссылки", widget: object, required: false, collapsed: true, hint: "Можно не заполнять — соберётся из названия, подзаголовка, формата, города и года", fields: [{ name: title, label: "Заголовок страницы (title)", widget: string, required: false, hint: "До ~60 знаков; «| кейс Median» допишется сам" }, { name: description, label: "Описание (description)", widget: text, required: false, hint: "1–2 предложения, до ~160 знаков: что за проект, для кого, где и когда" }] }
       - &cf_kp { name: kp, label: Категории для КП, widget: select, multiple: true, required: false, options: [{ label: "Стенды и зоны", value: stands }, { label: "Конференции и форумы", value: conf }, { label: "Выездные мероприятия и кэмпы", value: camp }, { label: "Фестивали и road show", value: fest }, { label: "Хакатоны и IT-соревнования", value: hack }, { label: "Корпоративы и церемонии", value: corp }, { label: "Спецпроекты и digital", value: special }], hint: "По ним КП подбирает релевантный опыт: кейсы категории КП прикрепляются по умолчанию (в порядке списка)" }
       - &cf_dir { name: dir, label: Направление, widget: select, options: [{ label: Внешние, value: external }, { label: Внутренние, value: internal }, { label: Out of the list, value: outlist }, { label: Свой проект, value: own }] }
       - &cf_out { name: out, label: "Заголовок: контурное слово", widget: string, required: false, hint: "Первая строка заголовка (контуром). Если ниже заданы «Строки заголовка» — используются они." }
@@ -68,8 +69,8 @@ collections:
           - { name: text, label: Текст, widget: string }
           - { name: outline, label: Контуром, widget: boolean, default: false }
       - &cf_img { name: img, label: Фото обложки, widget: image, required: false, hint: "Горизонтальное, от 1920 px" }
-      - &cf_vid { name: vid, label: Видео-обложка, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 без звука, 6–10 с, до 1280 px, до ~1 МБ. Постер и HEVC-версия сделаются сами при деплое" }
-      - &cf_reel { name: reel, label: Видео проекта (ролик), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "mp4 со звуком, блок с видео после фактов. Превью и постер сделаются сами" }
+      - &cf_vid { name: vid, label: Видео-обложка, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Видео без звука, 6–10 с. Можно исходник mov/mp4 до 100 МБ — при деплое сожмётся до 1280 px, звук уберётся. Постер и HEVC-версия сделаются сами" }
+      - &cf_reel { name: reel, label: Видео проекта (ролик), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Видео со звуком, блок с видео после фактов. Можно исходник mov/mp4 до 100 МБ — при деплое сожмётся до 1920 px. Больше 100 МБ — загрузить через Claude по ссылке на Яндекс Диск. Превью и постер сделаются сами" }
       - &cf_light { name: light, label: Светлое фото, widget: boolean, required: false, default: false, hint: "Тёмный заголовок в «Следующем проекте»" }
       - &cf_c
         name: c
@@ -155,6 +156,12 @@ collections:
               - { name: out, label: Контурная строка, widget: string }
               - { name: solid, label: Залитая строка, widget: string }
               - { name: text, label: Абзацы под фразой, widget: list, required: false, field: { name: p, label: Абзац, widget: text } }
+          - name: toc
+            label: "Оглавление серии"
+            fields:
+              - { name: q, label: Ярлык над заголовком, widget: string, required: false }
+              - { name: h, label: Заголовок, widget: string, default: "Проекты серии", hint: "Только для серий. Первое слово — контуром; строки собираются сами из «Проектов серии», клик ведёт к проекту" }
+              - { name: go, label: Подпись курсора, widget: string, required: false, default: "Перейти" }
           - name: stats
             label: "Цифры проекта"
             fields:
@@ -206,6 +213,7 @@ collections:
             label: "Видео проекта"
             fields:
               - { name: reel, label: Видео (mp4 со звуком), widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Если пусто — «Видео проекта» из полей кейса. Без этого блока ролик стоит сразу после анкеты" }
+              - { name: label, label: Подпись на кнопке, widget: string, required: false, hint: "Пусто — «Видео проекта». Например: «Интро»" }
           - name: carousel
             label: "Фото: карусель"
             fields:
@@ -221,6 +229,17 @@ collections:
                   - { name: img, label: Фото или короткое видео (.mp4), widget: file, hint: "Видео — .mp4 без звука, играет по кругу" }
                   - { name: b, label: Жирное начало подписи, widget: string, required: false, hint: "Например: «Размеры и вес.»" }
                   - { name: text, label: Подпись, widget: text, required: false }
+          - name: reels
+            label: "Видео: рилс (вертикальные ролики, как в инстаграме)"
+            fields:
+              - { name: h, label: Подпись над лентой, widget: string, required: false, hint: "Например: «Контент партнёров»" }
+              - name: items
+                label: Ролики
+                label_singular: ролик
+                widget: list
+                fields:
+                  - { name: vid, label: "Ролик 9:16 (.mp4 со звуком)", widget: file, media_folder: /media/reels, public_folder: media/reels, hint: "Можно исходник mov/mp4 до 100 МБ — при деплое сожмётся до 720×1280, h.264. Превью и обложку сборка сделает сама" }
+                  - { name: title, label: Подпись, widget: string, required: false, hint: "Например: «Альфа-Банк»" }
           - name: gallery
             label: "Фото: галерея с миниатюрами"
             fields:
@@ -353,6 +372,7 @@ collections:
       - *cf_sub
       - *cf_tags
       - *cf_hide
+      - *cf_seo
       - *cf_kp
       - *cf_dir
       - *cf_out
@@ -389,6 +409,7 @@ collections:
         fields:
           - { name: y, label: Год / город / сезон, widget: string, hint: "Крупно в итогах: 2022, Москва, 1.0" }
           - { name: sub, label: Даты и место, widget: string, required: false }
+          - { name: toc, label: Название в оглавлении, widget: string, required: false, hint: "Пусто — контурная строка баннера" }
           - name: stats
             label: Цифры для итогов
             label_singular: цифру
@@ -419,7 +440,10 @@ collections:
         hint: "Например, общие результаты — встают перед итогами"
         typeKey: t
         types: *blocktypes
+      - { name: total_out, label: "Итоги: контурная часть заголовка", widget: string, required: false, hint: "По умолчанию «Итоги»" }
       - { name: total, label: "Итоги: залитая часть заголовка", widget: string, required: false, hint: "«Итоги» + это: по годам, по городам, двух сезонов" }
+      - { name: total_text, label: "Итоги: текст под заголовком", widget: list, field: { name: p, label: Абзац, widget: text }, required: false }
+      - { name: desc, label: "Проекты идут от новых к старым", widget: boolean, required: false, hint: "Включить, если в списке проектов выше сначала самый свежий: вкладки итогов тогда не переворачиваются" }
       - name: sum
         label: "Итоги: общие цифры сверху"
         widget: object
@@ -674,7 +698,7 @@ collections:
             widget: object
             collapsed: true
             fields:
-              - { name: email, label: Почта, widget: string, default: info@median.agency }
+              - { name: email, label: Почта, widget: string, default: hello@median.agency }
               - { name: tg, label: Telegram (ник без @), widget: string, default: medianprojects }
           - name: contacts
             label: Контакты по умолчанию

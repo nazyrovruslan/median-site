@@ -18,17 +18,28 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # история коммитов без файлов (быстро): tools/build-seo.mjs берёт из неё даты правок для sitemap и вакансий
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # apt-зеркало иногда зависает (11.11 сборка висела 26 мин) — ограничиваем шаг и пробуем ещё раз
+      # если apt так и не ответил — сборка идёт дальше без ffmpeg: он нужен только для новых медиа (сжатие, кадры, превью)
       - name: ffmpeg
-        run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+        timeout-minutes: 4
+        continue-on-error: true
+        run: command -v ffmpeg || (sudo apt-get update -qq -o Acquire::http::Timeout=30 && sudo apt-get install -y -qq -o Acquire::http::Timeout=30 ffmpeg) || (sleep 10 && sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
       # кейсы, вакансии и КП правятся в content/ (через /admin) — собираем js/cases.js, страницы clients/<адрес>/ и досоздаём превью для новых медиа
       - name: Build content
         env:
           # вебхук Битрикс24 (менеджер проекта из сделки КП); если секрета нет — КП собираются без него
           BITRIX_WEBHOOK: ${{ secrets.BITRIX_WEBHOOK }}
         run: |
+          # кадрирование по заданиям content/crops/ (admin/crop.html, MCP crop_media); исходники из /admin и MCP: видео → mp4 h.264 нужного размера, фото → webp ≤2400 px (пути в content/ переписываются)
+          node tools/crop-media.mjs
+          node tools/optimize-media.mjs
           node tools/build-cases.mjs
           node tools/build-vacancies.mjs
           node tools/build-icons.mjs
@@ -38,13 +49,15 @@ jobs:
           node tools/og-kp.mjs || echo "обложки превью КП не нарисованы"
           # сброс кэша данных кейсов: номер версии = короткий хэш коммита
           sed -i -E "s#js/(cases|vacancies|icons)\.js\?v=[^\"]+#js/\1.js?v=${GITHUB_SHA::7}#g" index.html
+          # SEO: страницы кейсов/«О нас»/вакансий со своими title и OG (копии index.html), sitemap.xml, robots.txt — после ?v=, чтобы копии получили те же версии
+          node tools/build-seo.mjs
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898599+github-actions[bot]@users.noreply.github.com"
-          git add -A js/cases.js js/vacancies.js js/icons.js media clients 2>/dev/null || git add -A js/cases.js js/vacancies.js js/icons.js media
+          git add -A js/cases.js js/vacancies.js js/icons.js media content clients 2>/dev/null || git add -A js/cases.js js/vacancies.js js/icons.js media content
           if ! git diff --cached --quiet; then
-            git commit -m "Сборка: js/cases.js, КП и превью из content/ [skip ci]"
+            git commit -m "Сборка: js/cases.js, КП, превью и сжатые медиа из content/ [skip ci]"
             git pull --rebase --autostash -q origin main && git push -q origin HEAD:main || echo "не удалось сохранить в репозиторий — на сайт всё равно уйдёт"
           fi
       - uses: actions/configure-pages@v5

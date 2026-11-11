@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Median — кадрирование</title>
+<!-- Кадрирование фото и видео сайта. Пишет задание в content/crops/<…>.json (коммит в main через GitHub API тем же токеном, что и /admin);
+     при деплое tools/crop-media.mjs режет файл ffmpeg-ом на месте и пересоздаёт превью. -->
+<style>
+@font-face{font-family:'Basis';src:url(../fonts/basis-grotesque-pro-400.woff2) format('woff2');font-weight:400}
+@font-face{font-family:'Basis';src:url(../fonts/basis-grotesque-pro-500.woff2) format('woff2');font-weight:500}
+@font-face{font-family:'Druk';src:url(../fonts/druk-wide-cyr-700.woff2) format('woff2');font-weight:700}
+:root{--ink:#0b0b0c;--paper:#f3f3f1;--muted:#8d8d8a;--tile:#1a1a1b;--line-dark:rgba(243,243,241,.14);--sm:14px;--ui:16px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ink);color:var(--paper);font:400 var(--ui)/1.4 'Basis',system-ui,sans-serif}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px clamp(16px,4vw,56px);border-bottom:1px solid var(--line-dark)}
+h1{font:700 18px/1 'Druk',sans-serif;text-transform:uppercase;margin:0;letter-spacing:.02em}
+main{padding:20px clamp(16px,4vw,56px) 60px}
+.label{font-size:var(--sm);font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.btn{background:var(--tile);border:1px solid var(--line-dark);border-radius:999px;padding:8px 16px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--paper)}
+.btn.on{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.btn.main{background:var(--paper);color:var(--ink);font-weight:500;padding:12px 24px}
+.btn:disabled{opacity:.4;cursor:default}
+input[type=search],input[type=password],input[type=number]{background:var(--tile);border:1px solid var(--line-dark);border-radius:8px;padding:8px 12px;min-width:0;font-size:max(16px,var(--ui))}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.muted{color:var(--muted)}
+#login{max-width:560px}
+#login p{margin:0 0 12px}
+#pick .tools{margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.it{background:var(--tile);border-radius:8px;overflow:hidden;cursor:pointer;border:1px solid transparent;text-align:left;padding:0}
+.it:hover{border-color:var(--paper)}
+.it .pv{aspect-ratio:16/10;background:#222 center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:var(--sm);color:var(--muted)}
+.it .nm{padding:6px 8px;font-size:12px;word-break:break-all}
+#edit{display:none}
+.stagew{position:relative;margin:16px 0;padding:14px;display:flex;justify-content:center;background:#000;border-radius:8px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+#stage{position:relative;line-height:0}
+#stage img,#stage video{display:block;max-width:100%;max-height:68vh}
+#box{position:absolute;outline:2px solid var(--paper);box-shadow:0 0 0 9999px rgba(0,0,0,.6);cursor:move}
+#box::before,#box::after{content:'';position:absolute;inset:33.33% 0;border-top:1px solid rgba(255,255,255,.35);border-bottom:1px solid rgba(255,255,255,.35);pointer-events:none}
+#box::after{inset:0 33.33%;border:0;border-left:1px solid rgba(255,255,255,.35);border-right:1px solid rgba(255,255,255,.35)}
+.h{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;background:var(--paper);border-radius:50%;border:2px solid var(--ink);z-index:2}
+.h[data-h=nw]{left:0;top:0;cursor:nwse-resize}.h[data-h=ne]{left:100%;top:0;cursor:nesw-resize}
+.h[data-h=sw]{left:0;top:100%;cursor:nesw-resize}.h[data-h=se]{left:100%;top:100%;cursor:nwse-resize}
+.h[data-h=n]{left:50%;top:0;cursor:ns-resize}.h[data-h=s]{left:50%;top:100%;cursor:ns-resize}
+.h[data-h=w]{left:0;top:50%;cursor:ew-resize}.h[data-h=e]{left:100%;top:50%;cursor:ew-resize}
+#vtools{display:none;margin-top:8px}
+#tl{position:relative;height:36px;background:var(--tile);border-radius:8px;margin:8px 0;cursor:pointer}
+#tlsel{position:absolute;top:0;bottom:0;background:rgba(243,243,241,.18);border-left:3px solid var(--paper);border-right:3px solid var(--paper)}
+#tlpos{position:absolute;top:-4px;bottom:-4px;width:2px;background:#2ace89}
+#msg{margin-top:16px;min-height:1.4em}
+.err{color:#ff8a7a}
+</style>
+</head>
+<body>
+<header>
+  <h1>Кадрирование</h1>
+  <div class="row"><a class="btn" href="./">← Админка</a></div>
+</header>
+<main>
+  <section id="login" hidden>
+    <p>Войдите в <a href="./">админку</a> в этом же браузере — страница возьмёт оттуда вход. Или вставьте GitHub-токен (тот же, что для админки):</p>
+    <div class="row"><input id="tok" type="password" placeholder="github_pat_…" style="flex:1"><button class="btn main" id="tokgo">Войти</button></div>
+    <p id="loginerr" class="err"></p>
+  </section>
+
+  <section id="pick" hidden>
+    <div class="row tools">
+      <input id="q" type="search" placeholder="Поиск по имени файла" style="flex:1;min-width:200px">
+      <span class="row" id="kinds">
+        <button class="btn on" data-k="all">Все</button><button class="btn" data-k="img">Фото</button><button class="btn" data-k="vid">Видео</button>
+      </span>
+    </div>
+    <p id="pending" class="muted"></p>
+    <div class="grid" id="grid"></div>
+    <p class="muted" id="more"></p>
+  </section>
+
+  <section id="edit">
+    <div class="row" style="justify-content:space-between">
+      <div><div class="label">Файл</div><div id="fname"></div></div>
+      <button class="btn" id="back">← Другой файл</button>
+    </div>
+    <div class="row" style="margin-top:16px"><span class="label" style="margin-right:8px">Пропорции</span><span class="row" id="ratios"></span></div>
+    <div class="stagew"><div id="stage"><div id="box"><i class="h" data-h="nw"></i><i class="h" data-h="n"></i><i class="h" data-h="ne"></i><i class="h" data-h="e"></i><i class="h" data-h="se"></i><i class="h" data-h="s"></i><i class="h" data-h="sw"></i><i class="h" data-h="w"></i></div></div></div>
+    <div class="muted" id="dims"></div>
+    <div id="vtools">
+      <div class="row"><button class="btn" id="play">▶ Играть отрезок</button><button class="btn" id="setin">Начало = текущий кадр</button><button class="btn" id="setout">Конец = текущий кадр</button><button class="btn" id="tlreset">Всё видео</button></div>
+      <div id="tl"><div id="tlsel"></div><div id="tlpos"></div></div>
+      <div class="muted" id="tinfo"></div>
+    </div>
+    <div class="row" style="margin-top:20px"><button class="btn main" id="save">Сохранить кадрирование</button><button class="btn" id="reset">Сбросить рамку</button></div>
+    <div id="msg"></div>
+  </section>
+</main>
+<script>
+const REPO = 'nazyrovruslan/median-site', BRANCH = 'main', API = 'https://api.github.com/repos/' + REPO;
+const FOLDERS = /^media\/(cases|video|reels|vacancies|team|kp|about|home|founders|southhub)\//;
+const DERIVED = /(^media\/thumb\/)|(\.hevc\.mp4$)|(-teaser\.mp4$)|(-p\.mp4$)|(\.crop\.\w+$)/;
+const $ = s => document.querySelector(s);
+const show = id => ['login', 'pick', 'edit'].forEach(s => { const el = $('#' + s); el.hidden = s !== id; el.style.display = s === id ? 'block' : 'none'; });
+let token = '', files = [], kind = 'all';
+
+function storedToken() {
+  try { const u = JSON.parse(localStorage.getItem('sveltia-cms.user') || 'null'); if (u && u.token) return u.token; } catch (e) {}
+  try { const u = JSON.parse(localStorage.getItem('decap-cms-user') || 'null'); if (u && u.token) return u.token; } catch (e) {}
+  try { return localStorage.getItem('median-crop.token') || ''; } catch (e) { return ''; }
+}
+async function gh(path, opt = {}) {
+  const r = await fetch(API + path, { ...opt, headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', ...(opt.headers || {}) } });
+  if (!r.ok) throw new Error(`GitHub ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  return r.json();
+}
+// файл с сайта (уже выложенный), а если его там ещё нет — прямо из репозитория
+const siteUrl = p => '../' + p.split('/').map(encodeURIComponent).join('/');
+const rawUrl = p => `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${p.split('/').map(encodeURIComponent).join('/')}`;
+const isVid = p => /\.mp4$/i.test(p);
+
+async function start() {
+  token = storedToken();
+  if (!token) return show('login');
+  try {
+    const t = await gh(`/git/trees/${BRANCH}?recursive=1`);
+    const all = new Set(t.tree.map(x => x.path));
+    files = t.tree.filter(x => x.type === 'blob' && FOLDERS.test(x.path) && /\.(webp|jpe?g|png|mp4)$/i.test(x.path) && !DERIVED.test(x.path)).map(x => {
+      const b = x.path.replace(/\.\w+$/, ''), name = b.split('/').pop();
+      const th = all.has(`media/thumb/${name}.webp`) ? `media/thumb/${name}.webp` : isVid(x.path) ? (all.has(b + '.webp') ? b + '.webp' : '') : x.path;
+      return { path: x.path, size: x.size, thumb: th };
+    });
+    const pend = t.tree.filter(x => /^content\/crops\/.+\.json$/.test(x.path)).length;
+    $('#pending').textContent = pend ? `В очереди на кадрирование: ${pend} — применится при ближайшей сборке сайта (2–4 минуты).` : '';
+    show('pick'); render();
+    const q = new URLSearchParams(location.search).get('src');
+    if (q) open(q.replace(/^\//, ''));
+  } catch (e) {
+    if (/401|403/.test(e.message)) { try { localStorage.removeItem('median-crop.token'); } catch (_) {} $('#loginerr').textContent = 'Токен не подошёл: ' + e.message; return show('login'); }
+    document.body.insertAdjacentHTML('beforeend', `<p class="err" style="padding:16px">${e.message}</p>`);
+  }
+}
+$('#tokgo').onclick = () => { const v = $('#tok').value.trim(); if (!v) return; try { localStorage.setItem('median-crop.token', v); } catch (e) {} token = v; start(); };
+
+function render() {
+  const q = $('#q').value.trim().toLowerCase();
+  const list = files.filter(f => (kind === 'all' || (kind === 'vid') === isVid(f.path)) && (!q || f.path.toLowerCase().includes(q)));
+  const shown = list.slice(0, 240);
+  $('#grid').innerHTML = shown.map(f => `<button class="it" data-p="${f.path}"><div class="pv" ${f.thumb ? `style="background-image:url('${siteUrl(f.thumb)}')"` : ''}>${f.thumb ? '' : 'видео'}</div><div class="nm">${f.path.replace(/^media\//, '')}${isVid(f.path) ? ' ▶' : ''}<br><span class="muted">${(f.size / 1048576).toFixed(1)} МБ</span></div></button>`).join('');
+  $('#more').textContent = list.length > shown.length ? `Показаны ${shown.length} из ${list.length} — уточните поиск.` : list.length ? '' : 'Ничего не найдено.';
+}
+$('#q').oninput = render;
+$('#kinds').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; kind = b.dataset.k; $('#kinds').querySelectorAll('.btn').forEach(x => x.classList.toggle('on', x === b)); render(); };
+$('#grid').onclick = e => { const b = e.target.closest('.it'); if (b) open(b.dataset.p); };
+$('#back').onclick = () => { stopMedia(); show('pick'); history.replaceState(null, '', location.pathname); };
+
+// ——— редактор ———
+const RATIOS = [['Свободно', 0], ['Исходные', -1], ['16:9', 16 / 9], ['9:16', 9 / 16], ['1:1', 1], ['4:5', 4 / 5], ['3:2', 3 / 2], ['21:9', 21 / 9]];
+let cur = '', media = null, W = 0, H = 0, ratio = 0, R = { x: 0, y: 0, w: 1, h: 1 }, t0 = 0, t1 = 0, dur = 0;
+$('#ratios').innerHTML = RATIOS.map(([n], i) => `<button class="btn${i ? '' : ' on'}" data-i="${i}">${n}</button>`).join('');
+$('#ratios').onclick = e => { const b = e.target.closest('[data-i]'); if (!b) return; $('#ratios').querySelectorAll('.btn').forEach(x => x.classList.toggle('on', x === b)); ratio = RATIOS[b.dataset.i][1]; if (ratio === -1) ratio = W / H; fitRatio(); };
+
+function stopMedia() { if (media && media.pause) media.pause(); }
+function open(p) {
+  cur = p; $('#fname').textContent = p; $('#msg').textContent = '';
+  history.replaceState(null, '', '?src=' + encodeURIComponent(p));
+  stopMedia(); media && media.remove();
+  const vid = isVid(p);
+  media = document.createElement(vid ? 'video' : 'img');
+  if (vid) { media.muted = true; media.playsInline = true; media.preload = 'auto'; }
+  let tried = false;
+  media.onerror = () => { if (!tried) { tried = true; media.src = rawUrl(p); } else $('#msg').innerHTML = '<span class="err">Файл не открылся. Если его только что загрузили — подождите пару минут, пока соберётся сайт.</span>'; };
+  const ready = () => { W = vid ? media.videoWidth : media.naturalWidth; H = vid ? media.videoHeight : media.naturalHeight; dur = vid ? media.duration : 0; t0 = 0; t1 = dur; R = { x: 0, y: 0, w: 1, h: 1 }; ratio = 0; $('#ratios').querySelectorAll('.btn').forEach((x, i) => x.classList.toggle('on', !i)); draw(); drawTl(); };
+  if (vid) media.onloadedmetadata = ready; else media.onload = ready;
+  media.src = siteUrl(p);
+  $('#stage').prepend(media);
+  $('#vtools').style.display = vid ? 'block' : 'none';
+  show('edit');
+}
+
+function fitRatio() {
+  if (!ratio) return draw();
+  // самая большая рамка нужных пропорций вокруг центра текущей
+  const cx = R.x + R.w / 2, cy = R.y + R.h / 2, k = ratio * H / W; // k = w/h в долях
+  let w = 1, h = w / k; if (h > 1) { h = 1; w = k; }
+  R = { w, h, x: Math.min(Math.max(cx - w / 2, 0), 1 - w), y: Math.min(Math.max(cy - h / 2, 0), 1 - h) };
+  draw();
+}
+function draw() {
+  const b = $('#box').style;
+  b.left = R.x * 100 + '%'; b.top = R.y * 100 + '%'; b.width = R.w * 100 + '%'; b.height = R.h * 100 + '%';
+  const pw = Math.round(R.w * W), ph = Math.round(R.h * H);
+  $('#dims').textContent = W ? `Исходник ${W}×${H} → кадр ${pw}×${ph}` + (pw < 1280 && ph < 1280 && !isVid(cur) ? ' — маловато для фото во весь экран' : '') : '';
+}
+
+// перетаскивание рамки и ручек
+let drag = null;
+$('#stage').addEventListener('pointerdown', e => {
+  const h = e.target.closest('.h'), inBox = e.target.closest('#box');
+  if (!h && !inBox) return;
+  e.preventDefault(); $('#stage').setPointerCapture(e.pointerId);
+  const r = $('#stage').getBoundingClientRect();
+  drag = { h: h ? h.dataset.h : 'move', sx: e.clientX, sy: e.clientY, r, R0: { ...R } };
+});
+$('#stage').addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dx = (e.clientX - drag.sx) / drag.r.width, dy = (e.clientY - drag.sy) / drag.r.height, o = drag.R0, MIN = 0.03;
+  if (drag.h === 'move') { R = { ...o, x: Math.min(Math.max(o.x + dx, 0), 1 - o.w), y: Math.min(Math.max(o.y + dy, 0), 1 - o.h) }; return draw(); }
+  let x1 = o.x, y1 = o.y, x2 = o.x + o.w, y2 = o.y + o.h;
+  if (drag.h.includes('w')) x1 = Math.min(Math.max(o.x + dx, 0), x2 - MIN);
+  if (drag.h.includes('e')) x2 = Math.max(Math.min(x2 + dx, 1), x1 + MIN);
+  if (drag.h.includes('n')) y1 = Math.min(Math.max(o.y + dy, 0), y2 - MIN);
+  if (drag.h.includes('s')) y2 = Math.max(Math.min(y2 + dy, 1), y1 + MIN);
+  if (ratio) {
+    const k = ratio * H / W; // ширина/высота в долях
+    let w = x2 - x1, h = y2 - y1;
+    if (/^[ns]$/.test(drag.h)) w = h * k; else h = w / k;
+    // упираемся в край — уменьшаем обе стороны
+    const ax = drag.h.includes('w') ? x2 : drag.h.includes('e') ? x1 : (o.x + o.w / 2), ay = drag.h.includes('n') ? y2 : drag.h.includes('s') ? y1 : (o.y + o.h / 2);
+    const maxW = drag.h.includes('w') ? ax : drag.h.includes('e') ? 1 - ax : 2 * Math.min(ax, 1 - ax);
+    const maxH = drag.h.includes('n') ? ay : drag.h.includes('s') ? 1 - ay : 2 * Math.min(ay, 1 - ay);
+    if (w > maxW) { w = maxW; h = w / k; } if (h > maxH) { h = maxH; w = h * k; }
+    x1 = drag.h.includes('w') ? ax - w : drag.h.includes('e') ? ax : ax - w / 2;
+    y1 = drag.h.includes('n') ? ay - h : drag.h.includes('s') ? ay : ay - h / 2;
+    x2 = x1 + w; y2 = y1 + h;
+  }
+  R = { x: x1, y: y1, w: x2 - x1, h: y2 - y1 }; draw();
+});
+['pointerup', 'pointercancel'].forEach(t => $('#stage').addEventListener(t, () => { drag = null; }));
+$('#reset').onclick = () => { R = { x: 0, y: 0, w: 1, h: 1 }; ratio ? fitRatio() : draw(); };
+window.addEventListener('resize', draw);
+
+// ——— время (видео) ———
+const fmt = s => { s = Math.max(0, s || 0); return `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`; };
+function drawTl() {
+  if (!dur) return;
+  $('#tlsel').style.left = t0 / dur * 100 + '%'; $('#tlsel').style.width = (t1 - t0) / dur * 100 + '%';
+  $('#tlpos').style.left = (media.currentTime || 0) / dur * 100 + '%';
+  $('#tinfo').textContent = `Отрезок ${fmt(t0)} – ${fmt(t1)} (${(t1 - t0).toFixed(1)} с из ${dur.toFixed(1)} с). Нажмите на шкалу, чтобы перейти к кадру.`;
+}
+$('#tl').onclick = e => { const r = $('#tl').getBoundingClientRect(); media.currentTime = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1) * dur; drawTl(); };
+$('#setin').onclick = () => { t0 = Math.min(media.currentTime, t1 - 0.2); drawTl(); };
+$('#setout').onclick = () => { t1 = Math.max(media.currentTime, t0 + 0.2); drawTl(); };
+$('#tlreset').onclick = () => { t0 = 0; t1 = dur; drawTl(); };
+$('#play').onclick = () => { if (!media.paused) return media.pause(); if (media.currentTime < t0 || media.currentTime >= t1 - 0.05) media.currentTime = t0; media.play(); };
+setInterval(() => { if (media && isVid(cur) && dur) { if (!media.paused && media.currentTime >= t1) { media.currentTime = t0; } $('#play').textContent = media.paused ? '▶ Играть отрезок' : '❚❚ Пауза'; drawTl(); } }, 100);
+
+// ——— сохранение: задание для сборки ———
+$('#save').onclick = async () => {
+  const full = R.w > 0.999 && R.h > 0.999, trimmed = isVid(cur) && dur && (t0 > 0.05 || t1 < dur - 0.05);
+  if (full && !trimmed) { $('#msg').textContent = 'Рамка во весь кадр — нечего кадрировать.'; return; }
+  const r4 = v => Math.round(v * 10000) / 10000;
+  const job = { src: cur, x: r4(R.x), y: r4(R.y), w: r4(R.w), h: r4(R.h), ...(trimmed ? { t0: Math.round(t0 * 100) / 100, t1: Math.round(t1 * 100) / 100 } : {}), at: new Date().toISOString() };
+  const name = `${Date.now()}-${cur.split('/').pop().replace(/[^\w.-]+/g, '_')}.json`;
+  const body = JSON.stringify(job, null, 2) + '\n';
+  $('#save').disabled = true; $('#msg').textContent = 'Сохраняю…';
+  try {
+    await gh(`/contents/content/crops/${name}`, { method: 'PUT', body: JSON.stringify({ message: `Кадрирование: ${cur}`, content: btoa(unescape(encodeURIComponent(body))), branch: BRANCH }) });
+    $('#msg').innerHTML = `Готово. Файл <b>${cur}</b> перережется при сборке сайта — через 2–4 минуты обновится везде, где он стоит (путь не меняется). Превью и постеры сделаются заново. Прежняя версия остаётся в истории GitHub.`;
+  } catch (e) { $('#msg').innerHTML = `<span class="err">Не сохранилось: ${e.message}</span>`; }
+  $('#save').disabled = false;
+};
+
+start();
+</script>
+</body>
+</html>

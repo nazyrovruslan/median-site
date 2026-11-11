@@ -1,0 +1,18 @@
+# Заводит цели сайта в Яндекс Метрике (tools/metrika-goals.mjs). Нужен секрет репозитория METRIKA_TOKEN — см. NOTES.md, «Счётчики и цели».
+name: Metrika goals
+on:
+  push:
+    branches: [main]
+    paths: ['content/metrika-goals.json', 'tools/metrika-goals.mjs', '.github/workflows/metrika.yml']
+  workflow_dispatch:
+jobs:
+  goals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tools/metrika-goals.mjs
+        env:
+          METRIKA_TOKEN: ${{ secrets.METRIKA_TOKEN }}

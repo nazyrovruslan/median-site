@@ -27,12 +27,15 @@ const cases = fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => {
   // На сайт уходит обычным списком blocks — js/main.js про серии не знает
   if (c.kind === 'series') {
     const parts = c.parts || [];
+    // якорь на первый блок каждого проекта + оглавление (блок toc в общей части): строки — проекты серии со ссылкой на якорь
+    const pre = `${c.id}-p`;
+    (c.blocks || []).forEach(b => { if (b.t === 'toc') b.rows = parts.map((p, i) => ({ n: String(i + 1).padStart(2, '0'), name: p.toc || p.out || p.y, text: (p.sub || p.y || '').replace(/^\d+\s*\/\s*\d+\s*·\s*/, ''), img: p.img, go: pre + (i + 1) })); });
     c.blocks = [...(c.blocks || []),
-      ...parts.flatMap(p => [...((p.img || p.vid) && p.out ? [{ t: 'banner', img: p.img, vid: p.vid, out: p.out, solid: p.solid, text: p.text, side: p.side }] : []), ...(p.blocks || [])]),
+      ...parts.flatMap((p, i) => [...((p.img || p.vid) && p.out ? [{ t: 'banner', img: p.img, vid: p.vid, out: p.out, solid: p.solid, text: p.text, side: p.side }] : []), ...(p.blocks || [])].map((b, k) => k ? b : { ...b, a: pre + (i + 1) })),
       ...(c.after || []),
-      ...(parts.some(p => p.stats) ? [{ t: 'years', out: c.total_out || 'Итоги', solid: c.total, sum: c.sum, rows: parts.map(p => ({ y: p.y, sub: p.sub, items: p.stats || [] })) }] : [])
+      ...(parts.some(p => p.stats) ? [{ t: 'years', out: c.total_out || 'Итоги', solid: c.total, text: c.total_text, desc: c.desc ? 1 : 0, sum: c.sum, rows: parts.map(p => ({ y: p.y, sub: p.sub, items: p.stats || [] })) }] : [])
     ].map(clean);
-    for (const k of ['parts', 'after', 'total', 'total_out', 'sum']) delete c[k];
+    for (const k of ['parts', 'after', 'total', 'total_out', 'total_text', 'desc', 'sum']) delete c[k];
   }
   delete c.kind;
   // в блоке «pairs» слово может быть пустым — сайт ждёт строку

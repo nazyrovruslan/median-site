@@ -1,6 +1,13 @@
 (()=>{
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// цели (11.11): одна функция на всё — Яндекс Метрика reachGoal, Google Analytics event, dataLayer, Roistat (если появится) и событие site:goal на window.
+// Список целей и где они срабатывают — NOTES.md, раздел «Счётчики и цели». В Метрике каждую цель заводим как «JavaScript-событие» с тем же идентификатором.
+const YM=9380047,goalOnce=new Set();
+function goal(name,params={},once){if(once){const k=name+JSON.stringify(params);if(goalOnce.has(k))return;goalOnce.add(k);}
+  try{window.ym&&ym(YM,'reachGoal',name,params);}catch(e){}try{window.gtag&&gtag('event',name,params);}catch(e){}
+  try{(window.dataLayer=window.dataLayer||[]).push({event:name,...params});}catch(e){}try{window.roistat&&roistat.event&&roistat.event.send(name);}catch(e){}
+  dispatchEvent(new CustomEvent('site:goal',{detail:{name,params}}));}
 const fine=matchMedia('(pointer: fine)').matches;
 
 const DIRS={external:'Внешние',internal:'Внутренние',outlist:'Out of the list',own:'Свой проект'};
@@ -75,7 +82,7 @@ $('#next').onclick=()=>go(cur+1);$('#nxtLabel .narr-w').addEventListener('click'
 let heroSeen=true; // баннер ушёл с экрана — видео на паузе
 if('IntersectionObserver' in window)new IntersectionObserver(([e])=>{heroSeen=e.isIntersecting;$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur&&!$$('.panel.on').length));}).observe($('#hero'));
 go(0,true);
-/* ---------- загрузка: заставка держится, пока не скачается видео первого слайда (не дольше 15 с); остальные видео грузятся, когда подъезжают к экрану ---------- */
+/* ---------- загрузка: заставка держится, пока не скачается видео первого слайда (не дольше 6 с); остальные видео грузятся, когда подъезжают к экрану ---------- */
 (()=>{const ld=$('#loader'),urls=HERO.slice(0,1).filter(k=>k.vid).map(k=>k.vid);
   const got=urls.map(()=>0),tot=urls.map(()=>0);let shown=0;
   const swap=()=>$$('video.cv').forEach(v=>{const u=Object.keys(BLOB).find(u=>v.getAttribute('src')===vurl(u));if(u&&v.paused){v.src=BLOB[u];}});
@@ -84,10 +91,11 @@ go(0,true);
   const upd=()=>{const p=urls.reduce((a,u,i)=>a+(tot[i]?Math.min(1,got[i]/tot[i]):0),0)/urls.length;
     if(p>shown){shown=p;ld.style.setProperty('--p',p);}};
   if(reduce||!urls.length||!window.fetch||!window.ReadableStream){finish();return;}
-  setTimeout(finish,15000);
+  setTimeout(()=>{if($$('.panel.on').length){finish();return;} // открыли по прямой ссылке на кейс/«О нас» (09.11): баннер не виден — его видео не ждём и заранее не качаем
+  setTimeout(finish,6000); // не дольше 6 с (09.11, было 15)
   Promise.all(urls.map(async(u,i)=>{try{const r=await fetch(vurl(u));if(!r.ok)return;tot[i]=+r.headers.get('content-length')||0;
     const rd=r.body.getReader(),parts=[];for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);got[i]+=value.length;if(!tot[i])tot[i]=got[i];upd();}
-    BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});
+    BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});},0);
 })();
 // «Смотреть дальше»: на первом экране стрелка в видимой верхней половине кольца, при прокрутке съезжает в центр
 {const dn=$('.down');const f=()=>dn.style.setProperty('--dk',Math.min(1,scrollY/(dn.offsetHeight/2||1)).toFixed(3));addEventListener('scroll',f,{passive:true});f();}
@@ -108,7 +116,7 @@ $('#hero').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changed
 })();
 
 /* ---------- marquee ---------- */
-const unit='<span class="o on-dark">Live</span><span>Communications</span>';
+const unit='<span class="o on-dark" data-t="Live">Live</span><span>Communications</span>';
 $('#mq').innerHTML=(unit).repeat(6); // две одинаковые половины по 3 повтора
 // бегущая строка на JS: сдвиг в пикселях по модулю половины ленты — без швов и пустот в любом браузере
 (()=>{const tr=$('#mq'),mq=$('.marquee');let x=0,half=0,speed=60,target=60,last=performance.now();
@@ -147,16 +155,46 @@ R.forEach((pts,i)=>{
 });
 R.forEach(()=>{const p=document.createElementNS('http://www.w3.org/2000/svg','path');W.appendChild(p);paths.push(p);});
 // те же контуры с визитки — второй слой плиток цифр по наведению (поверх фирменного градиента), см. .tw в style.css
-// форма живёт: точки контура гуляют по нормали (сумма синусов), кривая — сглаженная (Catmull-Rom → кубические Безье)
-const twCR=P=>{const n=P.length,f=v=>v.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`;for(let k=0;k<n;k++){const a=P[(k-1+n)%n],b=P[k],c=P[(k+1)%n],e=P[(k+2)%n];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}return d+'Z';};
-const twD=(i,t,ph)=>{const pts=R[i],n=pts.length,P=[];for(let k=0;k<n;k+=3){const p=pts[k],a=k/n*Math.PI*2,o=10*Math.sin(a*3+t*.9+ph+i*.8)+6*Math.sin(a*5-t*.6+ph*1.7+i*1.3);P.push([p.X+p.nx*o,p.Y+p.ny*o]);}return twCR(P);};
-function twAdd(tile){const ph=Math.random()*6.28,r=Math.random;
-  tile.insertAdjacentHTML('afterbegin',`<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true" style="left:${15+r()*70}%;top:${15+r()*70}%">${R.map((_,i)=>`<path d="${twD(i,0,ph)}"/>`).join('')}</svg>`);
-  const ps=[...tile.firstElementChild.children];let raf=0,on=false,t0=0,t=0;
-  const step=now=>{t+=(now-t0)/1000;t0=now;ps.forEach((p,i)=>p.setAttribute('d',twD(i,t,ph)));raf=on?requestAnimationFrame(step):0;};
-  if(reduce||!matchMedia('(hover:hover)').matches)return;
-  tile.addEventListener('mouseenter',()=>{on=true;if(!raf){t0=performance.now();raf=requestAnimationFrame(step);}});
-  tile.addEventListener('mouseleave',()=>{on=false;});}
+// форма — ровно как «Волны» на главной (исходные контуры визитки), анимация та же: в покое контуры по очереди дышат,
+// по наведению собираются в идеальные круги (как на главной при наведении), курсор ушёл — обратно в волны;
+// для объёма к четырём контурам добавлены ещё три: один внутри (×0,55 от внутреннего) и два снаружи (×1,22 и ×1,46 от внешнего)
+const TWR=[[0,.55],[0,1],[1,1],[2,1],[3,1],[3,1.22],[3,1.46]].map(([i,k])=>R[i].map(p=>[p.X*k,p.Y*k,p.tx*k,p.ty*k]));
+const twD=(i,t,m)=>{const n=TWR.length,w=.28,ss=(a,x)=>{x=Math.min(1,Math.max(0,(x-a)/w));return x*x*(3-2*x)};
+  const up=ss((n-1-i)*.07,t),down=ss(.5+i*.07,t),g=1+.06*up*(1-down)*(1-m);
+  const P=TWR[i].map(([x,y,tx,ty])=>[x*g+(tx-x*g)*m,y*g+(ty-y*g)*m]),L=P.length,f=v=>v.toFixed(1);let d=`M${f(P[0][0])},${f(P[0][1])}`; // сглаживание Catmull-Rom
+  for(let k=0;k<L;k++){const a=P[(k-1+L)%L],b=P[k],c=P[(k+1)%L],e=P[(k+2)%L];d+=`C${f(b[0]+(c[0]-a[0])/6)},${f(b[1]+(c[1]-a[1])/6)} ${f(c[0]-(e[0]-b[0])/6)},${f(c[1]-(e[1]-b[1])/6)} ${f(c[0])},${f(c[1])}`;}
+  return d+'Z';};
+const TWS=new Set();let twPin=null,twQ=0,twT=0; // плитки на таче: на экране горит одна (09.11) — ближайшая к центру или тапнутая, пока видна
+// выбор только когда прокрутка остановилась (09.11): на быстром скролле подсветка не перескакивает по плиткам; ушла с экрана — гаснет, новая загорается на остановке
+const twVis=t=>{const b=t.getBoundingClientRect();return b.width&&b.bottom>0&&b.top<innerHeight;},twDc=t=>{const b=t.getBoundingClientRect();return Math.abs(b.top+b.height/2-innerHeight/2);};
+const twSet=best=>TWS.forEach(t=>{const v=t===best;if(t.classList.contains('on')!==v)t._tw(v);});
+const twPick=()=>{twT=0;const vis=[...TWS].filter(t=>t.isConnected?twVis(t):(TWS.delete(t),false));if(twPin&&!vis.includes(twPin))twPin=null;
+  let best=twPin;if(!best){const curOn=vis.find(t=>t.classList.contains('on'));let d=1e9;vis.forEach(t=>{const k=twDc(t);if(k<d){d=k;best=t;}});
+    if(curOn&&best&&twDc(curOn)-d<innerHeight*.15)best=curOn;} // небольшая разница — подсветку не переносим
+  twSet(best);};
+const twScroll=()=>{twQ=0;TWS.forEach(t=>{if(!t.isConnected)return TWS.delete(t);if(t.classList.contains('on')&&!twVis(t)){t._tw(false);if(t===twPin)twPin=null;}});TWS.forEach(t=>t._sc());
+  clearTimeout(twT);twT=setTimeout(twPick,220);};
+const twReq=()=>{if(!twQ)twQ=requestAnimationFrame(twScroll);};
+addEventListener('scroll',twReq,{passive:true,capture:true});addEventListener('resize',twReq); // плитки на таче: круги за прокруткой
+function twAdd(tile){const ph=Math.random(),r=Math.random,T=10; // цикл дыхания 10 с; у плитки своя фаза
+  const bx=15+r()*70,by=15+r()*70;let cx=bx,cy=by,gx=bx,gy=by; // центр волн: случайный в покое; по наведению — магнит, как у кнопок (data-magnet): смещение = отклонение курсора от центра плитки × .25, догоняет плавно
+  tile.insertAdjacentHTML('afterbegin',`<svg class="tw" viewBox="-260 -260 520 520" aria-hidden="true" style="left:${bx}%;top:${by}%">${TWR.map((_,i)=>`<path d="${twD(i,ph,0)}"/>`).join('')}</svg>`);
+  const sv=tile.firstElementChild,ps=[...sv.children];let raf=0,on=false,m=0;
+  const step=now=>{m+=((on?1:0)-m)*.035;if(Math.abs((on?1:0)-m)<.002)m=on?1:0;const t=(now/1000/T+ph)%1,me=ease(m);
+    if(!on){gx=bx;gy=by;}cx+=(gx-cx)*.08;cy+=(gy-cy)*.08;sv.style.left=cx.toFixed(2)+'%';sv.style.top=cy.toFixed(2)+'%';
+    ps.forEach((p,i)=>p.setAttribute('d',twD(i,t,me)));raf=(on||m>0||Math.abs(cx-gx)+Math.abs(cy-gy)>.05)?requestAnimationFrame(step):0;};
+  const go=()=>{if(!raf)raf=requestAnimationFrame(step);};
+  if(!matchMedia('(hover:hover)').matches){ // тач: плитка заливается по тапу (09.11)
+    tile._tw=v=>{on=v;tile.classList.toggle('on',v);if(!reduce){go();if(v)tile._sc();}};
+    tile._sc=()=>{if(!on||reduce)return;const b=tile.getBoundingClientRect();if(b.bottom<0||b.top>innerHeight)return; // круги едут за прокруткой (09.11): центр тянется к середине экрана, как магнит за курсором
+      gy=by+Math.max(-40,Math.min(40,(innerHeight/2-(b.top+b.height/2))/b.height*100*.25));gx=bx;go();};
+    TWS.add(tile);
+    tile.addEventListener('click',()=>{twPin=tile;clearTimeout(twT);twPick();});
+    twReq();return;}
+  if(reduce)return;
+  tile.addEventListener('mousemove',ev=>{const b=tile.getBoundingClientRect();gx=bx+((ev.clientX-b.left)/b.width*100-50)*.25;gy=by+((ev.clientY-b.top)/b.height*100-50)*.25;});
+  tile.addEventListener('mouseenter',()=>{on=true;go();});
+  tile.addEventListener('mouseleave',()=>{on=false;go();});}
 let wt=0, wspeed=.004, wtarget=.004, morph=0, morphT=0, col=0;
 W.addEventListener('mouseenter',()=>{wtarget=.012;morphT=1});W.addEventListener('mouseleave',()=>{wtarget=.004;morphT=0});
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -195,7 +233,7 @@ if(!fine){
   // что сейчас «под курсором» в центре экрана
   const mq=$('#reelLink'), wl=$('#wavesLink');
   const centerHit=()=>{
-    const mb=mq.getBoundingClientRect(), mc=mb.top+mb.height/2; mq.classList.toggle('reel',Math.abs(mc-innerHeight/2)<innerHeight*.22);
+    const mb=mq.getBoundingClientRect(), mc=mb.top+mb.height/2; {const on=Math.abs(mc-innerHeight/2)<innerHeight*.22;if(on!==mq.classList.contains('reel')){mq.classList.toggle('reel',on);if(!reduce){mq.classList.remove('glitch');void mq.offsetWidth;mq.classList.add('glitch');clearTimeout(mq._gt);mq._gt=setTimeout(()=>mq.classList.remove('glitch'),700);}}} // LIVE: глич при проявлении и затухании градиента
     { const cy=innerHeight/2, rows=$$('.row'); const row=rows.find(x=>!x.hidden&&!x.closest('.rows-more:not(.open)')&&(b=>b.top<=cy&&b.bottom>=cy)(x.getBoundingClientRect())); if(row&&!row.dataset.rp){row.dataset.rp=1;const i=+row.dataset.i,k=CASES[i],rp=row.querySelector('.rp');rp.style.background=cover(k,i,1);rp.innerHTML=vid(k);} // превью строки грузим, только когда до неё дошли
     rows.forEach(x=>{x.classList.toggle('hover',x===row);const v=x.querySelector('.rp video');if(v){if(x===row){v.preload='auto';v.play().catch(()=>{});}else v.pause();}}); }
     const b=wl.getBoundingClientRect(), c=b.top+b.height/2, vh=innerHeight;
@@ -205,22 +243,20 @@ if(!fine){
   addEventListener('scroll',centerHit,{passive:true});addEventListener('resize',centerHit);setTimeout(centerHit,300);
   // направления: лёгкий зум у центра
   const arts=$$('.dir .vis .art');
-  addEventListener('scroll',()=>{arts.forEach(a=>{const rr=a.parentElement.getBoundingClientRect(),cc=rr.top+rr.height/2,d=Math.min(1,Math.abs(cc-innerHeight/2)/innerHeight);a.style.transform=`scale(${1.06-.06*d})`;});},{passive:true});
+  let azQ=0;addEventListener('scroll',()=>{if(azQ)return;azQ=requestAnimationFrame(()=>{azQ=0;arts.forEach(a=>{const rr=a.parentElement.getBoundingClientRect(),cc=rr.top+rr.height/2,d=Math.min(1,Math.abs(cc-innerHeight/2)/innerHeight);a.style.transform=`scale(${1.06-.06*d})`;});});},{passive:true});
 }
 /* ---------- directions ---------- */
 /* ---------- проекты (бывшие направления): у кейса с видео-обложкой — та же обложка, что в баннере ---------- */
-$$('.dir .vis[data-case]').forEach(v=>{const k=CASES.find(c=>c.id===v.dataset.case);if(!k||!k.vid)return;const a=v.querySelector('.art');a.style.background=cover(k);a.innerHTML=vid(k);});
+// 11.11 (задание Арины): видео в блоках витрины прописано прямо в index.html (<video class="cv"> внутри .art, постер — фон .art); при «меньше движения» видео убираем, остаётся постер
+if(reduce)$$('.dir video.cv').forEach(v=>v.remove());
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
 /* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок; на десктопе обложка ещё и магнитится к курсору */
 if(!reduce){
   const px=$$('.dir').map(d=>({d,els:['.vis','.vlink','.card'].map(q=>d.querySelector(q)),v:d.querySelector('.vis')}));let pxQ=0;
-  const own=$('#own'),projs=$$('#own .proj');
-  const pxRun=()=>{pxQ=0;const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
+  const pxRun=()=>{pxQ=0;if(!fine)return; /* тач (09.11): на iOS при быстрой прокрутке события скролла запаздывают за инерцией, и сдвиг на 200 px дёргал фото и карточки — на телефоне блоки стоят на месте */const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
     const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2))),sh=(p*amp).toFixed(1);
-    els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});
-    // собственные проекты: заголовок стоит, карточки едут с разной скоростью (вторая быстрее)
-    const ob=own.getBoundingClientRect();if(ob.bottom>-100&&ob.top<vh+100){const p=Math.max(-1,Math.min(1,((ob.top+ob.height/2)-vh/2)/(vh/2+ob.height/2)));projs.forEach((e,j)=>e.style.translate=`0 ${(p*amp*[.4,.75,.55][j]).toFixed(1)}px`);}};
+    els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});};
   // вместо «наезда»: обложка едет внутри рамки (у .art запас 4% с каждой стороны), фон первого экрана уезжает медленнее страницы
   const arts=$$('.vis .art'),hero=$('.hero');const pxRun2=()=>{const vh=innerHeight;arts.forEach(a=>{const b=a.parentElement.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;
     const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));a.style.translate=`0 ${(p*-3.5).toFixed(2)}%`;});
@@ -228,12 +264,9 @@ if(!reduce){
   const pxAll=()=>{pxRun();pxRun2();};
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxAll)},{passive:true});addEventListener('resize',pxAll);pxAll();
 }
-$('#art-southhub').style.background=cover(CASES[1],4);$('#art-southhub').innerHTML=vid(CASES[1]);
-// видео-обложки направлений и собственных проектов играют, только пока видны на экране
+// видео-обложки витрины играют, только пока видны на экране
 const coverVis=new Set();
-{const es=CASES.find(c=>c.id==='es');$('#art-es').style.background=cover(es,6);$('#art-es').innerHTML=vid({vid:'media/video/es-v.mp4'});} // вертикальная версия ролика под узкую карточку; вставляем до IntersectionObserver, иначе видео не запускается
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)coverVis.add(e.target);else coverVis.delete(e.target);playIn(e.target,e.isIntersecting&&!$$('.panel.on').length);}),{rootMargin:'100px 0px'});$$('.vis .art').forEach(a=>a.querySelector('video.cv')&&io.observe(a));}
-$('#art-podcast').style.background='url(media/home/podcast.webp) center/cover no-repeat';
 
 /* ---------- cases index ---------- */
 const rows=$('#rows');
@@ -298,7 +331,7 @@ $$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[dat
 addEventListener('keydown',e=>{if(e.key==='Escape'){const on=$$('.panel.on');if(on.length)closeAny(['reelPanel','briefPanel','cvPanel','casePanel','jobPanel','aboutPanel'].map(id=>on.find(p=>p.id===id)).find(Boolean)||on[0]);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
 let openId=null;
 /* у каждого кейса свой адрес: /<id> (например /median-site/southhub). Открытие и переход к следующему кейсу добавляют запись в историю, «назад» возвращает к предыдущему кейсу или на главную */
-const baseTitle=document.title; let caseDepth=0;
+const baseTitle=document.documentElement.dataset.homeTitle||document.title; let caseDepth=0; // на SEO-страницах кейсов <title> свой, заголовок главной — в data-home-title
 const ROOT=location.pathname.replace(/[^/]*$/,'');
 const caseUrl=id=>ROOT+encodeURIComponent(id);
 const caseById=id=>(typeof CASES_ALL!=='undefined'?CASES_ALL:CASES).find(c=>c.id===id); // и скрытые с сайта (только для КП) — по прямой ссылке
@@ -336,22 +369,24 @@ function fitAll(root){const g=new Map();(root||document).querySelectorAll('[data
 const nw=t=>esc(t).replace(/[^\s\d]*\d(?:[ \u00a0\u202f]\d[^\s]*|[^\s])*(?:[ \u00a0\u202f][^\s\d]{1,4}(?=\s|$))?/g,m=>`<span class="nw">${m}</span>`);
 function fitTitle(el){el.style.fontSize='';const w=el.clientWidth;if(!w)return;let m=0;el.querySelectorAll('.ln').forEach(l=>m=Math.max(m,l.scrollWidth));if(m>w)el.style.fontSize=(parseFloat(getComputedStyle(el).fontSize)*w/m*.98)+'px';}
 // фото пункта списка — как в «Всех проектах» на главной: на десктопе всплывает у строки по наведению (#peek), на таче — внутри строки у середины экрана; .mp4 — зацикленное видео
-const rowPh=u=>/\.mp4$/.test(u)?`<span class="rp"><video src="${u}${VV}" muted loop playsinline preload="none" aria-hidden="true"></video></span>`:`<span class="rp" style="background-image:url(${u})"></span>`;
-function rowPeek(r){const u=r.dataset.ph;if(/\.mp4$/.test(u)){const v=document.createElement('video');Object.assign(v,{src:u+VV,muted:true,loop:true,playsInline:true,autoplay:true});peek.replaceChildren(v);peek.style.background='#000';v.play().catch(()=>{});}else{peek.replaceChildren();peek.style.background=`url(${u}) center/cover no-repeat,#000`;}
+const stk=u=>u?`<img class="stk" src="${u}" alt="" aria-hidden="true">`:''; // стикер поверх фото пункта (анимирован в CSS)
+const rowPh=(u,st)=>/\.mp4$/.test(u)?`<span class="rp"><video src="${u}${VV}" muted loop playsinline preload="none" aria-hidden="true"></video>${stk(st)}</span>`:`<span class="rp" style="background-image:url(${u})">${stk(st)}</span>`;
+function rowPeek(r){const u=r.dataset.ph;if(/\.mp4$/.test(u)){const v=document.createElement('video');Object.assign(v,{src:u+VV,muted:true,loop:true,playsInline:true,autoplay:true});peek.replaceChildren(v);peek.style.background='#000';v.play().catch(()=>{});}else{peek.replaceChildren();peek.style.background=`url(${u}) center/cover no-repeat,#000`;}if(r.dataset.st)peek.insertAdjacentHTML('beforeend',stk(r.dataset.st));
   peek.classList.add('top');peekAt(r);peek.classList.add('on');}
+let ALT=''; // alt у фото кейса: «<кейс> — фото», ставится в fillCase
 const BLOCK={
-  cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
-  pairs:b=>`<section class="grey cb cb-pairs">${(b.items||[]).map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
-  feature:b=>`<section class="grey cb cb-feat"><h3 class="d" data-fit><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure>${b.img?(b.fit?`<img class="fit" src="${b.img}" alt="" loading="lazy">`:`<span class="px"><img src="${b.img}" alt="" loading="lazy"></span>`):''}<figcaption>${P(b.text)}</figcaption></figure></section>`,
+  cut:b=>`<section class="grey cb cb-cut"><img data-pxm=".5" src="${b.img}" alt="${ALT}" loading="lazy"><div class="cb-txt">${P(b.text)}</div></section>`,
+  pairs:b=>`<section class="grey cb cb-pairs">${(b.items||[]).map((it,j)=>`<figure class="pf pf${j%3}"><span class="px"><img src="${it.img}" alt="${ALT}" loading="lazy"></span><span class="d o pw">${esc(it.word)}</span></figure>${it.text?`<div class="cb-txt pt${j%3}">${P(it.text)}</div>`:''}`).join('')}</section>`,
+  feature:b=>`<section class="grey cb cb-feat"><h3 class="d" data-fit><span class="o">${esc(b.out)}</span> ${esc(b.solid)}</h3><figure>${b.img?(b.fit?`<img class="fit" src="${b.img}" alt="${ALT}" loading="lazy">`:`<span class="px"><img src="${b.img}" alt="${ALT}" loading="lazy"></span>`):''}<figcaption>${P(b.text)}</figcaption></figure></section>`,
   text:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean);return `<section class="grey cb cb-text"><h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3><div class="cb-txt">${P(b.text)}</div></section>`;},
   yt:b=>`<section class="cb cb-yt"><div class="yt-frame"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${b.list}&rel=0" title="Плейлист" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></section>`,
   // список выпусков подкаста: номер, тема, гость; ссылка открывает выпуск на YouTube
-  eps:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(j+1).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗︎</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`).join('')}</ol></section>`,
+  eps:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3>${epsList(b.items,(e,j)=>`<li><a href="https://www.youtube.com/watch?v=${e.id}&list=${b.list}" target="_blank" rel="noopener" data-c="row" data-label="Смотреть" data-yt="${e.id}"><span class="n">${String(j+1).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.guest||'')}</span><span class="ar">↗︎</span><span class="rp" style="background-image:url(https://i.ytimg.com/vi/${e.id}/mqdefault.jpg)"></span></a></li>`,['выпуск','выпуска','выпусков'])}</section>`,
   // список выпусков со ссылками на их страницы (Event Surfing)
-  links:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3><ol>${(b.items||[]).map((e,j)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(b.items.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗︎</span></a></li>`).join('')}</ol></section>`,
+  links:b=>`<section class="grey cb cb-eps"><h3 class="d" data-fit><span class="o">${esc(b.h)}</span></h3>${epsList(b.items,(e,j,a)=>`<li><a href="${e.url}" target="_blank" rel="noopener" data-c="link"><span class="n">${String(a.length-j).padStart(2,'0')}</span><b>${esc(e.title)}</b><span class="g">${esc(e.sub||'')}</span><span class="ar">↗︎</span></a></li>`,['ссылка','ссылки','ссылок'])}</section>`,
   // шоурил кейса со старого median.agency: свой mp4 со звуком, грузится только по нажатию
   // reel — путь к mp4; рядом лежат <имя>.webp (постер) и <имя>-teaser.mp4 (превью), их делает tools/media.sh при деплое
-  reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">Видео проекта</span></span></button></div></section>`;},
+  reel:k=>{const r=k.reel.replace(/\.mp4$/,'');return `<section class="cb cb-reel"><div class="reel-box" data-pxm=".25"><button class="ab-play reel-play" type="button" data-c="reel" data-label="Play" data-reel="${r}" aria-label="Смотреть видео: ${esc(k.name)}" style="background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(${r}.webp${VV}) center/cover"><video class="ab-tz" src="${r}-teaser.mp4${VV}" muted loop playsinline preload="none" aria-hidden="true"></video><span class="ab-play-in"><span class="label">${esc(k.rlabel||'Видео проекта')}</span></span></button></div></section>`;},
   // перебивка «буквенная сетка» (South HUB): слово, ряды одной буквы, слоган; буквы у курсора увеличиваются
   // буквы South HUB берём их же векторами с southhub.ru; другие буквы — текстом
   hub:b=>{const gl=t=>HUBSVG[t]?`<img class="hub-svg" src="media/southhub/${HUBSVG[t]}.svg" alt="">`:esc(t);
@@ -360,39 +395,43 @@ const BLOCK={
   // ── блоки «нового формата» кейса (макет «сайт median.agency 2026»): текст — как «Текст» на сером, пункты — строками как список проектов на главной, цифры — на чёрном
   // раздел: ярлык (вопрос или cap), заголовок Druk --h2 (первое слово контуром), абзацы --lead на колонках 3–5, подпись и пункты-строки во всю ширину; группы цифр — отдельным чёрным экраном
   sec:(b,j)=>{const w=(b.h||'').split(' ').filter(Boolean),lab=b.cap||b.q,
-    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows">${b.rows.map((r,k)=>`<div class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm">${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img):''}</div>`).join('')}</div>`:'',
+    rows=b.rows?`${b.label?`<p class="label sc-lab">${esc(b.label)}</p>`:''}<div class="rows sc-rows" data-fit-g>${b.rows.map((r,k)=>`<${r.go?`a href="#${r.go}" data-go="${r.go}" data-c="row" data-label="${esc(b.go||'Перейти')}"`:'div'} class="row${r.img?' ph':''}"${r.img?` data-ph="${r.img}"`:''}${r.img&&r.sticker?` data-st="${r.sticker}"`:''}><span class="n">${esc(r.n||String(k+1).padStart(2,'0'))}</span><span class="nm" data-fit>${esc(r.name)}</span><span class="sb">${esc(r.text||'')}</span>${r.img?rowPh(r.img,r.sticker):''}</${r.go?'a':'div'}>`).join('')}</div>`:'',
     txt=[b.lead,...(b.text||[])].filter(Boolean);
     const ttl=b.h?`<h3 class="d" data-fit>${w.length>1?`<span class="o">${esc(w[0])}</span> ${esc(w.slice(1).join(' '))}`:`<span class="${j%2?'':'o'}">${esc(b.h)}</span>`}</h3>`:'',lb=lab?`<p class="label sc-q">${esc(lab)}</p>`:'';
     if(b.groups&&!txt.length&&!rows)return `<section class="cb cb-kpi wrap">${lb}${ttl}${b.groups.map(kpiGroup).join('')}</section>`; // только цифры — весь раздел на чёрном
     return `<section class="grey cb cb-text cb-sec">${lb}${ttl}${txt.length?`<div class="cb-txt">${P(txt)}</div>`:''}${rows}</section>`+
       (b.groups?`<section class="cb cb-kpi wrap">${b.groups.map(kpiGroup).join('')}</section>`:'');},
+  // Оглавление серии (toc): раздел-список, строки — ссылки на проекты серии (rows с go собирает tools/build-cases.mjs), по наведению — обложка проекта
+  toc:b=>BLOCK.sec({...b,go:b.go||'Перейти'}).replace('cb-sec"','cb-sec cb-toc"'),
   // Key message: подпись и две строки (контурная + сплошная)
   key:b=>`<section class="cb cb-key wrap"><span class="label">${esc(b.label||'Key message')}</span><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="cb-txt">${P(b.text)}</div>`:''}</section>`,
   // фото между разделами по сетке исходных кейсов: шахматкой (колонки 1–2 / 4–5, каждое следующее ниже на полфото) или во всю ширину; параллакс, клик открывает фото
   // вместо фото можно короткий зацикленный кусок моушена (.mp4, без звука)
-  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' autoplay'} preload="metadata" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="" loading="lazy"></span>`}</figure>`).join('')}</section>`,
+  pics:b=>`<section class="grey cb cb-pics${b.mode==='wide'?' wide':''}">${(b.items||[]).map((u,j)=>`<figure class="pc${j%2}${/\.mp4$/.test(u)?' vd':''}" style="grid-row:${j+1}" data-pxm="${b.mode==='wide'?'.35':j%2?'.9':'.4'}">${/\.mp4$/.test(u)?`<video src="${u}${VV}" muted loop playsinline${reduce?'':' data-ap'} preload="metadata" onloadedmetadata="this.style.aspectRatio=this.videoWidth+'/'+this.videoHeight" aria-hidden="true"></video>`:`<span class="px"><img src="${u}" alt="${ALT}" loading="lazy"></span>`}</figure>`).join('')}</section>`,
   // фото на весь экран
-  photo:b=>`<section class="cb cb-photo"><img src="${b.img}" alt="" loading="lazy"></section>`,
+  photo:b=>`<section class="cb cb-photo">${/\.mp4$/.test(b.img||'')?`<video src="${b.img}${VV}" poster="${b.img.replace(/\.mp4$/,'.webp')}" muted loop playsinline${reduce?'':' data-ap'} preload="none" aria-hidden="true"></video>`:`<img src="${b.img}" alt="${ALT}" loading="lazy">`}</section>`, // вместо фото — видео .mp4 (09.11): петля без звука, грузится у экрана, постер — .webp рядом
   // фото во всю ширину с заголовком и белой карточкой (или видео без звука, если vid)
-  banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${b.img}" alt="" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
+  banner:b=>`<section class="cb cb-ban${b.side==='left'?' left':''}">${b.vid&&!reduce?`<video src="${b.vid}${VV}" poster="${b.img||''}" muted loop playsinline data-ap preload="none" aria-hidden="true"></video>`:`<img src="${b.img}" alt="${ALT}" loading="lazy">`}<h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="bn-card">${P(b.text)}</div>`:''}</section>`,
   // карусель: видно три фото, листается свайпом, стрелками и точками
-  carousel:b=>`<section class="grey cb cb-car"><div class="car-track" tabindex="0" aria-label="Фото">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy"></figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
+  carousel:b=>`<section class="grey cb cb-car"><div class="car-track" tabindex="0" aria-label="Фото">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="${ALT}" loading="lazy"></figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
   // история как у Apple: один кадр во всю ширину (на телефоне виден край следующего), под ним карточка — жирный лид и текст; листается как карусель (та же логика .cb-car)
-  story:b=>`<section class="cb cb-car cb-story"><div class="car-track" tabindex="0" aria-label="Фото с подписями">${(b.items||[]).map(it=>`<figure><div class="st-m">${/\.mp4$/.test(it.img||'')?`<video src="${it.img}${VV}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>`:`<img src="${it.img}" alt="" loading="lazy">`}</div>${it.b||it.text?`<figcaption class="st-cap">${it.b?`<b>${esc(it.b)}</b> `:''}${esc(it.text||'')}</figcaption>`:''}</figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
+  story:b=>`<section class="cb cb-car cb-story"><div class="car-track" tabindex="0" aria-label="Фото с подписями">${(b.items||[]).map(it=>`<figure><div class="st-m">${/\.mp4$/.test(it.img||'')?`<video src="${it.img}${VV}" muted loop playsinline data-ap preload="none" aria-hidden="true"></video>`:`<img src="${it.img}" alt="${ALT}" loading="lazy">`}</div>${it.b||it.text?`<figcaption class="st-cap">${it.b?`<b>${esc(it.b)}</b> `:''}${esc(it.text||'')}</figcaption>`:''}</figure>`).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`,
   // сплит: слева текст стоит на месте, справа проезжают фото
-  split:b=>`<section class="grey cb cb-split"><div class="sp-txt">${b.label?`<span class="label">${esc(b.label)}</span>`:''}<h3 class="d" data-fit>${(b.h||'').split('\n').map(esc).join('<br>')}</h3>${P(b.text)}</div><div class="sp-ph">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="" loading="lazy"></figure>`).join('')}</div></section>`,
+  split:b=>`<section class="grey cb cb-split"><div class="sp-txt">${b.label?`<span class="label">${esc(b.label)}</span>`:''}<h3 class="d" data-fit>${(b.h||'').split('\n').map(esc).join('<br>')}</h3>${P(b.text)}</div><div class="sp-ph">${(b.items||[]).map(u=>`<figure><img src="${u}" alt="${ALT}" loading="lazy"></figure>`).join('')}</div></section>`,
   // бегущие ленты: две ленты в разные стороны, клик открывает фото
-  marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${r.map(u=>`<img src="${u}" alt="" loading="lazy">`).join('')}</div></div>`).join('')}</section>`,
+  marquee:b=>`<section class="grey cb cb-mq">${[b.a,b.b].filter(Boolean).map((r,j)=>`<div class="mq${j?' rev':''}"><div class="mq-t">${r.map(u=>`<img src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></div>`).join('')}</section>`,
   // фото-аккордеон: полосы раскрываются при наведении или нажатии
-  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}"><img src="${u}" alt=""></button>`).join('')}</div></section>`,
+  accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}"><img src="${u}" alt="${ALT}" loading="lazy"></button>`).join('')}</div></section>`,
   // бенто: 8 плиток разного размера, клик открывает фото
-  bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="" loading="lazy">`).join('')}</div></section>`,
+  bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></section>`,
   // галерея: большое фото, стрелки, счётчик и полоса превью
-  gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}"><img src="${u}" alt=""></button>`).join('')}</div></section>`;},
+  // рилс (09.11): лента вертикальных роликов 9:16, как Reels в инстаграме; превью X-p.mp4 крутится без звука, по тапу — полноэкранный плеер со звуком (#rlv)
+  reels:b=>{const it=(b.items||[]).filter(x=>x&&x.vid);return `<section class="cb cb-car cb-reels">${b.h?`<p class="label rl-h">${esc(b.h)}</p>`:''}<div class="car-track" tabindex="0" aria-label="Рилс">${it.map((x,j)=>{const r=x.vid.replace(/\.mp4$/,'');return `<figure><button type="button" class="rl" data-rl="${j}" data-src="${x.vid}" data-t="${esc(x.title||'')}" aria-label="Смотреть${x.title?': '+esc(x.title):''}" data-c="link"><video src="${r}-p.mp4${VV}" poster="${r}.webp" muted loop playsinline${reduce?'':' data-ap'} preload="none" aria-hidden="true"></video><span class="rl-pl" aria-hidden="true"></span>${x.title?`<span class="rl-t">${esc(x.title)}</span>`:''}</button></figure>`;}).join('')}</div><div class="car-nav"><button type="button" class="car-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><span class="car-dots"></span><button type="button" class="car-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button></div></section>`;},
+  gallery:b=>{const it=b.items||[];return `<section class="grey cb cb-gal"><div class="gl-main">${it.map((u,j)=>`<img src="${u}" alt="${ALT}" loading="lazy" class="${j?'':'on'}">`).join('')}<button type="button" class="gl-p" aria-label="Назад" data-c="link" data-stick data-stick-size="56">←</button><button type="button" class="gl-n" aria-label="Вперёд" data-c="link" data-stick data-stick-size="56">→</button><span class="gl-c">1 / ${it.length}</span></div><div class="gl-th">${it.map((u,j)=>`<button type="button" class="${j?'':'on'}" aria-label="Фото ${j+1}"><img src="${thumb(u)}" onerror="this.onerror=null;this.src='${u}'" alt="${ALT}" loading="lazy"></button>`).join('')}</div></section>`;},
   // итоги по годам / городам: заголовок, сводка, строки с цифрами
   // итоги: вкладки-чипы по годам/городам (свежие первыми — строки в обратном порядке), под ними цифры выбранной вкладки;
   // все вкладки лежат друг на друге (скрытые — невидимы, но измеряются), цифры ужимаются одной группой — размер одинаковый на всех вкладках
-  years:b=>{const rs=(b.rows||[]).slice().reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps">${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${kvS(m.v)[0].length>6?' class="w2"':''}>${icoOf(m)}${kvB(m.v)}<span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
+  years:b=>{const rs=(b.rows||[]).slice();if(!b.desc)rs.reverse();return `<section class="cb cb-years wrap"><h3 class="d">${ttlHtml([[b.out,1],[b.solid,0]].filter(l=>l[0]),true)}</h3>${b.text?`<div class="cb-txt">${P(b.text)}</div>`:''}${b.sum?kpiGroup(b.sum):''}<div class="flt yr-tabs" role="tablist">${rs.map((r,k)=>`<button type="button" role="tab" aria-pressed="${!k}" data-c="mag" data-magnet>${esc(r.y)}</button>`).join('')}</div><div class="yr-ps">${rs.map((r,k)=>`<div class="yr-p" role="tabpanel"${k?' hidden':''}>${r.sub?`<p class="label yr-sub">${esc(r.sub)}</p>`:''}<div class="yr-k">${(r.items||[]).map(m=>`<div${kvS(m.v)[0].length>6?' class="w2"':''}>${icoOf(m)}${kvB(m.v)}<span>${esc(m.l)}</span></div>`).join('')}</div></div>`).join('')}</div></section>`;},
 };
 // группа цифр раздела: подпись, числа (над числом — мелкая подпись pre, например «План 4 000»)
 // пиктограммы к цифрам в стиле Apple: набор — js/icons.js (из CMS → Настройки → Пиктограммы к цифрам), svg рисуется маской цветом текста (mask-image — прямо в style, путь от страницы).
@@ -402,7 +441,7 @@ const icoOf=m=>{let ic=m.icon&&IC.find(i=>i.id===m.icon);
   if(!ic){const t=' '+`${m.l||''} ${m.pre||''} ${m.v||''}`.toLowerCase().replace(/[«»"“”(),.:;—–-]/g,' ').replace(/\s+/g,' ');
     ic=IC.find(i=>i.w.some(w=>/[a-zа-яё]/.test(w)?t.includes(' '+w):t.includes(w)))||IC.find(i=>!i.w.length);}
   return ic?`<span class="kv-ic" style="-webkit-mask-image:url(${ic.img});mask-image:url(${ic.img})" aria-hidden="true"></span>`:'';};
-function kpiGroup(g){return `<div class="kpi">${g.l?`<p class="label">${esc(g.l)}</p>`:''}<div class="kpi-i">${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':''}>${icoOf(m)}${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}${kvB(m.v)}<span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
+function kpiGroup(g){return `<div class="kpi">${g.l?`<p class="label">${esc(g.l)}</p>`:''}<div class="kpi-i">${(g.items||[]).map(m=>`<div${/→/.test(m.v)?' class="w2"':kvS(m.v)[0].length>7?' class="wl"':''}>${icoOf(m)}${m.pre?`<span class="label">${esc(m.pre)}</span>`:''}${kvB(m.v)}<span>${esc(m.l||'')}</span></div>`).join('')}</div></div>`;}
 // цифра как у Apple: число крупно, единица после него («из 10», «млн», «команд») — мелко на той же линии; «182 → 709» и «+79%» целиком
 const kvS=v=>{v=String(v||'');const m=/→/.test(v)?null:/^(\S*\d[\d\u00a0\u202f ,.]*[%+]?)\s+(\D.*)$/.exec(v);return m?[m[1].trim(),m[2]]:[v,''];};
 const kvB=v=>{const[h,u]=kvS(v);return `<b class="d kv">${nw(h)}${u?`<small class="kv-u">${esc(u).replace(/ /g,'\u00a0')}</small>`:''}</b>`;};
@@ -422,7 +461,20 @@ let mqEls=[],mqRaf=0;
 function mqUpd(){mqRaf=0;const vh=innerHeight;mqEls.forEach(m=>{const r=m.getBoundingClientRect();if(r.bottom<0||r.top>vh)return;const p=Math.min(1,Math.max(0,(vh-r.top)/(vh+r.height)));
   m.querySelectorAll('.mq-t').forEach((t,j)=>{const d=Math.min(Math.max(0,t.scrollWidth-m.clientWidth),m.clientWidth*.45);t.style.transform=`translate3d(${-(j%2?1-p:p)*d}px,0,0)`;});});}
 $('#casePanel .sheet').addEventListener('scroll',()=>{if(mqEls.length&&!mqRaf)mqRaf=requestAnimationFrame(mqUpd);},{passive:true});
+// длинные списки выпусков/ссылок (09.11): как список кейсов — первые 7 видны, остальные раскрываются круглой кнопкой «Ещё N …»
+let EPS_N=0;
+function epsList(items=[],li,w){const a=items||[],h=a.slice(0,ROWS_SHOWN).map((e,j)=>li(e,j,a)).join(''),r=a.slice(ROWS_SHOWN);
+  if(!r.length)return `<ol>${h}</ol>`;const id='epsM'+(++EPS_N);
+  return `<ol>${h}</ol><div class="rows-more" id="${id}" inert><div class="rm-in"><ol start="${ROWS_SHOWN+1}">${r.map((e,j)=>li(e,j+ROWS_SHOWN,a)).join('')}</ol></div></div><div class="rows-tog-w"><button class="ring-link ab-ring rows-tog eps-tog" type="button" data-c="link" data-stick data-stick-to=".arr-d" data-stick-size="64" data-magnet aria-expanded="false" aria-controls="${id}" data-w="${w.join('|')}" data-n="${r.length}"><svg class="circ" viewBox="0 0 150 150" aria-hidden="true"><defs><path id="${id}c" d="M75,75 m-58,0 a58,58 0 1,1 116,0 a58,58 0 1,1 -116,0"/></defs><text><textPath href="#${id}c"><tspan></tspan><tspan></tspan><tspan></tspan><tspan></tspan></textPath></text></svg><svg class="arr-d" viewBox="0 0 12 40" aria-hidden="true"><path d="M6 0V38"/><path d="M1.5 33l4.5 5 4.5-5"/></svg></button></div>`;}
+function epsTog(b,o){const box=document.getElementById(b.getAttribute('aria-controls')),n=+b.dataset.n,f=b.dataset.w.split('|');box.classList.toggle('open',o);box.toggleAttribute('inert',!o);b.setAttribute('aria-expanded',o);
+  const w=o?['Свернуть','список']:[`Ещё ${n}`,plural(n,...f)],t=b.querySelector('text');t.querySelectorAll('tspan').forEach((s,j)=>s.textContent=w[j%2]);fitRing(t);
+  b.setAttribute('aria-label',o?'Свернуть список':`Показать ещё ${n} ${plural(n,...f)}`);}
 function blocksInit(root){
+  root.querySelectorAll('.eps-tog').forEach(b=>{epsTog(b,false);b.addEventListener('click',()=>{const o=b.getAttribute('aria-expanded')!=='true';
+    if(!o){const s=b.closest('section');if(s&&s.getBoundingClientRect().top<0)s.scrollIntoView({behavior:reduce?'auto':'smooth'});}epsTog(b,o);});});
+  // петли в теле кейса (09.11): не качаются при открытии, а стартуют, когда подъезжают к экрану (за 400 px), и встают на паузу, уйдя с него
+  if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(e.isIntersecting){v.preload='auto';v.play().catch(()=>{});}else v.pause();}),{rootMargin:'400px 0px'});
+    root.querySelectorAll('video[data-ap]').forEach(v=>io.observe(v));}else root.querySelectorAll('video[data-ap]').forEach(v=>{v.preload='auto';v.play().catch(()=>{});});
   root.querySelectorAll('.cb-car').forEach(c=>{const t=c.querySelector('.car-track'),f=[...t.children],d=c.querySelector('.car-dots');
     const per=()=>Math.max(1,Math.round(t.clientWidth/(f[0].getBoundingClientRect().width||1))),pages=()=>Math.max(1,f.length-per()+1);
     const draw=()=>{const n=pages(),i=Math.round(t.scrollLeft/((f[1]?f[1].offsetLeft-f[0].offsetLeft:1)||1));d.innerHTML=Array.from({length:n},(_,j)=>`<button type="button" aria-label="Фото ${j+1}" class="${j===Math.min(i,n-1)?'on':''}" data-c="mag"></button>`).join('');};
@@ -431,12 +483,23 @@ function blocksInit(root){
     {let x0=0,s0=0,drag=0;const step=()=>(f[1]?f[1].offsetLeft-f[0].offsetLeft:t.clientWidth)||1;
      t.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button)return;x0=e.clientX;s0=t.scrollLeft;drag=1;});
      addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-x0;if(drag===1&&Math.abs(dx)>6){drag=2;t.style.scrollSnapType='none';t.classList.add('drag');}if(drag===2){t.scrollLeft=s0-dx;e.preventDefault();}});
-     addEventListener('pointerup',e=>{if(drag===2){const dx=e.clientX-x0,base=Math.round(s0/step()),i=Math.abs(dx)>step()*.15?base-Math.sign(dx):base;t.style.scrollSnapType='';t.classList.remove('drag');go(Math.max(0,Math.min(pages()-1,i)));t.dataset.dragged=1;setTimeout(()=>delete t.dataset.dragged,0);}drag=0;});
+     addEventListener('pointerup',e=>{if(drag===2){const dx=e.clientX-x0,base=Math.round(s0/step()),i=Math.abs(dx)>step()*.15?base-Math.sign(dx):base;t.style.scrollSnapType='';t.classList.remove('drag');go(i);t.dataset.dragged=1;setTimeout(()=>delete t.dataset.dragged,0);}drag=0;});
      t.addEventListener('click',e=>{if(t.dataset.dragged){e.stopPropagation();e.preventDefault();}},true);
-     t.addEventListener('dragstart',e=>e.preventDefault());}
+     t.addEventListener('dragstart',e=>e.preventDefault());
+     // свайп пальцем (09.11): лента не прокручивается нативно (touch-action:pan-y), жест листает на кадр, точки идут следом
+     let p0=null;t.addEventListener('touchstart',e=>{const q=e.touches[0];p0=[q.clientX,q.clientY];},{passive:true});
+     t.addEventListener('touchend',e=>{if(!p0)return;const q=e.changedTouches[0],dx=q.clientX-p0[0],dy=q.clientY-p0[1];p0=null;if(Math.abs(dx)>30&&Math.abs(dx)>Math.abs(dy)*1.2){go(cur()-Math.sign(dx));}},{passive:true});}
     const cur=()=>[...d.children].findIndex(b=>b.classList.contains('on'));
     c.querySelector('.car-p').onclick=()=>go(cur()-1);c.querySelector('.car-n').onclick=()=>go(cur()+1);
     d.onclick=e=>{const b=e.target.closest('button');if(b)go([...d.children].indexOf(b));};
+    // скраббер по точкам (09.11), как полоски главного баннера: ведём пальцем по ряду точек — лента едет к точке под пальцем
+    {let on=false,last=-1;const at=x=>{let b=0,bd=1e9;[...d.children].forEach((k,i)=>{const r=k.getBoundingClientRect(),q=Math.abs(x-r.left-r.width/2);if(q<bd){bd=q;b=i;}});return b;};
+     const mv=e=>{if(!on)return;const i=at(e.touches[0].clientX);if(i!==last){last=i;go(i);}if(e.cancelable)e.preventDefault();};
+     d.addEventListener('touchstart',e=>{on=true;last=-1;mv(e);},{passive:false});d.addEventListener('touchmove',mv,{passive:false});
+     d.addEventListener('touchend',()=>on=false);d.addEventListener('touchcancel',()=>on=false);
+     d.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button)return;on=true;last=-1;d.setPointerCapture(e.pointerId);const i=at(e.clientX);last=i;go(i);e.preventDefault();}); // мышью тоже: зажали и ведём по точкам (09.11)
+     d.addEventListener('pointermove',e=>{if(!on||e.pointerType!=='mouse')return;const i=at(e.clientX);if(i!==last){last=i;go(i);}});
+     d.addEventListener('pointerup',e=>{if(e.pointerType==='mouse')on=false;});}
     let raf=0;t.addEventListener('scroll',()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(draw);},{passive:true});draw();addEventListener('resize',draw);});
   root.querySelectorAll('.acc').forEach(a=>{const it=[...a.children],open=x=>it.forEach(i=>{const on=i===x;i.classList.toggle('on',on);i.setAttribute('aria-expanded',on);});
     it.forEach(i=>{i.addEventListener('click',()=>open(i));i.addEventListener('focus',()=>open(i));i.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')open(i);});});});
@@ -455,6 +518,31 @@ const lbClose=()=>{LB.classList.remove('on');LB.setAttribute('aria-hidden','true
 $('#cBody').addEventListener('click',e=>{const im=e.target.closest('img[data-lb]');if(!im||matchMedia('(max-width:820px)').matches&&im.closest('.cb-car'))return;const sec=im.closest('section');lbSet=[...new Set([...sec.querySelectorAll('img[data-lb]')].map(x=>x.getAttribute('src')))];lbShow(lbSet.indexOf(im.getAttribute('src')));LB.classList.add('on');LB.setAttribute('aria-hidden','false');});
 LB.addEventListener('click',e=>{if(e.target.closest('.lb-p'))lbShow(lbI-1);else if(e.target.closest('.lb-n'))lbShow(lbI+1);else if(e.target===LB||e.target.closest('.lb-x'))lbClose();});
 addEventListener('keydown',e=>{if(!LB.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();lbClose();}else if(e.key==='ArrowLeft')lbShow(lbI-1);else if(e.key==='ArrowRight')lbShow(lbI+1);},true);
+// плеер рилс (09.11): во весь экран, 9:16, со звуком; сверху полоски как в сторис; свайп вверх/вниз и стрелки — соседний ролик, тап — пауза, кончился — следующий
+const RV=document.createElement('div');RV.id='rlv';RV.setAttribute('aria-hidden','true');
+RV.innerHTML='<div class="rlv-f"><div class="rlv-bars"></div><video playsinline preload="auto"></video><span class="rlv-t"></span><button type="button" class="rlv-m" aria-label="Выключить звук" data-c="link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="on" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/><path class="off" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button></div><button type="button" class="rlv-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';
+document.body.appendChild(RV);
+{const v=RV.querySelector('video'),bars=RV.querySelector('.rlv-bars'),mt=RV.querySelector('.rlv-m');let set=[],ri=0;
+ const show=i=>{if(!set.length)return;i=(i%set.length+set.length)%set.length;ri=i; // бесконечно: за последним — первый (09.11)
+   const x=set[i];v.src=x.src+VV;v.muted=false;v.play().catch(err=>{if(err&&err.name==='NotAllowedError'){v.muted=true;v.play().catch(()=>{});mtx();}});RV.querySelector('.rlv-t').textContent=x.t;
+   bars.innerHTML=set.map((_,j)=>`<i class="${j<i?'done':''}"><b></b></i>`).join('');mtx();};
+ const mtx=()=>{mt.classList.toggle('muted',v.muted);mt.setAttribute('aria-label',v.muted?'Включить звук':'Выключить звук');}; // пиктограмма динамика (09.11), не текст
+ const close=()=>{v.pause();v.removeAttribute('src');v.load();RV.classList.remove('on');RV.setAttribute('aria-hidden','true');};
+ v.addEventListener('timeupdate',()=>{const b=bars.children[ri];if(b&&v.duration)b.firstChild.style.width=(v.currentTime/v.duration*100).toFixed(2)+'%';});
+ v.addEventListener('ended',()=>show(ri+1));
+ const fr=RV.querySelector('.rlv-f'),fine=matchMedia('(hover:hover)').matches;
+ // десктоп (09.11): кнопок нет — курсор над роликом становится стрелкой в круге: правее центра → (следующий), левее ← (предыдущий); клик листает по кругу
+ const side=e=>{const b=fr.getBoundingClientRect();return e.clientX>b.left+b.width/2?1:-1;};
+ if(fine)fr.addEventListener('pointermove',e=>{if(e.target.closest('.rlv-m'))return;const c=side(e)>0?'arrow':'arrowl';if(fr.dataset.c!==c){fr.dataset.c=c;e.target.dispatchEvent(new PointerEvent('pointerover',{bubbles:true,clientX:e.clientX,clientY:e.clientY}));}});
+ fr.addEventListener('click',e=>{if(e.target.closest('.rlv-m'))return;if(fine)show(ri+side(e));else v.paused?v.play():v.pause();});
+ mt.addEventListener('click',()=>{v.muted=!v.muted;mtx();});
+ RV.addEventListener('click',e=>{if(e.target===RV||e.target.closest('.rlv-x'))close();});
+ let y0=null;RV.addEventListener('touchstart',e=>{y0=[e.touches[0].clientX,e.touches[0].clientY];},{passive:true});
+ RV.addEventListener('touchend',e=>{if(!y0)return;const q=e.changedTouches[0],dx=q.clientX-y0[0],dy=q.clientY-y0[1];y0=null;if(Math.abs(dy)>50&&Math.abs(dy)>Math.abs(dx)*1.2)show(ri+(dy<0?1:-1));},{passive:true});
+ RV.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
+ addEventListener('keydown',e=>{if(!RV.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();close();}else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();show(ri-1);}else if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();show(ri+1);}else if(e.key===' '){e.preventDefault();v.paused?v.play():v.pause();}},true);
+ $('#cBody').addEventListener('click',e=>{const b=e.target.closest('.rl');if(!b)return;const t=b.closest('.car-track');if(t&&t.dataset.dragged)return;
+   set=[...b.closest('section').querySelectorAll('.rl')].map(x=>({src:x.dataset.src,t:x.dataset.t}));RV.classList.add('on');RV.setAttribute('aria-hidden','false');show(+b.dataset.rl);});}
 // шоурил кейса: беззвучное превью играет, пока блок виден; по клику — полное видео со звуком
 // тизеры всех роликов кейса крутятся по кругу, пока ролик на экране
 let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const vs=[...document.querySelectorAll('#cBody .reel-play .ab-tz')];if(!vs.length||reduce||!('IntersectionObserver' in window))return;
@@ -475,7 +563,7 @@ function cfLogo(k){const t=k.client||k.name,m=!k.logo&&CLOGO.find(([r])=>r.test(
 function fillCase(id,split){
   const k=caseById(id), i=CASES.indexOf(k), n=CASES[(i+1)%CASES.length]; openId=id; // у скрытого кейса i=-1: «Следующий проект» — первый в списке
   const cb=$('#cBack');cb.hidden=!inStack();if(jobId)cb.href=jobUrl(jobId); // кейс из вакансии: «← К вакансии»
-  document.title=k.name+' — Median';
+  document.title=k.name+' — Median';ALT=esc(k.name+' — фото').replace(/"/g,'&quot;');
   $('#cVis').style.background=cover(k,Math.max(i,0));$('#cVis').style.translate='';const H=$('#cHero');H.classList.add('snap');H.classList.toggle('split',!!split);H.offsetWidth;H.classList.remove('snap'); // раскладка «обложка слева» — только при переходе со «Следующего проекта»
   $('#cVis').innerHTML=vid(k);playIn($('#cVis'),true);
   $('#cTitle').innerHTML=ttlHtml(ttlOf(k),true);
@@ -486,9 +574,9 @@ function fillCase(id,split){
   (k.facts||[]).forEach(f=>f.l&&f.v&&facts.splice(f.at??facts.length,0,[f.l,f.v]));
   let tc=0;
   // анкета и видео — тоже блоки (facts, reel): где стоят в списке, там и выводятся; если их в списке нет — как раньше, в начале страницы
-  const bl=k.blocks||[],fHtml=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`;
+  const bl=k.blocks||[],tocB=bl.find(b=>b.t==='toc'&&(b.rows||[]).length),fHtml=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}${tocB?`<dt>Оглавление</dt><dd><ol class="cf-toc">${tocB.rows.map(r=>`<li><a href="#${r.go}" data-go="${r.go}" data-c="link" data-stick data-stick-size="text" data-magnet>${esc(r.name)}</a></li>`).join('')}</ol></dd>`:''}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`;
   $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
-    bl.map(b=>b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'').join('')+
+    bl.map(b=>(b.a?`<i class="toc-at" id="${b.a}"></i>`:'')+(b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel,rlabel:b.label}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'')).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
   reelTeaser();hubInit();blocksInit($('#cBody'));$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(twAdd);
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
@@ -501,6 +589,7 @@ document.fonts&&document.fonts.ready.then(()=>{fitAll();if(openId){fitTitle($('#
 // после перехода обложка раскрывается из макетной раскладки на весь экран, заголовок уезжает вниз влево
 let expT=0;function expandHero(d){clearTimeout(expT);expT=setTimeout(()=>$('#cHero').classList.remove('split'),reduce?0:d);}
 function openCase(id,fromEl,noPush){
+  goal('case_open',{case:id});
   fillCase(id);
   if(!noPush)setCaseUrl(id,true);
   const panel=$('#casePanel');
@@ -546,6 +635,7 @@ $('#casePanel .sheet').addEventListener('wheel',e=>{if(!holdUntil)return;const d
 $('#casePanel .sheet').addEventListener('touchmove',e=>{if(holdUntil&&e.cancelable)e.preventDefault();},{passive:false});
 // картинку следующего кейса декодируем заранее, пока блок «Следующий проект» подъезжает, — чтобы обложка нового кейса нарисовалась сразу
 let preDec='';function predecodeNext(){const i=CASES.findIndex(c=>c.id===openId),n=CASES[(i+1)%CASES.length],u=n.vid?poster(n):n.img;if(!u||preDec===u)return;preDec=u;const im=new Image();im.src=u;im.decode&&im.decode().catch(()=>{});}
+$('#cBody').addEventListener('click',e=>{const a=e.target.closest('a[data-go]');if(!a)return;e.preventDefault();const t=document.getElementById(a.dataset.go);t&&t.scrollIntoView({behavior:reduce?'auto':'smooth'});}); // оглавление серии: плавно к проекту, адрес страницы не меняется
 $('#casePanel .case-hero .case-down').addEventListener('click',()=>{const sh=$('#casePanel .sheet');sh.scrollTo({top:$('#cHero').offsetHeight,behavior:'smooth'});});
 // «Следующий проект» приклеен к экрану, линия под фото заполняется, на полном заполнении — переход
 // touch: обложка выпуска в строке у центра экрана, как в списке кейсов
@@ -577,11 +667,8 @@ if(!fine)$('#casePanel .sheet').addEventListener('scroll',()=>{const cy=innerHei
 function nxRing(k){const b=document.body,on=k>.01;b.classList.toggle('c-nx',on);
   if(on)$('#ring .t').textContent='Следующий проект';
   $('#ring circle').style.strokeDashoffset=on?302*(1-k):302;}
-$('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
-$('[data-case="es"]').addEventListener('click',e=>{e.preventDefault();openCase('es',e.currentTarget.querySelector('.vis'))});
 $$('.dir [data-case]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openCase(a.dataset.case,a.closest('.dir').querySelector('.vis'))}));
-$('[data-case="podcast"]').addEventListener('click',e=>{e.preventDefault();openCase('podcast',e.currentTarget.querySelector('.vis'))});
-const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on'))openPanel(b);};
+const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on')){goal('brief_open');openPanel(b);}};
 $('#start').onclick=openBrief;
 // iOS Safari иногда съедает первый тап по кнопке (считает его наведением) — на таче открываем по отпусканию пальца, без синтетического клика
 let st0=null;$('#start').addEventListener('touchstart',e=>{const t=e.touches[0];st0=[t.clientX,t.clientY];},{passive:true});
@@ -591,6 +678,7 @@ $('#brief').addEventListener('submit',e=>{
   e.preventDefault();const f=e.target;
   if(!f.name.value.trim()||!f.contact.value.trim()){toast('Заполните имя и контакт');(f.name.value.trim()?f.contact:f.name).focus();return;}
   if(!f.agree.checked){toast('Нужно согласие на обработку данных');f.agree.focus();return;}
+  goal('brief_send',{kind:f.kind.value});
   const ok=$('#ok');ok.hidden=false;
   ok.textContent=`Спасибо, ${f.name.value.trim()}. Заявка собрана: «${f.kind.value}». В прототипе она никуда не уходит; на рабочем сайте её получит Telegram-бот агентства и CRM.`;
 });
@@ -599,7 +687,7 @@ $('#brief').addEventListener('submit',e=>{
 {const cvP=$('#cvPanel'),cvF=$('#cvForm'),cvOk=$('#cvOk'),URLRE=/^(https?:\/\/)?[^\s.]+\.[^\s]{2,}$/i;
  const openCv=()=>{const v=jobId&&jobP.classList.contains('on')?jobById(jobId):null;cvF.dataset.job=v?v.id:'';
    $('#cvFor').textContent=(v?`Отклик на вакансию «${v.name}». `:'')+'Оставьте контакты и ссылки на резюме и портфолио. Ответим в течение нескольких рабочих дней.';
-   cvOk.hidden=true;if(!cvP.classList.contains('on'))openPanel(cvP);};
+   cvOk.hidden=true;if(!cvP.classList.contains('on')){goal('cv_open',{vacancy:v?v.id:''});openPanel(cvP);}};
  const cv=$('#jCv');cv.addEventListener('click',e=>{e.preventDefault();openCv();});
  // как у Start a project: на таче открываем по отпусканию пальца (iOS съедает первый тап)
  let c0=null;cv.addEventListener('touchstart',e=>{const t=e.touches[0];c0=[t.clientX,t.clientY];},{passive:true});
@@ -614,6 +702,7 @@ $('#brief').addEventListener('submit',e=>{
    if(val('website'))return; // ловушка для ботов
    const v=jobById(f.dataset.job),q=new URLSearchParams(location.search),utm={};['source','medium','campaign','content','term'].forEach(k=>{const x=q.get('utm_'+k);if(x)utm[k]=x;});
    const data={type:'vacancy',vacancy:v?{id:v.id,name:v.name,hh:v.hh||''}:null,name:val('name'),tg:val('tg')&&'@'+val('tg').replace(/^@|^https?:\/\/t\.me\//i,''),phone:val('phone'),email:val('email'),cv:link(val('cv')),portfolio:link(val('portfolio')),msg:val('msg'),agree:new Date().toISOString(),page:location.href,utm};
+   goal('cv_send',{vacancy:v?v.id:''});
    const btn=f.querySelector('.send');btn.disabled=true;let sent=false;
    if(JB.crm)try{const r=await fetch(JB.crm,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});sent=r.ok;}catch(err){}
    btn.disabled=false;cvOk.hidden=false;
@@ -631,7 +720,7 @@ $('#brief').addEventListener('submit',e=>{
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
 const REEL='media/video/showreel.mp4'; // Showreel 2022 со старого median.agency (MEDIAN-REEL-LANDING), свой файл вместо YouTube
-const showreel=()=>{const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<video src="${vurl(REEL)}" poster="media/video/showreel.webp" controls autoplay playsinline preload="auto"></video>`;openPanel(p);const v=$('#reelPanel video');v.play().catch(()=>{});};
+const showreel=()=>{goal('reel_open');const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<video src="${vurl(REEL)}" poster="media/video/showreel.webp" controls autoplay playsinline preload="auto"></video>`;openPanel(p);const v=$('#reelPanel video');v.play().catch(()=>{});};
 const ringC=$('#ring circle');
 function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/HOLD);ringC.style.strokeDashoffset=302*(1-p);if(p>=1){endHold();openCase(HERO[cur].id,$('.hero-panel'));return;}holdRaf=requestAnimationFrame(holdTick);}
 function endHold(){cancelAnimationFrame(holdRaf);holdStart=0;ringC.style.strokeDashoffset=302;}
@@ -645,6 +734,7 @@ hit.addEventListener('click',()=>{if(lastPointer==='mouse')return;openCase(HERO[
 hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCase(HERO[cur].id,$('.hero-panel'));}});
 // «Следующий проект»: переход — прокруткой до конца (кольцо курсора заполняется); тап или Enter по обложке — сразу
 $('#cNextCover').addEventListener('click',()=>handoffNext());
+$('#cNextGo').addEventListener('click',()=>handoffNext()); // подвал кейса: «Следующий проект ↓» — как клик по обложке
 
 
 /* ---------- кольцо «Все проекты»: трекинг подгоняется под длину окружности ---------- */
@@ -683,7 +773,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closePrev();});
 /* ---------- «О нас»: своя страница /about, открывается как кейс ---------- */
 const aboutP=$('#aboutPanel'); let aboutPushed=false, aboutD=0; // aboutD — глубина записи «О нас» в истории (см. depth)
 // видео о команде: свой файл (с YouTube из облака не скачать); на обложке — короткое превью без звука, по клику — полное видео
-function openAbout(push){if(aboutP.classList.contains('on'))return;aboutP.querySelectorAll('img[data-src]').forEach(i=>{i.src=i.dataset.src;i.removeAttribute('data-src');}); // фото «О нас» грузим только при открытии
+function openAbout(push){if(aboutP.classList.contains('on'))return;goal('about_open');aboutP.querySelectorAll('img[data-src]').forEach(i=>{i.src=i.dataset.src;i.removeAttribute('data-src');}); // фото «О нас» грузим только при открытии
 
   if(push){history.pushState({about:1,d:1},'',ROOT+'about');aboutPushed=true;}aboutD=depth();
   document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce){tz.addEventListener('playing',()=>tz.classList.add('on'),{once:true});tz.play().catch(()=>{});}}
@@ -754,7 +844,7 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   const more=JB.list.filter(x=>x.id!==id);$('#jMore').hidden=!more.length;jobRows($('#jMoreRows'),more);
   jobP.querySelector('.sheet').scrollTop=0;
   requestAnimationFrame(()=>{fitTitle($('#jTitle'));fitAll(jobP);});}
-function openJob(id,push){if(!jobById(id)){showJobs(push);return;} // вакансию закрыли или адрес с ошибкой — показываем список
+function openJob(id,push){if(!jobById(id)){showJobs(push);return;}goal('vacancy_open',{vacancy:id}); // вакансию закрыли или адрес с ошибкой — показываем список
   // вакансия сменяет «О нас» в том же листе (плавно, без второго выезда); «← О нас» возвращает к списку, крестик — на главную
   if(!aboutP.classList.contains('on')){history.replaceState({about:1},'',ROOT+'about');openAbout(false);jobP.classList.remove('fade');}
   else if(!jobP.classList.contains('on'))jobP.classList.add('fade');
@@ -792,13 +882,13 @@ $$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
 /* ---------- footer reveal + curtain ---------- */
 if('IntersectionObserver' in window){
   // на телефоне футер лежит под разделом «Собственные проекты»: видимая часть — ниже его нижнего края
-  const foot=$('#contact'),own=$('#own');
+  const foot=$('#contact'),own=$('#pod');
   const footIn=()=>{if(foot.classList.contains('in'))return;const f=foot.getBoundingClientRect(),under=getComputedStyle(foot).position==='sticky';
     const top=Math.max(0,f.top,under?own.getBoundingClientRect().bottom:0),seen=Math.min(innerHeight,f.bottom)-top;
     if(seen>innerHeight*.35){foot.classList.add('in');removeEventListener('scroll',footIn);}};
   new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){addEventListener('scroll',footIn,{passive:true});footIn();}else removeEventListener('scroll',footIn);}),{threshold:0}).observe(foot);
 }else document.documentElement.classList.add('no-io');
-function stickyOwn(){const own=$('#own');own.style.top=Math.min(0,innerHeight-own.offsetHeight)+'px';}
+function stickyOwn(){const own=$('#pod');own.style.top=Math.min(0,innerHeight-own.offsetHeight)+'px';}
 let ownW=innerWidth;stickyOwn();addEventListener('resize',()=>{if(matchMedia('(hover:none)').matches&&innerWidth===ownW)return;ownW=innerWidth;stickyOwn();});document.fonts&&document.fonts.ready.then(stickyOwn);
 
 /* ---------- menu ---------- */
@@ -847,7 +937,7 @@ if(fine&&!reduce){
   // магнит: цель задаётся курсором, элемент догоняет её плавно в общем цикле
   let mags=[];const magSeen=new WeakSet();
   const addMag=el=>{if(magSeen.has(el))return;magSeen.add(el);
-    const m={el,tx:0,ty:0,x:0,y:0,on:false,fol:el.classList.contains('vis')?el.closest('.dir').querySelector('.vlink'):null};mags.push(m);
+    const m={el,tx:0,ty:0,x:0,y:0,on:false,fol:el.classList.contains('vis')&&el.closest('.dir')?el.closest('.dir').querySelector('.vlink'):null};mags.push(m);
     const k=parseFloat(el.dataset.magnet)||.2; // большим блокам (обложки направлений) — слабее
     el.addEventListener('pointermove',e=>{const b=el.getBoundingClientRect();m.on=true;m.tx=(e.clientX-b.left-b.width/2)*k;m.ty=(e.clientY-b.top-b.height/2)*k;});
     el.addEventListener('pointerleave',()=>{m.on=false;m.tx=m.ty=0;});};
@@ -868,7 +958,20 @@ if(fine&&!reduce){
 /* прямой заход по адресу кейса */
 /* прямая ссылка: 404.html кладёт путь в sessionStorage и отправляет на главную; старые ссылки ?case= тоже открываются */
 {let r=null;try{r=sessionStorage.getItem('route');sessionStorage.removeItem('route');}catch(e){}
+ /* SEO-страницы кейсов/«О нас»/вакансий (southhub.html и т.п., tools/build-seo.mjs) отдаются по своему адресу с кодом 200 — маршрут берём прямо из адреса, заголовок вкладки оставляем из <title> страницы */
+ const pg=caseFromPath(location.pathname).replace(/\.html$/,''),seoT=document.title;if(!r&&pg&&pg!=='index')r=ROOT+pg;
  const id=r?caseFromPath(r):new URLSearchParams(location.search).get('case'),jb=r?jobFromPath(r):null;if(r||location.search)history.replaceState(null,'',ROOT+location.hash);if(jb){openJob(jb,true);}else if(jb===''){history.replaceState({about:1},'',ROOT+'about');showJobs(false);}
  else if(id==='about'){history.replaceState({about:1},'',ROOT+'about');openAbout(false);}
- else if(id&&caseById(id)){openCase(id,null,true);setCaseUrl(id,false);}}
+ else if(id&&caseById(id)){openCase(id,null,true);setCaseUrl(id,false);}
+ if(pg&&pg!=='index')document.title=seoT;}
+/* ---------- цели: клики по контактам и соцсетям (11.11) ---------- */
+document.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a)return;const h=a.getAttribute('href')||'';
+  if(/^mailto:/i.test(h))goal('contact_mail',{to:h.slice(7).split('?')[0]});
+  else if(/^tel:/i.test(h))goal('contact_phone');
+  else if(/(t\.me|telegram\.me)\//i.test(h))goal('contact_telegram');
+  else if(/(wa\.me|whatsapp)/i.test(h))goal('contact_whatsapp');
+  else if(/(vk\.com|instagram\.com|facebook\.com|youtube\.com|youtu\.be|linkedin\.com|behance\.net|dzen\.ru|rutube\.ru)/i.test(h))goal('social_click',{url:h});
+  else if(/hh\.ru/i.test(h))goal('hh_click');},true);
+// дочитал до футера (Start a project)
+if('IntersectionObserver' in window){const ft=$('#contact');if(ft)new IntersectionObserver((es,o)=>es.forEach(x=>{if(x.isIntersecting){goal('footer_seen',{},true);o.disconnect();}}),{threshold:.5}).observe(ft);}
 })();

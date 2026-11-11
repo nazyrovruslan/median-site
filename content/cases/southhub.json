@@ -201,8 +201,8 @@
       "t": "pics",
       "mode": "chess",
       "items": [
-        "media/cases/sh-chess-1.webp",
-        "media/video/sh-loop-raft.mp4"
+        "media/video/sh-logo4.mp4",
+        "media/video/sh-loop-floor4.mp4"
       ]
     },
     {
@@ -251,8 +251,9 @@
       ]
     },
     {
-      "t": "photo",
-      "img": "media/cases/sh-wide-1.webp"
+      "t": "reel",
+      "reel": "media/video/sh-intro.mp4",
+      "label": "Интро"
     },
     {
       "t": "carousel",
@@ -307,11 +308,48 @@
       ]
     },
     {
-      "t": "pics",
-      "mode": "chess",
+      "t": "reels",
       "items": [
-        "media/video/sh-loop-crowd.mp4",
-        "media/cases/sh-chess-2.webp"
+        {
+          "vid": "media/reels/sh-sport.mp4",
+          "title": "Спорт"
+        },
+        {
+          "vid": "media/reels/sh-biennale.mp4",
+          "title": "Биеннале"
+        },
+        {
+          "vid": "media/reels/sh-dr.mp4",
+          "title": "День рождения South HUB"
+        },
+        {
+          "vid": "media/reels/sh-alfa.mp4",
+          "title": "Альфа-Банк"
+        },
+        {
+          "vid": "media/reels/sh-magnit.mp4",
+          "title": "Магнит"
+        },
+        {
+          "vid": "media/reels/sh-avito.mp4",
+          "title": "Авито"
+        },
+        {
+          "vid": "media/reels/sh-mts.mp4",
+          "title": "МТС"
+        },
+        {
+          "vid": "media/reels/sh-vk.mp4",
+          "title": "VK"
+        },
+        {
+          "vid": "media/reels/sh-x5.mp4",
+          "title": "X5 Tech"
+        },
+        {
+          "vid": "media/reels/sh-yandex.mp4",
+          "title": "Яндекс B2B"
+        }
       ]
     },
     {
