@@ -1,6 +1,13 @@
 (()=>{
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// цели (11.11): одна функция на всё — Яндекс Метрика reachGoal, Google Analytics event, dataLayer, Roistat (если появится) и событие site:goal на window.
+// Список целей и где они срабатывают — NOTES.md, раздел «Счётчики и цели». В Метрике каждую цель заводим как «JavaScript-событие» с тем же идентификатором.
+const YM=9380047,goalOnce=new Set();
+function goal(name,params={},once){if(once){const k=name+JSON.stringify(params);if(goalOnce.has(k))return;goalOnce.add(k);}
+  try{window.ym&&ym(YM,'reachGoal',name,params);}catch(e){}try{window.gtag&&gtag('event',name,params);}catch(e){}
+  try{(window.dataLayer=window.dataLayer||[]).push({event:name,...params});}catch(e){}try{window.roistat&&roistat.event&&roistat.event.send(name);}catch(e){}
+  dispatchEvent(new CustomEvent('site:goal',{detail:{name,params}}));}
 const fine=matchMedia('(pointer: fine)').matches;
 
 const DIRS={external:'Внешние',internal:'Внутренние',outlist:'Out of the list',own:'Свой проект'};
@@ -582,6 +589,7 @@ document.fonts&&document.fonts.ready.then(()=>{fitAll();if(openId){fitTitle($('#
 // после перехода обложка раскрывается из макетной раскладки на весь экран, заголовок уезжает вниз влево
 let expT=0;function expandHero(d){clearTimeout(expT);expT=setTimeout(()=>$('#cHero').classList.remove('split'),reduce?0:d);}
 function openCase(id,fromEl,noPush){
+  goal('case_open',{case:id});
   fillCase(id);
   if(!noPush)setCaseUrl(id,true);
   const panel=$('#casePanel');
@@ -660,7 +668,7 @@ function nxRing(k){const b=document.body,on=k>.01;b.classList.toggle('c-nx',on);
   if(on)$('#ring .t').textContent='Следующий проект';
   $('#ring circle').style.strokeDashoffset=on?302*(1-k):302;}
 $$('.dir [data-case]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openCase(a.dataset.case,a.closest('.dir').querySelector('.vis'))}));
-const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on'))openPanel(b);};
+const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on')){goal('brief_open');openPanel(b);}};
 $('#start').onclick=openBrief;
 // iOS Safari иногда съедает первый тап по кнопке (считает его наведением) — на таче открываем по отпусканию пальца, без синтетического клика
 let st0=null;$('#start').addEventListener('touchstart',e=>{const t=e.touches[0];st0=[t.clientX,t.clientY];},{passive:true});
@@ -670,6 +678,7 @@ $('#brief').addEventListener('submit',e=>{
   e.preventDefault();const f=e.target;
   if(!f.name.value.trim()||!f.contact.value.trim()){toast('Заполните имя и контакт');(f.name.value.trim()?f.contact:f.name).focus();return;}
   if(!f.agree.checked){toast('Нужно согласие на обработку данных');f.agree.focus();return;}
+  goal('brief_send',{kind:f.kind.value});
   const ok=$('#ok');ok.hidden=false;
   ok.textContent=`Спасибо, ${f.name.value.trim()}. Заявка собрана: «${f.kind.value}». В прототипе она никуда не уходит; на рабочем сайте её получит Telegram-бот агентства и CRM.`;
 });
@@ -678,7 +687,7 @@ $('#brief').addEventListener('submit',e=>{
 {const cvP=$('#cvPanel'),cvF=$('#cvForm'),cvOk=$('#cvOk'),URLRE=/^(https?:\/\/)?[^\s.]+\.[^\s]{2,}$/i;
  const openCv=()=>{const v=jobId&&jobP.classList.contains('on')?jobById(jobId):null;cvF.dataset.job=v?v.id:'';
    $('#cvFor').textContent=(v?`Отклик на вакансию «${v.name}». `:'')+'Оставьте контакты и ссылки на резюме и портфолио. Ответим в течение нескольких рабочих дней.';
-   cvOk.hidden=true;if(!cvP.classList.contains('on'))openPanel(cvP);};
+   cvOk.hidden=true;if(!cvP.classList.contains('on')){goal('cv_open',{vacancy:v?v.id:''});openPanel(cvP);}};
  const cv=$('#jCv');cv.addEventListener('click',e=>{e.preventDefault();openCv();});
  // как у Start a project: на таче открываем по отпусканию пальца (iOS съедает первый тап)
  let c0=null;cv.addEventListener('touchstart',e=>{const t=e.touches[0];c0=[t.clientX,t.clientY];},{passive:true});
@@ -693,6 +702,7 @@ $('#brief').addEventListener('submit',e=>{
    if(val('website'))return; // ловушка для ботов
    const v=jobById(f.dataset.job),q=new URLSearchParams(location.search),utm={};['source','medium','campaign','content','term'].forEach(k=>{const x=q.get('utm_'+k);if(x)utm[k]=x;});
    const data={type:'vacancy',vacancy:v?{id:v.id,name:v.name,hh:v.hh||''}:null,name:val('name'),tg:val('tg')&&'@'+val('tg').replace(/^@|^https?:\/\/t\.me\//i,''),phone:val('phone'),email:val('email'),cv:link(val('cv')),portfolio:link(val('portfolio')),msg:val('msg'),agree:new Date().toISOString(),page:location.href,utm};
+   goal('cv_send',{vacancy:v?v.id:''});
    const btn=f.querySelector('.send');btn.disabled=true;let sent=false;
    if(JB.crm)try{const r=await fetch(JB.crm,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});sent=r.ok;}catch(err){}
    btn.disabled=false;cvOk.hidden=false;
@@ -710,7 +720,7 @@ $('#brief').addEventListener('submit',e=>{
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
 const REEL='media/video/showreel.mp4'; // Showreel 2022 со старого median.agency (MEDIAN-REEL-LANDING), свой файл вместо YouTube
-const showreel=()=>{const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<video src="${vurl(REEL)}" poster="media/video/showreel.webp" controls autoplay playsinline preload="auto"></video>`;openPanel(p);const v=$('#reelPanel video');v.play().catch(()=>{});};
+const showreel=()=>{goal('reel_open');const p=$('#reelPanel');$('#reelPanel .reel-frame').innerHTML=`<video src="${vurl(REEL)}" poster="media/video/showreel.webp" controls autoplay playsinline preload="auto"></video>`;openPanel(p);const v=$('#reelPanel video');v.play().catch(()=>{});};
 const ringC=$('#ring circle');
 function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/HOLD);ringC.style.strokeDashoffset=302*(1-p);if(p>=1){endHold();openCase(HERO[cur].id,$('.hero-panel'));return;}holdRaf=requestAnimationFrame(holdTick);}
 function endHold(){cancelAnimationFrame(holdRaf);holdStart=0;ringC.style.strokeDashoffset=302;}
@@ -763,7 +773,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closePrev();});
 /* ---------- «О нас»: своя страница /about, открывается как кейс ---------- */
 const aboutP=$('#aboutPanel'); let aboutPushed=false, aboutD=0; // aboutD — глубина записи «О нас» в истории (см. depth)
 // видео о команде: свой файл (с YouTube из облака не скачать); на обложке — короткое превью без звука, по клику — полное видео
-function openAbout(push){if(aboutP.classList.contains('on'))return;aboutP.querySelectorAll('img[data-src]').forEach(i=>{i.src=i.dataset.src;i.removeAttribute('data-src');}); // фото «О нас» грузим только при открытии
+function openAbout(push){if(aboutP.classList.contains('on'))return;goal('about_open');aboutP.querySelectorAll('img[data-src]').forEach(i=>{i.src=i.dataset.src;i.removeAttribute('data-src');}); // фото «О нас» грузим только при открытии
 
   if(push){history.pushState({about:1,d:1},'',ROOT+'about');aboutPushed=true;}aboutD=depth();
   document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce){tz.addEventListener('playing',()=>tz.classList.add('on'),{once:true});tz.play().catch(()=>{});}}
@@ -834,7 +844,7 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   const more=JB.list.filter(x=>x.id!==id);$('#jMore').hidden=!more.length;jobRows($('#jMoreRows'),more);
   jobP.querySelector('.sheet').scrollTop=0;
   requestAnimationFrame(()=>{fitTitle($('#jTitle'));fitAll(jobP);});}
-function openJob(id,push){if(!jobById(id)){showJobs(push);return;} // вакансию закрыли или адрес с ошибкой — показываем список
+function openJob(id,push){if(!jobById(id)){showJobs(push);return;}goal('vacancy_open',{vacancy:id}); // вакансию закрыли или адрес с ошибкой — показываем список
   // вакансия сменяет «О нас» в том же листе (плавно, без второго выезда); «← О нас» возвращает к списку, крестик — на главную
   if(!aboutP.classList.contains('on')){history.replaceState({about:1},'',ROOT+'about');openAbout(false);jobP.classList.remove('fade');}
   else if(!jobP.classList.contains('on'))jobP.classList.add('fade');
@@ -954,4 +964,14 @@ if(fine&&!reduce){
  else if(id==='about'){history.replaceState({about:1},'',ROOT+'about');openAbout(false);}
  else if(id&&caseById(id)){openCase(id,null,true);setCaseUrl(id,false);}
  if(pg&&pg!=='index')document.title=seoT;}
+/* ---------- цели: клики по контактам и соцсетям (11.11) ---------- */
+document.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a)return;const h=a.getAttribute('href')||'';
+  if(/^mailto:/i.test(h))goal('contact_mail',{to:h.slice(7).split('?')[0]});
+  else if(/^tel:/i.test(h))goal('contact_phone');
+  else if(/(t\.me|telegram\.me)\//i.test(h))goal('contact_telegram');
+  else if(/(wa\.me|whatsapp)/i.test(h))goal('contact_whatsapp');
+  else if(/(vk\.com|instagram\.com|facebook\.com|youtube\.com|youtu\.be|linkedin\.com|behance\.net|dzen\.ru|rutube\.ru)/i.test(h))goal('social_click',{url:h});
+  else if(/hh\.ru/i.test(h))goal('hh_click');},true);
+// дочитал до футера (Start a project)
+if('IntersectionObserver' in window){const ft=$('#contact');if(ft)new IntersectionObserver((es,o)=>es.forEach(x=>{if(x.isIntersecting){goal('footer_seen',{},true);o.disconnect();}}),{threshold:.5}).observe(ft);}
 })();
