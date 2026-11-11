@@ -40,6 +40,7 @@ collections:
     extension: json
     identifier_field: id
     slug: "{{id}}"
+    preview_path: "{{id}}"  # «Посмотреть на рабочем сайте» → median.agency/<id>
     summary: "{{order}} · {{name}}"
     sortable_fields: [order, name]
     create: true
@@ -359,6 +360,7 @@ collections:
     extension: json
     identifier_field: id
     slug: "{{id}}"
+    preview_path: "{{id}}"  # «Посмотреть на рабочем сайте» → median.agency/<id>
     summary: "{{order}} · {{name}}"
     sortable_fields: [order, name]
     create: true
@@ -603,6 +605,7 @@ collections:
     extension: json
     identifier_field: id
     slug: "{{id}}"
+    preview_path: "vacancy-{{id}}"  # «Посмотреть на рабочем сайте» → median.agency/vacancy-<id>
     summary: "{{order}} · {{name}}{{on | ternary('', ' (скрыта)')}}"
     sortable_fields: [order, name]
     create: true
