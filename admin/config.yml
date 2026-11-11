@@ -98,6 +98,14 @@ collections:
         widget: list
         required: false
         field: { name: url, label: Ссылка, widget: string }
+      - &cf_stickers
+        name: stickers
+        label: Стикеры
+        label_singular: стикер
+        widget: list
+        required: false
+        hint: "Прозрачные PNG/WebP. Сами разносятся по странице кейса: каждый «приклеен» на стык блоков, по очереди справа и слева, покачивается"
+        field: { name: img, label: Стикер, widget: image }
       - &cf_facts
         name: facts
         label: Доп. строки фактов
@@ -264,11 +272,6 @@ collections:
             label: "Фото: мозаика из 8"
             fields:
               - { name: items, label: Фото, hint: "8 шт.: 1-е большое, 2-е высокое, 3-е широкое", label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
-          - name: stickers
-            label: "Стикеры (стикерпак проекта)"
-            fields:
-              - { name: label, label: Ярлык, widget: string, required: false }
-              - { name: items, label: Стикеры, hint: "Прозрачные PNG/WebP, 2–6 шт. Встают вразброс на сером экране, каждый с наклоном и покачивается", label_singular: стикер, widget: list, field: { name: img, label: Стикер, widget: image } }
           - name: split
             label: "Текст + сетка фото"
             fields:
@@ -404,6 +407,7 @@ collections:
       - *cf_services
       - *cf_lead
       - *cf_links
+      - *cf_stickers
       - *cf_facts
       - name: blocks
         label: Общая часть

@@ -423,7 +423,6 @@ const BLOCK={
   // фото-аккордеон: полосы раскрываются при наведении или нажатии
   accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}"><img src="${u}" alt="${ALT}" loading="lazy"></button>`).join('')}</div></section>`,
   // бенто: 8 плиток разного размера, клик открывает фото
-  stickers:b=>{const it=(b.items||[]).filter(Boolean);return it.length?`<section class="grey cb cb-stk">${b.label?`<p class="label stk-l">${esc(b.label)}</p>`:''}<div class="stk-row">${it.map(u=>`<span class="stk-i"><img src="${u}" alt="" loading="lazy" aria-hidden="true"></span>`).join('')}</div></section>`:'';}, // стикерпак проекта (11.11): стикеры прямо в теле кейса, покачиваются
   bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></section>`,
   // галерея: большое фото, стрелки, счётчик и полоса превью
   // рилс (09.11): лента вертикальных роликов 9:16, как Reels в инстаграме; превью X-p.mp4 крутится без звука, по тапу — полноэкранный плеер со звуком (#rlv)
@@ -470,6 +469,11 @@ function epsList(items=[],li,w){const a=items||[],h=a.slice(0,ROWS_SHOWN).map((e
 function epsTog(b,o){const box=document.getElementById(b.getAttribute('aria-controls')),n=+b.dataset.n,f=b.dataset.w.split('|');box.classList.toggle('open',o);box.toggleAttribute('inert',!o);b.setAttribute('aria-expanded',o);
   const w=o?['Свернуть','список']:[`Ещё ${n}`,plural(n,...f)],t=b.querySelector('text');t.querySelectorAll('tspan').forEach((s,j)=>s.textContent=w[j%2]);fitRing(t);
   b.setAttribute('aria-label',o?'Свернуть список':`Показать ещё ${n} ${plural(n,...f)}`);}
+// стикеры кейса (k.stickers, 11.11): разнесены по телу кейса — каждый «приклеен» на стык двух блоков, поочерёдно справа и слева, равномерно по странице; блоки с обрезкой (overflow) пропускаются
+function stkSpread(list){const it=(list||[]).filter(Boolean);if(!it.length)return;
+  const secs=[...$('#cBody').children].filter(e=>e.tagName==='SECTION').slice(1).filter(e=>getComputedStyle(e).overflow==='visible');if(!secs.length)return;
+  it.forEach((u,j)=>{const host=secs[Math.min(secs.length-1,Math.floor((j+.5)*secs.length/it.length))];host.classList.add('stk-h');
+    host.insertAdjacentHTML('afterbegin',`<span class="stk-f ${j%2?'stk-l':'stk-r'}" style="--d:${(-j*0.9)%2.6}s"><img src="${u}" alt="" loading="lazy" aria-hidden="true"></span>`);});}
 function blocksInit(root){
   root.querySelectorAll('.eps-tog').forEach(b=>{epsTog(b,false);b.addEventListener('click',()=>{const o=b.getAttribute('aria-expanded')!=='true';
     if(!o){const s=b.closest('section');if(s&&s.getBoundingClientRect().top<0)s.scrollIntoView({behavior:reduce?'auto':'smooth'});}epsTog(b,o);});});
@@ -579,7 +583,7 @@ function fillCase(id,split){
   $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
     bl.map(b=>(b.a?`<i class="toc-at" id="${b.a}"></i>`:'')+(b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel,rlabel:b.label}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'')).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
-  reelTeaser();hubInit();blocksInit($('#cBody'));$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(twAdd);
+  reelTeaser();hubInit();blocksInit($('#cBody'));stkSpread(k.stickers);$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(twAdd);
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;

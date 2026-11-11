@@ -25,6 +25,12 @@
   ],
   "city": "Москва, площадка CONNECT",
   "format": "Фестиваль бренда работодателя для Data & ML-сообщества",
+  "stickers": [
+    "media/cases/x5df-sticker-1.webp",
+    "media/cases/x5df-sticker-2.webp",
+    "media/cases/x5df-sticker-3.webp",
+    "media/cases/x5df-sticker-4.webp"
+  ],
   "blocks": [
     {
       "t": "facts"
@@ -67,15 +73,6 @@
           "text": "Карьерная зона с консультациями, intern track и growth track — для тех, кто хочет прийти в команду.",
           "img": "media/cases/x5df-real-5.webp"
         }
-      ]
-    },
-    {
-      "t": "stickers",
-      "items": [
-        "media/cases/x5df-sticker-1.webp",
-        "media/cases/x5df-sticker-2.webp",
-        "media/cases/x5df-sticker-3.webp",
-        "media/cases/x5df-sticker-4.webp"
       ]
     },
     {
