@@ -1,37 +1,34 @@
 #!/usr/bin/env bash
-# Выполняется внутри контейнера сборки.
+# Выполняется внутри контейнера сборки (Dockerfile на ветке deploy). Повторяет шаги деплоя с GitHub Pages (.github/workflows/pages.yml).
+# Ветку deploy после каждой сборки main обновляет pages.yml (шаг «Сервер median.agency: ветка deploy»), он же запускает deploy.sh на сервере.
 set -euo pipefail
 cd /site
 
-# Обязательные генераторы
-required=(build-cases build-icons build-vacancies)
-done_list=" "
-for n in "${required[@]}"; do
-  echo "==> $n"
-  node "tools/$n.mjs"
-  done_list+="$n "
-done
+echo "==> Счётчики, главная и «О нас» из content/ (уже собраны ботом в main — повтор безвреден)"
+node tools/sync-counters.mjs
+node tools/build-pages.mjs
 
-# Производные медиа
-[ -f tools/media.mjs ] && { echo "==> media"; node tools/media.mjs || echo "WARN: media.mjs упал"; }
+echo "==> Генерация js/cases.js, js/icons.js, js/vacancies.js"
+node tools/build-cases.mjs
+node tools/build-icons.mjs
+node tools/build-vacancies.mjs
 
-# Остальные tools/build-*.mjs (КП, sitemap и т.п.) подхватываются сами
-for f in tools/build-*.mjs; do
-  n="$(basename "$f" .mjs)"
-  case "$done_list" in *" $n "*) continue ;; esac
-  echo "==> $n"
-  if [ "$n" = "build-kp" ]; then node "$f" || echo "WARN: build-kp упал"; else node "$f"; fi
-done
+echo "==> Производные медиа (досоздаются только недостающие)"
+node tools/media.mjs || echo "WARN: tools/media.mjs завершился с ошибкой"
 
-# Выкладка: всё, кроме исходников и служебного
+echo "==> Страницы КП (clients/)"
+node tools/build-kp.mjs || echo "WARN: tools/build-kp.mjs завершился с ошибкой"
+
+echo "==> SEO: страницы кейсов, about.html, jobs.html, вакансии, sitemap.xml, robots.txt"
+node tools/build-seo.mjs || echo "WARN: tools/build-seo.mjs завершился с ошибкой"
+node tools/build-preview.mjs || echo "WARN: tools/build-preview.mjs завершился с ошибкой"
+
 echo "==> Сборка dist/"
-rm -rf dist && mkdir -p dist
-rsync -a \
-  --exclude='/.git' --exclude='/.github' --exclude='/node_modules' --exclude='/dist' \
-  --exclude='/content' --exclude='/tools' --exclude='/docker' --exclude='/deploy' \
-  --exclude='/*.md' --exclude='/.gitignore' --exclude='/.nojekyll' --exclude='/.env*' \
-  --exclude='/Dockerfile' --exclude='/docker-compose.yml' --exclude='/Caddyfile' \
-  --exclude='/deploy.sh' --exclude='/.dockerignore' \
-  ./ dist/
+mkdir -p dist
+cp ./*.html dist/
+cp sitemap.xml robots.txt dist/ 2>/dev/null || true
+cp -r css js fonts media admin dist/
+[ -d clients ] && cp -r clients dist/ || true
+# Исходники (content/, tools/, mcp/), заметки и .git в образ не попадают
 
 echo "==> Готово: $(find dist -type f | wc -l) файлов, $(du -sh dist | cut -f1)"

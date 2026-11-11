@@ -32,7 +32,7 @@ const sentence = s => { s = plain(s); return s && !/[.!?…»]$/.test(s) ? s + '
 // даты последней правки — из истории git (в деплое checkout с полной историей коммитов без файлов: filter blob:none)
 const gitDate = (path, first) => {
   try {
-    const out = execFileSync('git', ['log', ...(first ? ['--diff-filter=A'] : ['-1']), '--format=%cs', '--', path], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+    const out = execFileSync('git', ['log', ...(first ? ['--diff-filter=A'] : ['-1']), '--format=%cs', '--', path], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim().split('\n').filter(Boolean);
     return first ? out[out.length - 1] || '' : out[0] || '';
   } catch { return ''; }
 };

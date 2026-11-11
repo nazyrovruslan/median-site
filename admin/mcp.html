@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Median — доступ к MCP</title>
+<title>Median — доступ для коллег</title>
 <!-- Личные ссылки на MCP-коннектор для коллег. Пишет mcp/users.json (имя, хэш ключа, вкл/выкл) коммитом в main тем же токеном, что и /admin.
      Сам ключ нигде не хранится: показывается один раз при создании. Воркер mcp/worker.js перечитывает список раз в минуту. -->
 <style>
@@ -42,7 +42,7 @@ li{margin-bottom:4px}
 </style>
 </head>
 <body>
-<header><h1>Доступ к MCP</h1><a class="btn" href="./">← В админку</a></header>
+<header><h1>Доступ для коллег</h1><a class="btn" href="./">← В админку</a></header>
 <main>
   <section id="login" hidden>
     <p>Нужен тот же GitHub-токен, что и для входа в админку. Если вы уже вошли в админку в этом браузере, страница подхватит его сама.</p>
@@ -51,10 +51,10 @@ li{margin-bottom:4px}
   </section>
 
   <section id="app" hidden>
-    <p>Каждому коллеге — своя ссылка на коннектор: правки в истории подписаны его именем, отключить можно одного человека, не трогая остальных. Отключение срабатывает в течение минуты.</p>
+    <p>Каждому коллеге — свой ключ. С ним он входит в админку (без своего GitHub) и подключает Claude через MCP. Правки в истории подписаны его именем, отключить можно одного человека, не трогая остальных. Отключение срабатывает в течение минуты. Менять список доступа и служебные файлы коллеги не могут.</p>
 
     <div class="label">Добавить человека</div>
-    <div class="row"><input id="name" type="text" placeholder="Имя, например Арина" maxlength="40"><button class="btn main" id="add">Создать ссылку</button></div>
+    <div class="row"><input id="name" type="text" placeholder="Имя, например Арина" maxlength="40"><button class="btn main" id="add">Создать доступ</button></div>
     <div class="err" id="adderr"></div>
     <div id="fresh"></div>
 
@@ -146,12 +146,15 @@ $('#add').onclick = async () => {
   try {
     await save(l => { if (!l.some(x => x.id === id)) l.push({ id, name, hash, on: true, added: new Date().toISOString() }); }, `MCP-доступ: добавлен ${name}`);
     const url = MCP_URL + key;
-    $('#fresh').innerHTML = `<div class="new"><b>Новая ссылка · ${esc(name)}</b><br>Показывается один раз — скопируйте сейчас:<code id="url">${esc(url)}</code>
-      <div class="row" style="margin-bottom:12px"><button class="btn main" id="copy">Скопировать</button></div>
-      <p>Отправьте её лично (не в общий чат). Что сделать коллеге:</p>
+    $('#fresh').innerHTML = `<div class="new"><b>Доступ для ${esc(name)}</b><br>Показывается один раз — скопируйте сейчас и отправьте лично (не в общий чат).
+      <p style="margin-top:12px"><b>Вход в админку</b> — ключ:</p><code id="key">${esc(key)}</code>
+      <div class="row" style="margin-bottom:12px"><button class="btn main" data-cp="key">Скопировать ключ</button></div>
+      <ol><li>Открыть ${esc(location.origin + location.pathname.replace(/[^/]*$/, ''))}</li><li>«Войти с помощью токена доступа» → вставить ключ.</li></ol>
+      <p style="margin-top:12px"><b>Claude (MCP)</b> — ссылка на коннектор:</p><code id="url">${esc(url)}</code>
+      <div class="row" style="margin-bottom:12px"><button class="btn main" data-cp="url">Скопировать ссылку</button></div>
       <ol><li>claude.ai → Настройки → Коннекторы → Добавить пользовательский коннектор.</li><li>Название — Median сайт, адрес — эта ссылка.</li><li>Аутентификация — «Без входа», заголовки не нужны. Добавить.</li></ol>
-      <p class="muted">Ссылка начнёт работать в течение минуты.</p></div>`;
-    $('#copy').onclick = async () => { try { await navigator.clipboard.writeText(url); $('#copy').textContent = 'Скопировано'; } catch (e) { getSelection().selectAllChildren($('#url')); } };
+      <p class="muted">Ключ и ссылка начнут работать в течение минуты.</p></div>`;
+    $('#fresh').querySelectorAll('[data-cp]').forEach(b => b.onclick = async () => { const el = $('#' + b.dataset.cp); try { await navigator.clipboard.writeText(el.textContent); b.textContent = 'Скопировано'; } catch (e) { getSelection().selectAllChildren(el); } });
     $('#name').value = '';
   } catch (err) { $('#adderr').textContent = 'Не сохранилось: ' + err.message; }
   $('#add').disabled = false;

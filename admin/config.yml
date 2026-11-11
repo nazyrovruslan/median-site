@@ -6,6 +6,9 @@ backend:
   branch: main
   # вход «через GitHub» — OAuth на MCP-воркере (mcp/worker.js, /auth и /callback)
   base_url: https://median-mcp.nazyrov-ruslan.workers.dev
+  # вход коллег без GitHub: личный ключ из «Доступ для коллег» вставляется в «Войти с помощью токена доступа»; запросы к GitHub идут через воркер (ghProxy), настоящие токены — как есть
+  api_root: https://median-mcp.nazyrov-ruslan.workers.dev/gh/api/v3
+  graphql_api_root: https://median-mcp.nazyrov-ruslan.workers.dev/gh/api/graphql
   auth_endpoint: auth
   commit_messages:
     create: "CMS: создан {{collection}} {{slug}}"
@@ -95,6 +98,14 @@ collections:
         widget: list
         required: false
         field: { name: url, label: Ссылка, widget: string }
+      - &cf_stickers
+        name: stickers
+        label: Стикеры
+        label_singular: стикер
+        widget: list
+        required: false
+        hint: "Прозрачные PNG/WebP. Сами разносятся по странице кейса: каждый «приклеен» на стык блоков, по очереди справа и слева, покачивается"
+        field: { name: img, label: Стикер, widget: image }
       - &cf_facts
         name: facts
         label: Доп. строки фактов
@@ -396,6 +407,7 @@ collections:
       - *cf_services
       - *cf_lead
       - *cf_links
+      - *cf_stickers
       - *cf_facts
       - name: blocks
         label: Общая часть

@@ -13,14 +13,15 @@
 	header @static Cache-Control "public, max-age=2592000"
 
 	# HTML/CSS/JS/JSON всегда перепроверяются (замена ручному подъёму ?v=)
-	@code path / *.html *.css *.js *.json *.xml *.txt
+	@code path / *.html *.css *.js *.json
 	header @code Cache-Control "no-cache"
 
+	# /about, /x5stands, /jobs, /vacancy-… → about.html, x5stands.html… (их собирает tools/build-seo.mjs) — отдаются с кодом 200, поисковики их индексируют
 	try_files {path} {path}.html {path}/index.html
+
 	file_server
 
-	# Как на GitHub Pages: неизвестный адрес (/southhub, /about, /jobs...) отдаёт 404.html,
-	# а он сам открывает нужный кейс/страницу.
+	# Неизвестный адрес отдаёт 404.html (он же перенаправит старые ссылки на кейс).
 	handle_errors {
 		rewrite * /404.html
 		file_server

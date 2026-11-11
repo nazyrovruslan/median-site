@@ -152,7 +152,7 @@ Kaspersky — полностью по макету, фото вытащены и
 - Новые серии `x5highload` (Tech Shop 2023, TeamLead Conf 2025, Tesseract 2025) и `x5codefest` (2025, 2026); удалены x5techshop, x5tesseract, x5codefest25/26, x5epic, x5mobius, x5techlib, wg, gridgirls (ссылки вакансий переведены).
 - Компактный формат (facts → reel → «Контекст и задача» → «Решение и реализация» с пунктами-фото → key → bento → «Результаты»): x5picnic, x5datafest, prirodacoda, alfacontactday, osoffer, abcamp.
 - X5 Tech Bar — три части (2022/2025/2026), Alfa Battle и Альфа Движ переписаны; у Snow BASE убран блок «Итоги в цифрах».
-- Пункт раздела может нести `sticker` (прозрачный webp поверх фото, покачивается) — Data Fest; описано в DESIGN-SYSTEM.md.
+- Пункт раздела может нести `sticker` (прозрачный webp поверх фото, покачивается) — Data Fest; описано в DESIGN-SYSTEM.md. С 11.11 стикеры Data Fest — поле кейса `stickers` (CMS: «Стикеры»): разносятся по телу кейса на стыки блоков; на фото пунктов их больше нет, фото остались.
 - Моушен 04_Моушен — петлями по 4 с внутри шахматок `pics` (не во всю ширину — просьба Руслана): ad-loop-*, sb-loop-*, sh-loop-*.
 - Большие файлы с Диска: коннектор отдаёт только до ~6 МБ; Руслан кладёт папки в «Загрузки» на Mac или в общую папку проекта.
 
@@ -208,3 +208,19 @@ MCP задеплоен: `https://median-mcp.nazyrov-ruslan.workers.dev/mcp/<кл
 
 ## Главная и «О нас» в админке (11.11)
 Руслан: «нет раздела с главной страницей и страницей о нас». CMS → «Страницы» (`content/pages/home.json`, `content/pages/about.json`). `tools/build-pages.mjs` в деплое (после optimize-media, до build-seo) пересобирает куски `index.html` между `<!-- cms:<имя> -->` и `<!-- /cms:<имя> -->`: home-h1, home-about, home-goal, home-showcase (витрина: фото слева/справа чередуются сами), home-podcast, about-intro, about-who, about-values, about-founders, about-history, about-clients, about-awards. Вёрстка — в шаблонах build-pages.mjs, в JSON только тексты и медиа. Неразрывные пробелы после коротких слов и перед тире ставятся сами; пропорции логотипов клиентов и наград считаются из файла (svg viewBox, webp/png/jpg); width/height фото основателей — тоже. Править эти куски прямо в index.html нельзя — перезапишутся; новый блок — новая метка + рендер в build-pages.mjs + поля в admin/config.yml. index.html после сборки коммитит бот (до простановки `?v=`). Баннер (первые 5 кейсов), «Все проекты», вакансии, подвал и контакты в «Страницы» не входят: первые три — из кейсов/вакансий, контакты пока в разметке.
+
+## Вход коллег в админку без GitHub
+В `admin/config.yml` у backend стоит `api_root: <воркер>/gh/api/v3` (и `graphql_api_root`): все запросы админки к GitHub идут через `ghProxy` в `mcp/worker.js`. Настоящий GitHub-токен (Руслан, вход через GitHub) пересылается как есть. Личный ключ коллеги (тот же, что в его MCP-ссылке; хэш в `mcp/users.json`, выдаётся в «Инструменты» → «Доступ для коллег» = `admin/mcp.html`) воркер подменяет на `GH_TOKEN`, к сообщению коммита дописывает «(Имя)», запись в `.github/` и `mcp/` коллегам запрещена. Коллега входит кнопкой «Войти с помощью токена доступа». Конструктор и кадрирование тоже ходят через воркер, если токен не похож на GitHub-токен. Пункт «Доступ для коллег» в меню виден только с настоящим GitHub-токеном.
+
+## Политика cookie, согласие и плашка (11.11)
+Руслан: «обнови политику» — в ней было «аналитические не используются», а стоят Метрика, GA и South HUB; плюс согласие не учитывало вакансии. Сделано:
+- `privacy.html` (редакция 11.11): данные отклика на вакансию (раздел 2, `#candidates`), цели «рассмотреть кандидатуру» и «статистика» в таблице, подрядчики (Битрикс24, Яндекс, South HUB, Google), трансграничная передача в Google LLC (`#crossborder`), сроки по откликам (30 дней после отказа, резерв до 1 года), таблица cookie по сервисам, блок выбора `#cookie-choice` (кнопки «Принять / Отказаться от статистики», свой скрипт внизу страницы).
+- `consent.html`: три согласия — заявка `#brief`, отклик на вакансию `#job`, cookie и статистика `#cookies` + общие условия. Галочки в формах ведут на свой раздел.
+- Плашка cookie (index.html `#cookie`, js/main.js): «Принять» / «Отказаться». Модель — отказ (opt-out): счётчики работают сразу, «Отказаться» ставит `localStorage analytics=off`, стирает cookie _ym/_ga, и блок счётчиков в `<head>` (tools/sync-counters.mjs, `window.MEDIAN_NOTRACK`) больше ничего не грузит, включая «свой код» (он лежит в `<template id="counters-head">`). Выбор помним год (`cookie-ok`).
+- Вебвизор: всем input/textarea добавляется `ym-disable-keys` (в политике обещано, что ввод в формы не пишется).
+- КП (/clients/) не трогали: там своя сборка счётчиков без плашки.
+- Новый сервис (пиксель VK и т.п.) — сначала строка в таблицу cookie privacy.html и в consent.html#cookies, иначе политика снова разойдётся с сайтом.
+
+
+## Сервер median.agency: схема админа (11.11)
+Админ сервера (GitHub nicolas13sochi) сделал ветку `deploy`: в ней main + Dockerfile, docker-compose.yml, deploy.sh, .github/workflows/deploy.yml. На сервере в `SSH_PATH` лежит клон, `deploy.sh` делает `git reset --hard origin/deploy` и `docker compose up -d --build`: в контейнере `docker/build.sh` собирает сайт (те же tools, плюс build-seo), Caddy отдаёт его на 127.0.0.1:8080, снаружи — nginx хоста с HTTPS. `docker/build.sh` и `Caddyfile` живут в main (вливаются в deploy). После каждой сборки main шаг pages.yml «Сервер median.agency — ветка deploy и deploy.sh» вливает main в deploy (`-X theirs`) и по ssh запускает deploy.sh. Секреты: SSH_HOST, SSH_USER, SSH_KEY, SSH_PATH. Шаг с rsync (DEPLOY_*) — запасной, не нужен. Старые адреса WordPress (/portfolio/…) в этой схеме не перенаправляются — это можно сделать в nginx хоста.

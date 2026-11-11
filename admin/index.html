@@ -19,12 +19,13 @@
     #mtools .m{display:none;flex-direction:column;align-items:flex-end;gap:8px}
     #mtools.open .m{display:flex}
   </style>
-  <div id="mtools"><div class="m"><a href="builder.html">Конструктор кейсов</a><a href="crop.html">Кадрировать фото и видео</a><a href="mcp.html">Доступ к MCP</a></div><button type="button" id="mtb" aria-expanded="false">Инструменты</button></div>
+  <div id="mtools"><div class="m"><a href="builder.html">Конструктор кейсов</a><a href="crop.html">Кадрировать фото и видео</a><a href="mcp.html" id="mtAccess">Доступ для коллег</a></div><button type="button" id="mtb" aria-expanded="false">Инструменты</button></div>
   <script>
     (function () {
       var box = document.getElementById('mtools'), b = document.getElementById('mtb');
       function logged() { try { var u = JSON.parse(localStorage.getItem('sveltia-cms.user') || 'null'); return !!(u && u.token); } catch (e) { return false; } }
-      function check() { var on = logged(); box.classList.toggle('on', on); if (!on) box.classList.remove('open'); }
+      function owner() { try { var u = JSON.parse(localStorage.getItem('sveltia-cms.user') || 'null'); return !!(u && /^(gh[pousr]_|github_pat_)/.test(u.token)); } catch (e) { return false; } }
+      function check() { var on = logged(); box.classList.toggle('on', on); if (!on) box.classList.remove('open'); document.getElementById('mtAccess').hidden = !owner(); }
       b.onclick = function () { var o = box.classList.toggle('open'); b.setAttribute('aria-expanded', o); };
       document.addEventListener('click', function (e) { if (!box.contains(e.target)) box.classList.remove('open'); });
       check(); setInterval(check, 1000); addEventListener('storage', check);

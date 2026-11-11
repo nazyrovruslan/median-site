@@ -469,6 +469,11 @@ function epsList(items=[],li,w){const a=items||[],h=a.slice(0,ROWS_SHOWN).map((e
 function epsTog(b,o){const box=document.getElementById(b.getAttribute('aria-controls')),n=+b.dataset.n,f=b.dataset.w.split('|');box.classList.toggle('open',o);box.toggleAttribute('inert',!o);b.setAttribute('aria-expanded',o);
   const w=o?['Свернуть','список']:[`Ещё ${n}`,plural(n,...f)],t=b.querySelector('text');t.querySelectorAll('tspan').forEach((s,j)=>s.textContent=w[j%2]);fitRing(t);
   b.setAttribute('aria-label',o?'Свернуть список':`Показать ещё ${n} ${plural(n,...f)}`);}
+// стикеры кейса (k.stickers, 11.11): разнесены по телу кейса — каждый «приклеен» на стык двух блоков, поочерёдно справа и слева, равномерно по странице; блоки с обрезкой (overflow) пропускаются
+function stkSpread(list){const it=(list||[]).filter(Boolean);if(!it.length)return;
+  const secs=[...$('#cBody').children].filter(e=>e.tagName==='SECTION').slice(1).filter(e=>getComputedStyle(e).overflow==='visible');if(!secs.length)return;
+  it.forEach((u,j)=>{const host=secs[Math.min(secs.length-1,Math.floor((j+.5)*secs.length/it.length))];host.classList.add('stk-h');
+    host.insertAdjacentHTML('afterbegin',`<span class="stk-f ${j%2?'stk-l':'stk-r'}" style="--d:${(-j*0.9)%2.6}s"><img src="${u}" alt="" loading="lazy" aria-hidden="true"></span>`);});}
 function blocksInit(root){
   root.querySelectorAll('.eps-tog').forEach(b=>{epsTog(b,false);b.addEventListener('click',()=>{const o=b.getAttribute('aria-expanded')!=='true';
     if(!o){const s=b.closest('section');if(s&&s.getBoundingClientRect().top<0)s.scrollIntoView({behavior:reduce?'auto':'smooth'});}epsTog(b,o);});});
@@ -578,7 +583,7 @@ function fillCase(id,split){
   $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
     bl.map(b=>(b.a?`<i class="toc-at" id="${b.a}"></i>`:'')+(b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel,rlabel:b.label}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'')).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
-  reelTeaser();hubInit();blocksInit($('#cBody'));$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(twAdd);
+  reelTeaser();hubInit();blocksInit($('#cBody'));stkSpread(k.stickers);$$('#cBody .kpi-i>div,#cBody .yr-k>div').forEach(twAdd);
   $('#cNextName').innerHTML=ttlHtml(ttlOf(n),true); $('#cNextCover').style.background=cover(n,(i+1)%CASES.length);
   $('#cNextCover').setAttribute('aria-label','Следующий проект: '+n.name);
   $('#casePanel .sheet').scrollTop=0;
@@ -712,10 +717,22 @@ $('#brief').addEventListener('submit',e=>{
    location.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+(v?v.name:'без вакансии'))+'&body='+encodeURIComponent(body);
    cvOk.textContent=`Открыли письмо на ${HR} с вашими данными — осталось нажать «Отправить» в почте.`;});}
 
-/* ---------- уведомление о cookie: показываем, пока не нажали «Понятно» (помним год) ---------- */
+// Вебвизор Метрики не записывает ввод в формы (обещано в политике, privacy.html#process)
+$$('input,textarea').forEach(el=>el.classList.add('ym-disable-keys'));
+/* ---------- плашка cookie: «Принять» / «Отказаться», выбор помним год (политика — privacy.html#cookies) ----------
+   Счётчики работают сразу; «Отказаться» ставит analytics=off — блок счётчиков в <head> (tools/sync-counters.mjs) их больше не грузит,
+   на текущей странице выключаем GA и Метрику и стираем их cookie. Ссылка #cookie-settings (в политике) открывает плашку снова. */
 {const c=$('#cookie'),K='cookie-ok';let ok=0;try{ok=+localStorage.getItem(K)>Date.now()-365*864e5;}catch(e){}
- if(!ok){c.hidden=false;requestAnimationFrame(()=>c.classList.add('on'));}
- $('#cookieOk').onclick=()=>{try{localStorage.setItem(K,Date.now())}catch(e){}c.classList.remove('on');setTimeout(()=>c.hidden=true,400);};}
+ const show=()=>{c.hidden=false;requestAnimationFrame(()=>c.classList.add('on'));},hide=()=>{c.classList.remove('on');setTimeout(()=>c.hidden=true,400);};
+ const pick=on=>{try{localStorage.setItem(K,Date.now());on?localStorage.removeItem('analytics'):localStorage.setItem('analytics','off');}catch(e){}
+   if(!on){window.MEDIAN_NOTRACK=true;const ga=(document.head.innerHTML.match(/gtag\('config','(G-[A-Z0-9]+)'\)/)||[])[1];if(ga)window['ga-disable-'+ga]=true;
+     try{window.ym&&ym(YM,'destruct');}catch(e){}
+     document.cookie.split(';').map(x=>x.split('=')[0].trim()).filter(n=>/^(_ym|_ga|_gid|_gcl|_tmr|yandexuid|yabs)/.test(n)).forEach(n=>{const h=location.hostname.replace(/^www\./,'');for(const d of ['','; domain='+h,'; domain=.'+h])document.cookie=n+'=; Max-Age=0; path=/'+d;});}
+   else if(window.MEDIAN_NOTRACK)location.reload(); // был отказ, теперь согласие — перезагрузка подтянет счётчики
+   hide();};
+ if(!ok)show();
+ $('#cookieOk').onclick=()=>pick(true);$('#cookieNo').onclick=()=>pick(false);
+ addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href$="#cookie-settings"]');if(a){e.preventDefault();show();}});}
 
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
