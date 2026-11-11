@@ -4,7 +4,7 @@ name: Deploy MCP server
 on:
   push:
     branches: [main]
-    paths: ['mcp/**', '.github/workflows/mcp.yml']
+    paths: ['mcp/**', '!mcp/users.json', '.github/workflows/mcp.yml']  # список коллег (admin/mcp.html) воркер читает сам — передеплой не нужен
   workflow_dispatch:
 jobs:
   deploy:

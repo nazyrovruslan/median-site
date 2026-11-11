@@ -230,14 +230,15 @@ export default {
     const url = new URL(req.url);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors() });
     if (url.pathname === '/' || url.pathname === '/health') return text('median MCP: ok');
-    if (!authorized(url, req, env)) return text('not found', 404);
+    const who = await authorized(url, req, env);
+    if (who === null) return text('not found', 404);
     if (req.method === 'GET') return text('MCP: POST JSON-RPC here', 405, { Allow: 'POST' });
     if (req.method === 'DELETE') return new Response(null, { status: 204, headers: cors() });
     if (req.method !== 'POST') return text('method not allowed', 405);
 
     let body;
     try { body = await req.json(); } catch { return json(rpcError(null, -32700, 'Parse error'), 400); }
-    const ctx = { env, gh: github(env) };
+    const ctx = { env, who, gh: github(env, who) };
     if (Array.isArray(body)) {
       const out = (await Promise.all(body.map(m => handle(m, ctx)))).filter(Boolean);
       return out.length ? json(out) : new Response(null, { status: 202, headers: cors() });
@@ -247,12 +248,37 @@ export default {
   },
 };
 
-function authorized(url, req, env) {
-  if (!env.MCP_SECRET) return false;
+// Кто пришёл: '' — владелец (MCP_SECRET), имя — коллега из mcp/users.json (личные ссылки, выдаются в /admin/mcp.html), null — чужой.
+async function authorized(url, req, env) {
   const m = url.pathname.match(/^\/mcp\/([^/]+)\/?$/);
   const bearer = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
-  const given = m ? decodeURIComponent(m[1]) : url.pathname.replace(/\/$/, '') === '/mcp' ? bearer || url.searchParams.get('key') || '' : '';
-  return safeEqual(given, env.MCP_SECRET);
+  let given = '';
+  try { given = m ? decodeURIComponent(m[1]) : url.pathname.replace(/\/$/, '') === '/mcp' ? bearer || url.searchParams.get('key') || '' : ''; } catch { return null; }
+  if (!given) return null;
+  if (env.MCP_SECRET && safeEqual(given, env.MCP_SECRET)) return '';
+  const hash = await sha256hex(given);
+  const user = (await mcpUsers(env)).find(u => u && u.on !== false && typeof u.hash === 'string' && safeEqual(u.hash, hash));
+  return user ? String(user.name || 'коллега').slice(0, 40) : null;
+}
+
+// Список коллег (хэши ключей, не сами ключи) — mcp/users.json в репозитории; держим в памяти воркера минуту,
+// чтобы отключение в админке срабатывало быстро, а каждый запрос не ходил в GitHub.
+let usersCache = { at: 0, list: [] };
+async function mcpUsers(env) {
+  if (Date.now() - usersCache.at < 60_000) return usersCache.list;
+  try {
+    const raw = await github(env).getRaw('mcp/users.json');
+    const list = raw ? JSON.parse(raw) : [];
+    usersCache = { at: Date.now(), list: Array.isArray(list) ? list : list.users || [] };
+  } catch {
+    usersCache.at = Date.now() - 50_000; // GitHub не ответил — повторим через 10 с, пока работаем по старому списку
+  }
+  return usersCache.list;
+}
+
+async function sha256hex(s) {
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function safeEqual(a, b) {
@@ -678,7 +704,9 @@ function cleanName(s) {
 
 // ---------- GitHub ----------
 
-function github(env) {
+function github(env, who = '') {
+  // в истории правок видно, кто из коллег правил: «MCP (Арина): …»
+  const sign = msg => (who && typeof msg === 'string' ? msg.replace(/^MCP:/, `MCP (${who}):`) : msg);
   const base = `https://api.github.com/repos/${REPO}`;
   const headers = {
     authorization: `Bearer ${env.GH_TOKEN}`,
@@ -730,7 +758,7 @@ function github(env) {
           tree: changes.map(c => (c.content === null ? { path: c.path, mode: '100644', type: 'blob', sha: null } : { path: c.path, mode: '100644', type: 'blob', content: c.content })),
         }),
       });
-      const next = await api('/git/commits', { method: 'POST', body: JSON.stringify({ message, tree: tree.sha, parents: [head] }) });
+      const next = await api('/git/commits', { method: 'POST', body: JSON.stringify({ message: sign(message), tree: tree.sha, parents: [head] }) });
       try {
         await api(`/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: next.sha, force: false }) });
         return { ok: true, commit: next.sha.slice(0, 7), files: changes.map(c => c.path + (c.content === null ? ' (удалён)' : '')), note: 'Сайт обновится через 2–4 минуты (site_status).' };
@@ -741,7 +769,7 @@ function github(env) {
     throw new Error('main всё время меняется — попробуйте ещё раз через минуту');
   };
   const put = async (path, b64, message, sha) =>
-    api(`/contents/${enc(path)}`, { method: 'PUT', body: JSON.stringify({ message, content: b64, branch: BRANCH, ...(sha ? { sha } : {}) }) });
+    api(`/contents/${enc(path)}`, { method: 'PUT', body: JSON.stringify({ message: sign(message), content: b64, branch: BRANCH, ...(sha ? { sha } : {}) }) });
   return {
     api: async p => {
       const r = await api(p);
@@ -755,7 +783,7 @@ function github(env) {
     putText: (path, s, message, sha) => put(path, bytesToB64(new TextEncoder().encode(s)), message, sha),
     putBytes: (path, bytes, message, sha) => put(path, bytesToB64(bytes), message, sha),
     dispatch: (wf, inputs) => api(`/actions/workflows/${wf}/dispatches`, { method: 'POST', body: JSON.stringify({ ref: BRANCH, inputs }) }),
-    del: (path, message, sha) => api(`/contents/${enc(path)}`, { method: 'DELETE', body: JSON.stringify({ message, sha, branch: BRANCH }) }),
+    del: (path, message, sha) => api(`/contents/${enc(path)}`, { method: 'DELETE', body: JSON.stringify({ message: sign(message), sha, branch: BRANCH }) }),
     // вся папка одним запросом (GraphQL), чтобы не упереться в лимит подзапросов воркера
     readDir: async dir => {
       const [owner, name] = REPO.split('/');
