@@ -26,8 +26,10 @@ jobs:
         with:
           node-version: 22
       # apt-зеркало иногда зависает (11.11 сборка висела 26 мин) — ограничиваем шаг и пробуем ещё раз
+      # если apt так и не ответил — сборка идёт дальше без ffmpeg: он нужен только для новых медиа (сжатие, кадры, превью)
       - name: ffmpeg
-        timeout-minutes: 6
+        timeout-minutes: 4
+        continue-on-error: true
         run: command -v ffmpeg || (sudo apt-get update -qq -o Acquire::http::Timeout=30 && sudo apt-get install -y -qq -o Acquire::http::Timeout=30 ffmpeg) || (sleep 10 && sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
       # кейсы, вакансии и КП правятся в content/ (через /admin) — собираем js/cases.js, страницы clients/<адрес>/ и досоздаём превью для новых медиа
       - name: Build content
