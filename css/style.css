@@ -471,7 +471,7 @@ html.loading #cur,html.loading #ring{opacity:0}
 .ab-top .ab-ring text{fill:var(--fg)}
 .ab-top .ab-ring .arr-d *{stroke:var(--fg)}
 .ab-top .ab-photo{background:transparent}
-.ab-top .ab-photo img{opacity:var(--k);clip-path:inset(calc((1 - var(--k)) * 30%) 0 0 0)}
+/* фото моря видно сразу, ещё на чёрном фоне (11.11, Руслан) — раньше проявлялось вместе со сменой фона */
 .ab-l{grid-column:1/3}
 .ab-r{grid-column:4/6}
 .ab-photo{margin:0;aspect-ratio:355/225;overflow:hidden}
