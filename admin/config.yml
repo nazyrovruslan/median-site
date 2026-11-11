@@ -688,7 +688,7 @@ collections:
         label: Настройки КП и счётчики
         file: content/settings/kp.json
         fields:
-          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, hint: "Только цифры. Цели: kp_open, kp_read_30s, kp_total_seen, kp_pdf, kp_xlsx, kp_zip, kp_contact, kp_copy, kp_case" }
+          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, hint: "Пусто — счётчик сайта (9380047), визиты КП с параметрами kp и client. Отдельный счётчик — только цифры. GA и пиксель South HUB на КП стоят всегда, как на всём сайте. Цели: kp_open, kp_read_30s, kp_total_seen, kp_pdf, kp_xlsx, kp_zip, kp_contact, kp_copy, kp_case" }
           - { name: vk, label: ID пикселя VK, widget: string, required: false }
           - { name: head, label: Код в <head> всех КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Счётчик сквозной аналитики (Roistat, Calltouch, CoMagic и т.п.), пиксели" }
           - { name: body, label: Код в конце <body> всех КП, widget: code, default_language: html, output_code_only: true, required: false }

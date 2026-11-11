@@ -2,3 +2,4 @@
 node_modules/
 clients/*/*.zip
 clients/*/og.html
+admin/preview.html

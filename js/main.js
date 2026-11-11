@@ -974,4 +974,6 @@ document.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a)
   else if(/hh\.ru/i.test(h))goal('hh_click');},true);
 // дочитал до футера (Start a project)
 if('IntersectionObserver' in window){const ft=$('#contact');if(ft)new IntersectionObserver((es,o)=>es.forEach(x=>{if(x.isIntersecting){goal('footer_seen',{},true);o.disconnect();}}),{threshold:.5}).observe(ft);}
+/* живой предпросмотр в конструкторе кейсов (admin/preview.html, js/preview.js): только там наружу отдаём перерисовку кейса */
+if(window.MEDIAN_PREVIEW)window.MEDIAN_CASE={fill:fillCase,open:openCase,openId:()=>openId};
 })();
