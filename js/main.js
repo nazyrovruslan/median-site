@@ -240,18 +240,16 @@ if(!fine){
 }
 /* ---------- directions ---------- */
 /* ---------- проекты (бывшие направления): у кейса с видео-обложкой — та же обложка, что в баннере ---------- */
-$$('.dir .vis[data-case]').forEach(v=>{const k=CASES.find(c=>c.id===v.dataset.case);if(!k||!k.vid)return;const a=v.querySelector('.art');a.style.background=cover(k);a.innerHTML=vid(k);});
+// 11.11 (задание Арины): видео в блоках витрины прописано прямо в index.html (<video class="cv"> внутри .art, постер — фон .art); при «меньше движения» видео убираем, остаётся постер
+if(reduce)$$('.dir video.cv').forEach(v=>v.remove());
 function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
 /* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок; на десктопе обложка ещё и магнитится к курсору */
 if(!reduce){
   const px=$$('.dir').map(d=>({d,els:['.vis','.vlink','.card'].map(q=>d.querySelector(q)),v:d.querySelector('.vis')}));let pxQ=0;
-  const own=$('#own'),projs=$$('#own .proj');
   const pxRun=()=>{pxQ=0;if(!fine)return; /* тач (09.11): на iOS при быстрой прокрутке события скролла запаздывают за инерцией, и сдвиг на 200 px дёргал фото и карточки — на телефоне блоки стоят на месте */const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
     const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2))),sh=(p*amp).toFixed(1);
-    els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});
-    // собственные проекты: заголовок стоит, карточки едут с разной скоростью (вторая быстрее)
-    const ob=own.getBoundingClientRect();if(ob.bottom>-100&&ob.top<vh+100){const p=Math.max(-1,Math.min(1,((ob.top+ob.height/2)-vh/2)/(vh/2+ob.height/2)));projs.forEach((e,j)=>e.style.translate=`0 ${(p*amp*[.4,.75,.55][j]).toFixed(1)}px`);}};
+    els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});};
   // вместо «наезда»: обложка едет внутри рамки (у .art запас 4% с каждой стороны), фон первого экрана уезжает медленнее страницы
   const arts=$$('.vis .art'),hero=$('.hero');const pxRun2=()=>{const vh=innerHeight;arts.forEach(a=>{const b=a.parentElement.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;
     const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));a.style.translate=`0 ${(p*-3.5).toFixed(2)}%`;});
@@ -259,12 +257,9 @@ if(!reduce){
   const pxAll=()=>{pxRun();pxRun2();};
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxAll)},{passive:true});addEventListener('resize',pxAll);pxAll();
 }
-$('#art-southhub').style.background=cover(CASES[1],4);$('#art-southhub').innerHTML=vid(CASES[1]);
-// видео-обложки направлений и собственных проектов играют, только пока видны на экране
+// видео-обложки витрины играют, только пока видны на экране
 const coverVis=new Set();
-{const es=CASES.find(c=>c.id==='es');$('#art-es').style.background=cover(es,6);$('#art-es').innerHTML=vid({vid:'media/video/es-v.mp4'});} // вертикальная версия ролика под узкую карточку; вставляем до IntersectionObserver, иначе видео не запускается
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)coverVis.add(e.target);else coverVis.delete(e.target);playIn(e.target,e.isIntersecting&&!$$('.panel.on').length);}),{rootMargin:'100px 0px'});$$('.vis .art').forEach(a=>a.querySelector('video.cv')&&io.observe(a));}
-$('#art-podcast').style.background='url(media/home/podcast.webp) center/cover no-repeat';
 
 /* ---------- cases index ---------- */
 const rows=$('#rows');
@@ -664,10 +659,7 @@ if(!fine)$('#casePanel .sheet').addEventListener('scroll',()=>{const cy=innerHei
 function nxRing(k){const b=document.body,on=k>.01;b.classList.toggle('c-nx',on);
   if(on)$('#ring .t').textContent='Следующий проект';
   $('#ring circle').style.strokeDashoffset=on?302*(1-k):302;}
-$('[data-case="southhub"]').addEventListener('click',e=>{e.preventDefault();openCase('southhub',e.currentTarget.querySelector('.vis'))});
-$('[data-case="es"]').addEventListener('click',e=>{e.preventDefault();openCase('es',e.currentTarget.querySelector('.vis'))});
 $$('.dir [data-case]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openCase(a.dataset.case,a.closest('.dir').querySelector('.vis'))}));
-$('[data-case="podcast"]').addEventListener('click',e=>{e.preventDefault();openCase('podcast',e.currentTarget.querySelector('.vis'))});
 const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on'))openPanel(b);};
 $('#start').onclick=openBrief;
 // iOS Safari иногда съедает первый тап по кнопке (считает его наведением) — на таче открываем по отпусканию пальца, без синтетического клика
@@ -880,13 +872,13 @@ $$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
 /* ---------- footer reveal + curtain ---------- */
 if('IntersectionObserver' in window){
   // на телефоне футер лежит под разделом «Собственные проекты»: видимая часть — ниже его нижнего края
-  const foot=$('#contact'),own=$('#own');
+  const foot=$('#contact'),own=$('#pod');
   const footIn=()=>{if(foot.classList.contains('in'))return;const f=foot.getBoundingClientRect(),under=getComputedStyle(foot).position==='sticky';
     const top=Math.max(0,f.top,under?own.getBoundingClientRect().bottom:0),seen=Math.min(innerHeight,f.bottom)-top;
     if(seen>innerHeight*.35){foot.classList.add('in');removeEventListener('scroll',footIn);}};
   new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){addEventListener('scroll',footIn,{passive:true});footIn();}else removeEventListener('scroll',footIn);}),{threshold:0}).observe(foot);
 }else document.documentElement.classList.add('no-io');
-function stickyOwn(){const own=$('#own');own.style.top=Math.min(0,innerHeight-own.offsetHeight)+'px';}
+function stickyOwn(){const own=$('#pod');own.style.top=Math.min(0,innerHeight-own.offsetHeight)+'px';}
 let ownW=innerWidth;stickyOwn();addEventListener('resize',()=>{if(matchMedia('(hover:none)').matches&&innerWidth===ownW)return;ownW=innerWidth;stickyOwn();});document.fonts&&document.fonts.ready.then(stickyOwn);
 
 /* ---------- menu ---------- */
@@ -935,7 +927,7 @@ if(fine&&!reduce){
   // магнит: цель задаётся курсором, элемент догоняет её плавно в общем цикле
   let mags=[];const magSeen=new WeakSet();
   const addMag=el=>{if(magSeen.has(el))return;magSeen.add(el);
-    const m={el,tx:0,ty:0,x:0,y:0,on:false,fol:el.classList.contains('vis')?el.closest('.dir').querySelector('.vlink'):null};mags.push(m);
+    const m={el,tx:0,ty:0,x:0,y:0,on:false,fol:el.classList.contains('vis')&&el.closest('.dir')?el.closest('.dir').querySelector('.vlink'):null};mags.push(m);
     const k=parseFloat(el.dataset.magnet)||.2; // большим блокам (обложки направлений) — слабее
     el.addEventListener('pointermove',e=>{const b=el.getBoundingClientRect();m.on=true;m.tx=(e.clientX-b.left-b.width/2)*k;m.ty=(e.clientY-b.top-b.height/2)*k;});
     el.addEventListener('pointerleave',()=>{m.on=false;m.tx=m.ty=0;});};
