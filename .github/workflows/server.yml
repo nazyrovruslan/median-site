@@ -1,0 +1,48 @@
+# Ручной перезапуск выкладки на сервер median.agency (без пересборки GitHub Pages): Actions → «Server deploy» → Run workflow.
+# Обычно не нужен — pages.yml делает то же после каждой сборки (шаг «Сервер median.agency — ветка deploy и deploy.sh»).
+name: Server deploy
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: server
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_PATH: ${{ secrets.SSH_PATH }}
+    steps:
+      - name: Проверка секретов
+        run: |
+          for v in SSH_HOST SSH_USER SSH_KEY SSH_PATH; do [ -n "${!v}" ] && echo "$v: задан" || { echo "::error::$v не задан"; exit 1; }; done
+          printf '%s\n' "$SSH_KEY" | head -1 | grep -q 'BEGIN .*PRIVATE KEY' && echo "SSH_KEY похож на приватный ключ" || echo "::warning::SSH_KEY не начинается с -----BEGIN … PRIVATE KEY-----"
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: main → ветка deploy
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898599+github-actions[bot]@users.noreply.github.com"
+          git fetch -q origin main deploy
+          git worktree add -q --detach /tmp/dep origin/deploy
+          cd /tmp/dep
+          git merge -q --no-edit -X theirs -m "Выкладка: main → deploy [skip ci]" origin/main
+          git push -q origin HEAD:deploy
+          git log --oneline -1
+      - name: deploy.sh на сервере
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/srv && chmod 600 ~/.ssh/srv
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || echo "::warning::ssh-keyscan не ответил"
+          ssh -i ~/.ssh/srv -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 "$SSH_USER@$SSH_HOST" "cd '${SSH_PATH%/}' && ./deploy.sh"
+      - name: Проверка сайта
+        run: |
+          sleep 5
+          for u in / /about /x5stands /sitemap.xml /robots.txt; do echo "$u $(curl -s -o /dev/null -w '%{http_code}' https://median.agency$u)"; done
