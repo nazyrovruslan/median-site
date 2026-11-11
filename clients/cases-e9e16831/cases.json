@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-10T21:16:00.032Z",
+  "updated": "2026-11-11T10:45:53.813Z",
   "default_count": 4,
   "categories": [
     {
@@ -233,7 +233,7 @@
       "name": "Альфа-Банк × МФТИ",
       "client": "Альфа-Банк",
       "year": "",
-      "sub": "Самый быстроразвивающийся и первый частный банк в России для физических лиц. Первое мобиль",
+      "sub": "Самый быстроразвивающийся и первый частный банк в России для физических лиц",
       "categories": [
         "special"
       ],
@@ -277,7 +277,7 @@
         "camp",
         "conf"
       ],
-      "on_site": true,
+      "on_site": false,
       "url": "https://nazyrovruslan.github.io/median-site/es",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/es-cover.webp"
     },
@@ -303,7 +303,7 @@
       "categories": [
         "conf"
       ],
-      "on_site": true,
+      "on_site": false,
       "url": "https://nazyrovruslan.github.io/median-site/shclub",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/shclub-cover.webp"
     },
@@ -316,7 +316,7 @@
       "categories": [
         "hack"
       ],
-      "on_site": true,
+      "on_site": false,
       "url": "https://nazyrovruslan.github.io/median-site/hackathon",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/hackathon-cover.webp"
     },
@@ -329,7 +329,7 @@
       "categories": [
         "corp"
       ],
-      "on_site": true,
+      "on_site": false,
       "url": "https://nazyrovruslan.github.io/median-site/tmn",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/tmn-cover.webp"
     },
@@ -342,7 +342,7 @@
       "categories": [
         "hack"
       ],
-      "on_site": true,
+      "on_site": false,
       "url": "https://nazyrovruslan.github.io/median-site/techrace",
       "cover": "https://nazyrovruslan.github.io/median-site/media/thumb/techrace-cover.webp"
     },
