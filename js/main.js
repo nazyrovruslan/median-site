@@ -660,7 +660,6 @@ function nxRing(k){const b=document.body,on=k>.01;b.classList.toggle('c-nx',on);
   if(on)$('#ring .t').textContent='Следующий проект';
   $('#ring circle').style.strokeDashoffset=on?302*(1-k):302;}
 $$('.dir [data-case]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openCase(a.dataset.case,a.closest('.dir').querySelector('.vis'))}));
-$('#pod [data-case]').addEventListener('click',e=>{e.preventDefault();openCase('podcast',e.currentTarget)}); // обложка подкаста → страница кейса podcast (11.11, Руслан)
 const openBrief=()=>{const b=$('#briefPanel');if(!b.classList.contains('on'))openPanel(b);};
 $('#start').onclick=openBrief;
 // iOS Safari иногда съедает первый тап по кнопке (считает его наведением) — на таче открываем по отпусканию пальца, без синтетического клика
