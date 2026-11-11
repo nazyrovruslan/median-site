@@ -15,7 +15,7 @@ import path from 'node:path';
 const [url, dest] = process.argv.slice(2);
 const fail = m => { console.error('Ошибка: ' + m); process.exit(1); };
 if (!/^https:\/\//.test(url || '')) fail('нужна https-ссылка');
-if (!/^media\/(cases|video|vacancies|team|icons)\/[a-z0-9][a-z0-9._-]*\.[a-z0-9]{2,5}$/.test(dest || '')) fail('путь вида media/cases/имя.webp');
+if (!/^media\/(cases|video|vacancies|team|icons|home|about|founders|awards|clients|southhub|reels)\/[a-z0-9][a-z0-9._-]*\.[a-z0-9]{2,5}$/.test(dest || '')) fail('путь вида media/cases/имя.webp');
 
 let src = url;
 if (/^https:\/\/(disk\.yandex\.[a-z]+|yadi\.sk)\//.test(src)) {

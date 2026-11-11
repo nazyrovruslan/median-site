@@ -22,7 +22,24 @@ const SETTINGS = {
   icons: 'content/settings/icons.json', // пиктограммы к цифрам
   jobs: 'content/settings/jobs.json', // страница вакансий: почта, вступление, руководитель
 };
-const MEDIA = { cases: 'media/cases', video: 'media/video', vacancies: 'media/vacancies', team: 'media/team', icons: 'media/icons' };
+const MEDIA = {
+  cases: 'media/cases', video: 'media/video', vacancies: 'media/vacancies', team: 'media/team', icons: 'media/icons',
+  home: 'media/home', about: 'media/about', founders: 'media/founders', awards: 'media/awards', clients: 'media/clients', southhub: 'media/southhub', reels: 'media/reels',
+};
+// папки, где фото сжимаются в webp до 2400 px (в clients и awards — логотипы, их не трогаем)
+const PHOTO_FOLDERS = ['cases', 'vacancies', 'team', 'home', 'about', 'founders', 'southhub'];
+
+// Правка любых текстовых файлов сайта (вёрстка, тексты главной, «О нас», 404, стили, скрипты).
+// Нельзя: workflow и сам MCP, КП (по просьбе Руслана), файлы, которые собирает деплой, и бинарные медиа (для них upload_media).
+const FILE_EXT = /\.(html|css|js|mjs|json|md|ya?ml|svg|txt|xml)$/i;
+const FILE_DENY = [
+  [/^\.github\//, 'workflow GitHub'],
+  [/^mcp\//, 'сам MCP-сервер'],
+  [/^\.git\//, 'служебные файлы git'],
+  [/^(clients|content\/kp|media\/kp)\/|^(js\/kp\.js|css\/kp\.css|content\/settings\/kp\.json|tools\/(build|og)-kp\.mjs)$/, 'КП (правятся в /admin)'],
+  [/^js\/(cases|vacancies|icons)\.js$/, 'файл собирается при деплое из content/ — правьте content/ (кейсы и вакансии — create_item/update_item)'],
+  [/^(sitemap\.xml|robots\.txt)$/, 'собирается при деплое (tools/build-seo.mjs)'],
+];
 const ID_RE = /^[a-z0-9-]+$/;
 
 const INSTRUCTIONS = `Контент сайта median.agency (${SITE}). Источник правды — JSON в репозитории ${REPO}, ветка ${BRANCH}; каждое сохранение — коммит, сайт пересобирается сам за 2–4 минуты (проверить — site_status).
@@ -30,7 +47,10 @@ const INSTRUCTIONS = `Контент сайта median.agency (${SITE}). Ист�
 Прежде чем создавать или менять запись: посмотри схему полей (get_schema) и похожий существующий кейс или вакансию (get_item) и повторяй их структуру и тон. Страница кейса собирается из blocks: [{t: тип, ...}] — типы и поля блоков в схеме.
 Порядок (order): меньше — выше, шаг 10; первые 5 кейсов — баннер на главной. Новый кейс без явной просьбы ставь в конец списка или с hide: true, если пользователь не сказал публиковать.
 Фото и видео сначала загрузи (upload_media), потом впиши возвращённый путь в поле. Фото сжимаются в webp, видео в mp4 h.264, upload_media сразу возвращает итоговый путь.
-Удаление необратимо для сайта — переспроси пользователя перед delete_item.`;
+Удаление необратимо для сайта — переспроси пользователя перед delete_item.
+Всё остальное на сайте (тексты и блоки главной, «О нас», 404, политика, подвал, стили, скрипты) — файлы репозитория: find_text → read_file → edit_files.
+Перед правкой вёрстки прочитай NOTES.md (что где лежит) и DESIGN-SYSTEM.md (цвета, кегли, сетка, кнопки) — новые элементы делай по ней. Правь точечно: короткие уникальные фрагменты, несколько файлов одной правки — одним вызовом edit_files (один коммит). Кейсы и вакансии правь через create_item/update_item, а не файлами.
+После правки — site_status; если что-то сломалось, revert_file вернёт файл к версии до последнего коммита.`;
 
 const TOOLS = [
   {
@@ -130,6 +150,71 @@ const TOOLS = [
     name: 'list_media',
     description: 'Файлы в папке медиа (имя и размер), можно отфильтровать по началу имени.',
     inputSchema: { type: 'object', properties: { folder: { type: 'string', enum: Object.keys(MEDIA) }, prefix: { type: 'string' } }, required: ['folder'] },
+  },
+  {
+    name: 'find_text',
+    description: 'Найти текст в файлах сайта: строки с номерами. По умолчанию ищет в index.html, js/main.js, css/style.css, 404.html, privacy.html, consent.html; paths — свои файлы. Регистр не важен.',
+    inputSchema: {
+      type: 'object',
+      properties: { query: { type: 'string' }, paths: { type: 'array', items: { type: 'string' } }, regex: { type: 'boolean', default: false } },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'read_file',
+    description: 'Прочитать текстовый файл репозитория с номерами строк. Большие файлы (main.js, style.css, index.html) читай кусками: from и to — номера строк.',
+    inputSchema: { type: 'object', properties: { path: { type: 'string' }, from: { type: 'integer' }, to: { type: 'integer' } }, required: ['path'] },
+  },
+  {
+    name: 'list_files',
+    description: 'Файлы и папки репозитория в папке dir (по умолчанию корень).',
+    inputSchema: { type: 'object', properties: { dir: { type: 'string' } } },
+  },
+  {
+    name: 'edit_files',
+    description: 'Правка текстовых файлов одним коммитом. В каждой правке old — точный фрагмент из файла (как в read_file, без номеров строк), он должен встречаться ровно один раз (или all: true — заменить все вхождения); new — замена. Можно править несколько файлов сразу (HTML + CSS + JS одной правки). Нельзя: .github, mcp, КП, собираемые js/cases.js, js/vacancies.js, js/icons.js. JSON проверяется на валидность.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              path: { type: 'string' },
+              edits: { type: 'array', items: { type: 'object', properties: { old: { type: 'string' }, new: { type: 'string' }, all: { type: 'boolean' } }, required: ['old', 'new'] } },
+            },
+            required: ['path', 'edits'],
+          },
+        },
+        message: { type: 'string', description: 'что сделано, по-русски, коротко — попадёт в историю правок' },
+      },
+      required: ['files', 'message'],
+    },
+  },
+  {
+    name: 'write_file',
+    description: 'Создать текстовый файл или заменить его целиком (например, новая страница). Существующий файл заменяется только с overwrite: true — для правок лучше edit_files.',
+    inputSchema: {
+      type: 'object',
+      properties: { path: { type: 'string' }, content: { type: 'string' }, message: { type: 'string' }, overwrite: { type: 'boolean', default: false } },
+      required: ['path', 'content', 'message'],
+    },
+  },
+  {
+    name: 'delete_file',
+    description: 'Удалить файл из репозитория (текстовый или медиа). Требует confirm_path, равный path. Переспроси пользователя.',
+    inputSchema: { type: 'object', properties: { path: { type: 'string' }, confirm_path: { type: 'string' } }, required: ['path', 'confirm_path'] },
+  },
+  {
+    name: 'file_history',
+    description: 'Последние коммиты, менявшие файл: кто, когда, что.',
+    inputSchema: { type: 'object', properties: { path: { type: 'string' }, limit: { type: 'integer', default: 8 } }, required: ['path'] },
+  },
+  {
+    name: 'revert_file',
+    description: 'Вернуть файл к версии до коммита commit (sha из file_history; по умолчанию — до последнего коммита, менявшего файл). Если в том коммите файла не было — файл удалится.',
+    inputSchema: { type: 'object', properties: { path: { type: 'string' }, commit: { type: 'string' } }, required: ['path'] },
   },
   {
     name: 'site_status',
@@ -311,7 +396,7 @@ const HANDLERS = {
     if (!dir) throw new Error(`Папка: ${Object.keys(MEDIA).join(', ')}`);
     let name = cleanName(filename);
     // фото кейсов, обложки вакансий и портреты на сайте — webp до 2400 px (как в /admin)
-    const toWebp = /\.(jpe?g|png|webp|heic|heif)$/i.test(name) && ['cases', 'vacancies', 'team'].includes(folder);
+    const toWebp = /\.(jpe?g|png|webp|heic|heif)$/i.test(name) && PHOTO_FOLDERS.includes(folder);
     if (toWebp) name = name.replace(/\.\w+$/, '.webp');
     // видео (mov, hevc с iPhone, 4K…) пережимаются в mp4 h.264 в GitHub Actions — путь сразу с .mp4
     const toMp4 = /\.(mov|m4v|webm|avi|mkv|mp4)$/i.test(name) && folder === 'video';
@@ -357,6 +442,124 @@ const HANDLERS = {
     return list.filter(f => f.type === 'file' && f.name.startsWith(prefix)).map(f => ({ path: f.path, size: f.size }));
   },
 
+  async find_text({ query, paths, regex = false }, { gh }) {
+    if (!query) throw new Error('Пустой запрос');
+    const list = (paths?.length ? paths : DEFAULT_SEARCH).map(cleanPath);
+    if (list.length > 12) throw new Error('Не больше 12 файлов за раз');
+    const re = regex ? new RegExp(query, 'i') : null;
+    const q = query.toLowerCase();
+    const out = [];
+    for (const path of list) {
+      const text = await gh.getRaw(path);
+      if (text === null) { out.push(`${path}: нет файла`); continue; }
+      const lines = text.split('\n');
+      let n = 0;
+      for (let i = 0; i < lines.length && n < 40; i++) {
+        if (re ? re.test(lines[i]) : lines[i].toLowerCase().includes(q)) {
+          out.push(`${path}:${i + 1}: ${clip(lines[i].trim(), 300)}`);
+          n++;
+        }
+      }
+      if (n === 40) out.push(`${path}: … больше 40 совпадений, уточните запрос`);
+    }
+    return out.length ? out.join('\n') : 'Не найдено';
+  },
+
+  async read_file({ path, from, to }, { gh }) {
+    path = cleanPath(path);
+    if (!FILE_EXT.test(path)) {
+      const m = await gh.meta(path);
+      if (!m) throw new Error(`Нет файла ${path}`);
+      return `${path}: бинарный файл (${m.size} байт) — смотреть на сайте`;
+    }
+    const text = await gh.getRaw(path);
+    if (text === null) throw new Error(`Нет файла ${path}`);
+    const lines = text.split('\n');
+    const a = Math.max(1, from || 1);
+    const b = Math.min(lines.length, to || a + 399);
+    const body = lines.slice(a - 1, b).map((l, i) => `${String(a + i).padStart(5)}  ${l}`).join('\n');
+    return `${path} — строки ${a}–${b} из ${lines.length}${b < lines.length ? ' (дальше — from: ' + (b + 1) + ')' : ''}\n${body}`;
+  },
+
+  async list_files({ dir = '' }, { gh }) {
+    dir = dir ? cleanPath(dir) : '';
+    const list = await gh.api(`/contents/${dir}?ref=${BRANCH}`);
+    if (!Array.isArray(list)) throw new Error(`${dir} — файл, а не папка`);
+    return list.map(f => (f.type === 'dir' ? f.path + '/' : `${f.path}  ${f.size} Б`)).join('\n');
+  },
+
+  async edit_files({ files, message }, { gh }) {
+    if (!files?.length) throw new Error('Нет файлов');
+    if (!message) throw new Error('Нужно message — что сделано');
+    return gh.commit(async read => {
+      const changes = [];
+      for (const { path: p, edits } of files) {
+        const path = writablePath(p);
+        const cur = await read(path);
+        if (cur === null) throw new Error(`Нет файла ${path} — новый файл создаёт write_file`);
+        let text = cur;
+        for (const [i, e] of (edits || []).entries()) {
+          if (!e.old) throw new Error(`${path}, правка ${i + 1}: пустой old`);
+          const n = text.split(e.old).length - 1;
+          if (!n) throw new Error(`${path}, правка ${i + 1}: фрагмент не найден — перечитайте файл (read_file) и скопируйте точно, без номеров строк`);
+          if (n > 1 && !e.all) throw new Error(`${path}, правка ${i + 1}: фрагмент встречается ${n} раз — возьмите длиннее или all: true`);
+          text = e.all ? text.split(e.old).join(e.new) : text.replace(e.old, () => e.new);
+        }
+        checkText(path, text);
+        if (text !== cur) changes.push({ path, content: text });
+      }
+      return { changes, message: `MCP: ${message}` };
+    });
+  },
+
+  async write_file({ path, content, message, overwrite = false }, { gh }) {
+    path = writablePath(path);
+    if (typeof content !== 'string') throw new Error('content — текст');
+    checkText(path, content);
+    return gh.commit(async read => {
+      const cur = await read(path);
+      if (cur !== null && !overwrite) throw new Error(`${path} уже есть — edit_files или overwrite: true`);
+      return { changes: cur === content ? [] : [{ path, content }], message: `MCP: ${message || (cur === null ? 'создан ' : 'перезаписан ') + path}` };
+    });
+  },
+
+  async delete_file({ path, confirm_path }, { gh }) {
+    path = cleanPath(path);
+    if (confirm_path !== path) throw new Error('confirm_path должен совпадать с path');
+    denyCheck(path);
+    if (/^content\/(cases|vacancies)\//.test(path)) throw new Error('Кейсы и вакансии удаляет delete_item');
+    return gh.commit(async (read, exists) => {
+      if (!(await exists(path))) throw new Error(`Нет файла ${path}`);
+      return { changes: [{ path, content: null }], message: `MCP: удалён файл ${path}` };
+    });
+  },
+
+  async file_history({ path, limit = 8 }, { gh }) {
+    path = cleanPath(path);
+    const list = await gh.api(`/commits?sha=${BRANCH}&path=${encodeURIComponent(path)}&per_page=${Math.min(30, limit)}`);
+    return list.map(c => ({ commit: c.sha.slice(0, 7), date: c.commit.author.date, author: c.commit.author.name, message: c.commit.message.split('\n')[0] }));
+  },
+
+  async revert_file({ path, commit }, { gh }) {
+    path = writablePath(path);
+    let sha = commit;
+    if (!sha) {
+      const [last] = await gh.api(`/commits?sha=${BRANCH}&path=${encodeURIComponent(path)}&per_page=1`);
+      if (!last) throw new Error(`У ${path} нет истории`);
+      sha = last.sha;
+    }
+    const c = await gh.api(`/commits/${sha}`);
+    const parent = c.parents?.[0]?.sha;
+    if (!parent) throw new Error('У коммита нет родителя');
+    const old = await gh.getRaw(path, parent);
+    return gh.commit(async read => {
+      const cur = await read(path);
+      const next = old;
+      if (cur === next) return { changes: [], message: '' };
+      return { changes: [{ path, content: next }], message: `MCP: откат ${path} к версии до ${sha.slice(0, 7)}` };
+    });
+  },
+
   async site_status(_, { gh }) {
     const commits = await gh.api(`/commits?sha=${BRANCH}&per_page=6`);
     const runs = async wf => {
@@ -376,6 +579,35 @@ const HANDLERS = {
     };
   },
 };
+
+// ---------- файлы ----------
+
+const DEFAULT_SEARCH = ['index.html', 'js/main.js', 'css/style.css', '404.html', 'privacy.html', 'consent.html'];
+const clip = (s, n) => (s.length > n ? s.slice(0, n) + '…' : s);
+
+function cleanPath(p) {
+  const s = String(p || '').trim().replace(/^\/+/, '').replace(/^median-site\//, '');
+  if (!s || s.split('/').some(x => x === '..' || x === '.')) throw new Error('Путь относительно корня репозитория, например index.html или css/style.css');
+  return s;
+}
+
+function denyCheck(path) {
+  for (const [re, why] of FILE_DENY) if (re.test(path)) throw new Error(`${path}: через MCP не правится — ${why}`);
+}
+
+function writablePath(p) {
+  const path = cleanPath(p);
+  denyCheck(path);
+  if (!FILE_EXT.test(path)) throw new Error(`${path}: правятся только текстовые файлы (html, css, js, json, md, yml, svg, txt, xml); фото и видео — upload_media`);
+  return path;
+}
+
+function checkText(path, text) {
+  if (/\.json$/i.test(path)) {
+    try { JSON.parse(text); } catch (e) { throw new Error(`${path}: после правки JSON невалиден — ${e.message}`); }
+  }
+  if (text.length > 900 * 1024) throw new Error(`${path}: файл больше 900 КБ`);
+}
 
 // ---------- данные ----------
 
@@ -462,16 +694,51 @@ function github(env) {
     return body ? JSON.parse(body) : {};
   };
   const enc = p => p.split('/').map(encodeURIComponent).join('/');
-  const meta = async path => {
-    const m = await api(`/contents/${enc(path)}?ref=${BRANCH}`);
+  const meta = async (path, ref = BRANCH) => {
+    const m = await api(`/contents/${enc(path)}?ref=${ref}`);
     return m && !Array.isArray(m) ? m : null;
   };
-  const getFile = async path => {
-    const m = await meta(path);
+  const getFile = async (path, ref) => {
+    const m = await meta(path, ref);
     if (!m) return null;
     // больше 1 МБ contents API отдаёт без содержимого — тогда через blob
     const b64 = m.content || (await api(`/git/blobs/${m.sha}`)).content;
-    return { sha: m.sha, text: new TextDecoder().decode(b64ToBytes(b64)) };
+    return { sha: m.sha, size: m.size, text: new TextDecoder().decode(b64ToBytes(b64)) };
+  };
+  // текст файла без base64 и JSON (дешевле по CPU воркера — важно для больших main.js и style.css)
+  const getRaw = async (path, ref = BRANCH) => {
+    const r = await fetch(`${base}/contents/${enc(path)}?ref=${ref}`, { headers: { ...headers, accept: 'application/vnd.github.raw' } });
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error(`GitHub ${r.status}: ${(await r.text()).slice(0, 300)}`);
+    return r.text();
+  };
+  // Один коммит из нескольких файлов (Git Data API). build(read, exists) читает файлы на текущей вершине main
+  // и возвращает { changes: [{ path, content | null }], message }. Если main ушёл вперёд — пересобираем правку заново.
+  const commit = async build => {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const ref = await api(`/git/ref/heads/${BRANCH}`);
+      const head = ref.object.sha;
+      const read = path => getRaw(path, head);
+      const exists = async path => !!(await meta(path, head));
+      const { changes, message } = await build(read, exists);
+      if (!changes.length) return { ok: true, unchanged: true };
+      const base = await api(`/git/commits/${head}`);
+      const tree = await api('/git/trees', {
+        method: 'POST',
+        body: JSON.stringify({
+          base_tree: base.tree.sha,
+          tree: changes.map(c => (c.content === null ? { path: c.path, mode: '100644', type: 'blob', sha: null } : { path: c.path, mode: '100644', type: 'blob', content: c.content })),
+        }),
+      });
+      const next = await api('/git/commits', { method: 'POST', body: JSON.stringify({ message, tree: tree.sha, parents: [head] }) });
+      try {
+        await api(`/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: next.sha, force: false }) });
+        return { ok: true, commit: next.sha.slice(0, 7), files: changes.map(c => c.path + (c.content === null ? ' (удалён)' : '')), note: 'Сайт обновится через 2–4 минуты (site_status).' };
+      } catch (e) {
+        if (!/GitHub 422/.test(e.message)) throw e; // 422 — main ушёл вперёд, пробуем ещё раз
+      }
+    }
+    throw new Error('main всё время меняется — попробуйте ещё раз через минуту');
   };
   const put = async (path, b64, message, sha) =>
     api(`/contents/${enc(path)}`, { method: 'PUT', body: JSON.stringify({ message, content: b64, branch: BRANCH, ...(sha ? { sha } : {}) }) });
@@ -483,6 +750,8 @@ function github(env) {
     },
     meta,
     getFile,
+    getRaw,
+    commit,
     putText: (path, s, message, sha) => put(path, bytesToB64(new TextEncoder().encode(s)), message, sha),
     putBytes: (path, bytes, message, sha) => put(path, bytesToB64(bytes), message, sha),
     dispatch: (wf, inputs) => api(`/actions/workflows/${wf}/dispatches`, { method: 'POST', body: JSON.stringify({ ref: BRANCH, inputs }) }),

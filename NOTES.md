@@ -85,6 +85,7 @@ Kaspersky — полностью по макету, фото вытащены и
 ## MCP для правки контента (10.11)
 - Просьба Руслана: править сайт через Claude (создать проект и т. п.), КП — не через MCP. `mcp/worker.js` — Cloudflare Worker, MCP-коннектор: кейсы (проект/серия), вакансии, настройки `icons` и `jobs`, загрузка медиа, статус сборки. Коммиты в main с префиксом `MCP:`.
 - Медиа по ссылке грузятся через `.github/workflows/media.yml` → `tools/fetch-media.mjs` (Яндекс Диск/Google Drive → прямая ссылка, фото → webp ≤2400 px, видео → mp4 h.264 ≤1920 px и 5 Мбит/с; `upload_media` сразу меняет расширение видео на .mp4), после коммита явно запускается `pages.yml` (коммит от github.token сам деплой не запускает).
+- С 11.11 (просьба Руслана «чтобы MCP правил максимум возможного») — ещё и любые текстовые файлы: `find_text`, `read_file`, `edit_files` (несколько файлов одним коммитом через Git Data API, с повтором, если main ушёл вперёд), `write_file`, `delete_file`, `file_history`, `revert_file`. Запреты — `FILE_DENY` в `mcp/worker.js` (workflow, сам MCP, КП, собираемые файлы). Медиа-папки для `upload_media` расширены: home, about, founders, awards, clients, southhub, reels.
 - Деплой воркера — `.github/workflows/mcp.yml`, пропускается без секретов `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `MCP_GITHUB_TOKEN`, `MCP_SECRET`. Настройка и подключение — `mcp/README.md`.
 
 ## Страница ошибок
