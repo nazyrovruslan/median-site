@@ -16,6 +16,38 @@
 	@code path / *.html *.css *.js *.json
 	header @code Cache-Control "no-cache"
 
+	# Старый WordPress: адреса из Яндекс Вебмастера (Индексирование → Страницы в поиске), 301 на новые.
+	# Новые пары дописывать сюда: redir /old-page/ /new-page 301
+	@wp path_regexp ^/(wp-admin|wp-login\.php|wp-content|wp-includes|wp-json|feed|category|tag|author|xmlrpc\.php|20[0-9][0-9])(/|$)
+	redir @wp / 301
+	@about2 path_regexp ^/about-2/?$
+	redir @about2 /about 301
+	@pfcase path_regexp pf ^/portfolio/(alfa-dvizh|southhub|alfa-battle|megafon|vtb|kaspersky)/?$
+	redir @pfcase /{re.pf.1} 301
+	@pf path_regexp ^/portfolio(/|$)
+	redir @pf / 301
+	# старые кейсы и команда через параметры: /?page=case&case=…, /?cases=…, /?team=…
+	@oldpage {
+		path /
+		query page=*
+	}
+	redir @oldpage / 301
+	@oldmegafon {
+		path /
+		query cases=megafon
+	}
+	redir @oldmegafon /megafon 301
+	@oldcases {
+		path /
+		query cases=*
+	}
+	redir @oldcases / 301
+	@oldteam {
+		path /
+		query team=*
+	}
+	redir @oldteam / 301
+
 	# /about, /x5stands, /jobs, /vacancy-… → about.html, x5stands.html… (их собирает tools/build-seo.mjs) — отдаются с кодом 200, поисковики их индексируют
 	try_files {path} {path}.html {path}/index.html
 
