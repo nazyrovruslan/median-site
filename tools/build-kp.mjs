@@ -3,12 +3,13 @@
 // Раздел нигде не упоминается на сайте, страницы закрыты от поисковиков (noindex); ссылку получает только клиент.
 // Запуск: node tools/build-kp.mjs   (в деплое — автоматически, см. .github/workflows)
 import fs from 'fs';
+import { siteCounters } from './sync-counters.mjs';
 import path from 'path';
 import crypto from 'crypto';
 import { execFileSync } from 'child_process';
 import { xlsx, zip } from './xlsx.mjs';
 
-const SRC = 'content/kp', OUT = 'clients', SITE = 'https://nazyrovruslan.github.io/median-site/';
+const SRC = 'content/kp', OUT = 'clients', SITE = 'https://median.agency/';
 const read = f => JSON.parse(fs.readFileSync(f, 'utf8'));
 const S = fs.existsSync('content/settings/kp.json') ? read('content/settings/kp.json') : {};
 const CASES = Object.fromEntries(fs.readdirSync('content/cases').filter(f => f.endsWith('.json')).map(f => { const c = read(`content/cases/${f}`); return [c.id || f.slice(0, -5), c]; }));
@@ -46,8 +47,14 @@ const MARK = fs.readFileSync('media/mark.svg', 'utf8').replace(' xmlns="http://w
 // счётчики: Метрика и VK по номеру + произвольный код из настроек и из самого КП
 function counters(k) {
   const out = [];
-  const ym = String(S.metrika || '').trim();
+  // Метрика — номер из настроек КП, иначе тот же счётчик, что у сайта (с параметрами kp и client); GA и пиксели — всегда, как на всём сайте (tools/sync-counters.mjs)
+  const site = siteCounters(), siteYm = (site.match(/ym\((\d+),\s*"init"/) || [])[1] || '';
+  const ym = String(S.metrika || '').trim() || siteYm;
   if (/^\d+$/.test(ym)) out.push(`<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(${ym},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true,params:{kp:${JSON.stringify(k.slug)},client:${JSON.stringify(k.client || '')}}});</script><noscript><div><img src="https://mc.yandex.ru/watch/${ym}" style="position:absolute;left:-9999px" alt=""></div></noscript>`);
+  const ga = (site.match(/gtag\('config','(G-[A-Z0-9]+)'\)/) || [])[1];
+  if (ga) out.push(`<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${ga}');</script>\n<script async src="https://www.googletagmanager.com/gtag/js?id=${ga}"></script>`);
+  // остальные пиксели сайта (South HUB и т.п.) — отдельные <script src> из блока счётчиков index.html, кроме Метрики и GA
+  for (const t of site.match(/<script async src="[^"]+"[^>]*><\/script>/g) || []) if (!/googletagmanager|mc\.yandex/.test(t)) out.push(t);
   const vk = String(S.vk || '').trim();
   if (vk) out.push(`<script>!function(){var t=document.createElement("script");t.type="text/javascript",t.async=!0,t.src="https://vk.com/js/api/openapi.js?169",t.onload=function(){VK.Retargeting.Init(${JSON.stringify(vk)}),VK.Retargeting.Hit()},document.head.appendChild(t)}();</script><noscript><img src="https://vk.com/rtrg?p=${esc(vk)}" style="position:fixed;left:-999px" alt=""></noscript>`);
   if (S.head) out.push(String(S.head));
@@ -203,7 +210,7 @@ function page(k) {
       ${cc.name || cc.role ? `<span class="kp-hcp">${cc.name ? `<b>${esc(cc.name)}</b>` : ''}${cc.role ? `<span>${esc(cc.role)}</span>` : ''}</span>` : ''}
       ${has(cc) && (cc.tg || cc.phone || cc.email) ? `<span class="kp-pl">${links(cc)}</span>` : ''}
     </div>` : '';
-  const data = { slug: k.slug, client: k.client || '', total: k.total, link: k.track_url || '', metrika: /^\d+$/.test(String(S.metrika || '')) ? +S.metrika : 0 };
+  const data = { slug: k.slug, client: k.client || '', total: k.total, link: k.track_url || '', metrika: +(String(S.metrika || '').trim() || (siteCounters().match(/ym\((\d+),\s*"init"/) || [])[1] || 0) || 0 };
 
   return `<!doctype html>
 <html lang="ru">

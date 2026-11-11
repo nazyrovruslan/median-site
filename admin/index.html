@@ -9,7 +9,45 @@
 <body>
   <!-- Sveltia CMS: правит файлы в content/ прямо в GitHub-репозитории; настройки — admin/config.yml -->
   <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
-  <!-- свой инструмент рядом с CMS (Sveltia не умеет свои виджеты): кадрирование фото и видео, admin/crop.html -->
-  <a href="crop.html" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#0b0b0c;color:#f3f3f1;border:1px solid rgba(243,243,241,.3);border-radius:999px;padding:10px 18px;font:500 14px/1 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.3)">Кадрировать фото и видео</a>
+  <!-- свои инструменты рядом с CMS (Sveltia не умеет свои виджеты): конструктор кейсов с живым предпросмотром, кадрирование, доступ к MCP.
+       Кнопка «Инструменты» видна только после входа в CMS (токен в localStorage sveltia-cms.user) -->
+  <style>
+    #mtools{position:fixed;right:16px;bottom:16px;z-index:2147483647;font:500 14px/1 system-ui,sans-serif;display:none;flex-direction:column;align-items:flex-end;gap:8px}
+    #mtools.on{display:flex}
+    #mtools a,#mtools button{background:#0b0b0c;color:#f3f3f1;border:1px solid rgba(243,243,241,.3);border-radius:999px;padding:10px 18px;font:inherit;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.3);cursor:pointer}
+    #mtools a:hover,#mtools button:hover{border-color:#f3f3f1}
+    #mtools .m{display:none;flex-direction:column;align-items:flex-end;gap:8px}
+    #mtools.open .m{display:flex}
+  </style>
+  <div id="mtools"><div class="m"><a href="builder.html">Конструктор кейсов</a><a href="crop.html">Кадрировать фото и видео</a><a href="mcp.html">Доступ к MCP</a></div><button type="button" id="mtb" aria-expanded="false">Инструменты</button></div>
+  <script>
+    (function () {
+      var box = document.getElementById('mtools'), b = document.getElementById('mtb');
+      function logged() { try { var u = JSON.parse(localStorage.getItem('sveltia-cms.user') || 'null'); return !!(u && u.token); } catch (e) { return false; } }
+      function check() { var on = logged(); box.classList.toggle('on', on); if (!on) box.classList.remove('open'); }
+      b.onclick = function () { var o = box.classList.toggle('open'); b.setAttribute('aria-expanded', o); };
+      document.addEventListener('click', function (e) { if (!box.contains(e.target)) box.classList.remove('open'); });
+      check(); setInterval(check, 1000); addEventListener('storage', check);
+    })();
+  </script>
+  <!-- «Войти через GitHub» работает через OAuth на MCP-воркере (mcp/worker.js). Пока там не заданы ключи OAuth-приложения (/auth/ready ≠ 200) — кнопку прячем, остаётся вход по токену -->
+  <style>.mhide-gh{display:none!important}</style>
+  <script>
+    (function () {
+      function hide() {
+        var bs = document.querySelectorAll('button:not(.mhide-gh)');
+        for (var i = 0; i < bs.length; i++) {
+          var t = bs[i].textContent || '';
+          if (/github/i.test(t) && !/токен|token/i.test(t)) bs[i].classList.add('mhide-gh');
+        }
+      }
+      var mo = new MutationObserver(hide); mo.observe(document.documentElement, { childList: true, subtree: true }); hide();
+      fetch('https://median-mcp.nazyrov-ruslan.workers.dev/auth/ready').then(function (r) {
+        if (!r.ok) return;
+        mo.disconnect();
+        var bs = document.querySelectorAll('.mhide-gh'); for (var i = 0; i < bs.length; i++) bs[i].classList.remove('mhide-gh');
+      }).catch(function () {});
+    })();
+  </script>
 </body>
 </html>

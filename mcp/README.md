@@ -58,9 +58,19 @@
 
 Если адрес утёк — поменять `MCP_SECRET` в GitHub, перезапустить деплой и обновить адрес коннектора.
 
+## Доступ коллегам
+
+Админка → кнопка «Доступ к MCP» (`/admin/mcp.html`, вход тем же GitHub-токеном). «Создать ссылку» — у человека своя ссылка
+`https://median-mcp.nazyrov-ruslan.workers.dev/mcp/<ключ>`; ключ показывается один раз, в репозитории (`mcp/users.json`) хранится только его SHA-256.
+Его правки в истории подписаны «MCP (Имя): …». «Отключить» / «Удалить» — ссылка перестаёт работать в течение минуты (воркер перечитывает список раз в минуту), передеплой не нужен.
+Ссылка с `MCP_SECRET` — владельца, работает всегда и в списке не показывается.
+
 ## Проверка руками
 
 ```sh
 curl -s https://median-mcp.<поддомен>.workers.dev/mcp/<MCP_SECRET> -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_items","arguments":{"collection":"cases"}}}'
 ```
+
+## Вход в /admin через GitHub (OAuth)
+Воркер отдаёт `/auth` и `/callback` для Sveltia (`backend.base_url` в admin/config.yml). Нужно OAuth-приложение: github.com/settings/developers → OAuth Apps → New. Homepage URL `https://median.agency`, Authorization callback URL `https://median-mcp.nazyrov-ruslan.workers.dev/callback`. Client ID и сгенерированный Client secret — в секреты репозитория `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, затем перезапустить workflow «Deploy MCP server». Пока ключей нет, `/auth/ready` отвечает 404 и кнопка «Войти через GitHub» в админке скрыта.

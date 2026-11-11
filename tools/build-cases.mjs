@@ -2,45 +2,13 @@
 // Порядок — по полю order (первые 5 — баннер). Пустые поля выкидываются, формат полей — тот, что ждёт js/main.js.
 // Запуск: node tools/build-cases.mjs   (в деплое — автоматически, см. .github/workflows)
 import fs from 'fs';
+import { createRequire } from 'module';
+// разбор кейса — общий с живым предпросмотром в конструкторе (admin/builder.html)
+const { caseFromContent } = createRequire(import.meta.url)('../js/case-data.js');
 const dir = 'content/cases';
-const empty = v => v == null || v === '' || (Array.isArray(v) && v.length === 0);
-const clean = o => {
-  if (Array.isArray(o)) return o.map(clean).filter(v => !empty(v));
-  if (o && typeof o === 'object') {
-    const r = {};
-    for (const [k, v] of Object.entries(o)) { const c = clean(v); if (!empty(c) && c !== false) r[k] = c; }
-    return r;
-  }
-  return typeof o === 'string' ? o.trim() : o;
-};
 const cases = fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => {
   const raw = JSON.parse(fs.readFileSync(`${dir}/${f}`, 'utf8'));
-  const c = clean(raw);
-  c.id = c.id || f.replace(/\.json$/, '');
-  if (!c.name) throw new Error(`${f}: нет названия (name)`);
-  if (!c.dir) c.dir = 'external';
-  if (!Array.isArray(c.c) || c.c.length < 3) c.c = ['#555555', '#999999', '#111111']; // фон-заглушка, пока нет фото
-  // заголовок по строкам: в CMS — [{text, outline}], на сайте — [[текст, 1 — контур / 0 — заливка]]
-  if (c.ttl) c.ttl = c.ttl.map(l => [l.text, l.outline ? 1 : 0]);
-  if (c.light) c.light = 1;
-  // кейс-серия (kind: series — ежегодный проект, роуд-шоу, сезоны): общая часть, затем проекты серии (баннер + свои блоки), блоки «после», итоги по проектам.
-  // На сайт уходит обычным списком blocks — js/main.js про серии не знает
-  if (c.kind === 'series') {
-    const parts = c.parts || [];
-    // якорь на первый блок каждого проекта + оглавление (блок toc в общей части): строки — проекты серии со ссылкой на якорь
-    const pre = `${c.id}-p`;
-    (c.blocks || []).forEach(b => { if (b.t === 'toc') b.rows = parts.map((p, i) => ({ n: String(i + 1).padStart(2, '0'), name: p.toc || p.out || p.y, text: (p.sub || p.y || '').replace(/^\d+\s*\/\s*\d+\s*·\s*/, ''), img: p.img, go: pre + (i + 1) })); });
-    c.blocks = [...(c.blocks || []),
-      ...parts.flatMap((p, i) => [...((p.img || p.vid) && p.out ? [{ t: 'banner', img: p.img, vid: p.vid, out: p.out, solid: p.solid, text: p.text, side: p.side }] : []), ...(p.blocks || [])].map((b, k) => k ? b : { ...b, a: pre + (i + 1) })),
-      ...(c.after || []),
-      ...(parts.some(p => p.stats) ? [{ t: 'years', out: c.total_out || 'Итоги', solid: c.total, text: c.total_text, desc: c.desc ? 1 : 0, sum: c.sum, rows: parts.map(p => ({ y: p.y, sub: p.sub, items: p.stats || [] })) }] : [])
-    ].map(clean);
-    for (const k of ['parts', 'after', 'total', 'total_out', 'total_text', 'desc', 'sum']) delete c[k];
-  }
-  delete c.kind;
-  // в блоке «pairs» слово может быть пустым — сайт ждёт строку
-  (c.blocks || []).forEach(b => { if (b.t === 'pairs') (b.items || []).forEach(i => { if (i.word == null) i.word = ''; }); });
-  return c;
+  return caseFromContent(raw, f.replace(/\.json$/, ''));
 }).sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9) || a.id.localeCompare(b.id));
 const ids = new Set();
 for (const c of cases) { if (ids.has(c.id)) throw new Error(`повтор id: ${c.id}`); ids.add(c.id); delete c.order; delete c.kp; if (c.hide) c.hide = 1; }

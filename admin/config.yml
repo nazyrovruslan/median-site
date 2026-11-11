@@ -4,6 +4,9 @@ backend:
   name: github
   repo: nazyrovruslan/median-site
   branch: main
+  # вход «через GitHub» — OAuth на MCP-воркере (mcp/worker.js, /auth и /callback)
+  base_url: https://median-mcp.nazyrov-ruslan.workers.dev
+  auth_endpoint: auth
   commit_messages:
     create: "CMS: создан {{collection}} {{slug}}"
     update: "CMS: правка — {{collection}} {{slug}}"
@@ -12,8 +15,8 @@ backend:
     deleteMedia: "CMS: удалён файл {{path}}"
 
 locale: ru
-site_url: https://nazyrovruslan.github.io/median-site/
-display_url: https://nazyrovruslan.github.io/median-site/
+site_url: https://median.agency/
+display_url: https://median.agency/
 
 # пути в данных — относительные (сайт живёт в подпапке /median-site/)
 media_folder: media/cases
@@ -40,6 +43,7 @@ collections:
     extension: json
     identifier_field: id
     slug: "{{id}}"
+    preview_path: "{{id}}"  # «Посмотреть на рабочем сайте» → median.agency/<id>
     summary: "{{order}} · {{name}}"
     sortable_fields: [order, name]
     create: true
@@ -48,7 +52,7 @@ collections:
     fields:
       - { name: kind, widget: hidden, default: project }
       - &cf_order { name: order, label: Порядок, widget: number, value_type: int, hint: "Место в списке: меньше — выше. Первые 5 — в баннере на главной. Шаг 10, чтобы вставлять между." }
-      - &cf_id { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/<id>. После публикации лучше не менять." }
+      - &cf_id { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: median.agency/<id>. После публикации лучше не менять." }
       - &cf_name { name: name, label: Название, widget: string }
       - &cf_sub { name: sub, label: Подзаголовок, widget: string, hint: "Строка в списке кейсов и под заголовком в баннере" }
       - &cf_tags { name: tags, label: Категории проекта, widget: select, multiple: true, required: false, options: [{ label: "Бренд работодателя", value: employer }, { label: "Внутренние коммуникации", value: internal }, { label: "Сообщества", value: community }, { label: "Собственные проекты", value: own }], hint: "Фильтры над «Все проекты» на главной; можно выбрать несколько. Названия — в TAGS в js/main.js, держать одинаковыми" }
@@ -359,6 +363,7 @@ collections:
     extension: json
     identifier_field: id
     slug: "{{id}}"
+    preview_path: "{{id}}"  # «Посмотреть на рабочем сайте» → median.agency/<id>
     summary: "{{order}} · {{name}}"
     sortable_fields: [order, name]
     create: true
@@ -477,7 +482,7 @@ collections:
     delete: true
     media_folder: /media/kp
     public_folder: media/kp
-    description: "Страница КП: https://nazyrovruslan.github.io/median-site/clients/<имя файла>/ — адрес случайный, на сайте раздел нигде не виден и закрыт от поисковиков. Ссылку видно кнопкой «Открыть на сайте» после деплоя (1–2 минуты)."
+    description: "Страница КП: https://median.agency/clients/<имя файла>/ — адрес случайный, на сайте раздел нигде не виден и закрыт от поисковиков. Ссылку видно кнопкой «Открыть на сайте» после деплоя (1–2 минуты)."
     fields:
       - { name: client, label: Клиент (компания), widget: string, hint: "Название в списке CMS и на странице" }
       - { name: client_logo, label: Логотип клиента, widget: image, required: false, hint: "SVG или PNG на прозрачном фоне, тёмный — фон страницы серый (на обложке шапки логотип станет белым). Если пусто — название текстом" }
@@ -603,13 +608,14 @@ collections:
     extension: json
     identifier_field: id
     slug: "{{id}}"
+    preview_path: "vacancy-{{id}}"  # «Посмотреть на рабочем сайте» → median.agency/vacancy-<id>
     summary: "{{order}} · {{name}}{{on | ternary('', ' (скрыта)')}}"
     sortable_fields: [order, name]
     create: true
     delete: true
     fields:
       - { name: order, label: Порядок, widget: number, value_type: int, default: 100, hint: "Место в списке: меньше — выше. Шаг 10" }
-      - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: /median-site/vacancy-<id>, например event-manager" }
+      - { name: id, label: Адрес (id), widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница в нижнем регистре, цифры и дефис'], hint: "Часть ссылки: median.agency/vacancy-<id>, например event-manager" }
       - { name: on, label: Показывать на сайте, widget: boolean, default: true, hint: "Выключите, когда вакансия закрыта: со страницы она уйдёт, файл останется — потом можно включить снова" }
       - { name: name, label: Название, widget: string }
       - name: ttl
@@ -663,9 +669,161 @@ collections:
               - { name: email, label: Почта, widget: string, required: false }
               - { name: phone, label: Телефон, widget: string, required: false }
 
+  - name: pages
+    label: Страницы
+    description: "Тексты, фото и списки главной и «О нас». Вёрстка не меняется, только содержимое. После сохранения сайт пересоберётся за 2–4 минуты (tools/build-pages.mjs)"
+    files:
+      - name: home
+        label: Главная
+        file: content/pages/home.json
+        preview_path: ""
+        fields:
+          - { name: h1, label: "Скрытый заголовок для поисковиков (h1)", widget: text, hint: "На экране не виден, его читают Яндекс и Google" }
+          - name: about
+            label: "Блок «Делаем компании ближе…» (рядом с кольцом «О нас»)"
+            widget: object
+            fields:
+              - { name: title, label: Заголовок, widget: text }
+              - { name: text, label: Текст, widget: text, hint: "Каждый абзац — с новой строки" }
+          - name: goal
+            label: "Большая фраза «Создавать осмысленные проекты…»"
+            widget: object
+            fields:
+              - { name: out, label: Контурное слово, widget: string }
+              - { name: text, label: Остальной текст, widget: text, hint: "Слова через дефис не переносятся" }
+          - name: showcase
+            label: Витрина проектов (крупные блоки под фразой)
+            label_singular: проект витрины
+            widget: list
+            summary: "{{out}} {{solid}} — {{title}}"
+            hint: "Порядок — перетаскиванием. Фото слева и справа чередуются сами"
+            fields:
+              - { name: case, label: Кейс (адрес, id), widget: string, pattern: ['^[a-z0-9-]+$', 'id кейса латиницей'], hint: "Какой кейс открывается по клику: id из «Кейсов», например x5stands" }
+              - { name: out, label: "Заголовок: контурная строка", widget: string }
+              - { name: solid, label: "Заголовок: залитая строка", widget: string }
+              - { name: title, label: Название проекта (подпись), widget: string }
+              - { name: name, label: Полное название (для экранных дикторов), widget: string, required: false, hint: "Если пусто — как подпись" }
+              - { name: text, label: Описание, widget: text }
+              - { name: img, label: Фото, widget: image, media_folder: /media/home, public_folder: media/home, hint: "Горизонтальное, от 1920 px; jpg и png сожмутся в webp при сборке" }
+              - { name: vid, label: Видео поверх фото, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Без звука, 6–10 с; сожмётся при сборке. Пока грузится — видно фото" }
+          - name: podcast
+            label: Блок подкаста (внизу главной)
+            widget: object
+            collapsed: true
+            fields:
+              - { name: case, label: Кейс (адрес, id), widget: string }
+              - { name: out, label: "Заголовок: контурная строка", widget: string }
+              - { name: solid, label: "Заголовок: залитая строка", widget: string }
+              - { name: title, label: Название (подпись), widget: string }
+              - { name: name, label: Полное название (для экранных дикторов), widget: string, required: false }
+              - { name: text, label: Описание, widget: text }
+              - { name: img, label: Обложка, widget: image, media_folder: /media/home, public_folder: media/home, hint: "Вписывается целиком, поля — цветом фона" }
+              - { name: bg, label: Цвет фона под обложкой, widget: color, required: false }
+      - name: about
+        label: О нас
+        file: content/pages/about.json
+        preview_path: about
+        fields:
+          - name: intro
+            label: Первый экран
+            widget: object
+            fields:
+              - { name: title, label: Заголовок, widget: text, hint: "Каждая строка — с новой строки; первая контуром" }
+              - { name: sub, label: Подзаголовок, widget: string }
+          - name: who
+            label: "«Кто мы?»"
+            widget: object
+            fields:
+              - { name: photo, label: Фото, widget: image, media_folder: /media/about, public_folder: media/about }
+              - { name: photo_alt, label: Что на фото (для поисковиков и дикторов), widget: string, required: false }
+              - { name: title, label: Заголовок, widget: text, hint: "Каждая строка — с новой строки; первая контуром" }
+              - { name: left, label: Текст слева (под фото), widget: text, hint: "Каждый абзац — с новой строки" }
+              - { name: caption, label: Крупная подпись справа, widget: text, hint: "Каждая строка — с новой строки" }
+              - { name: right, label: Текст справа, widget: text }
+          - name: values
+            label: Принципы
+            widget: object
+            collapsed: true
+            fields:
+              - { name: out, label: "Заголовок: контурная часть", widget: string }
+              - { name: solid, label: "Заголовок: остальное", widget: string, required: false }
+              - { name: sub, label: Подзаголовок, widget: text, required: false }
+              - { name: rows, label: Принципы, label_singular: принцип, widget: list, summary: "{{name}}", fields: [{ name: name, label: Название, widget: string }, { name: text, label: Описание, widget: text }], hint: "Номера 01, 02… ставятся сами" }
+          - name: founders
+            label: Основатели
+            widget: object
+            collapsed: true
+            fields:
+              - { name: out, label: "Заголовок: контурная часть", widget: string }
+              - { name: solid, label: "Заголовок: остальное", widget: string, required: false }
+              - name: people
+                label: Люди
+                label_singular: человека
+                widget: list
+                summary: "{{name}}"
+                fields:
+                  - { name: name, label: Имя и фамилия, widget: string, hint: "Фамилия встанет второй строкой" }
+                  - { name: photo, label: Фото, widget: image, media_folder: /media/founders, public_folder: media/founders, hint: "Вертикальное 4:5" }
+                  - { name: role, label: Должность, widget: string }
+                  - { name: text, label: Текст, widget: text }
+                  - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+          - name: history
+            label: История
+            widget: object
+            collapsed: true
+            fields:
+              - { name: out, label: "Заголовок: контурная часть", widget: string }
+              - { name: solid, label: "Заголовок: остальное", widget: string, required: false }
+              - { name: lead, label: Вступление, widget: text }
+              - { name: rows, label: Годы, label_singular: год, widget: list, summary: "{{year}}", fields: [{ name: year, label: Год или период, widget: string }, { name: text, label: Что было, widget: text }] }
+          - name: clients
+            label: Клиенты (бегущая строка логотипов)
+            widget: object
+            collapsed: true
+            fields:
+              - { name: title, label: Заголовок, widget: string }
+              - { name: sub, label: Подпись, widget: string, required: false }
+              - name: logos
+                label: Логотипы
+                label_singular: логотип
+                widget: list
+                summary: "{{name}}"
+                fields:
+                  - { name: name, label: Название компании, widget: string }
+                  - { name: logo, label: Логотип (SVG, одним цветом), widget: file, media_folder: /media/clients, public_folder: media/clients, hint: "Силуэт; цвет задаётся ниже. Пропорции посчитаются сами" }
+                  - { name: color, label: Цвет логотипа при наведении, widget: color, required: false }
+                  - { name: color_logo, label: Цветная версия (если в логотипе несколько цветов), widget: file, required: false, media_folder: /media/clients, public_folder: media/clients }
+                  - { name: scale, label: Масштаб, widget: number, value_type: float, step: 0.01, default: 1, required: false, hint: "1 — обычный; 1.2 — крупнее, 0.8 — мельче, чтобы логотипы смотрелись ровно" }
+          - name: awards
+            label: Награды
+            widget: object
+            collapsed: true
+            fields:
+              - { name: title, label: Заголовок, widget: string }
+              - name: groups
+                label: Премии
+                label_singular: премию
+                widget: list
+                summary: "{{name}}"
+                fields:
+                  - { name: name, label: Название премии, widget: string }
+                  - { name: logo, label: Логотип (SVG или webp-маска), widget: file, media_folder: /media/awards, public_folder: media/awards }
+                  - { name: color, label: Цвет логотипа, widget: color, required: false }
+                  - { name: scale, label: Масштаб, widget: number, value_type: float, step: 0.01, default: 1, required: false }
+                  - { name: items, label: Награды, label_singular: награду, widget: list, summary: "{{place}} — {{title}}", fields: [{ name: place, label: "Место и год («Серебро, 2025»)", widget: string }, { name: title, label: Номинация, widget: string }] }
+
   - name: settings
     label: Настройки
     files:
+      - name: counters
+        label: Счётчики и пиксели сайта
+        file: content/settings/counters.json
+        description: "Стоят в <head> всех страниц сайта: главная, кейсы, «О нас», вакансии, политика, согласие, 404 и КП. После сохранения сайт пересоберётся за 2–4 минуты"
+        fields:
+          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, pattern: ['^[0-9]*$', 'только цифры'], hint: "Сейчас 9380047. Вебвизор, карта кликов и цели (список — content/metrika-goals.json) работают с этим номером" }
+          - { name: ga, label: Google Analytics (ID потока), widget: string, required: false, pattern: ['^(G-[A-Z0-9]+)?$', 'вида G-XXXXXXX'], hint: "Сейчас G-ZZ77H53J19" }
+          - { name: vk, label: ID пикселя VK, widget: string, required: false, hint: "Пиксель VK Рекламы (Top.Mail.Ru), только цифры. Пусто — не ставится" }
+          - { name: head, label: Другие пиксели и счётчики (код в <head>), widget: code, default_language: html, output_code_only: true, required: false, hint: "Вставляется как есть на все страницы. Сейчас тут пиксель South HUB. Код с каждой новой строки" }
       - name: icons
         label: Пиктограммы к цифрам
         file: content/settings/icons.json
@@ -685,11 +843,11 @@ collections:
         label: Настройки КП и счётчики
         file: content/settings/kp.json
         fields:
-          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, hint: "Только цифры. Цели: kp_open, kp_read_30s, kp_total_seen, kp_pdf, kp_xlsx, kp_zip, kp_contact, kp_copy, kp_case" }
+          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, hint: "Пусто — счётчик сайта (9380047), визиты КП с параметрами kp и client. Отдельный счётчик — только цифры. GA и пиксель South HUB на КП стоят всегда, как на всём сайте. Цели: kp_open, kp_read_30s, kp_total_seen, kp_pdf, kp_xlsx, kp_zip, kp_contact, kp_copy, kp_case" }
           - { name: vk, label: ID пикселя VK, widget: string, required: false }
           - { name: head, label: Код в <head> всех КП, widget: code, default_language: html, output_code_only: true, required: false, hint: "Счётчик сквозной аналитики (Roistat, Calltouch, CoMagic и т.п.), пиксели" }
           - { name: body, label: Код в конце <body> всех КП, widget: code, default_language: html, output_code_only: true, required: false }
-          - { name: catalog, label: Адрес закрытого каталога кейсов, widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница, цифры и дефис'], hint: "Каталог всех кейсов (и скрытых) с категориями: https://nazyrovruslan.github.io/median-site/clients/<адрес>/, для Битрикс24 — …/clients/<адрес>/cases.json. Смените адрес, если ссылка утекла" }
+          - { name: catalog, label: Адрес закрытого каталога кейсов, widget: string, pattern: ['^[a-z0-9-]+$', 'только латиница, цифры и дефис'], hint: "Каталог всех кейсов (и скрытых) с категориями: https://median.agency/clients/<адрес>/, для Битрикс24 — …/clients/<адрес>/cases.json. Смените адрес, если ссылка утекла" }
           - { name: cases_default, label: Сколько кейсов подставлять по категории, widget: number, value_type: int, default: 4 }
           - { name: valid_days, label: Срок актуальности КП по умолчанию (дней), widget: number, value_type: int, default: 30 }
           - { name: price_note, label: Примечание к стоимости по умолчанию, widget: string, required: false }

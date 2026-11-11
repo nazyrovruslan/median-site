@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Median — доступ к MCP</title>
+<!-- Личные ссылки на MCP-коннектор для коллег. Пишет mcp/users.json (имя, хэш ключа, вкл/выкл) коммитом в main тем же токеном, что и /admin.
+     Сам ключ нигде не хранится: показывается один раз при создании. Воркер mcp/worker.js перечитывает список раз в минуту. -->
+<style>
+@font-face{font-family:'Basis';src:url(../fonts/basis-grotesque-pro-400.woff2) format('woff2');font-weight:400}
+@font-face{font-family:'Basis';src:url(../fonts/basis-grotesque-pro-500.woff2) format('woff2');font-weight:500}
+@font-face{font-family:'Druk';src:url(../fonts/druk-wide-cyr-700.woff2) format('woff2');font-weight:700}
+:root{--ink:#0b0b0c;--paper:#f3f3f1;--muted:#8d8d8a;--tile:#1a1a1b;--line-dark:rgba(243,243,241,.14);--sm:14px;--ui:16px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ink);color:var(--paper);font:400 var(--ui)/1.4 'Basis',system-ui,sans-serif}
+a{color:inherit}
+button,input{font:inherit;color:inherit}
+header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px clamp(16px,4vw,56px);border-bottom:1px solid var(--line-dark)}
+h1{font:700 18px/1 'Druk',sans-serif;text-transform:uppercase;margin:0;letter-spacing:.02em}
+main{padding:24px clamp(16px,4vw,56px) 60px;max-width:960px}
+p{margin:0 0 12px}
+.label{font-size:var(--sm);font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:32px 0 12px}
+.muted{color:var(--muted)}
+.btn{background:var(--tile);border:1px solid var(--line-dark);border-radius:999px;padding:8px 16px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--paper)}
+.btn.main{background:var(--paper);color:var(--ink);font-weight:500;padding:10px 22px}
+.btn:disabled{opacity:.4;cursor:default}
+input[type=text],input[type=password]{background:var(--tile);border:1px solid var(--line-dark);border-radius:8px;padding:9px 12px;min-width:0;flex:1 1 220px;font-size:max(16px,var(--ui))}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.users{border-top:1px solid var(--line-dark)}
+.u{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line-dark)}
+.u .nm{font-weight:500}
+.u .meta{font-size:var(--sm);color:var(--muted)}
+.u.off .nm{color:var(--muted);text-decoration:line-through}
+.new{background:var(--tile);border:1px solid var(--paper);border-radius:12px;padding:16px;margin-top:16px}
+.new code{display:block;word-break:break-all;background:#000;border-radius:8px;padding:12px;margin:8px 0 12px;font:14px/1.4 ui-monospace,Menlo,monospace}
+.err{color:#ff8a7a;margin-top:8px}
+ol{padding-left:20px;margin:0 0 12px}
+li{margin-bottom:4px}
+@media (max-width:560px){.u{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>Доступ к MCP</h1><a class="btn" href="./">← В админку</a></header>
+<main>
+  <section id="login" hidden>
+    <p>Нужен тот же GitHub-токен, что и для входа в админку. Если вы уже вошли в админку в этом браузере, страница подхватит его сама.</p>
+    <div class="row"><input id="tok" type="password" placeholder="GitHub-токен" autocomplete="off"><button class="btn main" id="tokgo">Войти</button></div>
+    <div class="err" id="loginerr"></div>
+  </section>
+
+  <section id="app" hidden>
+    <p>Каждому коллеге — своя ссылка на коннектор: правки в истории подписаны его именем, отключить можно одного человека, не трогая остальных. Отключение срабатывает в течение минуты.</p>
+
+    <div class="label">Добавить человека</div>
+    <div class="row"><input id="name" type="text" placeholder="Имя, например Арина" maxlength="40"><button class="btn main" id="add">Создать ссылку</button></div>
+    <div class="err" id="adderr"></div>
+    <div id="fresh"></div>
+
+    <div class="label">У кого есть доступ</div>
+    <div class="users" id="list"></div>
+    <p class="muted" id="empty" hidden>Пока никого. Ваша собственная ссылка (с MCP_SECRET) работает отдельно и здесь не показывается.</p>
+  </section>
+</main>
+<script>
+const REPO = 'nazyrovruslan/median-site', BRANCH = 'main', API = 'https://api.github.com/repos/' + REPO, FILE = 'mcp/users.json';
+const MCP_URL = 'https://median-mcp.nazyrov-ruslan.workers.dev/mcp/';
+const $ = s => document.querySelector(s);
+let token = '', users = [], sha = null;
+
+function storedToken() {
+  try { const u = JSON.parse(localStorage.getItem('sveltia-cms.user') || 'null'); if (u && u.token) return u.token; } catch (e) {}
+  try { const u = JSON.parse(localStorage.getItem('decap-cms-user') || 'null'); if (u && u.token) return u.token; } catch (e) {}
+  try { return localStorage.getItem('median-crop.token') || ''; } catch (e) { return ''; }
+}
+async function gh(path, opt = {}) {
+  const r = await fetch(API + path, { ...opt, headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', ...(opt.headers || {}) } });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(r.status + ' ' + (await r.text()).slice(0, 200));
+  return r.json();
+}
+const b64 = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+const unb64 = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
+async function sha256hex(s) {
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function newKey() {
+  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789', a = new Uint32Array(40);
+  crypto.getRandomValues(a);
+  return [...a].map(x => abc[x % abc.length]).join('');
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const day = iso => iso ? new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+
+async function load() {
+  const m = await gh('/contents/' + FILE + '?ref=' + BRANCH);
+  sha = m ? m.sha : null;
+  users = m ? JSON.parse(unb64(m.content)) : [];
+  render();
+}
+// запись с повтором: если файл успели поменять с другого устройства — перечитываем и применяем правку заново
+async function save(change, message) {
+  for (let i = 0; i < 3; i++) {
+    change(users);
+    try {
+      const r = await gh('/contents/' + FILE, { method: 'PUT', body: JSON.stringify({ message, branch: BRANCH, content: b64(JSON.stringify(users, null, 2) + '\n'), ...(sha ? { sha } : {}) }) });
+      sha = r.content.sha; render(); return;
+    } catch (e) {
+      if (!/^(409|422)/.test(e.message) || i === 2) throw e;
+      await load();
+    }
+  }
+}
+function render() {
+  $('#empty').hidden = users.length > 0;
+  $('#list').innerHTML = users.map((u, i) => `<div class="u${u.on === false ? ' off' : ''}">
+    <div><div class="nm">${esc(u.name)}</div><div class="meta">${u.on === false ? 'отключён' : 'есть доступ'} · добавлен ${day(u.added)}</div></div>
+    <div class="row"><button class="btn" data-t="${i}">${u.on === false ? 'Включить' : 'Отключить'}</button><button class="btn" data-d="${i}">Удалить</button></div>
+  </div>`).join('');
+}
+
+$('#list').onclick = async e => {
+  const t = e.target.closest('button'); if (!t) return;
+  const i = +(t.dataset.t ?? t.dataset.d), u = users[i]; if (!u) return;
+  const id = u.id;
+  t.disabled = true;
+  try {
+    if (t.dataset.d !== undefined) {
+      if (!confirm(`Удалить ${u.name}? Ссылка перестанет работать, вернуть её нельзя — только создать новую.`)) { t.disabled = false; return; }
+      await save(l => { const k = l.findIndex(x => x.id === id); if (k >= 0) l.splice(k, 1); }, `MCP-доступ: удалён ${u.name}`);
+    } else {
+      const on = u.on === false;
+      await save(l => { const x = l.find(x => x.id === id); if (x) x.on = on; }, `MCP-доступ: ${on ? 'включён' : 'отключён'} ${u.name}`);
+    }
+  } catch (err) { alert('Не сохранилось: ' + err.message); t.disabled = false; }
+};
+
+$('#add').onclick = async () => {
+  const name = $('#name').value.trim().replace(/[()]/g, '');
+  $('#adderr').textContent = '';
+  if (!name) { $('#adderr').textContent = 'Впишите имя — оно будет в истории правок.'; return; }
+  const key = newKey(), hash = await sha256hex(key), id = newKey().slice(0, 10);
+  $('#add').disabled = true;
+  try {
+    await save(l => { if (!l.some(x => x.id === id)) l.push({ id, name, hash, on: true, added: new Date().toISOString() }); }, `MCP-доступ: добавлен ${name}`);
+    const url = MCP_URL + key;
+    $('#fresh').innerHTML = `<div class="new"><b>Новая ссылка · ${esc(name)}</b><br>Показывается один раз — скопируйте сейчас:<code id="url">${esc(url)}</code>
+      <div class="row" style="margin-bottom:12px"><button class="btn main" id="copy">Скопировать</button></div>
+      <p>Отправьте её лично (не в общий чат). Что сделать коллеге:</p>
+      <ol><li>claude.ai → Настройки → Коннекторы → Добавить пользовательский коннектор.</li><li>Название — Median сайт, адрес — эта ссылка.</li><li>Аутентификация — «Без входа», заголовки не нужны. Добавить.</li></ol>
+      <p class="muted">Ссылка начнёт работать в течение минуты.</p></div>`;
+    $('#copy').onclick = async () => { try { await navigator.clipboard.writeText(url); $('#copy').textContent = 'Скопировано'; } catch (e) { getSelection().selectAllChildren($('#url')); } };
+    $('#name').value = '';
+  } catch (err) { $('#adderr').textContent = 'Не сохранилось: ' + err.message; }
+  $('#add').disabled = false;
+};
+
+async function start() {
+  token = storedToken();
+  if (!token) { $('#login').hidden = false; return; }
+  try { await load(); $('#login').hidden = true; $('#app').hidden = false; }
+  catch (e) {
+    if (/^(401|403)/.test(e.message)) { try { localStorage.removeItem('median-crop.token'); } catch (_) {} $('#loginerr').textContent = 'Токен не подошёл: ' + e.message; $('#login').hidden = false; return; }
+    $('#loginerr').textContent = 'Не загрузилось: ' + e.message; $('#login').hidden = false;
+  }
+}
+$('#tokgo').onclick = () => { const v = $('#tok').value.trim(); if (!v) return; try { localStorage.setItem('median-crop.token', v); } catch (e) {} start(); };
+start();
+</script>
+</body>
+</html>

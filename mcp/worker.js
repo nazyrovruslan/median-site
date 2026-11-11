@@ -10,7 +10,7 @@
 
 const REPO = 'nazyrovruslan/median-site';
 const BRANCH = 'main';
-const SITE = 'https://nazyrovruslan.github.io/median-site/';
+const SITE = 'https://median.agency/';
 const PROTOCOL = '2025-06-18';
 
 // коллекции, как в admin/config.yml
@@ -21,6 +21,7 @@ const COLLECTIONS = {
 const SETTINGS = {
   icons: 'content/settings/icons.json', // пиктограммы к цифрам
   jobs: 'content/settings/jobs.json', // страница вакансий: почта, вступление, руководитель
+  counters: 'content/settings/counters.json', // счётчики и пиксели в <head> всех страниц: metrika, ga, vk, head (свой код)
 };
 const MEDIA = {
   cases: 'media/cases', video: 'media/video', vacancies: 'media/vacancies', team: 'media/team', icons: 'media/icons',
@@ -48,7 +49,7 @@ const INSTRUCTIONS = `Контент сайта median.agency (${SITE}). Ист�
 Порядок (order): меньше — выше, шаг 10; первые 5 кейсов — баннер на главной. Новый кейс без явной просьбы ставь в конец списка или с hide: true, если пользователь не сказал публиковать.
 Фото и видео сначала загрузи (upload_media), потом впиши возвращённый путь в поле. Фото сжимаются в webp, видео в mp4 h.264, upload_media сразу возвращает итоговый путь.
 Удаление необратимо для сайта — переспроси пользователя перед delete_item.
-Всё остальное на сайте (тексты и блоки главной, «О нас», 404, политика, подвал, стили, скрипты) — файлы репозитория: find_text → read_file → edit_files.
+Тексты, фото и списки главной (витрина, подкаст) и «О нас» (первый экран, принципы, основатели, история, клиенты, награды) — content/pages/home.json и content/pages/about.json (read_file → edit_files); куски index.html между <!-- cms:… --> и <!-- /cms:… --> собираются из них при деплое — их в index.html не править. Всё остальное (404, политика, подвал, стили, скрипты) — файлы репозитория: find_text → read_file → edit_files.
 Перед правкой вёрстки прочитай NOTES.md (что где лежит) и DESIGN-SYSTEM.md (цвета, кегли, сетка, кнопки) — новые элементы делай по ней. Правь точечно: короткие уникальные фрагменты, несколько файлов одной правки — одним вызовом edit_files (один коммит). Кейсы и вакансии правь через create_item/update_item, а не файлами.
 После правки — site_status; если что-то сломалось, revert_file вернёт файл к версии до последнего коммита.`;
 
@@ -230,14 +231,16 @@ export default {
     const url = new URL(req.url);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors() });
     if (url.pathname === '/' || url.pathname === '/health') return text('median MCP: ok');
-    if (!authorized(url, req, env)) return text('not found', 404);
+    if (url.pathname.startsWith('/auth') || url.pathname === '/callback') return oauth(url, req, env);
+    const who = await authorized(url, req, env);
+    if (who === null) return text('not found', 404);
     if (req.method === 'GET') return text('MCP: POST JSON-RPC here', 405, { Allow: 'POST' });
     if (req.method === 'DELETE') return new Response(null, { status: 204, headers: cors() });
     if (req.method !== 'POST') return text('method not allowed', 405);
 
     let body;
     try { body = await req.json(); } catch { return json(rpcError(null, -32700, 'Parse error'), 400); }
-    const ctx = { env, gh: github(env) };
+    const ctx = { env, who, gh: github(env, who) };
     if (Array.isArray(body)) {
       const out = (await Promise.all(body.map(m => handle(m, ctx)))).filter(Boolean);
       return out.length ? json(out) : new Response(null, { status: 202, headers: cors() });
@@ -247,12 +250,74 @@ export default {
   },
 };
 
-function authorized(url, req, env) {
-  if (!env.MCP_SECRET) return false;
+// ---------- вход в /admin через GitHub (OAuth для Sveltia CMS) ----------
+// admin/config.yml: backend.base_url = этот воркер, auth_endpoint = auth. Нужны секреты воркера OAUTH_CLIENT_ID и OAUTH_CLIENT_SECRET
+// (GitHub OAuth App, callback https://median-mcp.nazyrov-ruslan.workers.dev/callback; ставит mcp.yml из одноимённых секретов репозитория).
+// Пока их нет — /auth/ready отвечает 404, и admin/index.html прячет кнопку «Войти через GitHub».
+const ADMIN_ORIGINS = ['https://median.agency', 'https://www.median.agency', 'https://nazyrovruslan.github.io'];
+async function oauth(url, req, env) {
+  const ready = !!(env.OAUTH_CLIENT_ID && env.OAUTH_CLIENT_SECRET);
+  if (url.pathname === '/auth/ready') return text(ready ? 'ok' : 'no', ready ? 200 : 404);
+  if (!ready) return text('Вход через GitHub ещё не настроен', 404);
+  if (url.pathname === '/auth' || url.pathname === '/auth/') {
+    const state = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
+    const q = new URLSearchParams({ client_id: env.OAUTH_CLIENT_ID, redirect_uri: url.origin + '/callback', scope: url.searchParams.get('scope') || 'repo', state });
+    return new Response(null, { status: 302, headers: { Location: 'https://github.com/login/oauth/authorize?' + q, 'Set-Cookie': `mstate=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600` } });
+  }
+  if (url.pathname === '/callback') {
+    const cookie = (req.headers.get('cookie') || '').match(/(?:^|;\s*)mstate=([0-9a-f]+)/);
+    let msg;
+    if (!cookie || cookie[1] !== url.searchParams.get('state')) msg = 'error:' + JSON.stringify({ message: 'Вход устарел, попробуйте ещё раз' });
+    else {
+      const r = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'median-mcp' },
+        body: JSON.stringify({ client_id: env.OAUTH_CLIENT_ID, client_secret: env.OAUTH_CLIENT_SECRET, code: url.searchParams.get('code') || '' }),
+      });
+      const d = await r.json().catch(() => ({}));
+      msg = d.access_token ? 'success:' + JSON.stringify({ token: d.access_token, provider: 'github' }) : 'error:' + JSON.stringify({ message: d.error_description || d.error || 'GitHub не выдал токен' });
+    }
+    // протокол Decap/Sveltia: окно сообщает «authorizing», админка отвечает, окно присылает токен на её адрес (только нашим доменам)
+    const page = `<!doctype html><meta charset="utf-8"><title>Вход</title><p style="font:16px system-ui;padding:24px">Входим в админку…</p><script>
+(function(){var M=${JSON.stringify('authorization:github:' + msg)},O=${JSON.stringify(ADMIN_ORIGINS)};
+window.addEventListener('message',function(e){if(O.indexOf(e.origin)<0)return;window.opener.postMessage(M,e.origin);setTimeout(function(){window.close()},300)});
+if(window.opener)window.opener.postMessage('authorizing:github','*');else document.body.textContent='Откройте вход из админки.';})();
+<\/script>`;
+    return new Response(page, { headers: { 'content-type': 'text/html; charset=utf-8', 'Set-Cookie': 'mstate=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Lax' } });
+  }
+  return text('not found', 404);
+}
+
+// Кто пришёл: '' — владелец (MCP_SECRET), имя — коллега из mcp/users.json (личные ссылки, выдаются в /admin/mcp.html), null — чужой.
+async function authorized(url, req, env) {
   const m = url.pathname.match(/^\/mcp\/([^/]+)\/?$/);
   const bearer = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
-  const given = m ? decodeURIComponent(m[1]) : url.pathname.replace(/\/$/, '') === '/mcp' ? bearer || url.searchParams.get('key') || '' : '';
-  return safeEqual(given, env.MCP_SECRET);
+  let given = '';
+  try { given = m ? decodeURIComponent(m[1]) : url.pathname.replace(/\/$/, '') === '/mcp' ? bearer || url.searchParams.get('key') || '' : ''; } catch { return null; }
+  if (!given) return null;
+  if (env.MCP_SECRET && safeEqual(given, env.MCP_SECRET)) return '';
+  const hash = await sha256hex(given);
+  const user = (await mcpUsers(env)).find(u => u && u.on !== false && typeof u.hash === 'string' && safeEqual(u.hash, hash));
+  return user ? String(user.name || 'коллега').slice(0, 40) : null;
+}
+
+// Список коллег (хэши ключей, не сами ключи) — mcp/users.json в репозитории; держим в памяти воркера минуту,
+// чтобы отключение в админке срабатывало быстро, а каждый запрос не ходил в GitHub.
+let usersCache = { at: 0, list: [] };
+async function mcpUsers(env) {
+  if (Date.now() - usersCache.at < 60_000) return usersCache.list;
+  try {
+    const raw = await github(env).getRaw('mcp/users.json');
+    const list = raw ? JSON.parse(raw) : [];
+    usersCache = { at: Date.now(), list: Array.isArray(list) ? list : list.users || [] };
+  } catch {
+    usersCache.at = Date.now() - 50_000; // GitHub не ответил — повторим через 10 с, пока работаем по старому списку
+  }
+  return usersCache.list;
+}
+
+async function sha256hex(s) {
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function safeEqual(a, b) {
@@ -678,7 +743,9 @@ function cleanName(s) {
 
 // ---------- GitHub ----------
 
-function github(env) {
+function github(env, who = '') {
+  // в истории правок видно, кто из коллег правил: «MCP (Арина): …»
+  const sign = msg => (who && typeof msg === 'string' ? msg.replace(/^MCP:/, `MCP (${who}):`) : msg);
   const base = `https://api.github.com/repos/${REPO}`;
   const headers = {
     authorization: `Bearer ${env.GH_TOKEN}`,
@@ -730,7 +797,7 @@ function github(env) {
           tree: changes.map(c => (c.content === null ? { path: c.path, mode: '100644', type: 'blob', sha: null } : { path: c.path, mode: '100644', type: 'blob', content: c.content })),
         }),
       });
-      const next = await api('/git/commits', { method: 'POST', body: JSON.stringify({ message, tree: tree.sha, parents: [head] }) });
+      const next = await api('/git/commits', { method: 'POST', body: JSON.stringify({ message: sign(message), tree: tree.sha, parents: [head] }) });
       try {
         await api(`/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: next.sha, force: false }) });
         return { ok: true, commit: next.sha.slice(0, 7), files: changes.map(c => c.path + (c.content === null ? ' (удалён)' : '')), note: 'Сайт обновится через 2–4 минуты (site_status).' };
@@ -741,7 +808,7 @@ function github(env) {
     throw new Error('main всё время меняется — попробуйте ещё раз через минуту');
   };
   const put = async (path, b64, message, sha) =>
-    api(`/contents/${enc(path)}`, { method: 'PUT', body: JSON.stringify({ message, content: b64, branch: BRANCH, ...(sha ? { sha } : {}) }) });
+    api(`/contents/${enc(path)}`, { method: 'PUT', body: JSON.stringify({ message: sign(message), content: b64, branch: BRANCH, ...(sha ? { sha } : {}) }) });
   return {
     api: async p => {
       const r = await api(p);
@@ -755,7 +822,7 @@ function github(env) {
     putText: (path, s, message, sha) => put(path, bytesToB64(new TextEncoder().encode(s)), message, sha),
     putBytes: (path, bytes, message, sha) => put(path, bytesToB64(bytes), message, sha),
     dispatch: (wf, inputs) => api(`/actions/workflows/${wf}/dispatches`, { method: 'POST', body: JSON.stringify({ ref: BRANCH, inputs }) }),
-    del: (path, message, sha) => api(`/contents/${enc(path)}`, { method: 'DELETE', body: JSON.stringify({ message, sha, branch: BRANCH }) }),
+    del: (path, message, sha) => api(`/contents/${enc(path)}`, { method: 'DELETE', body: JSON.stringify({ message: sign(message), sha, branch: BRANCH }) }),
     // вся папка одним запросом (GraphQL), чтобы не упереться в лимит подзапросов воркера
     readDir: async dir => {
       const [owner, name] = REPO.split('/');

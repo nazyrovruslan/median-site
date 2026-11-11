@@ -769,12 +769,13 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .down{display:none}
   .foot-bar{gap:12px 16px;font-size:var(--sm)}
   .mail svg{width:28px}
-  /* мобайл: по тапу ссылки раскрываются отдельной строкой под «Follow us» (политика переносится ниже) — всплывающая над кнопкой строка уезжала за левый край и ложилась на почту */
-  .follow{flex-wrap:wrap;row-gap:0}
-  .follow .links{flex-wrap:wrap;max-width:0;max-height:0;margin-left:-8px;transform:translateY(-4px);transition:max-height .5s var(--ease),opacity .3s,transform .4s var(--ease),visibility 0s .5s}
-  .follow.open{flex-basis:100%}
-  .follow.open .links{flex-basis:100%;max-width:none;max-height:120px;padding-top:6px;opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
-  .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{max-width:0;max-height:0;opacity:0;visibility:hidden;pointer-events:none}
+  /* мобайл (11.11, Руслан: «чтобы не скакали пункты»): по тапу ссылки появляются отдельной строкой НАД строкой Contact us / Follow us, поверх пустого поля подвала — сами пункты, политика и копирайт не сдвигаются. Ссылки Contact us прижаты влево, Follow us — вправо, под своей кнопкой; открыта всегда одна (тап мимо закрывает) */
+  .foot-bar{position:relative}
+  .foot-bar .follow{position:static}
+  .follow .links{position:absolute;left:-8px;right:-8px;bottom:calc(100% + 10px);flex-wrap:wrap;justify-content:flex-start;max-width:none;transform:translateY(6px);transition:opacity .3s,transform .4s var(--ease),visibility 0s .4s}
+  .follow:not(.contact) .links{justify-content:flex-end}
+  .follow.open .links,.follow.contact.open .links{max-width:none;opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
+  .follow:hover:not(.open) .links,.follow:focus-within:not(.open) .links{opacity:0;visibility:hidden;pointer-events:none}
   .panel{grid-template-columns:minmax(0,1fr)}
   .panel .scrim{display:none}
   .panel .sheet{width:100%}
@@ -866,7 +867,14 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
 .foot-bar .copy a{color:inherit;text-decoration:underline;text-decoration-thickness:.12em;text-underline-offset:.32em;transition:color .3s}
 .foot .foot-bar .copy a:hover{color:var(--paper)}
 .foot.grey .foot-bar .copy a:hover{color:var(--ink)}
-@media (max-width:767px){.foot-bar>.copy{flex-basis:100%;text-align:right}} /* уже ~755 px копирайт рядом с остальными пунктами не помещается — своя строка, прижата вправо (на 768–820 стоит в общей строке) */
+/* мобайл (до 767 px, 11.11): первая строка — Contact us слева, Follow us справа; ниже отдельным блоком, оба слева одним кеглем и цветом — политика, под ней копирайт. Копирайт не вылезает за поле: если не влезает в строку, переносится целыми кусками («Copyright 2026 © median agency.» / «Design by median.») */
+@media (max-width:767px){
+  .foot-bar{row-gap:12px}
+  .foot-bar>.pol{flex-basis:100%;margin-top:clamp(20px,6vw,32px)}
+  .foot-bar>.copy{flex-basis:100%;text-align:left;white-space:normal;color:var(--muted)}
+  .foot.grey .foot-bar>.copy{color:#333}
+  .foot-bar .cp-l,.foot-bar .cp-a,.foot-bar .cp-b{white-space:nowrap}
+}
 
 /* десктоп: ссылки «Follow us» всплывают над кнопкой, а не раздвигают строку — иначе строка переносилась, кнопка уезжала из-под курсора и подвал мерцал */
 @media (min-width:821px){

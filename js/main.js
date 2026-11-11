@@ -876,7 +876,7 @@ $('#aBrief').addEventListener('click',()=>{closeAbout();setTimeout(openBrief,350
 
 /* ---------- follow us (баннер и футер): ссылки раскрываются при наведении, на тач — по тапу ---------- */
 $$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
-  b.addEventListener('click',e=>{e.stopPropagation();const o=!f.classList.contains('open');f.classList.toggle('open',o);b.setAttribute('aria-expanded',o);});
+  b.addEventListener('click',e=>{e.stopPropagation();const o=!f.classList.contains('open');if(o)$$('.follow.open').forEach(x=>{if(x!==f){x.classList.remove('open');x.querySelector('.follow-btn').setAttribute('aria-expanded','false');}});f.classList.toggle('open',o);b.setAttribute('aria-expanded',o);});
   document.addEventListener('click',e=>{if(e.target.closest('.follow')!==f){f.classList.remove('open');b.setAttribute('aria-expanded','false');}});});
 
 /* ---------- footer reveal + curtain ---------- */
@@ -974,4 +974,6 @@ document.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a)
   else if(/hh\.ru/i.test(h))goal('hh_click');},true);
 // дочитал до футера (Start a project)
 if('IntersectionObserver' in window){const ft=$('#contact');if(ft)new IntersectionObserver((es,o)=>es.forEach(x=>{if(x.isIntersecting){goal('footer_seen',{},true);o.disconnect();}}),{threshold:.5}).observe(ft);}
+/* живой предпросмотр в конструкторе кейсов (admin/preview.html, js/preview.js): только там наружу отдаём перерисовку кейса */
+if(window.MEDIAN_PREVIEW)window.MEDIAN_CASE={fill:fillCase,open:openCase,openId:()=>openId};
 })();
