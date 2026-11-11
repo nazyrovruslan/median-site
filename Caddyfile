@@ -13,9 +13,10 @@
 	header @static Cache-Control "public, max-age=2592000"
 
 	# HTML/CSS/JS/JSON всегда перепроверяются (замена ручному подъёму ?v=)
-	@code path / *.html *.css *.js *.json
+	@code path / *.html *.css *.js *.json *.xml *.txt
 	header @code Cache-Control "no-cache"
 
+	try_files {path} {path}.html {path}/index.html
 	file_server
 
 	# Как на GitHub Pages: неизвестный адрес (/southhub, /about, /jobs...) отдаёт 404.html,

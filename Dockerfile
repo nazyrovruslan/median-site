@@ -2,7 +2,7 @@
 
 # ---------- Стадия 1: сборка ----------
 FROM node:20-alpine AS build
-RUN apk add --no-cache bash ffmpeg imagemagick zip
+RUN apk add --no-cache bash ffmpeg imagemagick zip rsync
 WORKDIR /site
 COPY . .
 RUN bash docker/build.sh
