@@ -221,3 +221,6 @@ MCP задеплоен: `https://median-mcp.nazyrov-ruslan.workers.dev/mcp/<кл
 - КП (/clients/) не трогали: там своя сборка счётчиков без плашки.
 - Новый сервис (пиксель VK и т.п.) — сначала строка в таблицу cookie privacy.html и в consent.html#cookies, иначе политика снова разойдётся с сайтом.
 
+
+## Сервер median.agency: схема админа (11.11)
+Админ сервера (GitHub nicolas13sochi) сделал ветку `deploy`: в ней main + Dockerfile, docker-compose.yml, deploy.sh, .github/workflows/deploy.yml. На сервере в `SSH_PATH` лежит клон, `deploy.sh` делает `git reset --hard origin/deploy` и `docker compose up -d --build`: в контейнере `docker/build.sh` собирает сайт (те же tools, плюс build-seo), Caddy отдаёт его на 127.0.0.1:8080, снаружи — nginx хоста с HTTPS. `docker/build.sh` и `Caddyfile` живут в main (вливаются в deploy). После каждой сборки main шаг pages.yml «Сервер median.agency — ветка deploy и deploy.sh» вливает main в deploy (`-X theirs`) и по ssh запускает deploy.sh. Секреты: SSH_HOST, SSH_USER, SSH_KEY, SSH_PATH. Шаг с rsync (DEPLOY_*) — запасной, не нужен. Старые адреса WordPress (/portfolio/…) в этой схеме не перенаправляются — это можно сделать в nginx хоста.
