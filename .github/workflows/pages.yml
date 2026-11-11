@@ -16,6 +16,8 @@ jobs:
     env:
       # есть ли сервер median.agency (шаг «Выложить на сервер» ниже): в if секреты напрямую не видны
       DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      # сервер median.agency по схеме админа (ветка deploy + deploy.sh + Docker): секреты SSH_HOST, SSH_USER, SSH_KEY, SSH_PATH
+      SSH_HOST: ${{ secrets.SSH_HOST }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -73,6 +75,32 @@ jobs:
             git commit -m "Сборка: js/cases.js, КП, превью и сжатые медиа из content/ [skip ci]"
             git pull --rebase --autostash -q origin main && git push -q origin HEAD:main || echo "не удалось сохранить в репозиторий — на сайт всё равно уйдёт"
           fi
+      # Сервер median.agency (схема админа сервера): ветка deploy = main + Dockerfile/Caddyfile/deploy.sh админа.
+      # После каждой сборки вливаем main в deploy и запускаем на сервере deploy.sh (git reset на deploy → docker compose build:
+      # docker/build.sh собирает сайт, как этот workflow). Пушем от GITHUB_TOKEN workflow deploy.yml не запускается — поэтому ssh здесь.
+      # Секреты: SSH_HOST, SSH_USER, SSH_KEY (приватный ключ), SSH_PATH (папка с deploy.sh на сервере). Пока их нет — шаг пропускается.
+      - name: Сервер median.agency — ветка deploy и deploy.sh
+        if: ${{ env.SSH_HOST != '' }}
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_PATH: ${{ secrets.SSH_PATH }}
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          git fetch -q origin main deploy
+          rm -rf /tmp/dep && git worktree add -q --detach /tmp/dep origin/deploy
+          cd /tmp/dep
+          git config user.name "github-actions[bot]"
+          git config user.email "41898599+github-actions[bot]@users.noreply.github.com"
+          # при конфликте берём версию из main (файлы админа — Dockerfile, deploy.sh, compose — есть только в deploy и не трогаются)
+          git merge -q --no-edit -X theirs -m "Выкладка: main ${GITHUB_SHA::7} → deploy [skip ci]" origin/main
+          git push -q origin HEAD:deploy
+          cd - >/dev/null
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/srv && chmod 600 ~/.ssh/srv
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -i ~/.ssh/srv -o StrictHostKeyChecking=accept-new "$SSH_USER@$SSH_HOST" "cd '${SSH_PATH%/}' && ./deploy.sh"
       # свой сервер median.agency: та же собранная папка по SSH (rsync). Секреты в GitHub → Settings → Secrets → Actions:
       # DEPLOY_HOST (158.160.186.96), DEPLOY_USER, DEPLOY_PATH (/var/www/median.agency), DEPLOY_SSH_KEY (приватный ключ, публичный — в ~/.ssh/authorized_keys на сервере).
       # Пока секретов нет — шаг пропускается. Исходники (content, tools, mcp, *.md) на сервер не уходят.

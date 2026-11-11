@@ -1,0 +1,29 @@
+# Внутри контейнера работает только HTTP: HTTPS и домен обслуживает внешний nginx на хосте.
+{
+	auto_https off
+	admin off
+}
+
+:80 {
+	root * /srv
+	encode zstd gzip
+
+	# Тяжёлая статика — кэш на месяц
+	@static path *.webp *.jpg *.png *.svg *.woff2 *.mp4
+	header @static Cache-Control "public, max-age=2592000"
+
+	# HTML/CSS/JS/JSON всегда перепроверяются (замена ручному подъёму ?v=)
+	@code path / *.html *.css *.js *.json
+	header @code Cache-Control "no-cache"
+
+	# /about, /x5stands, /jobs, /vacancy-… → about.html, x5stands.html… (их собирает tools/build-seo.mjs) — отдаются с кодом 200, поисковики их индексируют
+	try_files {path} {path}.html {path}/index.html
+
+	file_server
+
+	# Неизвестный адрес отдаёт 404.html (он же перенаправит старые ссылки на кейс).
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}
