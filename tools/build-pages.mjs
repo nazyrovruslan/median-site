@@ -42,7 +42,9 @@ function size(b) {
   return [];
 }
 const imgSize = src => { try { return size(fs.readFileSync(String(src).replace(/^\//, '').replace(/\?.*$/, ''))); } catch { return []; } };
-const media = s => esc(String(s ?? '').replace(/^\//, ''));
+// пробелы и кириллица в имени файла (загрузка из админки) ломают CSS url(...) без кавычек — кодируем путь
+const enc = u => { try { return encodeURI(decodeURI(u)); } catch { return encodeURI(u); } };
+const media = s => esc(enc(String(s ?? '').replace(/^\//, '')));
 const head3 = (h, dark = true) => `<h3 class="d"><span class="o${dark ? ' on-dark' : ''}">${esc(h?.out)}</span>${h?.solid ? ' ' + esc(h.solid) : ''}</h3>`;
 const rows = (list, cls, k1, k2) => `<div class="rows ${cls}">\n${(list || []).map((r, i) => `        <div class="row rv"><span class="n">${pad(i)}</span><span class="nm">${esc(r[k1])}</span><span class="sb">${typo(r[k2])}</span></div>`).join('\n')}\n      </div>`;
 const logo = (l, digits) => { const ar = l.ar || ratio(l.logo, digits) || '1'; const u = media(l.logo); return `-webkit-mask-image:url(${u});mask-image:url(${u});--c:${esc(l.color || '#f3f3f1')};${l.color_logo ? `--hc:url(${media(l.color_logo)});` : ''}--ar:${ar};--s:${Number(l.scale ?? 1).toFixed(2)}`; };
