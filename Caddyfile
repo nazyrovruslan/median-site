@@ -32,6 +32,11 @@
 		query page=*
 	}
 	redir @oldpage / 301
+	@oldmegafon {
+		path /
+		query cases=megafon
+	}
+	redir @oldmegafon /megafon 301
 	@oldcases {
 		path /
 		query cases=*
