@@ -232,6 +232,7 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors() });
     if (url.pathname === '/' || url.pathname === '/health') return text('median MCP: ok');
     if (url.pathname.startsWith('/auth') || url.pathname === '/callback') return oauth(url, req, env);
+    if (url.pathname === '/gh' || url.pathname.startsWith('/gh/')) return ghProxy(url, req, env);
     const who = await authorized(url, req, env);
     if (who === null) return text('not found', 404);
     if (req.method === 'GET') return text('MCP: POST JSON-RPC here', 405, { Allow: 'POST' });
@@ -287,6 +288,55 @@ if(window.opener)window.opener.postMessage('authorizing:github','*');else docume
   return text('not found', 404);
 }
 
+// ---------- вход в /admin без своего GitHub: прокси GitHub API ----------
+// admin/config.yml: backend.api_root = <воркер>/gh. Коллега входит «по токену», вставляя личный ключ из /admin/mcp.html
+// (тот же, что в его ссылке на MCP; хэш — в mcp/users.json). Воркер подменяет ключ на GH_TOKEN и пересылает запрос в api.github.com.
+// Настоящие GitHub-токены (Руслан, вход через GitHub) идут как есть. Коллегам нельзя менять .github/ и mcp/ (список доступа, сам воркер).
+const GH_TOKEN_RE = /^(gh[pousr]_|github_pat_)/;
+async function ghProxy(url, req, env) {
+  const given = (req.headers.get('authorization') || '').replace(/^(token|bearer)\s+/i, '').trim();
+  let token = given, who = null;
+  if (given && !GH_TOKEN_RE.test(given)) {
+    who = env.MCP_SECRET && safeEqual(given, env.MCP_SECRET) ? 'владелец' : null;
+    if (who === null) {
+      const hash = await sha256hex(given);
+      const u = (await mcpUsers(env)).find(u => u && u.on !== false && typeof u.hash === 'string' && safeEqual(u.hash, hash));
+      if (!u) return new Response(JSON.stringify({ message: 'Bad credentials' }), { status: 401, headers: { 'content-type': 'application/json', ...cors() } });
+      who = String(u.name || 'коллега').slice(0, 40);
+    }
+    token = env.GH_TOKEN;
+  }
+  let path = url.pathname.replace(/^\/gh(\/api\/v3)?/, '') || '/';
+  if (/\/graphql$/.test(path)) path = '/graphql';
+  let body = ['GET', 'HEAD'].includes(req.method) ? undefined : await req.text();
+  if (who !== null && body) {
+    if (who !== 'владелец' && (/"(path|filePath)"\s*:\s*"\/?(\.github|mcp)\//.test(body) || /\/contents\/(\.github|mcp)\//.test(path)))
+      return new Response(JSON.stringify({ message: 'Эти файлы может менять только владелец' }), { status: 403, headers: { 'content-type': 'application/json', ...cors() } });
+    // подпись в истории правок: к сообщению коммита добавляется имя коллеги
+    try {
+      const j = JSON.parse(body), tag = who === 'владелец' ? '' : ` (${who})`;
+      if (typeof j.message === 'string' && /\/git\/commits$|\/contents\//.test(path)) j.message += tag;
+      const m = j.variables?.input?.message;
+      if (m && typeof m.headline === 'string') m.headline += tag;
+      body = JSON.stringify(j);
+    } catch {}
+  }
+  const h = { Accept: req.headers.get('accept') || 'application/vnd.github+json', 'User-Agent': 'median-admin-proxy' };
+  if (token) h.Authorization = 'Bearer ' + token;
+  if (req.headers.get('content-type')) h['Content-Type'] = req.headers.get('content-type');
+  for (const k of ['If-None-Match', 'X-GitHub-Api-Version']) if (req.headers.get(k)) h[k] = req.headers.get(k);
+  const r = await fetch('https://api.github.com' + path + url.search, { method: req.method, headers: h, body });
+  const out = new Headers(r.headers);
+  for (const [k, v] of Object.entries(cors())) out.set(k, v);
+  out.delete('content-encoding'); out.delete('content-length');
+  // в админке показываем имя коллеги, а не владельца токена
+  if (who !== null && path === '/user' && r.ok) {
+    const u = await r.json();
+    return new Response(JSON.stringify({ ...u, name: who === 'владелец' ? u.name : who }), { status: 200, headers: out });
+  }
+  return new Response(r.body, { status: r.status, headers: out });
+}
+
 // Кто пришёл: '' — владелец (MCP_SECRET), имя — коллега из mcp/users.json (личные ссылки, выдаются в /admin/mcp.html), null — чужой.
 async function authorized(url, req, env) {
   const m = url.pathname.match(/^\/mcp\/([^/]+)\/?$/);
@@ -327,7 +377,7 @@ function safeEqual(a, b) {
   return d === 0;
 }
 
-const cors = () => ({ 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS' });
+const cors = () => ({ 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept, If-None-Match, X-GitHub-Api-Version, *', 'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS', 'Access-Control-Expose-Headers': '*', 'Access-Control-Max-Age': '86400' });
 const text = (s, status = 200, h = {}) => new Response(s, { status, headers: { 'content-type': 'text/plain; charset=utf-8', ...cors(), ...h } });
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'content-type': 'application/json', ...cors() } });
 const rpcError = (id, code, message) => ({ jsonrpc: '2.0', id, error: { code, message } });

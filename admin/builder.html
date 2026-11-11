@@ -150,6 +150,7 @@ const REPO = 'nazyrovruslan/median-site', BRANCH = 'main', API = 'https://api.gi
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const h = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (v == null || v === false) continue; if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else if (k === 'html') e.innerHTML = v; else e.setAttribute(k, v === true ? '' : v); } for (const k of kids.flat()) if (k != null && k !== false) e.append(k.nodeType ? k : document.createTextNode(k)); return e; };
+const viaProxy = u => /^(gh[pousr]_|github_pat_)/.test(token) ? u : u.replace('https://api.github.com', 'https://median-mcp.nazyrov-ruslan.workers.dev/gh'); // личный ключ коллеги — через воркер (mcp/worker.js, ghProxy)
 let token = '', SCHEMA = null, ICONS = [], cases = [], doc = null, cur = null, dirty = false, frameReady = false, openBlocks = new Set(), curPath = '';
 
 // ---------- GitHub ----------
@@ -159,7 +160,7 @@ function storedToken() {
   try { return localStorage.getItem('median-crop.token') || ''; } catch (e) { return ''; }
 }
 async function gh(path, opt = {}) {
-  const r = await fetch(path.startsWith('http') ? path : API + path, { ...opt, headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', ...(opt.headers || {}) } });
+  const r = await fetch(viaProxy(path.startsWith('http') ? path : API + path), { ...opt, headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', ...(opt.headers || {}) } });
   if (r.status === 404) return null;
   if (!r.ok) throw new Error(r.status + ' ' + (await r.text()).slice(0, 200));
   return r.status === 204 ? {} : r.json();
