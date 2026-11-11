@@ -669,6 +669,15 @@ collections:
   - name: settings
     label: Настройки
     files:
+      - name: counters
+        label: Счётчики и пиксели сайта
+        file: content/settings/counters.json
+        description: "Стоят в <head> всех страниц сайта: главная, кейсы, «О нас», вакансии, политика, согласие, 404 и КП. После сохранения сайт пересоберётся за 2–4 минуты"
+        fields:
+          - { name: metrika, label: Номер счётчика Яндекс Метрики, widget: string, required: false, pattern: ['^[0-9]*$', 'только цифры'], hint: "Сейчас 9380047. Вебвизор, карта кликов и цели (список — content/metrika-goals.json) работают с этим номером" }
+          - { name: ga, label: Google Analytics (ID потока), widget: string, required: false, pattern: ['^(G-[A-Z0-9]+)?$', 'вида G-XXXXXXX'], hint: "Сейчас G-ZZ77H53J19" }
+          - { name: vk, label: ID пикселя VK, widget: string, required: false, hint: "Пиксель VK Рекламы (Top.Mail.Ru), только цифры. Пусто — не ставится" }
+          - { name: head, label: Другие пиксели и счётчики (код в <head>), widget: code, default_language: html, output_code_only: true, required: false, hint: "Вставляется как есть на все страницы. Сейчас тут пиксель South HUB. Код с каждой новой строки" }
       - name: icons
         label: Пиктограммы к цифрам
         file: content/settings/icons.json

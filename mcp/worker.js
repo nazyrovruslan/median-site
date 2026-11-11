@@ -21,6 +21,7 @@ const COLLECTIONS = {
 const SETTINGS = {
   icons: 'content/settings/icons.json', // пиктограммы к цифрам
   jobs: 'content/settings/jobs.json', // страница вакансий: почта, вступление, руководитель
+  counters: 'content/settings/counters.json', // счётчики и пиксели в <head> всех страниц: metrika, ga, vk, head (свой код)
 };
 const MEDIA = {
   cases: 'media/cases', video: 'media/video', vacancies: 'media/vacancies', team: 'media/team', icons: 'media/icons',

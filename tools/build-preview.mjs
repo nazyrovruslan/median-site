@@ -4,7 +4,7 @@
 import fs from 'fs';
 let s = fs.readFileSync('index.html', 'utf8');
 const cut = (re, what) => { if (!re.test(s)) throw new Error('build-preview: не нашёл в index.html ' + what); s = s.replace(re, ''); };
-cut(/<!-- счётчики[\s\S]*?<\/noscript>\n?/, 'блок счётчиков');
+cut(/<!-- счётчики[\s\S]*?<!-- \/счётчики -->\n?/, 'блок счётчиков');
 cut(/<link rel="canonical"[^>]*>\n?/, 'canonical');
 s = s.replace(/<head>\n/, '<head>\n<base href="../">\n<meta name="robots" content="noindex,nofollow">\n<style>.cookie{display:none!important}</style>\n<script>window.ym=function(){};window.gtag=function(){};window.MEDIAN_PREVIEW=1;</script>\n');
 if (!/<script src="js\/main\.js/.test(s)) throw new Error('build-preview: нет js/main.js в index.html');
