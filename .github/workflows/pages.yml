@@ -48,6 +48,9 @@ jobs:
           python3 tools/build-admin-schema.py
           node tools/crop-media.mjs
           node tools/optimize-media.mjs
+          # главная и «О нас» из content/pages (CMS → «Страницы»); index.html с ними и счётчиками кладём в коммит сразу, до простановки ?v= ниже
+          node tools/build-pages.mjs
+          git add index.html
           node tools/build-cases.mjs
           node tools/build-vacancies.mjs
           node tools/build-icons.mjs
@@ -65,7 +68,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898599+github-actions[bot]@users.noreply.github.com"
-          git add -A js/cases.js js/vacancies.js js/icons.js media content clients index.html privacy.html consent.html 404.html admin/schema.json 2>/dev/null || git add -A js/cases.js js/vacancies.js js/icons.js media content
+          git add -A js/cases.js js/vacancies.js js/icons.js media content clients privacy.html consent.html 404.html admin/schema.json 2>/dev/null || git add -A js/cases.js js/vacancies.js js/icons.js media content
           if ! git diff --cached --quiet; then
             git commit -m "Сборка: js/cases.js, КП, превью и сжатые медиа из content/ [skip ci]"
             git pull --rebase --autostash -q origin main && git push -q origin HEAD:main || echo "не удалось сохранить в репозиторий — на сайт всё равно уйдёт"

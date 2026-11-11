@@ -669,6 +669,149 @@ collections:
               - { name: email, label: Почта, widget: string, required: false }
               - { name: phone, label: Телефон, widget: string, required: false }
 
+  - name: pages
+    label: Страницы
+    description: "Тексты, фото и списки главной и «О нас». Вёрстка не меняется, только содержимое. После сохранения сайт пересоберётся за 2–4 минуты (tools/build-pages.mjs)"
+    files:
+      - name: home
+        label: Главная
+        file: content/pages/home.json
+        preview_path: ""
+        fields:
+          - { name: h1, label: "Скрытый заголовок для поисковиков (h1)", widget: text, hint: "На экране не виден, его читают Яндекс и Google" }
+          - name: about
+            label: "Блок «Делаем компании ближе…» (рядом с кольцом «О нас»)"
+            widget: object
+            fields:
+              - { name: title, label: Заголовок, widget: text }
+              - { name: text, label: Текст, widget: text, hint: "Каждый абзац — с новой строки" }
+          - name: goal
+            label: "Большая фраза «Создавать осмысленные проекты…»"
+            widget: object
+            fields:
+              - { name: out, label: Контурное слово, widget: string }
+              - { name: text, label: Остальной текст, widget: text, hint: "Слова через дефис не переносятся" }
+          - name: showcase
+            label: Витрина проектов (крупные блоки под фразой)
+            label_singular: проект витрины
+            widget: list
+            summary: "{{out}} {{solid}} — {{title}}"
+            hint: "Порядок — перетаскиванием. Фото слева и справа чередуются сами"
+            fields:
+              - { name: case, label: Кейс (адрес, id), widget: string, pattern: ['^[a-z0-9-]+$', 'id кейса латиницей'], hint: "Какой кейс открывается по клику: id из «Кейсов», например x5stands" }
+              - { name: out, label: "Заголовок: контурная строка", widget: string }
+              - { name: solid, label: "Заголовок: залитая строка", widget: string }
+              - { name: title, label: Название проекта (подпись), widget: string }
+              - { name: name, label: Полное название (для экранных дикторов), widget: string, required: false, hint: "Если пусто — как подпись" }
+              - { name: text, label: Описание, widget: text }
+              - { name: img, label: Фото, widget: image, media_folder: /media/home, public_folder: media/home, hint: "Горизонтальное, от 1920 px; jpg и png сожмутся в webp при сборке" }
+              - { name: vid, label: Видео поверх фото, widget: file, required: false, media_folder: /media/video, public_folder: media/video, hint: "Без звука, 6–10 с; сожмётся при сборке. Пока грузится — видно фото" }
+          - name: podcast
+            label: Блок подкаста (внизу главной)
+            widget: object
+            collapsed: true
+            fields:
+              - { name: case, label: Кейс (адрес, id), widget: string }
+              - { name: out, label: "Заголовок: контурная строка", widget: string }
+              - { name: solid, label: "Заголовок: залитая строка", widget: string }
+              - { name: title, label: Название (подпись), widget: string }
+              - { name: name, label: Полное название (для экранных дикторов), widget: string, required: false }
+              - { name: text, label: Описание, widget: text }
+              - { name: img, label: Обложка, widget: image, media_folder: /media/home, public_folder: media/home, hint: "Вписывается целиком, поля — цветом фона" }
+              - { name: bg, label: Цвет фона под обложкой, widget: color, required: false }
+      - name: about
+        label: О нас
+        file: content/pages/about.json
+        preview_path: about
+        fields:
+          - name: intro
+            label: Первый экран
+            widget: object
+            fields:
+              - { name: title, label: Заголовок, widget: text, hint: "Каждая строка — с новой строки; первая контуром" }
+              - { name: sub, label: Подзаголовок, widget: string }
+          - name: who
+            label: "«Кто мы?»"
+            widget: object
+            fields:
+              - { name: photo, label: Фото, widget: image, media_folder: /media/about, public_folder: media/about }
+              - { name: photo_alt, label: Что на фото (для поисковиков и дикторов), widget: string, required: false }
+              - { name: title, label: Заголовок, widget: text, hint: "Каждая строка — с новой строки; первая контуром" }
+              - { name: left, label: Текст слева (под фото), widget: text, hint: "Каждый абзац — с новой строки" }
+              - { name: caption, label: Крупная подпись справа, widget: text, hint: "Каждая строка — с новой строки" }
+              - { name: right, label: Текст справа, widget: text }
+          - name: values
+            label: Принципы
+            widget: object
+            collapsed: true
+            fields:
+              - { name: out, label: "Заголовок: контурная часть", widget: string }
+              - { name: solid, label: "Заголовок: остальное", widget: string, required: false }
+              - { name: sub, label: Подзаголовок, widget: text, required: false }
+              - { name: rows, label: Принципы, label_singular: принцип, widget: list, summary: "{{name}}", fields: [{ name: name, label: Название, widget: string }, { name: text, label: Описание, widget: text }], hint: "Номера 01, 02… ставятся сами" }
+          - name: founders
+            label: Основатели
+            widget: object
+            collapsed: true
+            fields:
+              - { name: out, label: "Заголовок: контурная часть", widget: string }
+              - { name: solid, label: "Заголовок: остальное", widget: string, required: false }
+              - name: people
+                label: Люди
+                label_singular: человека
+                widget: list
+                summary: "{{name}}"
+                fields:
+                  - { name: name, label: Имя и фамилия, widget: string, hint: "Фамилия встанет второй строкой" }
+                  - { name: photo, label: Фото, widget: image, media_folder: /media/founders, public_folder: media/founders, hint: "Вертикальное 4:5" }
+                  - { name: role, label: Должность, widget: string }
+                  - { name: text, label: Текст, widget: text }
+                  - { name: tg, label: Telegram (ник без @), widget: string, required: false }
+          - name: history
+            label: История
+            widget: object
+            collapsed: true
+            fields:
+              - { name: out, label: "Заголовок: контурная часть", widget: string }
+              - { name: solid, label: "Заголовок: остальное", widget: string, required: false }
+              - { name: lead, label: Вступление, widget: text }
+              - { name: rows, label: Годы, label_singular: год, widget: list, summary: "{{year}}", fields: [{ name: year, label: Год или период, widget: string }, { name: text, label: Что было, widget: text }] }
+          - name: clients
+            label: Клиенты (бегущая строка логотипов)
+            widget: object
+            collapsed: true
+            fields:
+              - { name: title, label: Заголовок, widget: string }
+              - { name: sub, label: Подпись, widget: string, required: false }
+              - name: logos
+                label: Логотипы
+                label_singular: логотип
+                widget: list
+                summary: "{{name}}"
+                fields:
+                  - { name: name, label: Название компании, widget: string }
+                  - { name: logo, label: Логотип (SVG, одним цветом), widget: file, media_folder: /media/clients, public_folder: media/clients, hint: "Силуэт; цвет задаётся ниже. Пропорции посчитаются сами" }
+                  - { name: color, label: Цвет логотипа при наведении, widget: color, required: false }
+                  - { name: color_logo, label: Цветная версия (если в логотипе несколько цветов), widget: file, required: false, media_folder: /media/clients, public_folder: media/clients }
+                  - { name: scale, label: Масштаб, widget: number, value_type: float, step: 0.01, default: 1, required: false, hint: "1 — обычный; 1.2 — крупнее, 0.8 — мельче, чтобы логотипы смотрелись ровно" }
+          - name: awards
+            label: Награды
+            widget: object
+            collapsed: true
+            fields:
+              - { name: title, label: Заголовок, widget: string }
+              - name: groups
+                label: Премии
+                label_singular: премию
+                widget: list
+                summary: "{{name}}"
+                fields:
+                  - { name: name, label: Название премии, widget: string }
+                  - { name: logo, label: Логотип (SVG или webp-маска), widget: file, media_folder: /media/awards, public_folder: media/awards }
+                  - { name: color, label: Цвет логотипа, widget: color, required: false }
+                  - { name: scale, label: Масштаб, widget: number, value_type: float, step: 0.01, default: 1, required: false }
+                  - { name: items, label: Награды, label_singular: награду, widget: list, summary: "{{place}} — {{title}}", fields: [{ name: place, label: "Место и год («Серебро, 2025»)", widget: string }, { name: title, label: Номинация, widget: string }] }
+
   - name: settings
     label: Настройки
     files:
