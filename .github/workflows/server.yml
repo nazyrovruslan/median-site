@@ -45,7 +45,7 @@ jobs:
           SSH_PATH=$(printf '%s' "$SSH_PATH" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's#/$##')
           SSH_HOST=$(printf '%s' "$SSH_HOST" | tr -d '\r\n ')
           SSH_USER=$(printf '%s' "$SSH_USER" | tr -d '\r\n ')
-          ssh -i ~/.ssh/srv -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 "$SSH_USER@$SSH_HOST" "cd '$SSH_PATH' && ./deploy.sh" || {
+          ssh -i ~/.ssh/srv -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 "$SSH_USER@$SSH_HOST" "P='$SSH_PATH'; if [ ! -x \"\$P/deploy.sh\" ]; then Q=\$(dirname \"\$(find ~ -maxdepth 3 -name deploy.sh -path '*median*' 2>/dev/null | head -1)\"); echo \"SSH_PATH не найден, беру папку с deploy.sh: \$(echo \$Q | sed \"s#\$(whoami)#USER#g\")\"; P=\$Q; fi; cd \"\$P\" && ./deploy.sh" || {
             echo "::error::deploy.sh не запустился. Где на сервере лежит deploy.sh:"
             ssh -i ~/.ssh/srv "$SSH_USER@$SSH_HOST" "find ~ /srv /opt /var/www /home -maxdepth 4 -name deploy.sh 2>/dev/null | head; echo длина пути из секрета: ${#SSH_PATH}"
             exit 1; }
