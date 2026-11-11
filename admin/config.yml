@@ -264,6 +264,11 @@ collections:
             label: "Фото: мозаика из 8"
             fields:
               - { name: items, label: Фото, hint: "8 шт.: 1-е большое, 2-е высокое, 3-е широкое", label_singular: фото, widget: list, field: { name: img, label: Фото, widget: image } }
+          - name: stickers
+            label: "Стикеры (стикерпак проекта)"
+            fields:
+              - { name: label, label: Ярлык, widget: string, required: false }
+              - { name: items, label: Стикеры, hint: "Прозрачные PNG/WebP, 2–6 шт. Встают вразброс на сером экране, каждый с наклоном и покачивается", label_singular: стикер, widget: list, field: { name: img, label: Стикер, widget: image } }
           - name: split
             label: "Текст + сетка фото"
             fields:

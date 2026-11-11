@@ -423,6 +423,7 @@ const BLOCK={
   // фото-аккордеон: полосы раскрываются при наведении или нажатии
   accordion:b=>`<section class="grey cb cb-acc"><div class="acc">${(b.items||[]).map((u,j)=>`<button type="button" class="acc-i${j?'':' on'}" aria-expanded="${!j}" aria-label="Фото ${j+1}"><img src="${u}" alt="${ALT}" loading="lazy"></button>`).join('')}</div></section>`,
   // бенто: 8 плиток разного размера, клик открывает фото
+  stickers:b=>{const it=(b.items||[]).filter(Boolean);return it.length?`<section class="grey cb cb-stk">${b.label?`<p class="label stk-l">${esc(b.label)}</p>`:''}<div class="stk-row">${it.map(u=>`<span class="stk-i"><img src="${u}" alt="" loading="lazy" aria-hidden="true"></span>`).join('')}</div></section>`:'';}, // стикерпак проекта (11.11): стикеры прямо в теле кейса, покачиваются
   bento:b=>`<section class="grey cb cb-bento"><div class="bento">${(b.items||[]).map((u,j)=>`<img class="bt${j}" src="${u}" alt="${ALT}" loading="lazy">`).join('')}</div></section>`,
   // галерея: большое фото, стрелки, счётчик и полоса превью
   // рилс (09.11): лента вертикальных роликов 9:16, как Reels в инстаграме; превью X-p.mp4 крутится без звука, по тапу — полноэкранный плеер со звуком (#rlv)

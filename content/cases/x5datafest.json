@@ -45,20 +45,17 @@
         {
           "name": "Площадка",
           "text": "Мультимедийная площадка CONNECT: вместо застройки — LED-поверхности и экраны для брендинга, навигации и зонирования. Пространство быстро перестраивалось под форматы программы, а одноразовых конструкций стало меньше.",
-          "img": "media/cases/x5df-real-1.webp",
-          "sticker": "media/cases/x5df-sticker-1.webp"
+          "img": "media/cases/x5df-real-1.webp"
         },
         {
           "name": "Программа",
           "text": "Два зала и четыре трека: Data & ML in Retail, Data Strategy, Reliable ML и Advanced LLMs. Спикеры X5 Tech разбирали реальные production-кейсы, а после докладов разговор продолжался в зоне Open Talk.",
-          "img": "media/cases/x5df-real-2.webp",
-          "sticker": "media/cases/x5df-sticker-2.webp"
+          "img": "media/cases/x5df-real-2.webp"
         },
         {
           "name": "Data Shop",
           "text": "Главная зона дня: участники «собирали» технологии вместо продуктов — «Корзина технологий», «Data-мифы», автомат Lucky Code. За активности получали коины и обменивали их на мерч через кассу самообслуживания.",
-          "img": "media/cases/x5df-real-3.webp",
-          "sticker": "media/cases/x5df-sticker-3.webp"
+          "img": "media/cases/x5df-real-3.webp"
         },
         {
           "name": "Гонки роботов",
@@ -68,9 +65,17 @@
         {
           "name": "Карьера",
           "text": "Карьерная зона с консультациями, intern track и growth track — для тех, кто хочет прийти в команду.",
-          "img": "media/cases/x5df-real-5.webp",
-          "sticker": "media/cases/x5df-sticker-4.webp"
+          "img": "media/cases/x5df-real-5.webp"
         }
+      ]
+    },
+    {
+      "t": "stickers",
+      "items": [
+        "media/cases/x5df-sticker-1.webp",
+        "media/cases/x5df-sticker-2.webp",
+        "media/cases/x5df-sticker-3.webp",
+        "media/cases/x5df-sticker-4.webp"
       ]
     },
     {
