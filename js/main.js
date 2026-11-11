@@ -876,7 +876,7 @@ $('#aBrief').addEventListener('click',()=>{closeAbout();setTimeout(openBrief,350
 
 /* ---------- follow us (баннер и футер): ссылки раскрываются при наведении, на тач — по тапу ---------- */
 $$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
-  b.addEventListener('click',e=>{e.stopPropagation();const o=!f.classList.contains('open');f.classList.toggle('open',o);b.setAttribute('aria-expanded',o);});
+  b.addEventListener('click',e=>{e.stopPropagation();const o=!f.classList.contains('open');if(o)$$('.follow.open').forEach(x=>{if(x!==f){x.classList.remove('open');x.querySelector('.follow-btn').setAttribute('aria-expanded','false');}});f.classList.toggle('open',o);b.setAttribute('aria-expanded',o);});
   document.addEventListener('click',e=>{if(e.target.closest('.follow')!==f){f.classList.remove('open');b.setAttribute('aria-expanded','false');}});});
 
 /* ---------- footer reveal + curtain ---------- */
