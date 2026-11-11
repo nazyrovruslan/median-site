@@ -31,11 +31,15 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://median.agency/#org","name":"Median Agency","alternateName":["Median","median.agency","Медиан"],"url":"https://median.agency/","logo":"https://median.agency/media/icon-512.png","email":"hello@median.agency","telephone":"+7 (862) 291-25-52","address":{"@type":"PostalAddress","addressLocality":"Сочи","addressCountry":"RU"},"areaServed":{"@type":"Country","name":"Россия"},"sameAs":["https://t.me/medianagency","https://www.instagram.com/median.agency/","https://www.facebook.com/median.agency/","https://youtube.com/@median.agency"]},{"@type":"WebSite","@id":"https://median.agency/#site","name":"Median Agency","url":"https://median.agency/","inLanguage":"ru","publisher":{"@id":"https://median.agency/#org"}}]}</script>
 <meta name="facebook-domain-verification" content="v0dtr5q2uukvisbf4km1k7vlp72ws7">
 <!-- счётчики и пиксели: content/settings/counters.json (админка → Настройки → «Счётчики и пиксели сайта»), собирает tools/sync-counters.mjs — здесь не править -->
-<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+<script>window.MEDIAN_NOTRACK=(function(){try{return localStorage.getItem('analytics')==='off'}catch(e){return false}})();</script>
+<script>if(!window.MEDIAN_NOTRACK){
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
 ym(9380047,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true,trackHash:true});
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZZ77H53J19');</script>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZ77H53J19"></script>
-<script async src="https://api.southub.online/t/median.js" data-ym="9380047"></script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZZ77H53J19');
+(function(s){s.async=1;s.src="https://www.googletagmanager.com/gtag/js?id=G-ZZ77H53J19";document.head.appendChild(s)})(document.createElement("script"));
+}</script>
+<template id="counters-head"><script async src="https://api.southub.online/t/median.js" data-ym="9380047"></script></template>
+<script>(function(t){if(!t||window.MEDIAN_NOTRACK)return;[].forEach.call(t.content.childNodes,function(n){if(n.nodeName!=='SCRIPT'){document.head.appendChild(document.importNode(n,true));return}var s=document.createElement('script');[].forEach.call(n.attributes,function(a){s.setAttribute(a.name,a.value)});s.text=n.text;document.head.appendChild(s)})})(document.getElementById('counters-head'));</script>
 <noscript><div><img src="https://mc.yandex.ru/watch/9380047" style="position:absolute;left:-9999px" alt=""></div></noscript>
 <!-- /счётчики -->
 </head>
@@ -453,7 +457,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
         </div>
       </div>
       <div class="fld"><label for="f-msg">Задача, даты, количество гостей</label><textarea id="f-msg" name="msg" rows="3" placeholder="Конференция для 300 партнёров, Сочи, май"></textarea></div>
-      <label class="agree"><input type="checkbox" name="agree" id="f-agree"><span>Я согласен на <a href="consent.html" target="_blank" rel="noopener">обработку персональных данных</a> и принимаю <a href="privacy.html" target="_blank" rel="noopener">политику конфиденциальности</a></span></label>
+      <label class="agree"><input type="checkbox" name="agree" id="f-agree"><span>Я согласен на <a href="consent.html#brief" target="_blank" rel="noopener">обработку персональных данных</a> и принимаю <a href="privacy.html" target="_blank" rel="noopener">политику конфиденциальности</a></span></label>
       <button class="send" type="submit" data-c="mag" data-magnet>Отправить <span>→</span></button>
       <div class="ok" id="ok" hidden></div>
     </form>
@@ -476,7 +480,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       <div class="fld"><label for="cv-pf">Ссылка на портфолио</label><input id="cv-pf" name="portfolio" type="url" inputmode="url" placeholder="Behance, сайт, папка с кейсами"></div>
       <div class="fld"><label for="cv-msg">Пара слов о себе</label><textarea id="cv-msg" name="msg" rows="3" placeholder="Каким проектом гордитесь и какой была ваша роль"></textarea></div>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <label class="agree"><input type="checkbox" name="agree" id="cv-agree"><span>Я согласен на <a href="consent.html" target="_blank" rel="noopener">обработку персональных данных</a> и принимаю <a href="privacy.html" target="_blank" rel="noopener">политику конфиденциальности</a></span></label>
+      <label class="agree"><input type="checkbox" name="agree" id="cv-agree"><span>Я согласен на <a href="consent.html#job" target="_blank" rel="noopener">обработку персональных данных</a> и принимаю <a href="privacy.html" target="_blank" rel="noopener">политику конфиденциальности</a></span></label>
       <button class="send" type="submit" data-c="mag" data-magnet>Отправить <span>→</span></button>
       <div class="ok" id="cvOk" hidden></div>
     </form>
@@ -484,7 +488,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
 </div>
 
 <div class="toast" id="toast" role="status"></div>
-<div class="cookie" id="cookie" role="region" aria-label="Уведомление о cookie" hidden><p>Мы используем cookie, чтобы сайт работал правильно. Подробнее — в <a href="privacy.html#cookies">политике cookie</a>.</p><button type="button" id="cookieOk" data-c="link">Понятно</button></div>
+<div class="cookie" id="cookie" role="region" aria-label="Уведомление о cookie" hidden><p>Мы используем cookie и сервисы статистики — Яндекс Метрику, Google Analytics и South HUB, чтобы понимать, как работает сайт. Нажимая «Принять», вы соглашаетесь с <a href="privacy.html#cookies">политикой cookie</a>.</p><div class="ck-btns"><button type="button" id="cookieOk" data-c="link">Принять</button><button type="button" id="cookieNo" class="ck-no" data-c="link">Отказаться</button></div></div>
 <script src="js/cases.js?v=dbf0b02" defer></script>
 <script src="js/icons.js?v=dbf0b02" defer></script>
 <script src="js/vacancies.js?v=dbf0b02" defer></script>

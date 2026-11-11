@@ -29,7 +29,7 @@ nav.toc a:hover{color:var(--paper)}
 .doc{grid-column:2/5;max-width:46em}
 .doc .ed{color:var(--muted);margin:0 0 32px}
 .doc h2{margin:clamp(48px,5vw,96px) 0 20px;font:700 clamp(20px,2.2vw,42px)/1 var(--display);text-transform:uppercase}
-.doc h2:first-of-type{margin-top:0}
+.doc .ed + h2{margin-top:0}
 .doc h3{margin:32px 0 10px;font:700 clamp(13px,.94vw,18px)/1.2 var(--display);text-transform:uppercase;letter-spacing:.02em}
 .doc p,.doc li{color:rgba(243,243,241,.82)}
 .doc p{margin:0 0 12px}
@@ -60,11 +60,15 @@ footer a:hover{color:var(--paper)}
 }
 </style>
 <!-- счётчики и пиксели: content/settings/counters.json (админка → Настройки → «Счётчики и пиксели сайта»), собирает tools/sync-counters.mjs — здесь не править -->
-<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+<script>window.MEDIAN_NOTRACK=(function(){try{return localStorage.getItem('analytics')==='off'}catch(e){return false}})();</script>
+<script>if(!window.MEDIAN_NOTRACK){
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
 ym(9380047,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true,trackHash:true});
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZZ77H53J19');</script>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZ77H53J19"></script>
-<script async src="https://api.southub.online/t/median.js" data-ym="9380047"></script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZZ77H53J19');
+(function(s){s.async=1;s.src="https://www.googletagmanager.com/gtag/js?id=G-ZZ77H53J19";document.head.appendChild(s)})(document.createElement("script"));
+}</script>
+<template id="counters-head"><script async src="https://api.southub.online/t/median.js" data-ym="9380047"></script></template>
+<script>(function(t){if(!t||window.MEDIAN_NOTRACK)return;[].forEach.call(t.content.childNodes,function(n){if(n.nodeName!=='SCRIPT'){document.head.appendChild(document.importNode(n,true));return}var s=document.createElement('script');[].forEach.call(n.attributes,function(a){s.setAttribute(a.name,a.value)});s.text=n.text;document.head.appendChild(s)})})(document.getElementById('counters-head'));</script>
 <noscript><div><img src="https://mc.yandex.ru/watch/9380047" style="position:absolute;left:-9999px" alt=""></div></noscript>
 <!-- /счётчики -->
 </head>
@@ -86,20 +90,50 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
 <main>
   <h1>Согласие <span class="o">на обработку</span> данных</h1>
   <nav class="toc" aria-label="Документы">
+    <a href="#brief">Заявка</a>
+    <a href="#job">Вакансия</a>
+    <a href="#cookies">Cookie</a>
     <a href="privacy.html">Политика</a>
-    <a href="privacy.html#cookies">Cookie</a>
   </nav>
   <article class="doc">
-    <p class="ed">Редакция от 10 октября 2026 года</p>
-    <p>Отмечая галочку «Я согласен на обработку персональных данных» в форме на сайте median.agency и отправляя форму, я свободно, своей волей и в своём интересе даю согласие ООО «Высокие люди» (Median Agency), ИНН 2320134913, ОГРН 1152366000731, адрес: 354000, Краснодарский край, г. Сочи, ул. Горького, д. 75, офис 608 (далее — Оператор), на обработку моих персональных данных на следующих условиях.</p>
+    <p class="ed">Редакция от 11 ноября 2026 года</p>
+    <p>Я свободно, своей волей и в своём интересе даю согласие ООО «Высокие люди» (Median Agency), ИНН 2320134913, ОГРН 1152366000731, адрес: 354000, Краснодарский край, г. Сочи, ул. Горького, д. 75, офис 608 (далее — Оператор), на обработку моих персональных данных на условиях ниже. Какие условия действуют, зависит от того, что я делаю на сайте median.agency: отправляю заявку на проект (раздел 1), откликаюсь на вакансию (раздел 2) или принимаю cookie (раздел 3).</p>
+
+    <h2 id="brief">1. Заявка на проект</h2>
+    <p>Даю, когда отмечаю галочку «Я согласен на обработку персональных данных» в форме «Start a project» и отправляю форму.</p>
     <h3>Какие данные</h3>
     <p>Имя; название компании; контакт для связи (имя пользователя в Telegram, номер телефона или адрес почты); сведения, которые я укажу в описании задачи.</p>
     <h3>Цель</h3>
     <p>Связаться со мной по заявке, обсудить проект и подготовить коммерческое предложение.</p>
+    <h3>Срок</h3>
+    <p>До достижения цели обработки, но не дольше 3 лет с момента отправки формы.</p>
+
+    <h2 id="job">2. Отклик на вакансию</h2>
+    <p>Даю, когда отмечаю галочку «Я согласен на обработку персональных данных» в форме «Send your CV» и отправляю форму.</p>
+    <h3>Какие данные</h3>
+    <p>Имя и фамилия; Telegram, номер телефона, адрес почты; ссылки на резюме и портфолио и сведения в них (опыт работы, образование, навыки, примеры работ); рассказ о себе; вакансия, на которую я откликаюсь, и адрес страницы, с которой отправлен отклик.</p>
+    <h3>Цель</h3>
+    <p>Рассмотреть мою кандидатуру на вакансию, связаться со мной, провести собеседование и сообщить о решении; если по этой вакансии не сложится — предлагать мне другие подходящие вакансии Оператора (кадровый резерв).</p>
+    <h3>Срок</h3>
+    <p>Пока Оператор рассматривает кандидатуру. Если мы не договорились о работе, данные хранятся в кадровом резерве не дольше 1 года с момента отклика, после чего удаляются. Я могу попросить удалить их раньше — тогда Оператор удалит их в течение 30 дней.</p>
+
+    <h2 id="cookies">3. Cookie и сервисы статистики</h2>
+    <p>Даю, когда нажимаю «Принять» в уведомлении о cookie на сайте или «Принять статистику» в <a href="privacy.html#cookie-choice">политике cookie</a>.</p>
+    <h3>Какие данные</h3>
+    <p>IP-адрес; сведения о браузере и устройстве (тип, версия, размер экрана, язык); адреса просмотренных страниц и источник перехода; дата и время посещения; действия на страницах (прокрутка, клики, переходы, достигнутые цели); идентификаторы, которые хранятся в cookie.</p>
+    <h3>Цель</h3>
+    <p>Вести статистику посещений, понимать, как посетители пользуются сайтом, улучшать сайт и рекламу агентства.</p>
+    <h3>Кому передаются</h3>
+    <p>ООО «Яндекс» (Яндекс Метрика, Россия); сервису South HUB (southub.online); Google LLC (Google Analytics, США). Я понимаю, что передача данных в Google LLC — трансграничная, в том числе в государство, не входящее в перечень стран с адекватной защитой прав субъектов персональных данных.</p>
+    <h3>Срок</h3>
+    <p>1 год с момента, когда я нажал «Принять», или до отзыва.</p>
+    <p>Если я нажимаю «Отказаться», это согласие не даётся: сервисы статистики на сайте отключаются, остаются только необходимые cookie.</p>
+
+    <h2 id="common">Общие условия</h2>
     <h3>Действия с данными</h3>
-    <p>Сбор, запись, систематизация, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передача (предоставление, доступ) лицам, которым Оператор поручил обработку, блокирование, удаление, уничтожение — с использованием средств автоматизации и без них.</p>
-    <h3>Срок и отзыв</h3>
-    <p>Согласие действует до достижения цели обработки, но не дольше 3 лет с момента отправки формы. Я могу отозвать согласие в любой момент, написав на <a href="mailto:hello@median.agency">hello@median.agency</a>. После отзыва Оператор прекратит обработку и удалит данные в течение 30 дней, кроме случаев, когда закон разрешает продолжить обработку без согласия.</p>
+    <p>Сбор, запись, систематизация, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передача (предоставление, доступ) лицам, которым Оператор поручил обработку, обезличивание, блокирование, удаление, уничтожение — с использованием средств автоматизации и без них.</p>
+    <h3>Отзыв</h3>
+    <p>Я могу отозвать любое из этих согласий в любой момент: написать на <a href="mailto:hello@median.agency">hello@median.agency</a> (по отклику на вакансию — также на <a href="mailto:hr@median.agency">hr@median.agency</a>), а согласие на cookie — ещё и кнопкой «Отказаться от статистики» в <a href="privacy.html#cookie-choice">политике cookie</a>. После отзыва Оператор прекратит обработку и удалит данные в течение 30 дней, кроме случаев, когда закон разрешает продолжить обработку без согласия.</p>
     <p>Порядок обработки и защиты данных описан в <a href="privacy.html">Политике конфиденциальности</a>.</p>
   </article>
 </main>

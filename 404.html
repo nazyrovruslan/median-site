@@ -55,11 +55,15 @@ footer a:hover{color:var(--paper)}
 @media (prefers-reduced-motion:reduce){.big span{animation:none}}
 </style>
 <!-- счётчики и пиксели: content/settings/counters.json (админка → Настройки → «Счётчики и пиксели сайта»), собирает tools/sync-counters.mjs — здесь не править -->
-<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+<script>window.MEDIAN_NOTRACK=(function(){try{return localStorage.getItem('analytics')==='off'}catch(e){return false}})();</script>
+<script>if(!window.MEDIAN_NOTRACK){
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
 ym(9380047,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true,trackHash:true});
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZZ77H53J19');</script>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZ77H53J19"></script>
-<script async src="https://api.southub.online/t/median.js" data-ym="9380047"></script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZZ77H53J19');
+(function(s){s.async=1;s.src="https://www.googletagmanager.com/gtag/js?id=G-ZZ77H53J19";document.head.appendChild(s)})(document.createElement("script"));
+}</script>
+<template id="counters-head"><script async src="https://api.southub.online/t/median.js" data-ym="9380047"></script></template>
+<script>(function(t){if(!t||window.MEDIAN_NOTRACK)return;[].forEach.call(t.content.childNodes,function(n){if(n.nodeName!=='SCRIPT'){document.head.appendChild(document.importNode(n,true));return}var s=document.createElement('script');[].forEach.call(n.attributes,function(a){s.setAttribute(a.name,a.value)});s.text=n.text;document.head.appendChild(s)})})(document.getElementById('counters-head'));</script>
 <noscript><div><img src="https://mc.yandex.ru/watch/9380047" style="position:absolute;left:-9999px" alt=""></div></noscript>
 <!-- /счётчики -->
 </head>

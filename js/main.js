@@ -712,10 +712,22 @@ $('#brief').addEventListener('submit',e=>{
    location.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+(v?v.name:'без вакансии'))+'&body='+encodeURIComponent(body);
    cvOk.textContent=`Открыли письмо на ${HR} с вашими данными — осталось нажать «Отправить» в почте.`;});}
 
-/* ---------- уведомление о cookie: показываем, пока не нажали «Понятно» (помним год) ---------- */
+// Вебвизор Метрики не записывает ввод в формы (обещано в политике, privacy.html#process)
+$$('input,textarea').forEach(el=>el.classList.add('ym-disable-keys'));
+/* ---------- плашка cookie: «Принять» / «Отказаться», выбор помним год (политика — privacy.html#cookies) ----------
+   Счётчики работают сразу; «Отказаться» ставит analytics=off — блок счётчиков в <head> (tools/sync-counters.mjs) их больше не грузит,
+   на текущей странице выключаем GA и Метрику и стираем их cookie. Ссылка #cookie-settings (в политике) открывает плашку снова. */
 {const c=$('#cookie'),K='cookie-ok';let ok=0;try{ok=+localStorage.getItem(K)>Date.now()-365*864e5;}catch(e){}
- if(!ok){c.hidden=false;requestAnimationFrame(()=>c.classList.add('on'));}
- $('#cookieOk').onclick=()=>{try{localStorage.setItem(K,Date.now())}catch(e){}c.classList.remove('on');setTimeout(()=>c.hidden=true,400);};}
+ const show=()=>{c.hidden=false;requestAnimationFrame(()=>c.classList.add('on'));},hide=()=>{c.classList.remove('on');setTimeout(()=>c.hidden=true,400);};
+ const pick=on=>{try{localStorage.setItem(K,Date.now());on?localStorage.removeItem('analytics'):localStorage.setItem('analytics','off');}catch(e){}
+   if(!on){window.MEDIAN_NOTRACK=true;const ga=(document.head.innerHTML.match(/gtag\('config','(G-[A-Z0-9]+)'\)/)||[])[1];if(ga)window['ga-disable-'+ga]=true;
+     try{window.ym&&ym(YM,'destruct');}catch(e){}
+     document.cookie.split(';').map(x=>x.split('=')[0].trim()).filter(n=>/^(_ym|_ga|_gid|_gcl|_tmr|yandexuid|yabs)/.test(n)).forEach(n=>{const h=location.hostname.replace(/^www\./,'');for(const d of ['','; domain='+h,'; domain=.'+h])document.cookie=n+'=; Max-Age=0; path=/'+d;});}
+   else if(window.MEDIAN_NOTRACK)location.reload(); // был отказ, теперь согласие — перезагрузка подтянет счётчики
+   hide();};
+ if(!ok)show();
+ $('#cookieOk').onclick=()=>pick(true);$('#cookieNo').onclick=()=>pick(false);
+ addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href$="#cookie-settings"]');if(a){e.preventDefault();show();}});}
 
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
