@@ -4,6 +4,9 @@ backend:
   name: github
   repo: nazyrovruslan/median-site
   branch: main
+  # вход «через GitHub» — OAuth на MCP-воркере (mcp/worker.js, /auth и /callback)
+  base_url: https://median-mcp.nazyrov-ruslan.workers.dev
+  auth_endpoint: auth
   commit_messages:
     create: "CMS: создан {{collection}} {{slug}}"
     update: "CMS: правка — {{collection}} {{slug}}"

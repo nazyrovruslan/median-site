@@ -9,6 +9,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # вход в /admin через GitHub (необязательно): GitHub → Settings → Developer settings → OAuth Apps, см. mcp/README.md
+      OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
+      OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_CLIENT_SECRET }}
     steps:
       - name: Check secrets
         id: check
@@ -30,3 +34,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.MCP_GITHUB_TOKEN }}
           MCP_SECRET: ${{ secrets.MCP_SECRET }}
+      - name: Ключи входа через GitHub
+        if: steps.check.outputs.skip != '1' && env.OAUTH_CLIENT_ID != '' && env.OAUTH_CLIENT_SECRET != ''
+        working-directory: mcp
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          printf '%s' "$OAUTH_CLIENT_ID" | npx -y wrangler@3 secret put OAUTH_CLIENT_ID
+          printf '%s' "$OAUTH_CLIENT_SECRET" | npx -y wrangler@3 secret put OAUTH_CLIENT_SECRET

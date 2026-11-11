@@ -30,7 +30,7 @@
       check(); setInterval(check, 1000); addEventListener('storage', check);
     })();
   </script>
-  <!-- «Войти через GitHub» в Sveltia ведёт на OAuth-сервер, которого у нас нет (Not Found) — прячем кнопку, остаётся вход по токену -->
+  <!-- «Войти через GitHub» работает через OAuth на MCP-воркере (mcp/worker.js). Пока там не заданы ключи OAuth-приложения (/auth/ready ≠ 200) — кнопку прячем, остаётся вход по токену -->
   <style>.mhide-gh{display:none!important}</style>
   <script>
     (function () {
@@ -41,8 +41,12 @@
           if (/github/i.test(t) && !/токен|token/i.test(t)) bs[i].classList.add('mhide-gh');
         }
       }
-      new MutationObserver(hide).observe(document.documentElement, { childList: true, subtree: true });
-      hide();
+      var mo = new MutationObserver(hide); mo.observe(document.documentElement, { childList: true, subtree: true }); hide();
+      fetch('https://median-mcp.nazyrov-ruslan.workers.dev/auth/ready').then(function (r) {
+        if (!r.ok) return;
+        mo.disconnect();
+        var bs = document.querySelectorAll('.mhide-gh'); for (var i = 0; i < bs.length; i++) bs[i].classList.remove('mhide-gh');
+      }).catch(function () {});
     })();
   </script>
 </body>

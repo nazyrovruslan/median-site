@@ -71,3 +71,6 @@
 curl -s https://median-mcp.<поддомен>.workers.dev/mcp/<MCP_SECRET> -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_items","arguments":{"collection":"cases"}}}'
 ```
+
+## Вход в /admin через GitHub (OAuth)
+Воркер отдаёт `/auth` и `/callback` для Sveltia (`backend.base_url` в admin/config.yml). Нужно OAuth-приложение: github.com/settings/developers → OAuth Apps → New. Homepage URL `https://median.agency`, Authorization callback URL `https://median-mcp.nazyrov-ruslan.workers.dev/callback`. Client ID и сгенерированный Client secret — в секреты репозитория `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, затем перезапустить workflow «Deploy MCP server». Пока ключей нет, `/auth/ready` отвечает 404 и кнопка «Войти через GitHub» в админке скрыта.

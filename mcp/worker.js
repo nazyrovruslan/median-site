@@ -231,6 +231,7 @@ export default {
     const url = new URL(req.url);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors() });
     if (url.pathname === '/' || url.pathname === '/health') return text('median MCP: ok');
+    if (url.pathname.startsWith('/auth') || url.pathname === '/callback') return oauth(url, req, env);
     const who = await authorized(url, req, env);
     if (who === null) return text('not found', 404);
     if (req.method === 'GET') return text('MCP: POST JSON-RPC here', 405, { Allow: 'POST' });
@@ -248,6 +249,43 @@ export default {
     return res ? json(res) : new Response(null, { status: 202, headers: cors() });
   },
 };
+
+// ---------- вход в /admin через GitHub (OAuth для Sveltia CMS) ----------
+// admin/config.yml: backend.base_url = этот воркер, auth_endpoint = auth. Нужны секреты воркера OAUTH_CLIENT_ID и OAUTH_CLIENT_SECRET
+// (GitHub OAuth App, callback https://median-mcp.nazyrov-ruslan.workers.dev/callback; ставит mcp.yml из одноимённых секретов репозитория).
+// Пока их нет — /auth/ready отвечает 404, и admin/index.html прячет кнопку «Войти через GitHub».
+const ADMIN_ORIGINS = ['https://median.agency', 'https://www.median.agency', 'https://nazyrovruslan.github.io'];
+async function oauth(url, req, env) {
+  const ready = !!(env.OAUTH_CLIENT_ID && env.OAUTH_CLIENT_SECRET);
+  if (url.pathname === '/auth/ready') return text(ready ? 'ok' : 'no', ready ? 200 : 404);
+  if (!ready) return text('Вход через GitHub ещё не настроен', 404);
+  if (url.pathname === '/auth' || url.pathname === '/auth/') {
+    const state = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
+    const q = new URLSearchParams({ client_id: env.OAUTH_CLIENT_ID, redirect_uri: url.origin + '/callback', scope: url.searchParams.get('scope') || 'repo', state });
+    return new Response(null, { status: 302, headers: { Location: 'https://github.com/login/oauth/authorize?' + q, 'Set-Cookie': `mstate=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600` } });
+  }
+  if (url.pathname === '/callback') {
+    const cookie = (req.headers.get('cookie') || '').match(/(?:^|;\s*)mstate=([0-9a-f]+)/);
+    let msg;
+    if (!cookie || cookie[1] !== url.searchParams.get('state')) msg = 'error:' + JSON.stringify({ message: 'Вход устарел, попробуйте ещё раз' });
+    else {
+      const r = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'median-mcp' },
+        body: JSON.stringify({ client_id: env.OAUTH_CLIENT_ID, client_secret: env.OAUTH_CLIENT_SECRET, code: url.searchParams.get('code') || '' }),
+      });
+      const d = await r.json().catch(() => ({}));
+      msg = d.access_token ? 'success:' + JSON.stringify({ token: d.access_token, provider: 'github' }) : 'error:' + JSON.stringify({ message: d.error_description || d.error || 'GitHub не выдал токен' });
+    }
+    // протокол Decap/Sveltia: окно сообщает «authorizing», админка отвечает, окно присылает токен на её адрес (только нашим доменам)
+    const page = `<!doctype html><meta charset="utf-8"><title>Вход</title><p style="font:16px system-ui;padding:24px">Входим в админку…</p><script>
+(function(){var M=${JSON.stringify('authorization:github:' + msg)},O=${JSON.stringify(ADMIN_ORIGINS)};
+window.addEventListener('message',function(e){if(O.indexOf(e.origin)<0)return;window.opener.postMessage(M,e.origin);setTimeout(function(){window.close()},300)});
+if(window.opener)window.opener.postMessage('authorizing:github','*');else document.body.textContent='Откройте вход из админки.';})();
+<\/script>`;
+    return new Response(page, { headers: { 'content-type': 'text/html; charset=utf-8', 'Set-Cookie': 'mstate=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Lax' } });
+  }
+  return text('not found', 404);
+}
 
 // Кто пришёл: '' — владелец (MCP_SECRET), имя — коллега из mcp/users.json (личные ссылки, выдаются в /admin/mcp.html), null — чужой.
 async function authorized(url, req, env) {
