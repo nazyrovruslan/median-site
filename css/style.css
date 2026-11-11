@@ -390,6 +390,10 @@ html.loading #cur,html.loading #ring{opacity:0}
 .cb-facts dt{color:var(--muted)}
 .cb-facts dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .cb-facts dd a{border-bottom:1px solid rgba(243,243,241,.4)}
+/* «Оглавление» в фактах серии (11.11, Руслан): проекты серии ссылками на якоря внутри страницы (клик — плавная прокрутка, адрес не меняется) */
+.cf-toc{list-style:none;margin:0;padding:0;display:grid;row-gap:.2em}
+.cf-toc a{border-bottom:1px solid rgba(243,243,241,.4);transition:border-color .3s}
+.cf-toc a:hover{border-color:currentColor}
 .cf-lead{grid-column:3/6;margin-top:clamp(40px,7.9vw,152px)!important;max-width:24em}
 /* серые секции: текст на 4–5 колонках, крупный кегль */
 .cb.grey{padding-inline:var(--gutter)}

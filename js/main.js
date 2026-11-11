@@ -574,7 +574,7 @@ function fillCase(id,split){
   (k.facts||[]).forEach(f=>f.l&&f.v&&facts.splice(f.at??facts.length,0,[f.l,f.v]));
   let tc=0;
   // анкета и видео — тоже блоки (facts, reel): где стоят в списке, там и выводятся; если их в списке нет — как раньше, в начале страницы
-  const bl=k.blocks||[],fHtml=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`;
+  const bl=k.blocks||[],tocB=bl.find(b=>b.t==='toc'&&(b.rows||[]).length),fHtml=`<section class="cb cb-facts wrap">${cfLogo(k)}<dl>${facts.map(([a,b])=>`<dt>${a}</dt><dd>${a==='Сайт'?b:esc(b)}</dd>`).join('')}${tocB?`<dt>Оглавление</dt><dd><ol class="cf-toc">${tocB.rows.map(r=>`<li><a href="#${r.go}" data-go="${r.go}" data-c="link" data-stick data-stick-size="text" data-magnet>${esc(r.name)}</a></li>`).join('')}</ol></dd>`:''}</dl>${k.lead||k.sub?`<p class="cf-lead">${esc(k.lead||k.sub)}</p>`:''}</section>`;
   $('#cBody').innerHTML=(bl.some(b=>b.t==='facts')?'':fHtml)+(k.reel&&!bl.some(b=>b.t==='reel')?BLOCK.reel(k):'')+
     bl.map(b=>(b.a?`<i class="toc-at" id="${b.a}"></i>`:'')+(b.t==='facts'?fHtml:b.t==='reel'?((b.reel||k.reel)?BLOCK.reel({...k,reel:b.reel||k.reel,rlabel:b.label}):''):BLOCK[b.t]?BLOCK[b.t](b,b.t==='text'?tc++:0):'')).join('')+
     (k.blocks?'':`<section class="grey cb cb-text"><h3 class="d"><span class="o">Скоро</span></h3><div class="cb-txt"><p>Материалы по этому проекту готовим к публикации.</p></div></section>`);
