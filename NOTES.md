@@ -185,3 +185,4 @@ Kaspersky — полностью по макету, фото вытащены и
 - `contact_mail`, `contact_phone`, `contact_telegram`, `contact_whatsapp`, `social_click`, `hh_click` — клики по ссылкам.
 - `footer_seen` — долистал до футера (раз за визит).
 
+- Цели в Метрике заводит `tools/metrika-goals.mjs` по списку `content/metrika-goals.json` (workflow «Metrika goals», запускается при правке списка или вручную). Нужен секрет репозитория `METRIKA_TOKEN`: OAuth-токен Яндекса с правом «Яндекс.Метрика: запись» (приложение на oauth.yandex.ru → https://oauth.yandex.ru/authorize?response_type=token&client_id=<ClientID>). Новая цель в коде = новая строка в JSON.

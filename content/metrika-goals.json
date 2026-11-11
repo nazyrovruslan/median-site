@@ -1,0 +1,20 @@
+{
+  "counter": 9380047,
+  "goals": [
+    { "id": "brief_send", "name": "Сайт: отправили бриф (Start a project)" },
+    { "id": "cv_send", "name": "Сайт: отправили отклик на вакансию" },
+    { "id": "contact_mail", "name": "Сайт: клик по почте" },
+    { "id": "contact_phone", "name": "Сайт: клик по телефону" },
+    { "id": "contact_telegram", "name": "Сайт: клик по Telegram" },
+    { "id": "contact_whatsapp", "name": "Сайт: клик по WhatsApp" },
+    { "id": "brief_open", "name": "Сайт: открыли форму брифа" },
+    { "id": "cv_open", "name": "Сайт: открыли форму отклика" },
+    { "id": "case_open", "name": "Сайт: открыли кейс" },
+    { "id": "reel_open", "name": "Сайт: открыли шоурил" },
+    { "id": "about_open", "name": "Сайт: открыли «О нас»" },
+    { "id": "vacancy_open", "name": "Сайт: открыли вакансию" },
+    { "id": "social_click", "name": "Сайт: клик по соцсетям" },
+    { "id": "hh_click", "name": "Сайт: клик по hh.ru" },
+    { "id": "footer_seen", "name": "Сайт: долистал до футера" }
+  ]
+}
