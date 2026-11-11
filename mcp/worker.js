@@ -10,7 +10,7 @@
 
 const REPO = 'nazyrovruslan/median-site';
 const BRANCH = 'main';
-const SITE = 'https://nazyrovruslan.github.io/median-site/';
+const SITE = 'https://median.agency/';
 const PROTOCOL = '2025-06-18';
 
 // коллекции, как в admin/config.yml

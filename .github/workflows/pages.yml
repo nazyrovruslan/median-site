@@ -13,6 +13,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # есть ли сервер median.agency (шаг «Выложить на сервер» ниже): в if секреты напрямую не видны
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -60,6 +63,25 @@ jobs:
             git commit -m "Сборка: js/cases.js, КП, превью и сжатые медиа из content/ [skip ci]"
             git pull --rebase --autostash -q origin main && git push -q origin HEAD:main || echo "не удалось сохранить в репозиторий — на сайт всё равно уйдёт"
           fi
+      # свой сервер median.agency: та же собранная папка по SSH (rsync). Секреты в GitHub → Settings → Secrets → Actions:
+      # DEPLOY_HOST (158.160.186.96), DEPLOY_USER, DEPLOY_PATH (/var/www/median.agency), DEPLOY_SSH_KEY (приватный ключ, публичный — в ~/.ssh/authorized_keys на сервере).
+      # Пока секретов нет — шаг пропускается. Исходники (content, tools, mcp, *.md) на сервер не уходят.
+      - name: Выложить на сервер median.agency
+        if: ${{ env.DEPLOY_HOST != '' }}
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -rlptz --delete-after --chmod=D755,F644 \
+            --exclude='.git*' --exclude='.github' --exclude='content/' --exclude='tools/' --exclude='mcp/' --exclude='deploy/' \
+            --exclude='node_modules' --exclude='*.md' --exclude='.well-known/' \
+            -e "ssh -i ~/.ssh/deploy -o StrictHostKeyChecking=accept-new" ./ "$DEPLOY_USER@$DEPLOY_HOST:${DEPLOY_PATH%/}/"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
