@@ -2,3 +2,8 @@
 /about-2/ 301 http://127.0.0.1:18080/about
 /magnit 301 http://127.0.0.1:18080/
 /alfadvizh 301 http://127.0.0.1:18080/alfa-dvizh
+/contacts 301 http://127.0.0.1:18080/#contact
+/about/ 301 http://127.0.0.1:18080/about
+/event-communications 301 http://127.0.0.1:18080/
+/nope.js 404
+/?page=case&case=x 301 http://127.0.0.1:18080/
