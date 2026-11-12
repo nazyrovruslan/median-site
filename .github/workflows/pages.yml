@@ -79,8 +79,13 @@ jobs:
       # После каждой сборки вливаем main в deploy и запускаем на сервере deploy.sh (git reset на deploy → docker compose build:
       # docker/build.sh собирает сайт, как этот workflow). Пушем от GITHUB_TOKEN workflow deploy.yml не запускается — поэтому ssh здесь.
       # Секреты: SSH_HOST, SSH_USER, SSH_KEY (приватный ключ), SSH_PATH (папка с deploy.sh на сервере). Пока их нет — шаг пропускается.
-      - name: Сервер median.agency — ветка deploy и deploy.sh
+      # Caddyfile проверяется в настоящем Caddy до выкладки: с битым конфигом сервер отдаёт 502 на весь сайт
+      - name: Проверка Caddyfile
+        id: caddy
         if: ${{ env.SSH_HOST != '' }}
+        run: bash tools/caddy-check.sh .
+      - name: Сервер median.agency — ветка deploy и deploy.sh
+        if: ${{ env.SSH_HOST != '' && steps.caddy.outcome == 'success' }}
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
