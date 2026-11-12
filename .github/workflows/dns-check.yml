@@ -1,0 +1,20 @@
+name: DNS check
+# Ручная проверка, куда смотрят домены из интернета (Actions → DNS check → Run workflow)
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/dns-check.yml']
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for d in medianagency.ru www.medianagency.ru lp.median.agency median.agency www.median.agency; do
+            echo "== $d"; echo "A (8.8.8.8):"; dig +short @8.8.8.8 $d A; echo "A (77.88.8.8 Яндекс):"; dig +short @77.88.8.8 $d A
+          done
+          echo "== NS medianagency.ru"; dig +short @8.8.8.8 medianagency.ru NS
+          echo "== NS median.agency"; dig +short @8.8.8.8 median.agency NS
+          for u in http://medianagency.ru/ https://medianagency.ru/ https://www.medianagency.ru/contacts https://lp.median.agency/magnit https://www.median.agency/; do
+            echo "== $u"; curl -sS -o /dev/null -m 20 -w "%{http_code} -> %{redirect_url}\n" "$u" || true
+          done
+          echo "== cert medianagency.ru"; echo | timeout 15 openssl s_client -connect medianagency.ru:443 -servername medianagency.ru 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName || true
