@@ -731,7 +731,7 @@ $$('input,textarea').forEach(el=>el.classList.add('ym-disable-keys'));
    else if(window.MEDIAN_NOTRACK)location.reload(); // был отказ, теперь согласие — перезагрузка подтянет счётчики
    hide();};
  if(!ok)show();
- $('#cookieOk').onclick=()=>pick(true);$('#cookieNo').onclick=()=>pick(false);
+ $('#cookieOk').onclick=()=>pick(true);const no=$('#cookieNo');if(no)no.onclick=()=>pick(false); // кнопки «Отказаться» в плашке нет (Руслан 12.11: отказ — уйти с сайта); отказ — в политике, #cookie-choice
  addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href$="#cookie-settings"]');if(a){e.preventDefault();show();}});}
 
 /* ---------- hero hold-to-open ---------- */
