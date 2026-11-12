@@ -1,0 +1,25 @@
+name: Caddy try
+# Проба вариантов Caddyfile из tools/caddy-try/*.caddy в настоящем Caddy, без выкладки
+on:
+  workflow_dispatch:
+  push:
+    paths: ['tools/caddy-try/**', '.github/workflows/caddy-try.yml']
+jobs:
+  try:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p srv/admin srv/clients/x && for f in index about southhub 404; do echo "<h1>$f</h1>" > srv/$f.html; done
+          echo '<urlset/>' > srv/sitemap.xml; echo a > srv/admin/index.html; echo k > srv/clients/x/index.html
+          for c in tools/caddy-try/*.caddy; do
+            echo "################ $c"
+            docker run --rm -v "$PWD/$c:/etc/caddy/Caddyfile:ro" caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile 2>&1 | grep -viE '^\{"level":"info"' | tail -5 || true
+            docker rm -f t >/dev/null 2>&1 || true
+            docker run -d --name t -p 18080:80 -v "$PWD/$c:/etc/caddy/Caddyfile:ro" -v "$PWD/srv:/srv:ro" caddy:2-alpine >/dev/null; sleep 2
+            for p in / /about /about/ /southhub/ /contacts /contact/ /event-communications/ /nope.js /admin/ /clients/x/ /tag/psd/ /magnit; do
+              printf '%-24s %s\n' "$p" "$(curl -s -o /dev/null -m 5 -w '%{http_code} %{redirect_url}' http://127.0.0.1:18080$p)"
+            done
+            docker logs t 2>&1 | grep -iE 'error|panic' | tail -3
+            docker rm -f t >/dev/null
+          done
