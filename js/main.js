@@ -255,7 +255,7 @@ syncClones();addEventListener('resize',syncClones);document.fonts&&document.font
 if(!reduce){
   const px=$$('.dir').map(d=>({d,els:['.vis','.vlink','.card'].map(q=>d.querySelector(q)),v:d.querySelector('.vis')}));let pxQ=0;
   const pxRun=()=>{pxQ=0;if(!fine)return; /* тач (09.11): на iOS при быстрой прокрутке события скролла запаздывают за инерцией, и сдвиг на 200 px дёргал фото и карточки — на телефоне блоки стоят на месте */const vh=innerHeight,amp=Math.min(260,vh*.24);px.forEach(({d,els,v})=>{const b=d.getBoundingClientRect();if(b.bottom<-100||b.top>vh+100)return;
-    const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2))),sh=(p*amp).toFixed(1);
+    const p=Math.max(d.classList.contains('pod')?0:-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2))),sh=(p*amp).toFixed(1); /* подкаст стоит под шторкой футера и выше центра экрана не уезжает: обложка доезжает снизу до места, как у кейсов в середине экрана, и дальше под заголовок не поднимается (12.11, Руслан) */
     els.forEach(e=>e.style.translate=`0 ${sh}px`);const c=v.querySelector('.ttl-clone');if(c)c.style.translate=`0 ${-sh}px`;});};
   // вместо «наезда»: обложка едет внутри рамки (у .art запас 4% с каждой стороны), фон первого экрана уезжает медленнее страницы
   const arts=$$('.vis .art'),hero=$('.hero');const pxRun2=()=>{const vh=innerHeight;arts.forEach(a=>{const b=a.parentElement.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;
