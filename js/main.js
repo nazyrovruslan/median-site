@@ -249,7 +249,7 @@ if(!fine){
 /* ---------- проекты (бывшие направления): у кейса с видео-обложкой — та же обложка, что в баннере ---------- */
 // 11.11 (задание Арины): видео в блоках витрины прописано прямо в index.html (<video class="cv"> внутри .art, постер — фон .art); при «меньше движения» видео убираем, остаётся постер
 if(reduce)$$('.dir video.cv').forEach(v=>v.remove());
-function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
+function syncClones(){$$('.dir').forEach(s=>{const t=s.querySelector('.ttl'),v=s.querySelector('.vis');let c=v.querySelector('.ttl-clone');if(!c){c=t.cloneNode(true);c.className='ttl-clone';c.setAttribute('aria-hidden','true');v.appendChild(c);}const tr=v.style.translate;v.style.translate='';v.style.animationName='none';const a=t.getBoundingClientRect(),b=v.getBoundingClientRect();v.style.translate=tr;v.style.animationName='';c.style.left=(a.left-b.left)+'px';c.style.top=(a.top-b.top)+'px';c.style.width=a.width+'px';});}
 syncClones();addEventListener('resize',syncClones);document.fonts&&document.fonts.ready.then(syncClones);
 /* параллакс направлений: заголовок стоит, фото, вертикальная подпись и карточка мероприятий едут вместе и заезжают под заголовок; на десктопе обложка ещё и магнитится к курсору */
 if(!reduce){
@@ -261,6 +261,9 @@ if(!reduce){
   const arts=$$('.vis .art'),hero=$('.hero');const pxRun2=()=>{const vh=innerHeight;arts.forEach(a=>{const b=a.parentElement.getBoundingClientRect();if(b.bottom<-50||b.top>vh+50)return;
     const p=Math.max(-1,Math.min(1,((b.top+b.height/2)-vh/2)/(vh/2+b.height/2)));a.style.translate=`0 ${(p*-3.5).toFixed(2)}%`;});
     const y=scrollY;if(hero&&y<hero.offsetHeight)$$('.slide-bg').forEach(s=>s.style.translate=`0 ${(y*.35).toFixed(1)}px`);};
+  // тач: сдвиг блоков витрины — CSS-таймлайн прокрутки (style.css, .pxcss), здесь только отмечаем, где каждый блок входит в экран и уходит
+  if(!fine&&window.CSS&&CSS.supports('animation-timeline','scroll()')){document.documentElement.classList.add('pxcss');const pxR=()=>{const vh=innerHeight,y=scrollY;px.forEach(({d})=>{const t=d.getBoundingClientRect().top+y;d.style.setProperty('--r0',Math.round(t-vh)+'px');d.style.setProperty('--r1',Math.round(t+d.offsetHeight)+'px');});};
+    pxR();addEventListener('resize',pxR);addEventListener('load',pxR);document.fonts&&document.fonts.ready.then(pxR);'ResizeObserver' in window&&new ResizeObserver(pxR).observe(document.body);}
   const pxAll=()=>{pxRun();pxRun2();};
   addEventListener('scroll',()=>{if(!pxQ)pxQ=requestAnimationFrame(pxAll)},{passive:true});addEventListener('resize',pxAll);pxAll();
 }
