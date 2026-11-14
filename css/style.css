@@ -236,6 +236,15 @@ body.has-cursor .nxt-label .ntxt{display:none} /* десктоп: «Следую
 .vis .cap{position:absolute;left:14px;bottom:12px;color:#fff;mix-blend-mode:difference}
 .dir .card{grid-column:1/3;grid-row:3/4;align-self:end;background:#fff;padding:16px 18px;margin-right:18px;font-size:var(--txt);line-height:1.6;max-width:300px;position:relative;z-index:3}
 .dir .card .label{display:block;margin-bottom:6px;color:#666}
+/* параллакс витрины на телефоне (14.11, Руслан): JS-сдвиг на таче дёргался (iOS запаздывает со scroll при инерции), поэтому там едем на CSS-таймлайне прокрутки страницы — считает сам браузер, без рывков. Тот же ход, что на десктопе (pxRun в main.js): фото, подпись и карточка от +amp до −amp, пока блок проходит экран (--r0/--r1 — где он входит и уходит, ставит main.js); подкаст выше центра не уезжает. Класс .pxcss ставит main.js на таче, если браузер умеет таймлайны; иначе блоки стоят */
+.pxcss .dir{--amp:min(260px,24vh)}
+.pxcss .dir .vis,.pxcss .dir .card{animation:dirpx linear both;animation-timeline:scroll(root);animation-range:var(--r0,0px) var(--r1,1px)}
+.pxcss .dir .vis .ttl-clone{animation:dirpx-r linear both;animation-timeline:scroll(root);animation-range:var(--r0,0px) var(--r1,1px)}
+.pxcss .dir.pod .vis,.pxcss .dir.pod .card{animation-name:dirpx-pod}.pxcss .dir.pod .vis .ttl-clone{animation-name:dirpx-pod-r}
+@keyframes dirpx{from{translate:0 var(--amp)}to{translate:0 calc(-1*var(--amp))}}
+@keyframes dirpx-r{from{translate:0 calc(-1*var(--amp))}to{translate:0 var(--amp)}}
+@keyframes dirpx-pod{from{translate:0 var(--amp)}50%,to{translate:0 0}}
+@keyframes dirpx-pod-r{from{translate:0 calc(-1*var(--amp))}50%,to{translate:0 0}}
 .dir .vlink{grid-column:2/3;grid-row:3/4;justify-self:end;align-self:start;margin-top:24px;margin-right:14px;writing-mode:vertical-rl;rotate:180deg;font:700 var(--h5) var(--display);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:12px}
 .dir .vlink::after{content:"↑";font-size:16px}
 
