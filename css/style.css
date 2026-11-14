@@ -754,6 +754,7 @@ html.kbd .chips input:focus-visible+label{outline:2px solid var(--paper);outline
   .dir .vis{grid-column:1/-1;grid-row:3;margin-top:8px}
   .dir .card{grid-column:1/-1;grid-row:4;max-width:none;margin-right:0}
   .dir .vlink{display:none}
+  .dir .vis .cap{display:none} /* подпись поверх фото дублировала заголовок карточки и рвалась на пёстрых обложках (14.11, Руслан) */
   .own-grid{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:28px} /* 3 колонки = направляющие фона на телефоне */
   .own .card{grid-column:1/-1;max-width:none;margin-right:0}
   .proj{padding:0}
