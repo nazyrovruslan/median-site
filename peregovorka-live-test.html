@@ -11,7 +11,7 @@
 <link rel="icon" href="media/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/druk-wide-cyr-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/gt-walsheim-pro-400.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="css/peregovorka.css?v=2">
+<link rel="stylesheet" href="css/peregovorka.css?v=3">
 </head>
 <body>
 
@@ -34,15 +34,18 @@
     <p class="lead">Закрытый бизнес-завтрак для избранных Head&nbsp;of&nbsp;DevRel — первый живой разговор с&nbsp;героями нашего подкаста</p>
     <a class="btn btn-white btn-air" href="#register"><span class="off">Принять приглашение  →</span><span class="on" aria-hidden="true"><i class="dot"></i>ON AIR</span></a>
     <div class="lightbox">
-      <!-- заменить на <img src="media/peregovorka/lightbox.webp" alt="Переговорка">, когда будет PNG из макета -->
-      <div class="lb-ph" role="img" aria-label="Переговорка"><span>ПЕРЕГОВОРКА</span></div>
+      <img class="wire" src="media/peregovorka/wire-lightbox.webp" alt="" aria-hidden="true" style="left:calc(618 * var(--u));top:calc(-43 * var(--u));width:calc(553 * var(--u))">
+      <!-- поворот по прокрутке: кадры media/peregovorka/lightbox/00–24 (слева → анфас 16 → справа), макет «Лайтбокс кадры» -->
+      <img class="lb-still" src="media/peregovorka/lightbox/16.webp" alt="Переговорка" width="1320" height="600">
+      <canvas class="lb-cv" id="lbCv" width="1320" height="600" aria-hidden="true"></canvas>
     </div>
   </section>
 
   <section class="table">
     <h2 class="d h2"><span class="o">За этим столом</span><br>важен ваш взгляд</h2>
     <div class="prompter">
-      <div class="pr-ph" aria-hidden="true"></div>
+      <img class="wire" src="media/peregovorka/wire-prompter.webp" alt="" aria-hidden="true" style="left:calc(-194 * var(--u));top:calc(205 * var(--u));width:calc(290 * var(--u))">
+      <img class="pr-body" src="media/peregovorka/prompter.webp" alt="" aria-hidden="true" width="1052" height="525">
       <div class="pr-screen">
         <div class="pr-roll" id="roll">
           <p>Мы собираем руководителей <b>DevRel и&nbsp;C-level</b> <b>для разговора</b> о&nbsp;том, как принимаются решения: <b>какие задачи</b> получают поддержку, <b>что становится аргументом</b> для&nbsp;бюджета и&nbsp;<b>по&nbsp;каким критериям</b> оценивают результат.</p>
@@ -55,6 +58,7 @@
 
 <div class="dark">
   <section class="logic wrap">
+    <img class="wire" src="media/peregovorka/wire-cards.webp" alt="" aria-hidden="true" style="left:calc(740 * var(--u));top:calc(354 * var(--u));width:calc(542 * var(--u))">
     <h2 class="d h2">Услышать логику бизнеса<br><span class="o w">и проверить свою</span></h2>
     <div class="cards">
       <div style="width:calc(348 * var(--u))"><h3>Место в совете директоров</h3><p>На стратсессии вы рассмотрите предложенную стратегию, решите, утвердить её или отклонить, и&nbsp;защитите свою позицию. Посмотрите на&nbsp;аргументы DevRel глазами тех, кому предстоит сказать «да».</p></div>
@@ -64,13 +68,14 @@
   </section>
 
   <div class="glass" tabindex="0" aria-label="Переговорка: наведите, чтобы заглянуть за стекло">
-    <!-- фото «Переговорка» и «Фрактальное стекло» из макета: заменить media/home/podcast.webp и CSS-стекло, когда будут PNG -->
-    <img class="ph" src="media/home/podcast.webp" alt="Студия подкаста «Переговорка»" loading="lazy">
-    <div class="fr" aria-hidden="true"></div>
+    <img class="ph" src="media/peregovorka/glass-room.webp" alt="Переговорка: совет директоров за столом" loading="lazy" width="1124" height="625">
+    <div class="fr img" aria-hidden="true"><img src="media/peregovorka/glass-fractal.webp" alt="" loading="lazy" width="1124" height="625"></div>
     <a class="btn btn-white" href="#register">Принять приглашение  →</a>
   </div>
 
   <section class="prog wrap" id="program">
+    <img class="wire" src="media/peregovorka/wire-glass.webp" alt="" aria-hidden="true" style="left:calc(626 * var(--u));top:calc(607 * var(--u));width:calc(656 * var(--u))">
+    <img class="wire" src="media/peregovorka/wire-program.webp" alt="" aria-hidden="true" style="left:calc(-158 * var(--u));top:calc(728 * var(--u));width:calc(302 * var(--u))">
     <h2 class="d h2">Программа<br><span class="o w">мероприятия</span></h2>
     <ol>
       <li><span class="t">11:30</span><span class="n">Завтрак</span><span class="x">Знакомимся до начала программы.</span></li>
@@ -159,6 +164,6 @@
 
 <div class="pl" id="player" aria-hidden="true"><video playsinline controls></video><button class="pl-x" type="button" aria-label="Закрыть">×</button></div>
 
-<script src="js/peregovorka.js?v=1" defer></script>
+<script src="js/peregovorka.js?v=2" defer></script>
 </body>
 </html>

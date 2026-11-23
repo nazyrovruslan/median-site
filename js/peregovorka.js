@@ -5,6 +5,26 @@ const safe=(n,f)=>{try{f()}catch(e){try{console.error('[peregovorka]',n,e)}catch
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const goal=(name,params)=>{try{window.ym&&ym(9380047,'reachGoal',name,params||{})}catch(e){}try{window.gtag&&gtag('event',name,params||{})}catch(e){}};
 
+/* лайтбокс на первом экране поворачивается от прокрутки (макет «Лайтбокс кадры»: слева → анфас → справа).
+   25 кадров media/peregovorka/lightbox/00–24: ключевые 00 (слева), 08 (полуоборот), 16 (анфас), 24 (справа), между ними — перспективный морфинг надписи.
+   Положение — по центру лайтбокса в окне: внизу окна 00, в середине 16 (анфас), у верха 24; между кадрами — растворение, поэтому поворот без ступенек. */
+safe('lightbox',()=>{
+  const box=$('.lightbox'),cv=$('#lbCv');if(!box||!cv||reduce)return; // при «меньше движения» стоит анфас (картинка lb-still)
+  const N=25,FRONT=16,ctx=cv.getContext('2d'),fr=[];let loaded=0,want=-1,raf=0;
+  const src=i=>`media/peregovorka/lightbox/${String(i).padStart(2,'0')}.webp`;
+  const pos=()=>{const b=box.getBoundingClientRect(),vh=innerHeight,c=(b.top+b.height/2)/vh;return Math.min(1,Math.max(0,1-c));}; // 0 — центр у низа окна, 1 — у верха
+  const frameAt=p=>p<=.5?p/.5*FRONT:FRONT+(p-.5)/.5*(N-1-FRONT);
+  const draw=()=>{raf=0;const f=frameAt(pos());if(Math.abs(f-want)<.002)return;want=f;
+    const i=Math.floor(f),k=f-i,a=fr[i],b=fr[Math.min(N-1,i+1)];if(!a||!a.complete)return;
+    ctx.clearRect(0,0,cv.width,cv.height);ctx.globalAlpha=1;ctx.drawImage(a,0,0,cv.width,cv.height);
+    if(k>.01&&b&&b.complete){ctx.globalAlpha=k;ctx.drawImage(b,0,0,cv.width,cv.height);ctx.globalAlpha=1;}};
+  const req=()=>{if(!raf)raf=requestAnimationFrame(draw);};
+  // сначала кадры около текущего положения, потом остальные
+  const start=Math.round(frameAt(pos())),order=[...Array(N).keys()].sort((x,y)=>Math.abs(x-start)-Math.abs(y-start));
+  order.forEach(i=>{const im=new Image();im.decoding='async';im.onload=()=>{loaded++;if(Math.abs(i-start)<=1&&!box.classList.contains('live')){want=-1;draw();if(fr[start]&&fr[start].complete)box.classList.add('live');}else{want=-1;req();}};im.src=src(i);fr[i]=im;});
+  addEventListener('scroll',req,{passive:true});addEventListener('resize',()=>{want=-1;req();});
+});
+
 /* суфлёр: текст продублирован, прокрутка на половину высоты — стык не виден (компонент «Суфлёр · прокрутка», 18 с) */
 safe('roll',()=>{const r=$('#roll');r.innerHTML+=r.innerHTML.replace(/<p>/g,'<p aria-hidden="true">');});
 
