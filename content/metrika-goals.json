@@ -15,6 +15,7 @@
     { "id": "vacancy_open", "name": "Сайт: открыли вакансию" },
     { "id": "social_click", "name": "Сайт: клик по соцсетям" },
     { "id": "hh_click", "name": "Сайт: клик по hh.ru" },
-    { "id": "footer_seen", "name": "Сайт: долистал до футера" }
+    { "id": "footer_seen", "name": "Сайт: долистал до футера" },
+    { "id": "js_error", "name": "Сайт: ошибка JavaScript (служебная)" }
   ]
 }

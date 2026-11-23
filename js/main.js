@@ -10,6 +10,28 @@ function goal(name,params={},once){if(once){const k=name+JSON.stringify(params);
   dispatchEvent(new CustomEvent('site:goal',{detail:{name,params}}));}
 const fine=matchMedia('(pointer: fine)').matches;
 
+/* ---------- страховка (23.11): часть пользователей Windows не могла нажать бургер и «Start a project» ----------
+   main.js выполняется одним проходом: одна ошибка выше по файлу (блокировщик вырезал плашку cookie, старый браузер, расширение)
+   останавливала всё, что ниже, — бриф (стр. ~700) и меню (было в конце файла). Теперь:
+   — ошибки JS уходят в Метрику целью js_error (msg — текст и место, ua — браузер), чтобы видеть причину, а не гадать;
+   — меню подключается здесь, до всего остального; «Start a project» и закрытие брифа имеют запасной обработчик;
+   — самостоятельные блоки ниже обёрнуты в try (see), сбой в одном не выключает остальные;
+   — заставка уходит не позже чем через 9 с, даже если её код упал. */
+const errSeen=new Set();
+function jsErr(m,where){m=String(m||'').slice(0,160);if(!m||/^Script error/i.test(m)||errSeen.has(m)||errSeen.size>=5)return;errSeen.add(m);
+  try{console.error('[median]',where||'',m);}catch(e){}goal('js_error',{msg:(where?where+': ':'')+m,ua:navigator.userAgent.slice(0,200)});}
+addEventListener('error',e=>{const f=e.filename||'';if(f&&!f.startsWith(location.origin))return; // чужие скрипты (счётчики, расширения) не считаем
+  jsErr(e.message,f.split('/').pop().split('?')[0]+':'+(e.lineno||0));});
+const see=(where,e)=>jsErr(e&&e.message||e,where);
+function toggleMenu(open){document.body.classList.toggle('menu-open',open);$('#burger').setAttribute('aria-expanded',open);$('#menu').setAttribute('aria-hidden',!open);$('#burger').setAttribute('aria-label',open?'Закрыть меню':'Открыть меню');}
+try{$('#burger').onclick=()=>toggleMenu(!document.body.classList.contains('menu-open'));
+  $$('#menu a').forEach(a=>a.addEventListener('click',()=>toggleMenu(false)));}catch(e){see('menu',e);}
+let briefBound=false,panelsBound=false; // true — основные обработчики ниже подключились, запасные молчат
+document.addEventListener('click',e=>{const t=e.target.closest?e.target:null,b=$('#briefPanel');if(!t||!b)return;
+  if(!briefBound&&t.closest('#start')){if(b.classList.contains('on'))return;try{openPanel(b);}catch(err){b.classList.add('on');b.setAttribute('aria-hidden','false');}goal('brief_open');}
+  else if(!panelsBound&&t.closest('#briefPanel [data-close]')){try{closePanel(b);}catch(err){b.classList.remove('on');b.setAttribute('aria-hidden','true');try{unlockScroll();}catch(x){}}}});
+setTimeout(()=>{const ld=$('#loader');if(ld&&!ld.classList.contains('done')){ld.classList.add('done');document.documentElement.classList.remove('loading');}},9000);
+
 const DIRS={external:'Внешние',internal:'Внутренние',outlist:'Out of the list',own:'Свой проект'};
 const TAGS={employer:'Бренд работодателя',internal:'Внутренние коммуникации',community:'Сообщества',own:'Собственные проекты'}; // категории проектов (поле tags, в CMS — «Категории проекта»): фильтры над «Все проекты», у кейса их может быть несколько
 const HERO=CASES.slice(0,5);
@@ -83,7 +105,7 @@ let heroSeen=true; // баннер ушёл с экрана — видео на 
 if('IntersectionObserver' in window)new IntersectionObserver(([e])=>{heroSeen=e.isIntersecting;$$('.slide-bg').forEach((b,j)=>playIn(b,heroSeen&&j===cur&&!$$('.panel.on').length));}).observe($('#hero'));
 go(0,true);
 /* ---------- загрузка: заставка держится, пока не скачается видео первого слайда (не дольше 6 с); остальные видео грузятся, когда подъезжают к экрану ---------- */
-(()=>{const ld=$('#loader'),urls=HERO.slice(0,1).filter(k=>k.vid).map(k=>k.vid);
+try{(()=>{const ld=$('#loader'),urls=HERO.slice(0,1).filter(k=>k.vid).map(k=>k.vid);
   const got=urls.map(()=>0),tot=urls.map(()=>0);let shown=0;
   const swap=()=>$$('video.cv').forEach(v=>{const u=Object.keys(BLOB).find(u=>v.getAttribute('src')===vurl(u));if(u&&v.paused){v.src=BLOB[u];}});
   const finish=()=>{if(ready)return;ready=true;swap();ld.classList.add('done');document.documentElement.classList.remove('loading');
@@ -96,14 +118,14 @@ go(0,true);
   Promise.all(urls.map(async(u,i)=>{try{const r=await fetch(vurl(u));if(!r.ok)return;tot[i]=+r.headers.get('content-length')||0;
     const rd=r.body.getReader(),parts=[];for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);got[i]+=value.length;if(!tot[i])tot[i]=got[i];upd();}
     BLOB[u]=URL.createObjectURL(new Blob(parts,{type:'video/mp4'}));}catch(e){}})).then(()=>{ld.style.setProperty('--p',1);swap();setTimeout(finish,250);});},0);
-})();
+})();}catch(e){see('loader',e);const ld=$('#loader');if(ld)ld.classList.add('done');document.documentElement.classList.remove('loading');}
 // «Смотреть дальше»: на первом экране стрелка в видимой верхней половине кольца, при прокрутке съезжает в центр
-{const dn=$('.down');const f=()=>dn.style.setProperty('--dk',Math.min(1,scrollY/(dn.offsetHeight/2||1)).toFixed(3));addEventListener('scroll',f,{passive:true});f();}
+try{{const dn=$('.down');const f=()=>dn.style.setProperty('--dk',Math.min(1,scrollY/(dn.offsetHeight/2||1)).toFixed(3));addEventListener('scroll',f,{passive:true});f();}}catch(e){see('down',e);}
 let tx=null;$('#hero').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
 $('#hero').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(dx<-50)go(cur+1);tx=null;}); // только справа налево: обратный свайп в iOS занят системным «назад»
 
 /* ---------- скраббер: ведём пальцем по полоскам — кейс следует за пальцем ---------- */
-(()=>{const el=bars;let active=false,lastIdx=-1;
+try{(()=>{const el=bars;let active=false,lastIdx=-1;
   const idxAt=x=>{const kids=[...el.children];let best=0,bd=1e9;kids.forEach((k,i)=>{const r=k.getBoundingClientRect(),c=r.left+r.width/2,d=Math.abs(x-c);if(d<bd){bd=d;best=i;}});return best;};
   const start=e=>{active=true;lastIdx=-1;clearTimeout(tmr);move(e);};
   const move=e=>{if(!active)return;const x=(e.touches?e.touches[0]:e).clientX,i=idxAt(x);if(i!==lastIdx){lastIdx=i;go(i,true);clearTimeout(tmr);}if(e.cancelable)e.preventDefault();};
@@ -113,19 +135,19 @@ $('#hero').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changed
   el.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;start(e);el.setPointerCapture(e.pointerId);});
   el.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;move(e);});
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
-})();
+})();}catch(e){see('bars',e);}
 
 /* ---------- marquee ---------- */
 const unit='<span class="o on-dark" data-t="Live">Live</span><span>Communications</span>';
 $('#mq').innerHTML=(unit).repeat(6); // две одинаковые половины по 3 повтора
 // бегущая строка на JS: сдвиг в пикселях по модулю половины ленты — без швов и пустот в любом браузере
-(()=>{const tr=$('#mq'),mq=$('.marquee');let x=0,half=0,speed=60,target=60,last=performance.now();
+try{(()=>{const tr=$('#mq'),mq=$('.marquee');let x=0,half=0,speed=60,target=60,last=performance.now();
   const measure=()=>{half=tr.scrollWidth/2;};measure();addEventListener('resize',measure);document.fonts&&document.fonts.ready.then(measure);
   mq.addEventListener('mouseenter',()=>target=160);mq.addEventListener('mouseleave',()=>target=60);
   const tick=now=>{const dt=Math.min(.05,(now-last)/1000);last=now;if(window.__mqTarget!=null)target=window.__mqTarget;speed+=(target-speed)*.08;
     if(half>0){x=(x+speed*dt)%half;tr.style.transform='translate3d('+(-x).toFixed(2)+'px,0,0)';}
     if(!reduce)requestAnimationFrame(tick);};
-  requestAnimationFrame(tick);})();
+  requestAnimationFrame(tick);})();}catch(e){see('marquee',e);}
 
 /* ---------- waves: контуры с визитки ---------- */
 const CARD=['M 628.328125 478.664062 C 705.382812 447.140625 586.253906 413.808594 646.550781 207.910156 C 652.214844 185.421875 652.273438 172.125 651.652344 167.800781 C 645.320312 116.78125 589.738281 139.289062 541.253906 187.773438 C 487.855469 244.839844 429.296875 180.117188 429.296875 180.117188 C 418.101562 169.789062 402.0625 146.300781 388.574219 155.394531 C 376.777344 164.847656 386.027344 188.894531 395.449219 209.453125 C 418.773438 258.582031 357.53125 263.367188 357.53125 263.367188 C 349.125 264.34375 282.074219 268.617188 300.121094 314.082031 C 316.667969 359.148438 368.652344 315.089844 371.886719 312.167969 C 483.554688 218.460938 596.75 335.132812 592.925781 458.570312 C 591.96875 493.972656 628.328125 478.664062 628.328125 478.664062 Z M 628.328125 478.664062','M 679.0625 521.851562 C 796.210938 473.929688 599.863281 482.332031 705.246094 160.515625 C 720.589844 106.585938 667.402344 29.875 559.390625 137.886719 C 478.214844 224.640625 406.949219 118.261719 406.949219 118.261719 C 406.949219 118.261719 377.707031 77.679688 349.304688 94.722656 C 331.367188 109.09375 339.070312 147.746094 353.394531 179.003906 C 380.671875 237.28125 323.9375 242.828125 323.9375 242.828125 C 287.519531 247.59375 213.039062 256.351562 240.476562 325.472656 C 261.75 382.75 320.121094 425.480469 347.667969 392.566406 C 452.679688 265.921875 544.324219 297.832031 550.1875 494.851562 C 550.1875 570.949219 679.0625 521.851562 679.0625 521.851562 Z M 679.0625 521.851562','M 735.050781 561.597656 C 854.472656 512.742188 678.59375 479.769531 703.140625 289.035156 C 707.726562 244.234375 728.746094 190.671875 749.839844 126.261719 C 774.328125 62.457031 678.027344 -36.550781 558.308594 98.664062 C 459.308594 204.464844 409.386719 84.550781 409.386719 84.550781 C 392.203125 50.183594 357.015625 6 315.757812 46.023438 C 293.191406 69.003906 292.90625 120.078125 310.375 158.195312 C 319.324219 180.183594 330.964844 193.761719 327.148438 203.609375 C 320.605469 220.792969 284.824219 220.382812 284.824219 220.382812 C 231.824219 220.382812 149.582031 243.136719 183.039062 327.429688 C 208.984375 397.28125 302.191406 485.5 339.015625 443.765625 C 475.664062 289.933594 505.566406 341.160156 514.121094 544.414062 C 514.121094 637.214844 735.050781 561.597656 735.050781 561.597656 Z M 735.050781 561.597656','M 811.011719 593.621094 C 968.351562 529.253906 696.457031 506.886719 736.140625 278.183594 C 742.183594 219.15625 763.144531 176.71875 795.058594 107.574219 C 827.003906 45.796875 696.046875 -109.671875 574.125 44.976562 C 469.390625 188.171875 437.476562 69.527344 413.746094 35.160156 C 379.980469 -18.847656 330.765625 -45.710938 282.007812 3.246094 C 252.277344 33.523438 243.03125 71.46875 266.050781 121.691406 C 277.84375 150.664062 290.71875 167.019531 285.691406 179.992188 C 277.066406 202.632812 218.183594 198.402344 218.183594 198.402344 C 148.351562 198.402344 62.410156 227.269531 106.492188 338.324219 C 140.675781 430.355469 301.644531 566.617188 344.605469 506.476562 C 458.753906 344.460938 475.9375 389.875 459.980469 583.800781 C 459.980469 722.496094 811.011719 593.621094 811.011719 593.621094 Z M 811.011719 593.621094'];
@@ -308,14 +330,14 @@ $('#rowsTog').addEventListener('click',()=>{const o=!$('#rowsMore').classList.co
   layoutRows(o);});
 layoutRows(false);
 // фильтры по категориям: одна активная, повторный клик — снова «Все»; пустые категории не показываем; номера строк пересчитываются по видимым
-{const fl=$('#flt'),tags=Object.keys(TAGS).filter(t=>CASES.some(k=>(k.tags||[]).includes(t)));
+try{{const fl=$('#flt'),tags=Object.keys(TAGS).filter(t=>CASES.some(k=>(k.tags||[]).includes(t)));
   if(!tags.length)fl.hidden=true;
   const btn=(t,name,n)=>`<button type="button" data-t="${t}" data-c="mag" data-magnet aria-pressed="${!t}">${name}<sup>${n}</sup></button>`;
   fl.innerHTML=btn('','Все',CASES.length)+tags.map(t=>btn(t,TAGS[t],CASES.filter(k=>(k.tags||[]).includes(t)).length)).join('');
   fl.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.getAttribute('aria-pressed')==='true'?'':b.dataset.t;
     fl.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.t===t));
     let n=0;CASES.forEach((k,i)=>{const r=rows.parentElement.querySelector(`.row[data-i="${i}"]`);r.hidden=!!t&&!(k.tags||[]).includes(t);if(!r.hidden)r.querySelector('.n').textContent=String(++n).padStart(2,'0');});
-    peek.classList.remove('on');layoutRows();});}
+    peek.classList.remove('on');layoutRows();});}}catch(e){see('filters',e);}
 
 /* ---------- panels ---------- */
 addEventListener('keydown',e=>{if(e.key==='Tab')document.documentElement.classList.add('kbd');});
@@ -330,7 +352,7 @@ function closePanel(p){if(p.id==='casePanel'&&typeof nxRing==='function')nxRing(
 // «О нас» → вакансия → кейс — один лист: крестик (и Esc) с любой глубины сразу на главную, шаг назад — ссылка «←» слева вверху
 const inStack=()=>jobP.classList.contains('on');
 const closeAny=p=>p.id==='casePanel'?closeAll():p.id==='aboutPanel'?closeAbout():p.id==='jobPanel'?closeAll():closePanel(p);
-$$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));
+$$('.panel').forEach(p=>p.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAny(p)}));panelsBound=true;
 addEventListener('keydown',e=>{if(e.key==='Escape'){const on=$$('.panel.on');if(on.length)closeAny(['reelPanel','briefPanel','cvPanel','casePanel','jobPanel','aboutPanel'].map(id=>on.find(p=>p.id===id)).find(Boolean)||on[0]);if(document.body.classList.contains('menu-open'))toggleMenu(false);}});
 let openId=null;
 /* у каждого кейса свой адрес: /<id> (например /median-site/southhub). Открытие и переход к следующему кейсу добавляют запись в историю, «назад» возвращает к предыдущему кейсу или на главную */
@@ -530,7 +552,7 @@ addEventListener('keydown',e=>{if(!LB.classList.contains('on'))return;if(e.key==
 const RV=document.createElement('div');RV.id='rlv';RV.setAttribute('aria-hidden','true');
 RV.innerHTML='<div class="rlv-f"><div class="rlv-bars"></div><video playsinline preload="auto"></video><span class="rlv-t"></span><button type="button" class="rlv-m" aria-label="Выключить звук" data-c="link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="on" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/><path class="off" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button></div><button type="button" class="rlv-x x" aria-label="Закрыть" data-c="link" data-stick data-stick-shape="circle">✕</button>';
 document.body.appendChild(RV);
-{const v=RV.querySelector('video'),bars=RV.querySelector('.rlv-bars'),mt=RV.querySelector('.rlv-m');let set=[],ri=0;
+try{{const v=RV.querySelector('video'),bars=RV.querySelector('.rlv-bars'),mt=RV.querySelector('.rlv-m');let set=[],ri=0;
  const show=i=>{if(!set.length)return;i=(i%set.length+set.length)%set.length;ri=i; // бесконечно: за последним — первый (09.11)
    const x=set[i];v.src=x.src+VV;v.muted=false;v.play().catch(err=>{if(err&&err.name==='NotAllowedError'){v.muted=true;v.play().catch(()=>{});mtx();}});RV.querySelector('.rlv-t').textContent=x.t;
    bars.innerHTML=set.map((_,j)=>`<i class="${j<i?'done':''}"><b></b></i>`).join('');mtx();};
@@ -550,7 +572,7 @@ document.body.appendChild(RV);
  RV.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
  addEventListener('keydown',e=>{if(!RV.classList.contains('on'))return;if(e.key==='Escape'){e.stopImmediatePropagation();close();}else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();show(ri-1);}else if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();show(ri+1);}else if(e.key===' '){e.preventDefault();v.paused?v.play():v.pause();}},true);
  $('#cBody').addEventListener('click',e=>{const b=e.target.closest('.rl');if(!b)return;const t=b.closest('.car-track');if(t&&t.dataset.dragged)return;
-   set=[...b.closest('section').querySelectorAll('.rl')].map(x=>({src:x.dataset.src,t:x.dataset.t}));RV.classList.add('on');RV.setAttribute('aria-hidden','false');show(+b.dataset.rl);});}
+   set=[...b.closest('section').querySelectorAll('.rl')].map(x=>({src:x.dataset.src,t:x.dataset.t}));RV.classList.add('on');RV.setAttribute('aria-hidden','false');show(+b.dataset.rl);});}}catch(e){see('reels',e);}
 // шоурил кейса: беззвучное превью играет, пока блок виден; по клику — полное видео со звуком
 // тизеры всех роликов кейса крутятся по кругу, пока ролик на экране
 let reelIO=null;function reelTeaser(){reelIO&&reelIO.disconnect();const vs=[...document.querySelectorAll('#cBody .reel-play .ab-tz')];if(!vs.length||reduce||!('IntersectionObserver' in window))return;
@@ -682,6 +704,7 @@ $('#start').onclick=openBrief;
 let st0=null;$('#start').addEventListener('touchstart',e=>{const t=e.touches[0];st0=[t.clientX,t.clientY];},{passive:true});
 $('#start').addEventListener('touchend',e=>{if(!st0)return;const t=e.changedTouches[0],moved=Math.hypot(t.clientX-st0[0],t.clientY-st0[1])>10;st0=null;
   if(moved||!e.cancelable)return;e.preventDefault();openBrief();});
+briefBound=true;
 $('#brief').addEventListener('submit',e=>{
   e.preventDefault();const f=e.target;
   if(!f.name.value.trim()||!f.contact.value.trim()){toast('Заполните имя и контакт');(f.name.value.trim()?f.contact:f.name).focus();return;}
@@ -692,7 +715,7 @@ $('#brief').addEventListener('submit',e=>{
 });
 
 /* ---------- отклик на вакансию: «Send your CV» открывает форму; данные уходят на прослойку (JOBS.crm) → воронка откликов в Битрикс24 ---------- */
-{const cvP=$('#cvPanel'),cvF=$('#cvForm'),cvOk=$('#cvOk'),URLRE=/^(https?:\/\/)?[^\s.]+\.[^\s]{2,}$/i;
+try{{const cvP=$('#cvPanel'),cvF=$('#cvForm'),cvOk=$('#cvOk'),URLRE=/^(https?:\/\/)?[^\s.]+\.[^\s]{2,}$/i;
  const openCv=()=>{const v=jobId&&jobP.classList.contains('on')?jobById(jobId):null;cvF.dataset.job=v?v.id:'';
    $('#cvFor').textContent=(v?`Отклик на вакансию «${v.name}». `:'')+'Оставьте контакты и ссылки на резюме и портфолио. Ответим в течение нескольких рабочих дней.';
    cvOk.hidden=true;if(!cvP.classList.contains('on')){goal('cv_open',{vacancy:v?v.id:''});openPanel(cvP);}};
@@ -718,14 +741,14 @@ $('#brief').addEventListener('submit',e=>{
    // прослойки ещё нет или она не ответила — собираем письмо на почту для откликов, чтобы отклик не потерялся
    const body=[v?'Вакансия: '+v.name:'',`Имя: ${data.name}`,data.tg&&`Telegram: ${data.tg}`,data.phone&&`Телефон: ${data.phone}`,data.email&&`Почта: ${data.email}`,`Резюме: ${data.cv}`,data.portfolio&&`Портфолио: ${data.portfolio}`,data.msg&&'\n'+data.msg].filter(Boolean).join('\n');
    location.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+(v?v.name:'без вакансии'))+'&body='+encodeURIComponent(body);
-   cvOk.textContent=`Открыли письмо на ${HR} с вашими данными — осталось нажать «Отправить» в почте.`;});}
+   cvOk.textContent=`Открыли письмо на ${HR} с вашими данными — осталось нажать «Отправить» в почте.`;});}}catch(e){see('cv',e);}
 
 // Вебвизор Метрики не записывает ввод в формы (обещано в политике, privacy.html#process)
 $$('input,textarea').forEach(el=>el.classList.add('ym-disable-keys'));
 /* ---------- плашка cookie: «Принять» / «Отказаться», выбор помним год (политика — privacy.html#cookies) ----------
    Счётчики работают сразу; «Отказаться» ставит analytics=off — блок счётчиков в <head> (tools/sync-counters.mjs) их больше не грузит,
    на текущей странице выключаем GA и Метрику и стираем их cookie. Ссылка #cookie-settings (в политике) открывает плашку снова. */
-{const c=$('#cookie'),K='cookie-ok';let ok=0;try{ok=+localStorage.getItem(K)>Date.now()-365*864e5;}catch(e){}
+try{{const c=$('#cookie'),K='cookie-ok';let ok=0;if(!c)throw 'нет #cookie (вырезал блокировщик?)';try{ok=+localStorage.getItem(K)>Date.now()-365*864e5;}catch(e){}
  const show=()=>{c.hidden=false;requestAnimationFrame(()=>c.classList.add('on'));},hide=()=>{c.classList.remove('on');setTimeout(()=>c.hidden=true,400);};
  const pick=on=>{try{localStorage.setItem(K,Date.now());on?localStorage.removeItem('analytics'):localStorage.setItem('analytics','off');}catch(e){}
    if(!on){window.MEDIAN_NOTRACK=true;const ga=(document.head.innerHTML.match(/gtag\('config','(G-[A-Z0-9]+)'\)/)||[])[1];if(ga)window['ga-disable-'+ga]=true;
@@ -735,7 +758,7 @@ $$('input,textarea').forEach(el=>el.classList.add('ym-disable-keys'));
    hide();};
  if(!ok)show();
  $('#cookieOk').onclick=()=>pick(true);const no=$('#cookieNo');if(no)no.onclick=()=>pick(false); // кнопки «Отказаться» в плашке нет (Руслан 12.11: отказ — уйти с сайта); отказ — в политике, #cookie-choice
- addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href$="#cookie-settings"]');if(a){e.preventDefault();show();}});}
+ addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href$="#cookie-settings"]');if(a){e.preventDefault();show();}});}}catch(e){see('cookie',e);}
 
 /* ---------- hero hold-to-open ---------- */
 const hit=$('#hit'), HOLD=900; let holdStart=0, holdRaf=0, lastPointer='mouse';
@@ -798,11 +821,11 @@ function openAbout(push){if(aboutP.classList.contains('on'))return;goal('about_o
   if(push){history.pushState({about:1,d:1},'',ROOT+'about');aboutPushed=true;}aboutD=depth();
   document.title='О нас — Median';aboutP.querySelector('.sheet').scrollTop=0;openPanel(aboutP);const tz=aboutP.querySelector('.ab-tz');if(tz&&!reduce){tz.addEventListener('playing',()=>tz.classList.add('on'),{once:true});tz.play().catch(()=>{});}}
 // «О нас»: знак-контур из прелоадера; смена фона по скроллу (артборды 29→30)
-{const m=$('#aiMark');if(m)$$('#loader .ld-o,#loader .ld-k').forEach(sv=>m.appendChild(sv.cloneNode(true)));
+try{{const m=$('#aiMark');if(m)$$('#loader .ld-o,#loader .ld-k').forEach(sv=>m.appendChild(sv.cloneNode(true)));
  const sh=aboutP.querySelector('.sheet'),top=$('#abTop'),hero=aboutP.querySelector('.ab-hero');let raf=0;
  const f=()=>{raf=0;const h=innerHeight,hh=hero.offsetHeight,st=0,sp=h*.7; // «Кто мы?» залипает верхом к экрану, за 70% экрана скролла фон чёрный → серый
    top.style.setProperty('--st',st+'px');const a=top.getBoundingClientRect().bottom-(st+hh);top.style.setProperty('--k',Math.min(1,Math.max(0,1-a/sp)).toFixed(3));};
- sh.addEventListener('scroll',()=>{if(!raf)raf=requestAnimationFrame(f);},{passive:true});addEventListener('resize',f);f();}
+ sh.addEventListener('scroll',()=>{if(!raf)raf=requestAnimationFrame(f);},{passive:true});addEventListener('resize',f);f();}}catch(e){see('about-top',e);}
 function closeAbout(){if(aboutPushed){aboutPushed=false;history.back();return;}history.replaceState(null,'',ROOT);document.title=baseTitle;closePanel(aboutP);}
 $$('#wavesLink,[data-about]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openAbout(true);}));
 $('#aRing').addEventListener('click',e=>{e.preventDefault();$('#values').scrollIntoView({behavior:reduce?'auto':'smooth'});});
@@ -895,32 +918,29 @@ if(fine)$('#cBody').addEventListener('mouseout',e=>{const a=e.target.closest('.c
 $('#aBrief').addEventListener('click',()=>{closeAbout();setTimeout(openBrief,350);});
 
 /* ---------- follow us (баннер и футер): ссылки раскрываются при наведении, на тач — по тапу ---------- */
-$$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
+try{$$('.follow').forEach(f=>{const b=f.querySelector('.follow-btn');
   b.addEventListener('click',e=>{e.stopPropagation();const o=!f.classList.contains('open');if(o)$$('.follow.open').forEach(x=>{if(x!==f){x.classList.remove('open');x.querySelector('.follow-btn').setAttribute('aria-expanded','false');}});f.classList.toggle('open',o);b.setAttribute('aria-expanded',o);});
-  document.addEventListener('click',e=>{if(e.target.closest('.follow')!==f){f.classList.remove('open');b.setAttribute('aria-expanded','false');}});});
+  document.addEventListener('click',e=>{if(e.target.closest('.follow')!==f){f.classList.remove('open');b.setAttribute('aria-expanded','false');}});});}catch(e){see('follow',e);}
 
 /* ---------- footer reveal + curtain ---------- */
-if('IntersectionObserver' in window){
+try{if('IntersectionObserver' in window){
   // на телефоне футер лежит под разделом «Собственные проекты»: видимая часть — ниже его нижнего края
   const foot=$('#contact'),own=$('#pod');
   const footIn=()=>{if(foot.classList.contains('in'))return;const f=foot.getBoundingClientRect(),under=getComputedStyle(foot).position==='sticky';
     const top=Math.max(0,f.top,under?own.getBoundingClientRect().bottom:0),seen=Math.min(innerHeight,f.bottom)-top;
     if(seen>innerHeight*.35){foot.classList.add('in');removeEventListener('scroll',footIn);}};
   new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){addEventListener('scroll',footIn,{passive:true});footIn();}else removeEventListener('scroll',footIn);}),{threshold:0}).observe(foot);
-}else document.documentElement.classList.add('no-io');
-function stickyOwn(){const own=$('#pod');own.style.top=Math.min(0,innerHeight-own.offsetHeight)+'px';}
+}else document.documentElement.classList.add('no-io');}catch(e){see('footer',e);}
+function stickyOwn(){const own=$('#pod');if(!own)return;own.style.top=Math.min(0,innerHeight-own.offsetHeight)+'px';}
 let ownW=innerWidth;stickyOwn();addEventListener('resize',()=>{if(matchMedia('(hover:none)').matches&&innerWidth===ownW)return;ownW=innerWidth;stickyOwn();});document.fonts&&document.fonts.ready.then(stickyOwn);
 
-/* ---------- menu ---------- */
-function toggleMenu(open){document.body.classList.toggle('menu-open',open);$('#burger').setAttribute('aria-expanded',open);$('#menu').setAttribute('aria-hidden',!open);$('#burger').setAttribute('aria-label',open?'Закрыть меню':'Открыть меню');}
-$('#burger').onclick=()=>toggleMenu(!document.body.classList.contains('menu-open'));
-$$('#menu a').forEach(a=>a.addEventListener('click',()=>toggleMenu(false)));
+/* ---------- menu: подключается в начале файла (страховка 23.11) ---------- */
 
 /* ---------- mail copy ---------- */
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2200);}
 
 /* ---------- cursor ---------- */
-if(fine&&!reduce){
+try{if(fine&&!reduce){
   document.body.classList.add('has-cursor');
   const c=$('#cur'), r=$('#ring'), lab=r.querySelector('.t');
   let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my,state='',stick=null;
@@ -973,17 +993,17 @@ if(fine&&!reduce){
       m.el.style.transform=`translate(${m.x.toFixed(2)}px,${m.y.toFixed(2)}px)`;if(f)f.style.transform=m.el.style.transform;if(c)c.style.transform=`translate(${(-m.x).toFixed(2)}px,${(-m.y).toFixed(2)}px)`;});
     requestAnimationFrame(magLoop);
   })();
-}
+}}catch(e){see('cursor',e);document.body.classList.remove('has-cursor');}
 
 /* прямой заход по адресу кейса */
 /* прямая ссылка: 404.html кладёт путь в sessionStorage и отправляет на главную; старые ссылки ?case= тоже открываются */
-{let r=null;try{r=sessionStorage.getItem('route');sessionStorage.removeItem('route');}catch(e){}
+try{{let r=null;try{r=sessionStorage.getItem('route');sessionStorage.removeItem('route');}catch(e){}
  /* SEO-страницы кейсов/«О нас»/вакансий (southhub.html и т.п., tools/build-seo.mjs) отдаются по своему адресу с кодом 200 — маршрут берём прямо из адреса, заголовок вкладки оставляем из <title> страницы */
  const pg=caseFromPath(location.pathname).replace(/\.html$/,''),seoT=document.title;if(!r&&pg&&pg!=='index')r=ROOT+pg;
  const id=r?caseFromPath(r):new URLSearchParams(location.search).get('case'),jb=r?jobFromPath(r):null;if(r||location.search)history.replaceState(null,'',ROOT+location.hash);if(jb){openJob(jb,true);}else if(jb===''){history.replaceState({about:1},'',ROOT+'about');showJobs(false);}
  else if(id==='about'){history.replaceState({about:1},'',ROOT+'about');openAbout(false);}
  else if(id&&caseById(id)){openCase(id,null,true);setCaseUrl(id,false);}
- if(pg&&pg!=='index')document.title=seoT;}
+ if(pg&&pg!=='index')document.title=seoT;}}catch(e){see('route',e);}
 /* ---------- цели: клики по контактам и соцсетям (11.11) ---------- */
 document.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a)return;const h=a.getAttribute('href')||'';
   if(/^mailto:/i.test(h))goal('contact_mail',{to:h.slice(7).split('?')[0]});
