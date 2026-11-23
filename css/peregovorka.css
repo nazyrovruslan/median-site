@@ -2,7 +2,8 @@
    Своя дизайн-система посадки (цвета, GT Walsheim Pro, кнопки) — по макету, не по DESIGN-SYSTEM.md сайта; Druk Wide — общий.
    Единица --u = 1px макета шириной 1440 (на 1920 — 1.333px, не крупнее). */
 @font-face{font-family:"GT Walsheim Pro";font-weight:300 400;font-style:normal;font-display:swap;src:url(../fonts/gt-walsheim-pro-400.woff) format("woff")}
-@font-face{font-family:"GT Walsheim Pro";font-weight:500 700;font-style:normal;font-display:swap;src:url(../fonts/gt-walsheim-pro-700.woff) format("woff")}
+@font-face{font-family:"GT Walsheim Pro";font-weight:500;font-style:normal;font-display:swap;src:url(../fonts/gt-walsheim-pro-500.woff) format("woff")}
+@font-face{font-family:"GT Walsheim Pro";font-weight:600 700;font-style:normal;font-display:swap;src:url(../fonts/gt-walsheim-pro-700.woff) format("woff")}
 @font-face{font-family:"Druk Wide Cyr";font-weight:700;font-style:normal;font-display:swap;src:url(../fonts/druk-wide-cyr-700.woff2) format("woff2")}
 
 :root{
