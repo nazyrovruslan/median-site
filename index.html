@@ -457,6 +457,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
         </div>
       </div>
       <div class="fld"><label for="f-msg">Задача, даты, количество гостей</label><textarea id="f-msg" name="msg" rows="3" placeholder="Конференция для 300 партнёров, Сочи, май"></textarea></div>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <label class="agree"><input type="checkbox" name="agree" id="f-agree"><span>Я согласен на <a href="consent.html#brief" target="_blank" rel="noopener">обработку персональных данных</a> и принимаю <a href="privacy.html" target="_blank" rel="noopener">политику конфиденциальности</a></span></label>
       <button class="send" type="submit" data-c="mag" data-magnet>Отправить <span>→</span></button>
       <div class="ok" id="ok" hidden></div>
@@ -464,7 +465,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
   </section>
 </div>
 
-<!-- отклик на вакансию: уходит на прослойку → воронка откликов в Битрикс24 (адрес в настройках «Вакансии — общее»); без адреса — письмо на почту для откликов -->
+<!-- отклик на вакансию: письмо на hello@median.agency (воркер /form) и, если задан адрес в «Вакансии — общее», — в воронку откликов Битрикс24; при сбое — письмо в почте посетителя -->
 <div class="panel" id="cvPanel" aria-hidden="true">
   <div class="scrim" data-close></div>
   <section class="sheet brief" role="dialog" aria-modal="true" aria-labelledby="cvTitle">
@@ -492,6 +493,6 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
 <script src="js/cases.js?v=dbf0b02" defer></script>
 <script src="js/icons.js?v=dbf0b02" defer></script>
 <script src="js/vacancies.js?v=dbf0b02" defer></script>
-<script src="js/main.js?v=171" defer></script>
+<script src="js/main.js?v=173" defer></script>
 </body>
 </html>

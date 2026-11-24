@@ -74,3 +74,19 @@ curl -s https://median-mcp.<поддомен>.workers.dev/mcp/<MCP_SECRET> -H 'c
 
 ## Вход в /admin через GitHub (OAuth)
 Воркер отдаёт `/auth` и `/callback` для Sveltia (`backend.base_url` в admin/config.yml). Нужно OAuth-приложение: github.com/settings/developers → OAuth Apps → New. Homepage URL `https://median.agency`, Authorization callback URL `https://median-mcp.nazyrov-ruslan.workers.dev/callback`. Client ID и сгенерированный Client secret — в секреты репозитория `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, затем перезапустить workflow «Deploy MCP server». Пока ключей нет, `/auth/ready` отвечает 404 и кнопка «Войти через GitHub» в админке скрыта.
+
+## Формы сайта → почта (`/form`)
+
+Бриф «Start a project», отклик на вакансию и регистрация на «Переговорку» шлют `POST /form` (JSON), воркер отправляет письмо по SMTP на адреса из админки: Настройки → «Заявки с форм» (`content/settings/forms.json`, кэш 1 минута; запасной — `MAIL_TO` в `wrangler.toml`).
+Ключ MCP для этого не нужен, адрес открыт для сайта (проверяется Origin).
+
+Письма уходят с ящика **info@median.agency** (Gmail, Google Workspace) через smtp.gmail.com:465.
+
+1. Войти в Google как info@median.agency → myaccount.google.com → Безопасность → включить двухэтапную проверку →
+   myaccount.google.com/apppasswords → создать пароль приложения (название любое, например «сайт»). Пароль — 16 букв, пробелы не важны.
+   Если пункта «Пароли приложений» нет — его отключил администратор Google Workspace: admin.google.com → Безопасность → Аутентификация →
+   Двухэтапная проверка (разрешить пользователям) и «Менее безопасные приложения»/пароли приложений не запрещены политикой.
+2. GitHub → Settings → Secrets → Actions: `SMTP_USER` = `info@median.agency`, `SMTP_PASS` = пароль приложения (можно с пробелами, как показал Google: воркер их убирает).
+3. Actions → Deploy MCP server → Run workflow. Проверка — отправить бриф на сайте.
+
+Другая почта — поменять `SMTP_HOST`/`SMTP_PORT` в `wrangler.toml` (нужен порт с TLS сразу, обычно 465). Ошибки — Cloudflare → Workers → median-mcp → Logs (`form mail`).

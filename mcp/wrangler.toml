@@ -2,3 +2,9 @@ name = "median-mcp"
 main = "worker.js"
 compatibility_date = "2025-06-01"
 workers_dev = true
+
+# Формы сайта (/form) → письмо. Пароль и логин ящика — секреты SMTP_USER, SMTP_PASS (ставит mcp.yml), см. mcp/README.md
+[vars]
+SMTP_HOST = "smtp.gmail.com" # ящик info@median.agency в Google Workspace
+SMTP_PORT = "465"
+MAIL_TO = "hello@median.agency" # запасной адрес; основной — админка → Настройки → «Заявки с форм»

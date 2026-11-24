@@ -8,6 +8,8 @@
 // Секреты воркера: GH_TOKEN (fine-grained токен GitHub на этот репозиторий: Contents и Actions — read and write), MCP_SECRET.
 // Настройка и деплой — mcp/README.md.
 
+import { connect } from 'cloudflare:sockets';
+
 const REPO = 'nazyrovruslan/median-site';
 const BRANCH = 'main';
 const SITE = 'https://median.agency/';
@@ -21,6 +23,7 @@ const COLLECTIONS = {
 const SETTINGS = {
   icons: 'content/settings/icons.json', // пиктограммы к цифрам
   jobs: 'content/settings/jobs.json', // страница вакансий: почта, вступление, руководитель
+  forms: 'content/settings/forms.json', // куда приходят заявки с форм сайта: to (адреса через запятую)
   counters: 'content/settings/counters.json', // счётчики и пиксели в <head> всех страниц: metrika, ga, vk, head (свой код)
 };
 const MEDIA = {
@@ -233,6 +236,7 @@ export default {
     if (url.pathname === '/' || url.pathname === '/health') return text('median MCP: ok');
     if (url.pathname.startsWith('/auth') || url.pathname === '/callback') return oauth(url, req, env);
     if (url.pathname === '/gh' || url.pathname.startsWith('/gh/')) return ghProxy(url, req, env);
+    if (url.pathname === '/form') return formMail(req, env);
     const who = await authorized(url, req, env);
     if (who === null) return text('not found', 404);
     if (req.method === 'GET') return text('MCP: POST JSON-RPC here', 405, { Allow: 'POST' });
@@ -250,6 +254,118 @@ export default {
     return res ? json(res) : new Response(null, { status: 202, headers: cors() });
   },
 };
+
+// ---------- формы сайта → письмо на hello@median.agency (Руслан 24.11: «со всех трёх форм слать на почту») ----------
+// POST /form, JSON { form, subject, fields: [[подпись, значение], …], reply_to, page, website (ловушка для ботов) }.
+// Получатели — админка → Настройки → «Заявки с форм» (content/settings/forms.json). Письмо уходит по SMTP с ящика info@median.agency (Gmail / Google Workspace): секреты воркера SMTP_USER, SMTP_PASS (пароль приложения Google), адреса и сервер — [vars] в wrangler.toml.
+// Ответ { ok: true } или { ok: false, error } — сайт при ошибке открывает письмо в почтовой программе посетителя.
+const FORM_ORIGINS = /^https:\/\/((www\.)?median\.agency|nazyrovruslan\.github\.io)$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+const FORM_KINDS = { brief: 'Заявка с сайта', vacancy: 'Отклик на вакансию', event: 'Регистрация на мероприятие' };
+const formHits = new Map(); // ip → время последних отправок (в пределах одного экземпляра воркера)
+async function formMail(req, env) {
+  if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
+  const origin = req.headers.get('Origin') || '';
+  if (origin && !FORM_ORIGINS.test(origin)) return json({ ok: false, error: 'origin' }, 403);
+  if (!env.SMTP_USER || !env.SMTP_PASS) return json({ ok: false, error: 'not configured' }, 503);
+  const raw = await req.text();
+  if (raw.length > 30000) return json({ ok: false, error: 'too large' }, 413);
+  let d; try { d = JSON.parse(raw); } catch { return json({ ok: false, error: 'bad json' }, 400); }
+  if (d.website) return json({ ok: true }); // бот заполнил скрытое поле — делаем вид, что всё хорошо
+  const ip = req.headers.get('CF-Connecting-IP') || '', now = Date.now();
+  const hits = (formHits.get(ip) || []).filter(t => now - t < 600000);
+  if (hits.length >= 8) return json({ ok: false, error: 'rate' }, 429);
+  hits.push(now); formHits.set(ip, hits);
+  const one = (v, n) => String(v ?? '').replace(/[\r\n]+/g, ' ').trim().slice(0, n);
+  const fields = (Array.isArray(d.fields) ? d.fields : []).slice(0, 30)
+    .map(f => [one(f && f[0], 80), String((f && f[1]) ?? '').replace(/\r\n?/g, '\n').trim().slice(0, 5000)]).filter(f => f[0] && f[1]);
+  if (!fields.length) return json({ ok: false, error: 'empty' }, 400);
+  const kind = FORM_KINDS[d.form] || 'Форма сайта';
+  const subject = one(d.subject, 160) || kind;
+  const replyTo = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/.test(one(d.reply_to, 200)) ? one(d.reply_to, 200) : '';
+  const body = [...fields.map(([k, v]) => v.includes('\n') ? `${k}:\n${v}` : `${k}: ${v}`), '',
+    `Форма: ${kind}`, d.page && `Страница: ${one(d.page, 500)}`, `Время: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })} (МСК)`,
+    ip && `IP: ${ip}`].filter(x => typeof x === 'string').join('\n');
+  const to = await formsTo(env);
+  try {
+    await withTimeout(smtpSend(env, { subject, body, replyTo, to }), 20000);
+    return json({ ok: true });
+  } catch (e) {
+    console.error('form mail', e && e.message);
+    return json({ ok: false, error: 'mail', to: to.join(',') }, 502); // сайт откроет письмо на этот адрес в почте посетителя
+  }
+}
+// получатели — из админки (Настройки → «Заявки с форм», content/settings/forms.json), кэш на минуту; не прочиталось — MAIL_TO из wrangler.toml
+let formsCache = { at: 0, to: null };
+const EMAIL_RE = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/;
+async function formsTo(env) {
+  const parse = s => String(s || '').split(/[,;\s]+/).map(x => x.trim()).filter(x => EMAIL_RE.test(x)).slice(0, 10);
+  const fallback = parse(env.MAIL_TO).length ? parse(env.MAIL_TO) : ['hello@median.agency'];
+  if (formsCache.to && Date.now() - formsCache.at < 60000) return formsCache.to;
+  try {
+    const raw = env.GH_TOKEN ? await withTimeout(github(env).getRaw(SETTINGS.forms), 5000) : null;
+    const to = raw ? parse(JSON.parse(raw).to) : [];
+    formsCache = { at: Date.now(), to: to.length ? to : fallback };
+  } catch (e) {
+    console.error('forms settings', e && e.message);
+    return formsCache.to || fallback;
+  }
+  return formsCache.to;
+}
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('SMTP: нет ответа')), ms))]);
+const b64 = s => { const b = new TextEncoder().encode(s); let x = ''; for (let i = 0; i < b.length; i++) x += String.fromCharCode(b[i]); return btoa(x); };
+// заголовок с кириллицей: кусками по 20 символов, каждый — =?UTF-8?B?…?=
+const mimeWord = s => /^[\x20-\x7e]*$/.test(s) ? s : (s.match(/[\s\S]{1,20}/gu) || ['']).map(c => `=?UTF-8?B?${b64(c)}?=`).join('\r\n ');
+async function smtpSend(env, { subject, body, replyTo, to }) {
+  const host = env.SMTP_HOST || 'smtp.gmail.com', port = Number(env.SMTP_PORT || 465);
+  const from = env.MAIL_FROM || env.SMTP_USER;
+  const sock = connect({ hostname: host, port }, { secureTransport: 'on' });
+  const w = sock.writable.getWriter(), r = sock.readable.getReader(), enc = new TextEncoder(), dec = new TextDecoder();
+  let buf = '';
+  const reply = async () => {
+    for (;;) {
+      const lines = buf.split('\r\n');
+      for (let i = 0; i < lines.length - 1; i++) if (/^\d{3}(?: |$)/.test(lines[i])) {
+        buf = lines.slice(i + 1).join('\r\n');
+        return { code: Number(lines[i].slice(0, 3)), text: lines.slice(0, i + 1).join(' | ') };
+      }
+      const { value, done } = await r.read();
+      if (done) throw new Error('SMTP: соединение закрыто');
+      buf += dec.decode(value, { stream: true });
+    }
+  };
+  const step = async (line, ok) => {
+    if (line !== null) await w.write(enc.encode(line + '\r\n'));
+    const res = await reply();
+    if (!ok.includes(res.code)) throw new Error(`SMTP ${res.text}`);
+  };
+  try {
+    await step(null, [220]);
+    await step('EHLO median.agency', [250]);
+    await step('AUTH LOGIN', [334]);
+    await step(btoa(env.SMTP_USER), [334]);
+    await step(b64(String(env.SMTP_PASS).replace(/\s+/g, '')), [235]); // пароль приложения Google показывают с пробелами — они не нужны
+    await step(`MAIL FROM:<${from}>`, [250]);
+    for (const t of to) await step(`RCPT TO:<${t}>`, [250, 251]);
+    await step('DATA', [354]);
+    const msg = [
+      `From: ${mimeWord('Сайт median.agency')} <${from}>`,
+      `To: ${to.map(t => `<${t}>`).join(', ')}`,
+      replyTo ? `Reply-To: <${replyTo}>` : null,
+      `Subject: ${mimeWord(subject)}`,
+      `Date: ${new Date().toUTCString().replace('GMT', '+0000')}`,
+      `Message-ID: <${crypto.randomUUID()}@median.agency>`,
+      'MIME-Version: 1.0',
+      'Content-Type: text/plain; charset=utf-8',
+      'Content-Transfer-Encoding: base64',
+      '',
+      b64(body).replace(/.{1,76}/g, '$&\r\n').trimEnd(),
+    ].filter(x => x !== null).join('\r\n');
+    await step(msg + '\r\n.', [250]);
+    try { await w.write(enc.encode('QUIT\r\n')); } catch {}
+  } finally {
+    try { await sock.close(); } catch {}
+  }
+}
 
 // ---------- вход в /admin через GitHub (OAuth для Sveltia CMS) ----------
 // admin/config.yml: backend.base_url = этот воркер, auth_endpoint = auth. Нужны секреты воркера OAUTH_CLIENT_ID и OAUTH_CLIENT_SECRET
