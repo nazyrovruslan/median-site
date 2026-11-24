@@ -77,7 +77,7 @@ curl -s https://median-mcp.<поддомен>.workers.dev/mcp/<MCP_SECRET> -H 'c
 
 ## Формы сайта → почта (`/form`)
 
-Бриф «Start a project», отклик на вакансию и регистрация на «Переговорку» шлют `POST /form` (JSON), воркер отправляет письмо по SMTP на `MAIL_TO` (hello@median.agency).
+Бриф «Start a project», отклик на вакансию и регистрация на «Переговорку» шлют `POST /form` (JSON), воркер отправляет письмо по SMTP на адреса из админки: Настройки → «Заявки с форм» (`content/settings/forms.json`, кэш 1 минута; запасной — `MAIL_TO` в `wrangler.toml`).
 Ключ MCP для этого не нужен, адрес открыт для сайта (проверяется Origin).
 
 Письма уходят с ящика **info@median.agency** (Gmail, Google Workspace) через smtp.gmail.com:465.

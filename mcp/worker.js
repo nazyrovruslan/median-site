@@ -23,6 +23,7 @@ const COLLECTIONS = {
 const SETTINGS = {
   icons: 'content/settings/icons.json', // пиктограммы к цифрам
   jobs: 'content/settings/jobs.json', // страница вакансий: почта, вступление, руководитель
+  forms: 'content/settings/forms.json', // куда приходят заявки с форм сайта: to (адреса через запятую)
   counters: 'content/settings/counters.json', // счётчики и пиксели в <head> всех страниц: metrika, ga, vk, head (свой код)
 };
 const MEDIA = {
@@ -256,7 +257,7 @@ export default {
 
 // ---------- формы сайта → письмо на hello@median.agency (Руслан 24.11: «со всех трёх форм слать на почту») ----------
 // POST /form, JSON { form, subject, fields: [[подпись, значение], …], reply_to, page, website (ловушка для ботов) }.
-// Письмо уходит по SMTP с ящика info@median.agency (Gmail / Google Workspace): секреты воркера SMTP_USER, SMTP_PASS (пароль приложения Google), адреса и сервер — [vars] в wrangler.toml.
+// Получатели — админка → Настройки → «Заявки с форм» (content/settings/forms.json). Письмо уходит по SMTP с ящика info@median.agency (Gmail / Google Workspace): секреты воркера SMTP_USER, SMTP_PASS (пароль приложения Google), адреса и сервер — [vars] в wrangler.toml.
 // Ответ { ok: true } или { ok: false, error } — сайт при ошибке открывает письмо в почтовой программе посетителя.
 const FORM_ORIGINS = /^https:\/\/((www\.)?median\.agency|nazyrovruslan\.github\.io)$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 const FORM_KINDS = { brief: 'Заявка с сайта', vacancy: 'Отклик на вакансию', event: 'Регистрация на мероприятие' };
@@ -284,22 +285,39 @@ async function formMail(req, env) {
   const body = [...fields.map(([k, v]) => v.includes('\n') ? `${k}:\n${v}` : `${k}: ${v}`), '',
     `Форма: ${kind}`, d.page && `Страница: ${one(d.page, 500)}`, `Время: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })} (МСК)`,
     ip && `IP: ${ip}`].filter(x => typeof x === 'string').join('\n');
+  const to = await formsTo(env);
   try {
-    await withTimeout(smtpSend(env, { subject, body, replyTo }), 20000);
+    await withTimeout(smtpSend(env, { subject, body, replyTo, to }), 20000);
     return json({ ok: true });
   } catch (e) {
     console.error('form mail', e && e.message);
-    return json({ ok: false, error: 'mail' }, 502);
+    return json({ ok: false, error: 'mail', to: to.join(',') }, 502); // сайт откроет письмо на этот адрес в почте посетителя
   }
+}
+// получатели — из админки (Настройки → «Заявки с форм», content/settings/forms.json), кэш на минуту; не прочиталось — MAIL_TO из wrangler.toml
+let formsCache = { at: 0, to: null };
+const EMAIL_RE = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/;
+async function formsTo(env) {
+  const parse = s => String(s || '').split(/[,;\s]+/).map(x => x.trim()).filter(x => EMAIL_RE.test(x)).slice(0, 10);
+  const fallback = parse(env.MAIL_TO).length ? parse(env.MAIL_TO) : ['hello@median.agency'];
+  if (formsCache.to && Date.now() - formsCache.at < 60000) return formsCache.to;
+  try {
+    const raw = env.GH_TOKEN ? await withTimeout(github(env).getRaw(SETTINGS.forms), 5000) : null;
+    const to = raw ? parse(JSON.parse(raw).to) : [];
+    formsCache = { at: Date.now(), to: to.length ? to : fallback };
+  } catch (e) {
+    console.error('forms settings', e && e.message);
+    return formsCache.to || fallback;
+  }
+  return formsCache.to;
 }
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('SMTP: нет ответа')), ms))]);
 const b64 = s => { const b = new TextEncoder().encode(s); let x = ''; for (let i = 0; i < b.length; i++) x += String.fromCharCode(b[i]); return btoa(x); };
 // заголовок с кириллицей: кусками по 20 символов, каждый — =?UTF-8?B?…?=
 const mimeWord = s => /^[\x20-\x7e]*$/.test(s) ? s : (s.match(/[\s\S]{1,20}/gu) || ['']).map(c => `=?UTF-8?B?${b64(c)}?=`).join('\r\n ');
-async function smtpSend(env, { subject, body, replyTo }) {
+async function smtpSend(env, { subject, body, replyTo, to }) {
   const host = env.SMTP_HOST || 'smtp.gmail.com', port = Number(env.SMTP_PORT || 465);
   const from = env.MAIL_FROM || env.SMTP_USER;
-  const to = String(env.MAIL_TO || 'hello@median.agency').split(',').map(s => s.trim()).filter(Boolean);
   const sock = connect({ hostname: host, port }, { secureTransport: 'on' });
   const w = sock.writable.getWriter(), r = sock.readable.getReader(), enc = new TextEncoder(), dec = new TextDecoder();
   let buf = '';

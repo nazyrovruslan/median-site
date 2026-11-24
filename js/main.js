@@ -12,12 +12,13 @@ const fine=matchMedia('(pointer: fine)').matches;
 const LEADS='hello@median.agency'; // все заявки со всех форм сайта — бриф, отклик на вакансию, регистрация на мероприятие (Руслан 24.11)
 const UTM=(()=>{const q=new URLSearchParams(location.search);return ['source','medium','campaign','content','term'].map(k=>q.get('utm_'+k)&&`utm_${k}: ${q.get('utm_'+k)}`).filter(Boolean);})(),utmOf=()=>UTM; // метки берём при загрузке: ниже адрес чистится от параметров
 // формы → письмо на hello@median.agency через воркер (mcp/worker.js, /form). true — письмо ушло; false — открываем письмо в почте посетителя
-const FORM_URL='https://median-mcp.nazyrov-ruslan.workers.dev/form',MAIL_TO=LEADS;
+const FORM_URL='https://median-mcp.nazyrov-ruslan.workers.dev/form';let MAIL_TO=LEADS;
 async function sendForm(form,subject,fields,extra={}){
   const ac=new AbortController(),t=setTimeout(()=>ac.abort(),25000);
   try{const r=await fetch(FORM_URL,{method:'POST',headers:{'Content-Type':'application/json'},signal:ac.signal,
       body:JSON.stringify({form,subject,fields:fields.filter(f=>f[1]),page:location.href,...extra})});
-    const j=await r.json().catch(()=>({}));return r.ok&&j.ok===true;}catch(e){return false;}finally{clearTimeout(t);}}
+    const j=await r.json().catch(()=>({}));if(j.to)MAIL_TO=j.to; // адрес из админки (Настройки → «Заявки с форм») — для запасного письма
+    return r.ok&&j.ok===true;}catch(e){return false;}finally{clearTimeout(t);}}
 const mailBody=fields=>fields.filter(f=>f[1]).map(([k,v])=>`${k}: ${v}`).concat(['',`Страница: ${location.href}`]).join('\n');
 const isMail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 

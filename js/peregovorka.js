@@ -64,7 +64,7 @@ safe('shorts',()=>{
 safe('team',()=>{const b=$('#teamVid');b.addEventListener('click',()=>{if(b.querySelector('video'))return;const v=document.createElement('video');v.src='media/video/team.mp4';v.poster='media/video/team.webp';v.controls=true;v.playsInline=true;b.appendChild(v);v.play().catch(()=>{});goal('reel_open',{reel:'team'});},{once:false});});
 
 /* форма: письмо на hello@median.agency через воркер (mcp/worker.js, /form); если не дошло — письмо в почте посетителя (Руслан 24.11: «со всех трёх форм слать на почту») */
-safe('form',()=>{const f=$('#regForm'),ok=$('#regOk'),TO='hello@median.agency',btn=f.querySelector('button[type=submit]');
+safe('form',()=>{const f=$('#regForm'),ok=$('#regOk');let TO='hello@median.agency';const btn=f.querySelector('button[type=submit]');
   f.addEventListener('submit',async e=>{e.preventDefault();const v=n=>(f[n].value||'').trim();
     const miss=['name','company','role','contact'].find(n=>!v(n));
     if(miss){ok.textContent='Заполните все поля со звёздочкой';f[miss].focus();return;}
@@ -77,7 +77,7 @@ safe('form',()=>{const f=$('#regForm'),ok=$('#regOk'),TO='hello@median.agency',b
     const ac=new AbortController(),t=setTimeout(()=>ac.abort(),25000);
     try{const r=await fetch('https://median-mcp.nazyrov-ruslan.workers.dev/form',{method:'POST',headers:{'Content-Type':'application/json'},signal:ac.signal,
         body:JSON.stringify({form:'event',subject,fields,page:location.href,website:v('website')})});
-      const j=await r.json().catch(()=>({}));sent=r.ok&&j.ok===true;}catch(err){}
+      const j=await r.json().catch(()=>({}));if(j.to)TO=j.to;sent=r.ok&&j.ok===true;}catch(err){}
     clearTimeout(t);btn.disabled=false;
     if(sent){ok.textContent=`Спасибо, ${v('name')}! Участие подтверждено, мы свяжемся с вами.`;f.reset();return;}
     const body=fields.map(([k,x])=>`${k}: ${x}`).concat(['',`Страница: ${location.href}`]).join('\n');

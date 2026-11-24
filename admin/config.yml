@@ -836,6 +836,12 @@ collections:
           - { name: ga, label: Google Analytics (ID потока), widget: string, required: false, pattern: ['^(G-[A-Z0-9]+)?$', 'вида G-XXXXXXX'], hint: "Сейчас G-ZZ77H53J19" }
           - { name: vk, label: ID пикселя VK, widget: string, required: false, hint: "Пиксель VK Рекламы (Top.Mail.Ru), только цифры. Пусто — не ставится" }
           - { name: head, label: Другие пиксели и счётчики (код в <head>), widget: code, default_language: html, output_code_only: true, required: false, hint: "Вставляется как есть на все страницы. Сейчас тут пиксель South HUB. Код с каждой новой строки" }
+      - name: forms
+        label: Заявки с форм
+        file: content/settings/forms.json
+        description: "Куда приходят заявки со всех форм сайта: бриф «Start a project», отклик на вакансию, регистрация на мероприятие. Письма отправляет ящик info@median.agency. Новый адрес начинает работать примерно через минуту после сохранения, пересобирать сайт не нужно"
+        fields:
+          - { name: to, label: Почта для заявок, widget: string, default: hello@median.agency, pattern: ['^\s*[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+(\s*,\s*[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+)*\s*$', 'адрес почты; несколько — через запятую'], hint: "Сейчас hello@median.agency. Несколько адресов — через запятую: hello@median.agency, a.sayapova@median.agency" }
       - name: icons
         label: Пиктограммы к цифрам
         file: content/settings/icons.json
