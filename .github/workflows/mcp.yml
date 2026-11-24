@@ -47,8 +47,8 @@ jobs:
           printf '%s' "$OAUTH_CLIENT_ID" | npx -y wrangler@3 secret put OAUTH_CLIENT_ID
           printf '%s' "$OAUTH_CLIENT_SECRET" | npx -y wrangler@3 secret put OAUTH_CLIENT_SECRET
       - name: Почта для форм сайта (SMTP)
-        # формы сайта (/form) шлют письмо на hello@median.agency с ящика агентства. Секреты репозитория SMTP_USER (адрес ящика)
-        # и SMTP_PASS (пароль приложения: Яндекс 360 → Аккаунт → Безопасность → Пароли приложений → «Почта»); без них шаг пропускается
+        # формы сайта (/form) шлют письмо на hello@median.agency с ящика info@median.agency (Gmail). Секреты репозитория SMTP_USER = info@median.agency
+        # и SMTP_PASS (пароль приложения Google: myaccount.google.com/apppasswords, нужна двухэтапная проверка); без них шаг пропускается
         if: steps.check.outputs.skip != '1' && env.SMTP_USER != '' && env.SMTP_PASS != ''
         working-directory: mcp
         env:

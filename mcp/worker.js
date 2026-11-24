@@ -256,7 +256,7 @@ export default {
 
 // ---------- формы сайта → письмо на hello@median.agency (Руслан 24.11: «со всех трёх форм слать на почту») ----------
 // POST /form, JSON { form, subject, fields: [[подпись, значение], …], reply_to, page, website (ловушка для ботов) }.
-// Письмо уходит по SMTP с ящика агентства: секреты воркера SMTP_USER, SMTP_PASS (пароль приложения), адреса и сервер — [vars] в wrangler.toml.
+// Письмо уходит по SMTP с ящика info@median.agency (Gmail / Google Workspace): секреты воркера SMTP_USER, SMTP_PASS (пароль приложения Google), адреса и сервер — [vars] в wrangler.toml.
 // Ответ { ok: true } или { ok: false, error } — сайт при ошибке открывает письмо в почтовой программе посетителя.
 const FORM_ORIGINS = /^https:\/\/((www\.)?median\.agency|nazyrovruslan\.github\.io)$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 const FORM_KINDS = { brief: 'Заявка с сайта', vacancy: 'Отклик на вакансию', event: 'Регистрация на мероприятие' };
@@ -297,7 +297,7 @@ const b64 = s => { const b = new TextEncoder().encode(s); let x = ''; for (let i
 // заголовок с кириллицей: кусками по 20 символов, каждый — =?UTF-8?B?…?=
 const mimeWord = s => /^[\x20-\x7e]*$/.test(s) ? s : (s.match(/[\s\S]{1,20}/gu) || ['']).map(c => `=?UTF-8?B?${b64(c)}?=`).join('\r\n ');
 async function smtpSend(env, { subject, body, replyTo }) {
-  const host = env.SMTP_HOST || 'smtp.yandex.ru', port = Number(env.SMTP_PORT || 465);
+  const host = env.SMTP_HOST || 'smtp.gmail.com', port = Number(env.SMTP_PORT || 465);
   const from = env.MAIL_FROM || env.SMTP_USER;
   const to = String(env.MAIL_TO || 'hello@median.agency').split(',').map(s => s.trim()).filter(Boolean);
   const sock = connect({ hostname: host, port }, { secureTransport: 'on' });
@@ -325,7 +325,7 @@ async function smtpSend(env, { subject, body, replyTo }) {
     await step('EHLO median.agency', [250]);
     await step('AUTH LOGIN', [334]);
     await step(btoa(env.SMTP_USER), [334]);
-    await step(b64(env.SMTP_PASS), [235]);
+    await step(b64(String(env.SMTP_PASS).replace(/\s+/g, '')), [235]); // пароль приложения Google показывают с пробелами — они не нужны
     await step(`MAIL FROM:<${from}>`, [250]);
     for (const t of to) await step(`RCPT TO:<${t}>`, [250, 251]);
     await step('DATA', [354]);

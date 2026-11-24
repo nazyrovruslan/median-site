@@ -80,9 +80,13 @@ curl -s https://median-mcp.<поддомен>.workers.dev/mcp/<MCP_SECRET> -H 'c
 Бриф «Start a project», отклик на вакансию и регистрация на «Переговорку» шлют `POST /form` (JSON), воркер отправляет письмо по SMTP на `MAIL_TO` (hello@median.agency).
 Ключ MCP для этого не нужен, адрес открыт для сайта (проверяется Origin).
 
-1. Создать ящик, с которого пойдут письма (например, `site@median.agency`, или взять hello@), и в нём пароль приложения:
-   Яндекс 360 → id.yandex.ru → Безопасность → Пароли приложений → «Почта». Обычный пароль не подойдёт.
-2. GitHub → Settings → Secrets → Actions: `SMTP_USER` = адрес ящика, `SMTP_PASS` = пароль приложения.
+Письма уходят с ящика **info@median.agency** (Gmail, Google Workspace) через smtp.gmail.com:465.
+
+1. Войти в Google как info@median.agency → myaccount.google.com → Безопасность → включить двухэтапную проверку →
+   myaccount.google.com/apppasswords → создать пароль приложения (название любое, например «сайт»). Пароль — 16 букв, пробелы не важны.
+   Если пункта «Пароли приложений» нет — его отключил администратор Google Workspace: admin.google.com → Безопасность → Аутентификация →
+   Двухэтапная проверка (разрешить пользователям) и «Менее безопасные приложения»/пароли приложений не запрещены политикой.
+2. GitHub → Settings → Secrets → Actions: `SMTP_USER` = `info@median.agency`, `SMTP_PASS` = пароль приложения (можно с пробелами, как показал Google: воркер их убирает).
 3. Actions → Deploy MCP server → Run workflow. Проверка — отправить бриф на сайте.
 
-Почта не на Яндексе — поменять `SMTP_HOST`/`SMTP_PORT` в `wrangler.toml` (нужен порт с TLS сразу, обычно 465). Ошибки — Cloudflare → Workers → median-mcp → Logs (`form mail`).
+Другая почта — поменять `SMTP_HOST`/`SMTP_PORT` в `wrangler.toml` (нужен порт с TLS сразу, обычно 465). Ошибки — Cloudflare → Workers → median-mcp → Logs (`form mail`).
