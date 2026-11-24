@@ -9,6 +9,8 @@ function goal(name,params={},once){if(once){const k=name+JSON.stringify(params);
   try{(window.dataLayer=window.dataLayer||[]).push({event:name,...params});}catch(e){}try{window.roistat&&roistat.event&&roistat.event.send(name);}catch(e){}
   dispatchEvent(new CustomEvent('site:goal',{detail:{name,params}}));}
 const fine=matchMedia('(pointer: fine)').matches;
+const LEADS='hello@median.agency'; // все заявки со всех форм сайта — бриф, отклик на вакансию, регистрация на мероприятие (Руслан 24.11)
+const UTM=(()=>{const q=new URLSearchParams(location.search);return ['source','medium','campaign','content','term'].map(k=>q.get('utm_'+k)&&`utm_${k}: ${q.get('utm_'+k)}`).filter(Boolean);})(),utmOf=()=>UTM; // метки берём при загрузке: ниже адрес чистится от параметров
 
 /* ---------- страховка (23.11): часть пользователей Windows не могла нажать бургер и «Start a project» ----------
    main.js выполняется одним проходом: одна ошибка выше по файлу (блокировщик вырезал плашку cookie, старый браузер, расширение)
@@ -710,8 +712,11 @@ $('#brief').addEventListener('submit',e=>{
   if(!f.name.value.trim()||!f.contact.value.trim()){toast('Заполните имя и контакт');(f.name.value.trim()?f.contact:f.name).focus();return;}
   if(!f.agree.checked){toast('Нужно согласие на обработку данных');f.agree.focus();return;}
   goal('brief_send',{kind:f.kind.value});
+  const v=n=>(f[n]&&f[n].value||'').trim();
+  const body=[`Имя: ${v('name')}`,v('company')?`Компания: ${v('company')}`:null,`Telegram или телефон: ${v('contact')}`,`Формат: ${f.kind.value}`,v('msg')?'\n'+v('msg'):null,'',`Страница: ${location.href}`,...utmOf()].filter(x=>x!=null).join('\n');
+  location.href='mailto:'+LEADS+'?subject='+encodeURIComponent(`Запрос с сайта: ${f.kind.value} — ${v('name')}${v('company')?', '+v('company'):''}`)+'&body='+encodeURIComponent(body);
   const ok=$('#ok');ok.hidden=false;
-  ok.textContent=`Спасибо, ${f.name.value.trim()}. Заявка собрана: «${f.kind.value}». В прототипе она никуда не уходит; на рабочем сайте её получит Telegram-бот агентства и CRM.`;
+  ok.textContent=`Спасибо, ${v('name')}! Открыли письмо на ${LEADS} с вашей заявкой — нажмите «Отправить» в почте. Если почта не открылась, напишите нам на ${LEADS}.`;
 });
 
 /* ---------- отклик на вакансию: «Send your CV» открывает форму; данные уходят на прослойку (JOBS.crm) → воронка откликов в Битрикс24 ---------- */
@@ -738,10 +743,10 @@ try{{const cvP=$('#cvPanel'),cvF=$('#cvForm'),cvOk=$('#cvOk'),URLRE=/^(https?:\/
    if(JB.crm)try{const r=await fetch(JB.crm,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});sent=r.ok;}catch(err){}
    btn.disabled=false;cvOk.hidden=false;
    if(sent){cvOk.textContent=`Спасибо, ${data.name}. Отклик получили, ответим в течение нескольких рабочих дней.`;f.reset();return;}
-   // прослойки ещё нет или она не ответила — собираем письмо на почту для откликов, чтобы отклик не потерялся
-   const body=[v?'Вакансия: '+v.name:'',`Имя: ${data.name}`,data.tg&&`Telegram: ${data.tg}`,data.phone&&`Телефон: ${data.phone}`,data.email&&`Почта: ${data.email}`,`Резюме: ${data.cv}`,data.portfolio&&`Портфолио: ${data.portfolio}`,data.msg&&'\n'+data.msg].filter(Boolean).join('\n');
-   location.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+(v?v.name:'без вакансии'))+'&body='+encodeURIComponent(body);
-   cvOk.textContent=`Открыли письмо на ${HR} с вашими данными — осталось нажать «Отправить» в почте.`;});}}catch(e){see('cv',e);}
+   // прослойки ещё нет или она не ответила — письмо на общую почту заявок (LEADS), чтобы отклик не потерялся
+   const body=[v?'Вакансия: '+v.name:'',`Имя: ${data.name}`,data.tg&&`Telegram: ${data.tg}`,data.phone&&`Телефон: ${data.phone}`,data.email&&`Почта: ${data.email}`,`Резюме: ${data.cv}`,data.portfolio&&`Портфолио: ${data.portfolio}`,data.msg&&'\n'+data.msg,'',`Страница: ${location.href}`,...utmOf()].filter(Boolean).join('\n');
+   location.href='mailto:'+LEADS+'?subject='+encodeURIComponent('Отклик: '+(v?v.name:'без вакансии')+' — '+data.name)+'&body='+encodeURIComponent(body);
+   cvOk.textContent=`Открыли письмо на ${LEADS} с вашими данными — осталось нажать «Отправить» в почте.`;});}}catch(e){see('cv',e);}
 
 // Вебвизор Метрики не записывает ввод в формы (обещано в политике, privacy.html#process)
 $$('input,textarea').forEach(el=>el.classList.add('ym-disable-keys'));
@@ -867,7 +872,8 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   $('#jTitle').innerHTML=ttlHtml(jobTtl(v),true);
   $('#jFacts').innerHTML=[['Зарплата',v.salary],['Город',v.city],['Формат',v.format],['Занятость',v.employment],['Опыт',v.experience]].filter(f=>f[1]).map(([a,b])=>`<div><dt class="label">${a}</dt><dd>${a==='Зарплата'?nw(b):esc(b)}</dd></div>`).join('');
   $('#jHh').hidden=!v.hh;if(v.hh)$('#jHh').href=v.hh;
-  $$('#jMail,#jFootMail,#jCv').forEach(a=>a.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+v.name)); // тема письма — название вакансии
+  $$('#jMail,#jFootMail').forEach(a=>a.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+v.name)); // тема письма — название вакансии
+  $('#jCv').href='mailto:'+LEADS+'?subject='+encodeURIComponent('Отклик: '+v.name); // кнопка формы отклика (без JS — письмо на общую почту заявок)
   // раздел: заголовок (необязателен), абзацы text, пункты items (с тире, как на hh); пункт «## …» — подзаголовок внутри списка
   const list=a=>a.map(t=>/^##\s*/.test(t)?(`<li class="jb-sub">${esc(t.replace(/^##\s*/,''))}</li>`):`<li>${esc(t)}</li>`).join('');
   const sec=(v.sections||[]).map(s=>`<section class="grey cb jb-sec${s.h?'':' jb-noh'}">${s.h?`<h3 class="d">${esc(s.h)}</h3>`:''}<div class="jb-sb">${s.text?`<div class="jb-txt">${P(s.text)}</div>`:''}${s.items?`<ol class="jb-list">${list(s.items)}</ol>`:''}</div></section>`).join('');
