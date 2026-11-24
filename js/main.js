@@ -11,6 +11,15 @@ function goal(name,params={},once){if(once){const k=name+JSON.stringify(params);
 const fine=matchMedia('(pointer: fine)').matches;
 const LEADS='hello@median.agency'; // все заявки со всех форм сайта — бриф, отклик на вакансию, регистрация на мероприятие (Руслан 24.11)
 const UTM=(()=>{const q=new URLSearchParams(location.search);return ['source','medium','campaign','content','term'].map(k=>q.get('utm_'+k)&&`utm_${k}: ${q.get('utm_'+k)}`).filter(Boolean);})(),utmOf=()=>UTM; // метки берём при загрузке: ниже адрес чистится от параметров
+// формы → письмо на hello@median.agency через воркер (mcp/worker.js, /form). true — письмо ушло; false — открываем письмо в почте посетителя
+const FORM_URL='https://median-mcp.nazyrov-ruslan.workers.dev/form',MAIL_TO=LEADS;
+async function sendForm(form,subject,fields,extra={}){
+  const ac=new AbortController(),t=setTimeout(()=>ac.abort(),25000);
+  try{const r=await fetch(FORM_URL,{method:'POST',headers:{'Content-Type':'application/json'},signal:ac.signal,
+      body:JSON.stringify({form,subject,fields:fields.filter(f=>f[1]),page:location.href,...extra})});
+    const j=await r.json().catch(()=>({}));return r.ok&&j.ok===true;}catch(e){return false;}finally{clearTimeout(t);}}
+const mailBody=fields=>fields.filter(f=>f[1]).map(([k,v])=>`${k}: ${v}`).concat(['',`Страница: ${location.href}`]).join('\n');
+const isMail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 /* ---------- страховка (23.11): часть пользователей Windows не могла нажать бургер и «Start a project» ----------
    main.js выполняется одним проходом: одна ошибка выше по файлу (блокировщик вырезал плашку cookie, старый браузер, расширение)
@@ -707,19 +716,24 @@ let st0=null;$('#start').addEventListener('touchstart',e=>{const t=e.touches[0];
 $('#start').addEventListener('touchend',e=>{if(!st0)return;const t=e.changedTouches[0],moved=Math.hypot(t.clientX-st0[0],t.clientY-st0[1])>10;st0=null;
   if(moved||!e.cancelable)return;e.preventDefault();openBrief();});
 briefBound=true;
-$('#brief').addEventListener('submit',e=>{
-  e.preventDefault();const f=e.target;
-  if(!f.name.value.trim()||!f.contact.value.trim()){toast('Заполните имя и контакт');(f.name.value.trim()?f.contact:f.name).focus();return;}
+$('#brief').addEventListener('submit',async e=>{
+  e.preventDefault();const f=e.target,val=n=>f[n].value.trim();
+  if(!val('name')||!val('contact')){toast('Заполните имя и контакт');(val('name')?f.contact:f.name).focus();return;}
   if(!f.agree.checked){toast('Нужно согласие на обработку данных');f.agree.focus();return;}
+  if(f.website&&f.website.value)return; // ловушка для ботов
   goal('brief_send',{kind:f.kind.value});
-  const v=n=>(f[n]&&f[n].value||'').trim();
-  const body=[`Имя: ${v('name')}`,v('company')?`Компания: ${v('company')}`:null,`Telegram или телефон: ${v('contact')}`,`Формат: ${f.kind.value}`,v('msg')?'\n'+v('msg'):null,'',`Страница: ${location.href}`,...utmOf()].filter(x=>x!=null).join('\n');
-  location.href='mailto:'+LEADS+'?subject='+encodeURIComponent(`Запрос с сайта: ${f.kind.value} — ${v('name')}${v('company')?', '+v('company'):''}`)+'&body='+encodeURIComponent(body);
-  const ok=$('#ok');ok.hidden=false;
-  ok.textContent=`Спасибо, ${v('name')}! Открыли письмо на ${LEADS} с вашей заявкой — нажмите «Отправить» в почте. Если почта не открылась, напишите нам на ${LEADS}.`;
+  const fields=[['Имя',val('name')],['Компания',val('company')],['Telegram или телефон',val('contact')],['Формат',f.kind.value],['Задача',val('msg')],['UTM',UTM.join(', ')],['Согласие на обработку данных',new Date().toLocaleString('ru-RU')]];
+  const subject=`Запрос с сайта: ${f.kind.value} — ${val('name')}${val('company')?', '+val('company'):''}`;
+  const btn=f.querySelector('.send'),ok=$('#ok');btn.disabled=true;
+  const sent=await sendForm('brief',subject,fields,{reply_to:isMail(val('contact'))?val('contact'):''});
+  btn.disabled=false;ok.hidden=false;
+  if(sent){ok.textContent=`Спасибо, ${val('name')}. Заявка отправлена, ответим в течение рабочего дня.`;f.reset();return;}
+  // не дошло (нет сети, сбой почты) — письмо в почтовой программе, чтобы заявка не потерялась
+  location.href='mailto:'+MAIL_TO+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(mailBody(fields));
+  ok.textContent=`Не получилось отправить с сайта — открыли письмо на ${MAIL_TO} с вашими данными, осталось нажать «Отправить» в почте.`;
 });
 
-/* ---------- отклик на вакансию: «Send your CV» открывает форму; данные уходят на прослойку (JOBS.crm) → воронка откликов в Битрикс24 ---------- */
+/* ---------- отклик на вакансию: «Send your CV» открывает форму; письмо на hello@ (sendForm) и, если задан JOBS.crm, — в воронку откликов Битрикс24 ---------- */
 try{{const cvP=$('#cvPanel'),cvF=$('#cvForm'),cvOk=$('#cvOk'),URLRE=/^(https?:\/\/)?[^\s.]+\.[^\s]{2,}$/i;
  const openCv=()=>{const v=jobId&&jobP.classList.contains('on')?jobById(jobId):null;cvF.dataset.job=v?v.id:'';
    $('#cvFor').textContent=(v?`Отклик на вакансию «${v.name}». `:'')+'Оставьте контакты и ссылки на резюме и портфолио. Ответим в течение нескольких рабочих дней.';
@@ -739,14 +753,18 @@ try{{const cvP=$('#cvPanel'),cvF=$('#cvForm'),cvOk=$('#cvOk'),URLRE=/^(https?:\/
    const v=jobById(f.dataset.job),q=new URLSearchParams(location.search),utm={};['source','medium','campaign','content','term'].forEach(k=>{const x=q.get('utm_'+k);if(x)utm[k]=x;});
    const data={type:'vacancy',vacancy:v?{id:v.id,name:v.name,hh:v.hh||''}:null,name:val('name'),tg:val('tg')&&'@'+val('tg').replace(/^@|^https?:\/\/t\.me\//i,''),phone:val('phone'),email:val('email'),cv:link(val('cv')),portfolio:link(val('portfolio')),msg:val('msg'),agree:new Date().toISOString(),page:location.href,utm};
    goal('cv_send',{vacancy:v?v.id:''});
-   const btn=f.querySelector('.send');btn.disabled=true;let sent=false;
-   if(JB.crm)try{const r=await fetch(JB.crm,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});sent=r.ok;}catch(err){}
+   const btn=f.querySelector('.send');btn.disabled=true;
+   const fields=[['Вакансия',v?v.name:'без вакансии'],['Имя',data.name],['Telegram',data.tg],['Телефон',data.phone],['Почта',data.email],['Резюме',data.cv],['Портфолио',data.portfolio],['О себе',data.msg],['hh.ru',v&&v.hh||''],['UTM',UTM.join(', ')],['Согласие на обработку данных',new Date().toLocaleString('ru-RU')]];
+   const subject='Отклик: '+(v?v.name:'без вакансии')+' — '+data.name;
+   // письмо на hello@ (всегда) и, если задан адрес прослойки, — в воронку Битрикс24
+   const crm=JB.crm?fetch(JB.crm,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>r.ok,()=>false):Promise.resolve(false);
+   const [mailed,crmOk]=await Promise.all([sendForm('vacancy',subject,fields,{reply_to:isMail(data.email)?data.email:''}),crm]);
+   const sent=mailed||crmOk;
    btn.disabled=false;cvOk.hidden=false;
    if(sent){cvOk.textContent=`Спасибо, ${data.name}. Отклик получили, ответим в течение нескольких рабочих дней.`;f.reset();return;}
-   // прослойки ещё нет или она не ответила — письмо на общую почту заявок (LEADS), чтобы отклик не потерялся
-   const body=[v?'Вакансия: '+v.name:'',`Имя: ${data.name}`,data.tg&&`Telegram: ${data.tg}`,data.phone&&`Телефон: ${data.phone}`,data.email&&`Почта: ${data.email}`,`Резюме: ${data.cv}`,data.portfolio&&`Портфолио: ${data.portfolio}`,data.msg&&'\n'+data.msg,'',`Страница: ${location.href}`,...utmOf()].filter(Boolean).join('\n');
-   location.href='mailto:'+LEADS+'?subject='+encodeURIComponent('Отклик: '+(v?v.name:'без вакансии')+' — '+data.name)+'&body='+encodeURIComponent(body);
-   cvOk.textContent=`Открыли письмо на ${LEADS} с вашими данными — осталось нажать «Отправить» в почте.`;});}}catch(e){see('cv',e);}
+   // не дошло — собираем письмо в почте посетителя, чтобы отклик не потерялся
+   location.href='mailto:'+MAIL_TO+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(mailBody(fields));
+   cvOk.textContent=`Не получилось отправить с сайта — открыли письмо на ${MAIL_TO} с вашими данными, осталось нажать «Отправить» в почте.`;});}}catch(e){see('cv',e);}
 
 // Вебвизор Метрики не записывает ввод в формы (обещано в политике, privacy.html#process)
 $$('input,textarea').forEach(el=>el.classList.add('ym-disable-keys'));

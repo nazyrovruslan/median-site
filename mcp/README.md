@@ -74,3 +74,15 @@ curl -s https://median-mcp.<поддомен>.workers.dev/mcp/<MCP_SECRET> -H 'c
 
 ## Вход в /admin через GitHub (OAuth)
 Воркер отдаёт `/auth` и `/callback` для Sveltia (`backend.base_url` в admin/config.yml). Нужно OAuth-приложение: github.com/settings/developers → OAuth Apps → New. Homepage URL `https://median.agency`, Authorization callback URL `https://median-mcp.nazyrov-ruslan.workers.dev/callback`. Client ID и сгенерированный Client secret — в секреты репозитория `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, затем перезапустить workflow «Deploy MCP server». Пока ключей нет, `/auth/ready` отвечает 404 и кнопка «Войти через GitHub» в админке скрыта.
+
+## Формы сайта → почта (`/form`)
+
+Бриф «Start a project», отклик на вакансию и регистрация на «Переговорку» шлют `POST /form` (JSON), воркер отправляет письмо по SMTP на `MAIL_TO` (hello@median.agency).
+Ключ MCP для этого не нужен, адрес открыт для сайта (проверяется Origin).
+
+1. Создать ящик, с которого пойдут письма (например, `site@median.agency`, или взять hello@), и в нём пароль приложения:
+   Яндекс 360 → id.yandex.ru → Безопасность → Пароли приложений → «Почта». Обычный пароль не подойдёт.
+2. GitHub → Settings → Secrets → Actions: `SMTP_USER` = адрес ящика, `SMTP_PASS` = пароль приложения.
+3. Actions → Deploy MCP server → Run workflow. Проверка — отправить бриф на сайте.
+
+Почта не на Яндексе — поменять `SMTP_HOST`/`SMTP_PORT` в `wrangler.toml` (нужен порт с TLS сразу, обычно 465). Ошибки — Cloudflare → Workers → median-mcp → Logs (`form mail`).
