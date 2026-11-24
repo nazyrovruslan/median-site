@@ -181,7 +181,7 @@ Kaspersky — полностью по макету, фото вытащены и
 ## Счётчики и цели (11.11)
 Перенесены со старого median.agency в `<head>` index.html (build-seo копирует их во все страницы кейсов): Яндекс Метрика 9380047 (вебвизор, карта кликов), Google Analytics G-ZZ77H53J19, скрипт `https://api.southub.online/t/median.js` (data-ym=9380047), метка `facebook-domain-verification`. КП в /clients/ — свой счётчик из настроек КП (см. выше).
 Цели — функция `goal()` в js/main.js: Метрика reachGoal + GA event + dataLayer + Roistat + событие `site:goal`. В Метрике каждую заводим как «JavaScript-событие» с тем же идентификатором:
-- `brief_open` — открыли форму Start a project; `brief_send` — отправили бриф (параметр kind). Форма брифа пока никуда не отправляет данные (прототип) — цель считает попытку.
+- `brief_open` — открыли форму Start a project; `brief_send` — отправили бриф (параметр kind). Бриф уходит письмом на hello@ (раздел «Заявки со всех форм»); цель считает попытку отправки.
 - `cv_open` / `cv_send` — форма отклика на вакансию (параметр vacancy).
 - `case_open` — открыт кейс (параметр case); `reel_open` — шоурил; `about_open` — «О нас»; `vacancy_open` — вакансия.
 - `contact_mail`, `contact_phone`, `contact_telegram`, `contact_whatsapp`, `social_click`, `hh_click` — клики по ссылкам.
@@ -235,7 +235,10 @@ MCP задеплоен: `https://median-mcp.nazyrov-ruslan.workers.dev/mcp/<кл
 - Бриф «Start a project» (`#brief`): раньше никуда не уходил (прототип) — теперь открывает письмо на hello@ (тема «Запрос с сайта: <формат> — <имя>, <компания>», поля, страница, UTM). UTM запоминаются при загрузке (`UTM`), потому что адрес потом чистится от параметров.
 - Отклик на вакансию (`#cvForm`): сначала CRM-прослойка (`jobs.json` → `crm`, пока пусто), иначе письмо на hello@ (было hr@). `#jCv` без JS — тоже hello@. Контактный адрес hr@ на страницах вакансий (`#jobsMail`, `#jMail`, `#jFootMail`) — как был.
 - Регистрация на посадке «Переговорки» (`js/peregovorka.js`) — письмо на hello@.
-Сайт статический: письмо уходит из почты посетителя. Чтобы заявки приходили без почтового клиента, нужен приёмник (воркер MCP или Битрикс24).
+- С 24.11 письмо уходит с сервера, без почтовой программы посетителя: `sendForm()` в main.js (и такой же fetch в peregovorka.js) шлёт JSON `{form, subject, fields:[[подпись, значение]], reply_to, page, website}` на `https://median-mcp.nazyrov-ruslan.workers.dev/form` → `formMail()` в `mcp/worker.js` → SMTP ящика info@median.agency в Gmail (`cloudflare:sockets`, smtp.gmail.com:465, AUTH LOGIN, пароль приложения Google) → hello@median.agency. Reply-To — почта посетителя, если он её указал. Защита: проверка Origin (median.agency, github.io, localhost), скрытое поле `website`, не больше 8 отправок с одного IP за 10 минут, переносы строк в теме вырезаются.
+- Настройка: секреты репозитория `SMTP_USER` = info@median.agency (ящик, с которого уходят письма) и `SMTP_PASS` (пароль приложения), их ставит в воркер шаг «Почта для форм сайта» в `.github/workflows/mcp.yml`. Сервер и порт — `[vars]` в `mcp/wrangler.toml`. Пока секретов нет, воркер отвечает 503.
+- Получатели правятся в админке: Настройки → «Заявки с форм» (`content/settings/forms.json`, поле `to`, несколько адресов через запятую; в MCP — `get_settings`/`update_settings` `forms`). Воркер читает файл из main через GitHub API, кэш 1 минута, пересборка сайта не нужна. Не прочитался — `MAIL_TO` из wrangler.toml. Адрес из настроек воркер возвращает в ответе (`to`), и запасное письмо в почте посетителя открывается на него же.
+- Если воркер не ответил или вернул ошибку, форма открывает письмо на hello@ в почте посетителя (то, что было до 24.11), чтобы заявка не потерялась. Отклик на вакансию дополнительно идёт в CRM-прослойку, если она задана.
 
 ## Посадка «Переговорка — Совет директоров» (23–24.11, тест)
 Макет Ярослава: Figma «Переговорка — сайт» (копия в median.agency, файл c00UJYP8l1NZgEOxt4DUo5). Тест — `peregovorka-live-test.html` (noindex, без счётчиков), после «ок» — переименовать в `peregovorka-live.html`, снять noindex, добавить в `tools/sync-counters.mjs`, ссылку из кейса `podcast`.
