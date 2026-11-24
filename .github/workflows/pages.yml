@@ -130,7 +130,7 @@ jobs:
             --exclude='node_modules' --exclude='*.md' --exclude='.well-known/' \
             -e "ssh -i ~/.ssh/deploy -o StrictHostKeyChecking=accept-new" ./ "$DEPLOY_USER@$DEPLOY_HOST:${DEPLOY_PATH%/}/"
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: .
       - id: deployment
