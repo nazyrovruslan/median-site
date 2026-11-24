@@ -109,7 +109,7 @@ button{font:inherit;color:inherit}
 .prog .n{font:500 calc(20 * var(--u))/1.3 var(--body)}
 .prog .x{color:var(--t80)}
 .prog .hl .t,.prog .hl .n{color:var(--blue)}
-.decide{background:linear-gradient(90deg,#00388c,#0071e3 55%,#61adff);height:calc(258 * var(--u));min-height:140px;display:flex;align-items:center}
+.decide{position:relative;z-index:2;background:linear-gradient(90deg,#00388c,#0071e3 55%,#61adff);height:calc(258 * var(--u));min-height:140px;display:flex;align-items:center}
 .decide .wrap{display:flex;justify-content:space-between;align-items:center;gap:24px}
 
 /* ---------- подкаст ---------- */
