@@ -859,6 +859,9 @@ const aReelHtml=$('#aReel').innerHTML;
 $$('.ab-end').forEach(f=>new IntersectionObserver(([e])=>f.classList.toggle('in',e.isIntersecting),{threshold:.25}).observe(f)); // подвал «О нас» и страницы вакансии
 /* ---------- вакансии: список в «О нас» (/jobs) и страница вакансии /vacancy-<id> (данные — js/vacancies.js из content/vacancies) ---------- */
 const JB=typeof JOBS!=='undefined'?JOBS:{list:[]}, jobP=$('#jobPanel'); let jobId=null;
+// «Откликнуться» в шапке вакансии — плавно к подвалу «Send your CV» (#jApply) внутри панели, адрес страницы не меняем
+try{$('#jGo').addEventListener('click',e=>{e.preventDefault();const sh=jobP.querySelector('.sheet'),t=$('#jApply');
+  sh.scrollTo({top:t.getBoundingClientRect().top-sh.getBoundingClientRect().top+sh.scrollTop,behavior:reduce?'auto':'smooth'});});}catch(e){see('jobGo',e);}
 const jobById=id=>JB.list.find(v=>v.id===id);
 const jobUrl=id=>ROOT+'vacancy-'+encodeURIComponent(id); // адрес в один уровень, как у кейсов: относительные пути к картинкам не ломаются
 const jobFromPath=p=>{const id=caseFromPath(p),m=id.match(/^vacancy-(.+)$/);return m?m[1]:id==='jobs'?'':null;}; // null — не вакансия, '' — /jobs (список)
@@ -877,7 +880,7 @@ function jobRows(box,list){box.innerHTML='';list.forEach((v,i)=>{
 const jobCover=v=>v.img||v.vid?{img:v.img,vid:v.vid,c:['#222','#333','#111']}:caseById((v.cases||[])[0]);
 // почта для откликов — одна на все вакансии (настройки → «Вакансии — общее»)
 const HR=JB.email||'hr@median.agency';
-$$('#jobsMail,#jMail,#jFootMail').forEach(a=>{a.href='mailto:'+HR;a.querySelector('span').textContent=HR;});
+$$('#jobsMail,#jFootMail').forEach(a=>{a.href='mailto:'+HR;a.querySelector('span').textContent=HR;});
 $('#jobsIntro').textContent=JB.list.length?(JB.intro||''):(JB.empty||JB.intro||'');
 jobRows($('#jobsRows'),JB.list);$('#jobsRows').hidden=!JB.list.length;
 const caseRow=(k,i)=>{const j=CASES.indexOf(k),r=document.createElement('button');r.type='button';r.className='row';r.dataset.c='row';r.dataset.label='Смотреть проект';r.dataset.rp=1;
@@ -891,7 +894,7 @@ function fillJob(id){const v=jobById(id);jobId=id;document.title=v.name+' — в
   $('#jTitle').innerHTML=ttlHtml(jobTtl(v),true);
   $('#jFacts').innerHTML=[['Зарплата',v.salary],['Город',v.city],['Формат',v.format],['Занятость',v.employment],['Опыт',v.experience]].filter(f=>f[1]).map(([a,b])=>`<div><dt class="label">${a}</dt><dd>${a==='Зарплата'?nw(b):esc(b)}</dd></div>`).join('');
   $('#jHh').hidden=!v.hh;if(v.hh)$('#jHh').href=v.hh;
-  $$('#jMail,#jFootMail').forEach(a=>a.href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+v.name)); // тема письма — название вакансии
+  $('#jFootMail').href='mailto:'+HR+'?subject='+encodeURIComponent('Отклик: '+v.name); // тема письма — название вакансии
   $('#jCv').href='mailto:'+LEADS+'?subject='+encodeURIComponent('Отклик: '+v.name); // кнопка формы отклика (без JS — письмо на общую почту заявок)
   // раздел: заголовок (необязателен), абзацы text, пункты items (с тире, как на hh); пункт «## …» — подзаголовок внутри списка
   const list=a=>a.map(t=>/^##\s*/.test(t)?(`<li class="jb-sub">${esc(t.replace(/^##\s*/,''))}</li>`):`<li>${esc(t)}</li>`).join('');

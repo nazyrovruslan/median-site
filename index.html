@@ -388,8 +388,9 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       <h2 class="d jb-ttl" id="jTitle"></h2>
       <dl class="jb-facts" id="jFacts"></dl>
       <div class="jb-acts">
-        <a class="send jb-hh" id="jHh" href="#" target="_blank" rel="noopener" data-c="mag" data-magnet>Откликнуться на hh.ru <span aria-hidden="true">↗︎</span></a>
-        <a class="jb-mail" id="jMail" href="mailto:hr@median.agency" data-c="link" data-stick data-stick-to="svg" data-stick-size="text" data-magnet><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>hr@median.agency</span></a>
+        <!-- 24.11, Руслан: кнопка ведёт к «Send your CV» внизу страницы; рядом — ссылка на вакансию на hh.ru (только если она есть), почты тут нет -->
+        <a class="send jb-go" id="jGo" href="#jApply" data-c="mag" data-magnet>Откликнуться <span aria-hidden="true">↓</span></a>
+        <a class="jb-mail jb-hh" id="jHh" href="#" target="_blank" rel="noopener" data-c="link" data-stick data-stick-to="svg" data-stick-size="text" data-magnet hidden><svg viewBox="0 0 40 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6H38"/><path d="M32 1l6 5-6 5"/></svg><span>Вакансия на hh.ru</span></a>
       </div>
     </header>
     <div id="jBody"></div>
@@ -412,7 +413,7 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
       <div class="rows jb-rows" id="jMoreRows"></div>
     </section>
     <!-- подвал как на «О нас», вместо Start a project — Send your CV (форма отклика #cvPanel; без JS — письмо на почту для откликов) -->
-    <footer class="grey wrap foot ab-end jb-end">
+    <footer class="grey wrap foot ab-end jb-end" id="jApply">
       <a class="start ab-start" id="jCv" href="mailto:hello@median.agency" data-c="link" aria-label="Откликнуться на вакансию">
         <span class="plus" aria-hidden="true" data-c="plus" data-stick data-magnet=".55"><svg viewBox="0 0 58 92" preserveAspectRatio="none"><line x1="29" y1="18" x2="29" y2="74"/><line x1="1" y1="46" x2="57" y2="46"/></svg></span>
         <span class="d"><span class="line"><span class="o on-dark">Send</span></span><span class="line"><span>your CV</span></span></span>
@@ -493,6 +494,6 @@ window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);
 <script src="js/cases.js?v=dbf0b02" defer></script>
 <script src="js/icons.js?v=dbf0b02" defer></script>
 <script src="js/vacancies.js?v=dbf0b02" defer></script>
-<script src="js/main.js?v=173" defer></script>
+<script src="js/main.js?v=174" defer></script>
 </body>
 </html>
