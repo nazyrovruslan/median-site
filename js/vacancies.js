@@ -7,7 +7,7 @@ const JOBS={
  "manager": {
   "name": "Алина Саяпова",
   "role": "Сооснователь и управляющий партнёр",
-  "photo": "media/founders/alina.webp",
+  "photo": "media/founders/alina-2511.webp",
   "tg": "asayapova",
   "email": "a.sayapova@median.agency",
   "text": "Расскажу о команде и проектах, отвечу на вопросы о вакансии."
